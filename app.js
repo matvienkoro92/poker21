@@ -193,16 +193,63 @@ downloadBackButtons.forEach((btn) => {
   btn.addEventListener("click", () => setDownloadPage("main"));
 });
 
-// Мини-игра «Найди Пиханину» — 52 карты, одна джокер Пиханина
-const BONUS_GAME_CARDS_COUNT = 52;
-let bonusGamePihaninaIndex = 0;
+// Мини-игра «Найди Пиханину» — 13 карт буби по порядку (2–туз) + 14-я Пиханина, рубашка Poker21
+const BONUS_DIAMONDS = ["2♦", "3♦", "4♦", "5♦", "6♦", "7♦", "8♦", "9♦", "10♦", "J♦", "Q♦", "K♦", "A♦"];
+const BONUS_PIHANINA = "Пиханина";
+const BONUS_GAME_CARDS_COUNT = 14;
+const BONUS_PROMO_CODES = ["ДВАТУЗА2025", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР"];
+const BONUS_MAX_ATTEMPTS = 5;
+let bonusGameContents = [];
+
+function getBonusAttempts() {
+  const id = getVisitorId();
+  return parseInt(localStorage.getItem("poker_bonus_attempts_" + id) || "0", 10);
+}
+
+function setBonusAttempts(n) {
+  const id = getVisitorId();
+  localStorage.setItem("poker_bonus_attempts_" + id, String(n));
+}
+
+function getDiamondRank(str) {
+  return str.replace("♦", "");
+}
+
+function buildCardFaceContent(value) {
+  if (value === BONUS_PIHANINA) {
+    return "<span class=\"bonus-card__face-text bonus-card__face--joker\">Пиханина</span>";
+  }
+  const rank = getDiamondRank(value);
+  return "<span class=\"bonus-card__rank bonus-card__rank--tl\">" + rank + "</span>" +
+         "<span class=\"bonus-card__rank bonus-card__rank--br\">" + rank + "</span>" +
+         "<span class=\"bonus-card__suit\">♦</span>";
+}
 
 function initBonusGame() {
-  bonusGamePihaninaIndex = Math.floor(Math.random() * BONUS_GAME_CARDS_COUNT);
   const container = document.getElementById("bonusGameCards");
   const resultEl = document.getElementById("bonusGameResult");
   const retryBtn = document.getElementById("bonusGameRetry");
+  const noAttemptsEl = document.getElementById("bonusGameNoAttempts");
   if (!container || !resultEl || !retryBtn) return;
+
+  const attempts = getBonusAttempts();
+  if (attempts >= BONUS_MAX_ATTEMPTS) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    if (noAttemptsEl) noAttemptsEl.style.display = "block";
+    retryBtn.style.display = "none";
+    resultEl.textContent = "";
+    return;
+  }
+
+  if (noAttemptsEl) noAttemptsEl.style.display = "none";
+  container.style.display = "";
+
+  const pihaninaIndex = Math.floor(Math.random() * (BONUS_DIAMONDS.length + 1));
+  bonusGameContents = [];
+  for (let i = 0; i < BONUS_GAME_CARDS_COUNT; i++) {
+    bonusGameContents.push(i === pihaninaIndex ? BONUS_PIHANINA : BONUS_DIAMONDS[i < pihaninaIndex ? i : i - 1]);
+  }
 
   container.innerHTML = "";
   for (let i = 0; i < BONUS_GAME_CARDS_COUNT; i++) {
@@ -211,7 +258,7 @@ function initBonusGame() {
     card.className = "bonus-card";
     card.dataset.cardIndex = String(i);
     card.setAttribute("aria-label", "Карта " + (i + 1));
-    card.innerHTML = "<span class=\"bonus-card__back\">🂠</span><span class=\"bonus-card__face\" aria-hidden=\"true\"></span>";
+    card.innerHTML = "<span class=\"bonus-card__back\">Poker21</span><span class=\"bonus-card__face\" aria-hidden=\"true\"></span>";
     container.appendChild(card);
   }
 
@@ -227,28 +274,32 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
   const retryBtn = document.getElementById("bonusGameRetry");
   if (!resultEl || !retryBtn) return;
 
+  const attempts = getBonusAttempts();
+  if (attempts >= BONUS_MAX_ATTEMPTS) {
+    resultEl.textContent = "Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.";
+    resultEl.className = "bonus-game-result bonus-game-result--lose";
+    return;
+  }
+  setBonusAttempts(attempts + 1);
+
   const cards = card.parentElement.querySelectorAll(".bonus-card");
   const clickedIndex = parseInt(card.dataset.cardIndex, 10);
-  const isWin = clickedIndex === bonusGamePihaninaIndex;
+  const isWin = bonusGameContents[clickedIndex] === BONUS_PIHANINA;
 
   cards.forEach((c, i) => {
     c.classList.add("bonus-card--revealed");
     c.disabled = true;
     const face = c.querySelector(".bonus-card__face");
     if (face) {
-      if (i === bonusGamePihaninaIndex) {
-        face.textContent = "Пиханина";
-        face.classList.add("bonus-card__face--joker");
-      } else {
-        face.textContent = "🂠";
-      }
+      face.innerHTML = buildCardFaceContent(bonusGameContents[i]);
     }
-    if (i === bonusGamePihaninaIndex) c.classList.add("bonus-card--win");
+    if (bonusGameContents[i] === BONUS_PIHANINA) c.classList.add("bonus-card--win");
     else if (i === clickedIndex) c.classList.add("bonus-card--lose");
   });
 
   if (isWin) {
-    resultEl.textContent = "Поздравляем! Ты нашёл Пиханину. Напиши менеджеру в Telegram и назови кодовое слово: ПИХАНИНА";
+    const promoCode = BONUS_PROMO_CODES[Math.floor(Math.random() * BONUS_PROMO_CODES.length)];
+    resultEl.textContent = "Поздравляем! Ты нашёл Пиханину. Твой промокод: " + promoCode + ". Напиши менеджеру в Telegram и назови промокод.";
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
@@ -256,7 +307,13 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
     resultEl.textContent = "Это не Пиханина. В следующий раз повезёт!";
     resultEl.classList.add("bonus-game-result--lose");
   }
-  retryBtn.style.display = "block";
+  const attemptsLeft = BONUS_MAX_ATTEMPTS - getBonusAttempts();
+  if (attemptsLeft > 0) {
+    retryBtn.style.display = "block";
+  } else {
+    retryBtn.style.display = "none";
+    if (!isWin) resultEl.textContent = "Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.";
+  }
 });
 
 document.getElementById("bonusGameRetry")?.addEventListener("click", () => {

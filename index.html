@@ -152,7 +152,7 @@
                 <div class="feature__body">
                   <div class="feature__title">Найди Пиханину</div>
                   <div class="feature__text">
-                    Среди 52 карт — джокер Пиханина. Найди её — получи бонус.
+                    13 карт буби от 2 до туза и 14-я — Пиханина. Найди его — получи бонус.
                   </div>
                 </div>
               </a>
@@ -388,8 +388,10 @@
           <div class="view" data-view="bonus-game">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Найди Пиханину</h1>
-            <p class="bonus-game-desc">Среди 52 карт спрятана одна джокер-карта — Пиханина. Найди её и получи бонус от клуба.</p>
-            <div class="bonus-game-cards" id="bonusGameCards" role="group" aria-label="Выбери одну из 52 карт"></div>
+            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду. Найдите его, чтобы клуб мог с ним расквитаться.</p>
+            <p class="bonus-game-desc">13 карт буби от двойки до туза и 14-я карта — джокер Пиханина. Найди его и получи бонус от клуба. У каждого игрока 5 попыток.</p>
+            <p class="bonus-game-no-attempts" id="bonusGameNoAttempts" style="display: none;">Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.</p>
+            <div class="bonus-game-cards" id="bonusGameCards" role="group" aria-label="Выбери одну из 14 карт"></div>
             <p class="bonus-game-result" id="bonusGameResult" aria-live="polite" aria-atomic="true"></p>
             <button type="button" class="bonus-game-retry primary-button" id="bonusGameRetry" style="display: none;">Играть снова</button>
           </div>
