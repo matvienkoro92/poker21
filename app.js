@@ -197,7 +197,7 @@ downloadBackButtons.forEach((btn) => {
 const BONUS_DIAMONDS = ["2♦", "3♦", "4♦", "5♦", "6♦", "7♦", "8♦", "9♦", "10♦", "J♦", "Q♦", "K♦", "A♦"];
 const BONUS_PIHANINA = "Пиханина";
 const BONUS_GAME_CARDS_COUNT = 14;
-const BONUS_PROMO_CODES = ["ДВАТУЗА2025", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР"];
+const BONUS_PROMO_CODES = ["ДВАТУЗА2025", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР", "ПИХАНИНАТУРНИР"];
 const BONUS_MAX_ATTEMPTS = 5;
 let bonusGameContents = [];
 
@@ -209,6 +209,32 @@ function getBonusAttempts() {
 function setBonusAttempts(n) {
   const id = getVisitorId();
   localStorage.setItem("poker_bonus_attempts_" + id, String(n));
+}
+
+function getUsedPromoIndices() {
+  const id = getVisitorId();
+  try {
+    const raw = localStorage.getItem("poker_bonus_used_promos_" + id);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function markPromoUsed(index) {
+  const id = getVisitorId();
+  const used = getUsedPromoIndices();
+  if (used.indexOf(index) === -1) used.push(index);
+  localStorage.setItem("poker_bonus_used_promos_" + id, JSON.stringify(used));
+}
+
+function getNextPromoCode() {
+  const used = getUsedPromoIndices();
+  const available = BONUS_PROMO_CODES.map(function (_, i) { return i; }).filter(function (i) { return used.indexOf(i) === -1; });
+  if (available.length === 0) return null;
+  const idx = available[Math.floor(Math.random() * available.length)];
+  markPromoUsed(idx);
+  return BONUS_PROMO_CODES[idx];
 }
 
 function getDiamondRank(str) {
@@ -298,8 +324,11 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
   });
 
   if (isWin) {
-    const promoCode = BONUS_PROMO_CODES[Math.floor(Math.random() * BONUS_PROMO_CODES.length)];
-    resultEl.textContent = "Поздравляем! Ты нашёл Пиханину. Твой промокод: " + promoCode + ". Напиши менеджеру в Telegram и назови промокод.";
+    const promoCode = getNextPromoCode();
+    const promoText = promoCode
+      ? "Ваш промокод: " + promoCode + ". Напиши менеджеру в Telegram и назови промокод."
+      : "Вы уже получили все промокоды. Напиши менеджеру в Telegram.";
+    resultEl.textContent = "Поздравляем, вы успешно разобрались с Пиханиной и получаете свой бонус. " + promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
