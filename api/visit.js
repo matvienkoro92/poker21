@@ -76,8 +76,10 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const unique = parseInt(results[2].result, 10) || 0;
-  const returning = countReturning(results[3].result);
+  const r2 = results[2] && results[2].result !== undefined ? results[2].result : 0;
+  const r3 = results[3] && results[3].result !== undefined ? results[3].result : [];
+  const unique = parseInt(r2, 10) || 0;
+  const returning = countReturning(r3);
 
   return res.status(200).json({
     unique,

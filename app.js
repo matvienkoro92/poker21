@@ -196,12 +196,19 @@ function updateVisitorCounter() {
   fetch(apiUrl)
     .then((res) => res.json())
     .then((data) => {
-      if (data && data.ok) {
+      if (data && typeof data.unique === "number" && typeof data.returning === "number") {
         elUnique.textContent = data.unique;
         elReturning.textContent = data.returning;
+      } else {
+        elUnique.textContent = "0";
+        elReturning.textContent = "0";
       }
     })
-    .catch(() => {});
+    .catch(function () {
+      elUnique.textContent = "—";
+      elReturning.textContent = "—";
+      setTimeout(updateVisitorCounter, 2000);
+    });
 }
 
 updateVisitorCounter();
