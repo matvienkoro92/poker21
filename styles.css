@@ -34,7 +34,7 @@ body {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  padding: 16px;
+  padding: 16px 16px 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,10 +96,51 @@ body {
   mask-image: radial-gradient(circle at top, black 0, transparent 60%);
 }
 
+.auth-banner {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid rgba(248, 113, 22, 0.5);
+  border-radius: 14px;
+  text-align: center;
+}
+.auth-banner--hidden {
+  display: none;
+}
+.auth-banner__text {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+.auth-banner__link {
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(to top, #ea580c, #fb923c);
+  color: #0b1120;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  border-radius: 10px;
+}
+.auth-banner__link:hover {
+  opacity: 0.95;
+  color: #0b1120;
+}
+
+.auth-user {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.auth-user--hidden {
+  display: none;
+}
+
 .card__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -546,8 +587,11 @@ body {
   margin: 14px 0 6px;
   display: flex;
   justify-content: center;
-  color: #f97316;
+  color: #eab308;
   animation: poker21-arrow-bounce 1.5s ease-in-out infinite;
+}
+.poker21-arrow-down svg {
+  stroke-width: 4;
 }
 @keyframes poker21-arrow-bounce {
   0%, 100% { transform: translateY(0); }
@@ -555,16 +599,19 @@ body {
 }
 
 .poker21-after-download {
-  margin: 0 0 14px;
+  margin: 0 auto 14px;
+  padding: 0 12px;
+  max-width: 100%;
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-muted);
   text-align: center;
-  white-space: nowrap;
+  box-sizing: border-box;
 }
 @media (max-width: 400px) {
   .poker21-after-download {
     font-size: 12px;
+    padding: 0 8px;
   }
 }
 
@@ -784,6 +831,21 @@ body {
     0 6px 14px rgba(248, 113, 22, 0.6),
     0 0 0 1px rgba(248, 250, 252, 0.12);
   filter: brightness(0.97);
+}
+
+.footer-visitors {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.footer-visitors__unique strong,
+.footer-visitors__returning strong {
+  color: var(--text);
 }
 
 .footer-note {

@@ -17,11 +17,15 @@
     />
   </head>
   <body>
-    <div id="app" class="app">
+    <div id="app" class="app" data-telegram-app-url="https://t.me/YourBotName">
       <div class="bg-gradient"></div>
       <div class="bg-blur"></div>
 
       <main class="card">
+        <div class="auth-banner auth-banner--hidden" id="authBanner" role="alert">
+          <p class="auth-banner__text">Откройте приложение в Telegram, чтобы войти.</p>
+          <a href="#" class="auth-banner__link" id="authBannerLink">Открыть в Telegram</a>
+        </div>
         <header class="card__header">
           <a
             href="https://t.me/+snBngKmXYa1mYjky"
@@ -39,6 +43,7 @@
               <div class="logo__subtitle">Poker Club</div>
             </div>
           </a>
+          <p class="auth-user auth-user--hidden" id="authUser" aria-live="polite"></p>
         </header>
 
         <section class="card__content">
@@ -57,18 +62,11 @@
                   rel="noopener noreferrer"
                   class="hero__link"
                 >
-                  <video
-                    id="heroVideo"
-                    class="hero__video"
-                    src="./assets/rat_2.mp4"
-                    poster="./assets/two-aces-hero.png"
-                    autoplay
-                    muted
-                    loop
-                    playsinline
-                    preload="auto"
-                    aria-label="Перейти в чат игроков"
-                  ></video>
+                  <img
+                    src="./assets/two-aces-hero.png"
+                    alt="Клуб Два туза — перейти в чат игроков"
+                    class="hero__video hero__image"
+                  />
                 </a>
               </div>
               <div class="home-mini-icons">
@@ -166,7 +164,7 @@
                   <span class="app-store-btn__text">App Store</span>
                 </a>
                 <a
-                  href="./assets/Poker21Plus_release_2.5.0.apk"
+                  href="https://github.com/matvienkoro92/Poker-app/releases/latest/download/Poker21Plus_release_2.5.0.apk"
                   download="Poker21Plus_release_2.5.0.apk"
                   class="android-btn"
                 >
@@ -348,6 +346,10 @@
         </section>
 
         <footer class="card__footer">
+          <p class="footer-visitors" id="footerVisitors" aria-live="polite">
+            <span class="footer-visitors__unique">Уникальных: <strong id="visitorUnique">—</strong></span>
+            <span class="footer-visitors__returning">Повторных: <strong id="visitorReturning">—</strong></span>
+          </p>
           <p class="footer-note">
             Клуб «Два туза». Играйте ответственно. 18+
           </p>

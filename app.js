@@ -13,19 +13,66 @@ if (tg) {
   }
 }
 
-// Запуск видео на главной (браузеры и Telegram часто требуют явный play())
-function playHeroVideo() {
-  const video = document.getElementById("heroVideo");
-  if (!video) return;
-  video.muted = true;
-  video.play().catch(function () {});
-}
+// Авторизация через Telegram: проверка initData на сервере
+(function initTelegramAuth() {
+  const banner = document.getElementById("authBanner");
+  const bannerLink = document.getElementById("authBannerLink");
+  const userEl = document.getElementById("authUser");
+  const appEl = document.getElementById("app");
+  const telegramAppUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "";
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", playHeroVideo);
-} else {
-  playHeroVideo();
-}
+  if (bannerLink && telegramAppUrl && telegramAppUrl.indexOf("t.me") !== -1) {
+    bannerLink.href = telegramAppUrl;
+  } else if (bannerLink) {
+    bannerLink.style.display = "none";
+  }
+
+  function showAuthorized(user) {
+    if (userEl) {
+      userEl.textContent = user.first_name ? "Привет, " + user.first_name + "!" : "Вы вошли";
+      userEl.classList.remove("auth-user--hidden");
+    }
+    if (banner) banner.classList.add("auth-banner--hidden");
+  }
+
+  function showUnauthorized() {
+    if (userEl) userEl.classList.add("auth-user--hidden");
+    if (banner) banner.classList.remove("auth-banner--hidden");
+  }
+
+  if (!tg || !tg.initData) {
+    showUnauthorized();
+    return;
+  }
+
+  const base = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
+  if (!base) {
+    showAuthorized(tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : { first_name: "Гость" });
+    return;
+  }
+
+  fetch(base + "/api/auth-telegram", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: tg.initData }),
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data && data.ok && data.user) {
+        showAuthorized(data.user);
+      } else {
+        showUnauthorized();
+      }
+    })
+    .catch(function () {
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        showAuthorized(tg.initDataUnsafe.user);
+      } else {
+        showUnauthorized();
+      }
+    });
+})();
+
 
 // Логика кнопки "Начать игру"
 const startButton = document.getElementById("startButton");
@@ -74,9 +121,6 @@ function setView(viewName) {
     }
   }
 
-  if (viewName === "home") {
-    playHeroVideo();
-  }
 }
 
 navItems.forEach((item) => {
@@ -116,6 +160,55 @@ downloadAppButtons.forEach((btn) => {
 downloadBackButtons.forEach((btn) => {
   btn.addEventListener("click", () => setDownloadPage("main"));
 });
+
+// Счётчик уникальных и повторных посетителей
+function getVisitorId() {
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  if (tg && tg.initData) {
+    const params = new URLSearchParams(tg.initData);
+    const userStr = params.get("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.id) return "tg_" + user.id;
+      } catch (e) {}
+    }
+  }
+  let id = localStorage.getItem("poker_visitor_id");
+  if (!id) {
+    id = "w_" + Date.now() + "_" + Math.random().toString(36).slice(2, 12);
+    localStorage.setItem("poker_visitor_id", id);
+  }
+  return id;
+}
+
+function updateVisitorCounter() {
+  const elUnique = document.getElementById("visitorUnique");
+  const elReturning = document.getElementById("visitorReturning");
+  if (!elUnique || !elReturning) return;
+
+  const visitorId = getVisitorId();
+  const base = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
+  const apiUrl = base ? base + "/api/visit?visitor_id=" + encodeURIComponent(visitorId) : "";
+
+  if (!apiUrl) {
+    elUnique.textContent = "—";
+    elReturning.textContent = "—";
+    return;
+  }
+
+  fetch(apiUrl)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data && data.ok) {
+        elUnique.textContent = data.unique;
+        elReturning.textContent = data.returning;
+      }
+    })
+    .catch(() => {});
+}
+
+updateVisitorCounter();
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
