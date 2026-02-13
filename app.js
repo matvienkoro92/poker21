@@ -122,6 +122,9 @@ function setView(viewName) {
   if (viewName === "profile") {
     updateProfileUserName();
   }
+  if (viewName === "bonus-game") {
+    initBonusGame();
+  }
 }
 
 function updateProfileUserName() {
@@ -155,6 +158,15 @@ document.addEventListener("click", (e) => {
   if (page) setDownloadPage(page);
 });
 
+// Клик по ссылке только с data-view-target (например «Найди туза»)
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("a[data-view-target]");
+  if (!link || link.getAttribute("data-download-page")) return;
+  e.preventDefault();
+  const view = link.getAttribute("data-view-target");
+  if (view) setView(view);
+});
+
 // Подстраницы раздела «Скачать»
 const downloadPages = document.querySelectorAll("[data-download-page]");
 const downloadAppButtons = document.querySelectorAll("[data-download-app]");
@@ -179,6 +191,76 @@ downloadAppButtons.forEach((btn) => {
 
 downloadBackButtons.forEach((btn) => {
   btn.addEventListener("click", () => setDownloadPage("main"));
+});
+
+// Мини-игра «Найди Пиханину» — 52 карты, одна джокер Пиханина
+const BONUS_GAME_CARDS_COUNT = 52;
+let bonusGamePihaninaIndex = 0;
+
+function initBonusGame() {
+  bonusGamePihaninaIndex = Math.floor(Math.random() * BONUS_GAME_CARDS_COUNT);
+  const container = document.getElementById("bonusGameCards");
+  const resultEl = document.getElementById("bonusGameResult");
+  const retryBtn = document.getElementById("bonusGameRetry");
+  if (!container || !resultEl || !retryBtn) return;
+
+  container.innerHTML = "";
+  for (let i = 0; i < BONUS_GAME_CARDS_COUNT; i++) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "bonus-card";
+    card.dataset.cardIndex = String(i);
+    card.setAttribute("aria-label", "Карта " + (i + 1));
+    card.innerHTML = "<span class=\"bonus-card__back\">🂠</span><span class=\"bonus-card__face\" aria-hidden=\"true\"></span>";
+    container.appendChild(card);
+  }
+
+  resultEl.textContent = "";
+  resultEl.className = "bonus-game-result";
+  retryBtn.style.display = "none";
+}
+
+document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
+  const card = e.target.closest(".bonus-card");
+  if (!card || card.classList.contains("bonus-card--revealed")) return;
+  const resultEl = document.getElementById("bonusGameResult");
+  const retryBtn = document.getElementById("bonusGameRetry");
+  if (!resultEl || !retryBtn) return;
+
+  const cards = card.parentElement.querySelectorAll(".bonus-card");
+  const clickedIndex = parseInt(card.dataset.cardIndex, 10);
+  const isWin = clickedIndex === bonusGamePihaninaIndex;
+
+  cards.forEach((c, i) => {
+    c.classList.add("bonus-card--revealed");
+    c.disabled = true;
+    const face = c.querySelector(".bonus-card__face");
+    if (face) {
+      if (i === bonusGamePihaninaIndex) {
+        face.textContent = "Пиханина";
+        face.classList.add("bonus-card__face--joker");
+      } else {
+        face.textContent = "🂠";
+      }
+    }
+    if (i === bonusGamePihaninaIndex) c.classList.add("bonus-card--win");
+    else if (i === clickedIndex) c.classList.add("bonus-card--lose");
+  });
+
+  if (isWin) {
+    resultEl.textContent = "Поздравляем! Ты нашёл Пиханину. Напиши менеджеру в Telegram и назови кодовое слово: ПИХАНИНА";
+    resultEl.classList.add("bonus-game-result--win");
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+  } else {
+    resultEl.textContent = "Это не Пиханина. В следующий раз повезёт!";
+    resultEl.classList.add("bonus-game-result--lose");
+  }
+  retryBtn.style.display = "block";
+});
+
+document.getElementById("bonusGameRetry")?.addEventListener("click", () => {
+  initBonusGame();
 });
 
 // Счётчик уникальных и повторных посетителей

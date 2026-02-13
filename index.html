@@ -146,6 +146,16 @@
                   </div>
                 </div>
               </a>
+
+              <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
+                <div class="feature__icon feature__icon--purple">🃏</div>
+                <div class="feature__body">
+                  <div class="feature__title">Найди Пиханину</div>
+                  <div class="feature__text">
+                    Среди 52 карт — джокер Пиханина. Найди её — получи бонус.
+                  </div>
+                </div>
+              </a>
             </div>
           </div>
 
@@ -372,6 +382,16 @@
                 <p class="poker21-managers__line">⏰ 18:00–02:00 мск — <a href="https://t.me/vikipoker" target="_blank" rel="noopener noreferrer" class="manager-link">@vikipoker</a></p>
               </div>
             </div>
+          </div>
+
+          <!-- Мини-игра: Найди туза -->
+          <div class="view" data-view="bonus-game">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Найди Пиханину</h1>
+            <p class="bonus-game-desc">Среди 52 карт спрятана одна джокер-карта — Пиханина. Найди её и получи бонус от клуба.</p>
+            <div class="bonus-game-cards" id="bonusGameCards" role="group" aria-label="Выбери одну из 52 карт"></div>
+            <p class="bonus-game-result" id="bonusGameResult" aria-live="polite" aria-atomic="true"></p>
+            <button type="button" class="bonus-game-retry primary-button" id="bonusGameRetry" style="display: none;">Играть снова</button>
           </div>
 
           <!-- Депозит / кэшаут -->
