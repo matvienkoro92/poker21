@@ -201,20 +201,30 @@ const BONUS_PROMO_CODES = ["ДВАТУЗА2025", "ПИХАНИНАБОНУС", "
 const BONUS_MAX_ATTEMPTS = 5;
 let bonusGameContents = [];
 
+function getDeviceId() {
+  var key = "poker_device_id";
+  var id = localStorage.getItem(key);
+  if (!id) {
+    id = "dev_" + Date.now() + "_" + Math.random().toString(36).slice(2, 14);
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
+
 function getBonusAttempts() {
-  const id = getVisitorId();
+  var id = getDeviceId();
   return parseInt(localStorage.getItem("poker_bonus_attempts_" + id) || "0", 10);
 }
 
 function setBonusAttempts(n) {
-  const id = getVisitorId();
+  var id = getDeviceId();
   localStorage.setItem("poker_bonus_attempts_" + id, String(n));
 }
 
 function getUsedPromoIndices() {
-  const id = getVisitorId();
+  var id = getDeviceId();
   try {
-    const raw = localStorage.getItem("poker_bonus_used_promos_" + id);
+    var raw = localStorage.getItem("poker_bonus_used_promos_" + id);
     return raw ? JSON.parse(raw) : [];
   } catch (_) {
     return [];
@@ -222,10 +232,16 @@ function getUsedPromoIndices() {
 }
 
 function markPromoUsed(index) {
-  const id = getVisitorId();
-  const used = getUsedPromoIndices();
+  var id = getDeviceId();
+  var used = getUsedPromoIndices();
   if (used.indexOf(index) === -1) used.push(index);
   localStorage.setItem("poker_bonus_used_promos_" + id, JSON.stringify(used));
+}
+
+function resetBonusLimitForDevice() {
+  var id = getDeviceId();
+  localStorage.removeItem("poker_bonus_attempts_" + id);
+  localStorage.removeItem("poker_bonus_used_promos_" + id);
 }
 
 function getNextPromoCode() {
@@ -270,6 +286,11 @@ function initBonusGame() {
 
   if (noAttemptsEl) noAttemptsEl.style.display = "none";
   container.style.display = "";
+
+  const allCodesDoneEl = document.getElementById("bonusGameAllCodesDone");
+  if (allCodesDoneEl) {
+    allCodesDoneEl.style.display = getUsedPromoIndices().length >= BONUS_PROMO_CODES.length ? "block" : "none";
+  }
 
   const pihaninaIndex = Math.floor(Math.random() * (BONUS_DIAMONDS.length + 1));
   bonusGameContents = [];
@@ -336,16 +357,25 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
     resultEl.textContent = "Это не Пиханина. В следующий раз повезёт!";
     resultEl.classList.add("bonus-game-result--lose");
   }
-  const attemptsLeft = BONUS_MAX_ATTEMPTS - getBonusAttempts();
-  if (attemptsLeft > 0) {
-    retryBtn.style.display = "block";
-  } else {
+  if (isWin) {
     retryBtn.style.display = "none";
-    if (!isWin) resultEl.textContent = "Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.";
+  } else {
+    const attemptsLeft = BONUS_MAX_ATTEMPTS - getBonusAttempts();
+    if (attemptsLeft > 0) {
+      retryBtn.style.display = "block";
+    } else {
+      retryBtn.style.display = "none";
+      resultEl.textContent = "Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.";
+    }
   }
 });
 
-document.getElementById("bonusGameRetry")?.addEventListener("click", () => {
+document.getElementById("bonusGameRetry")?.addEventListener("click", function () {
+  initBonusGame();
+});
+
+document.getElementById("bonusGameReset")?.addEventListener("click", function () {
+  resetBonusLimitForDevice();
   initBonusGame();
 });
 

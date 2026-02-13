@@ -147,7 +147,7 @@
                 </div>
               </a>
 
-              <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
+              <a href="#" class="feature feature--link feature--bonus-game feature--hidden" data-view-target="bonus-game" aria-label="Найти Пиханину">
                 <div class="feature__icon feature__icon--purple">🃏</div>
                 <div class="feature__body">
                   <div class="feature__title">Найди Пиханину</div>
@@ -388,12 +388,16 @@
           <div class="view" data-view="bonus-game">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Найди Пиханину</h1>
-            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду. Найдите его, чтобы клуб мог с ним расквитаться.</p>
-            <p class="bonus-game-desc">13 карт буби от двойки до туза и 14-я карта — джокер Пиханина. Найди его и выбей из него промокод на билет на турнир. У каждого игрока 5 попыток.</p>
+            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду. Он знает 6 промокодов на беккинг-билет за 1000р. У вас 5 попыток, чтобы найти его и выбить из него 1 промокод. Если узнаете промокод — напишите его в чат игроков.</p>
+            <p class="bonus-game-desc">Перед вами 13 карт буби от двойки до туза и 14-я карта — джокер Пиханина.</p>
+            <p class="bonus-game-all-codes-done" id="bonusGameAllCodesDone" style="display: none;">Игроки уже раскулачили Пиханину на билеты, но вы можете сыграть просто так.</p>
             <p class="bonus-game-no-attempts" id="bonusGameNoAttempts" style="display: none;">Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.</p>
             <div class="bonus-game-cards" id="bonusGameCards" role="group" aria-label="Выбери одну из 14 карт"></div>
             <p class="bonus-game-result" id="bonusGameResult" aria-live="polite" aria-atomic="true"></p>
             <button type="button" class="bonus-game-retry primary-button" id="bonusGameRetry" style="display: none;">Играть снова</button>
+            <p class="bonus-game-reset-wrap">
+              <button type="button" class="bonus-game-reset" id="bonusGameReset">Сбросить лимит (для проверки)</button>
+            </p>
           </div>
 
           <!-- Депозит / кэшаут -->
