@@ -24,19 +24,28 @@ async function redisPipeline(commands) {
   return res.json();
 }
 
-function countReturning(hgetallResult) {
-  if (!hgetallResult) return 0;
+function getVisitValues(hgetallResult) {
+  if (!hgetallResult) return [];
   if (Array.isArray(hgetallResult)) {
-    let n = 0;
+    const vals = [];
     for (let i = 1; i < hgetallResult.length; i += 2) {
-      if (parseInt(hgetallResult[i], 10) > 1) n++;
+      vals.push(parseInt(hgetallResult[i], 10) || 0);
     }
-    return n;
+    return vals;
   }
   if (typeof hgetallResult === 'object') {
-    return Object.values(hgetallResult).filter((v) => parseInt(v, 10) > 1).length;
+    return Object.values(hgetallResult).map((v) => parseInt(v, 10) || 0);
   }
-  return 0;
+  return [];
+}
+
+function countReturning(hgetallResult) {
+  const vals = getVisitValues(hgetallResult);
+  return vals.filter((v) => v > 1).length;
+}
+
+function totalVisits(hgetallResult) {
+  return getVisitValues(hgetallResult).reduce((sum, v) => sum + v, 0);
 }
 
 module.exports = async function handler(req, res) {
@@ -72,6 +81,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       unique: 0,
       returning: 0,
+      total: 0,
       ok: false,
     });
   }
@@ -80,10 +90,12 @@ module.exports = async function handler(req, res) {
   const r3 = results[3] && results[3].result !== undefined ? results[3].result : [];
   const unique = parseInt(r2, 10) || 0;
   const returning = countReturning(r3);
+  const total = totalVisits(r3);
 
   return res.status(200).json({
     unique,
     returning,
+    total,
     ok: true,
   });
 };

@@ -113,6 +113,7 @@ function setView(viewName) {
   if (footer) {
     if (viewName === "home") {
       footer.classList.remove("card__footer--hidden");
+      fetchVisitorStatsOnly();
     } else {
       footer.classList.add("card__footer--hidden");
     }
@@ -208,48 +209,90 @@ function isLocalEnv() {
   if (protocol === "file:") return true;
   if (!hostname) return true;
   if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0") return true;
-  // Любой IP (в т.ч. 192.168.x.x, 10.x.x.x) считаем локальным
   if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
   return false;
 }
 
+function getApiBase() {
+  const app = document.getElementById("app");
+  const dataBase = app && app.getAttribute("data-api-base");
+  if (dataBase && dataBase.trim()) return dataBase.trim().replace(/\/$/, "");
+  if (typeof window !== "undefined" && window.location && window.location.origin) return window.location.origin;
+  return "";
+}
+
 function updateVisitorCounter() {
+  const elTotal = document.getElementById("visitorTotal");
   const elUnique = document.getElementById("visitorUnique");
   const elReturning = document.getElementById("visitorReturning");
   if (!elUnique || !elReturning) return;
 
-  if (isLocalEnv()) {
+  const setDash = function () {
+    if (elTotal) elTotal.textContent = "—";
     elUnique.textContent = "—";
     elReturning.textContent = "—";
+  };
+
+  const base = getApiBase();
+  const isLocal = isLocalEnv();
+  if (isLocal && !(document.getElementById("app") && document.getElementById("app").getAttribute("data-api-base"))) {
+    setDash();
+    return;
+  }
+
+  if (!base) {
+    setDash();
     return;
   }
 
   const visitorId = getVisitorId();
-  const base = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
-  const apiUrl = base ? base + "/api/visit?visitor_id=" + encodeURIComponent(visitorId) : "";
-
-  if (!apiUrl) {
-    elUnique.textContent = "—";
-    elReturning.textContent = "—";
-    return;
-  }
+  const apiUrl = base + "/api/visit?visitor_id=" + encodeURIComponent(visitorId);
 
   fetch(apiUrl)
     .then((res) => res.json())
-    .then((data) => {
-      if (data && typeof data.unique === "number" && typeof data.returning === "number") {
-        elUnique.textContent = data.unique;
-        elReturning.textContent = data.returning;
-      } else {
-        elUnique.textContent = "0";
-        elReturning.textContent = "0";
-      }
-    })
+    .then((data) => applyVisitorCounts(data, elTotal, elUnique, elReturning))
     .catch(function () {
-      elUnique.textContent = "—";
-      elReturning.textContent = "—";
+      setDash();
       setTimeout(updateVisitorCounter, 2000);
     });
+}
+
+function applyVisitorCounts(data, elTotal, elUnique, elReturning) {
+  if (data && typeof data.unique === "number" && typeof data.returning === "number") {
+    if (elTotal) elTotal.textContent = typeof data.total === "number" ? data.total : data.unique + data.returning;
+    elUnique.textContent = data.unique;
+    elReturning.textContent = data.returning;
+  } else {
+    if (elTotal) elTotal.textContent = "0";
+    elUnique.textContent = "0";
+    elReturning.textContent = "0";
+  }
+}
+
+function fetchVisitorStatsOnly() {
+  const elTotal = document.getElementById("visitorTotal");
+  const elUnique = document.getElementById("visitorUnique");
+  const elReturning = document.getElementById("visitorReturning");
+  if (!elUnique || !elReturning) return;
+  const setDash = function () {
+    if (elTotal) elTotal.textContent = "—";
+    elUnique.textContent = "—";
+    elReturning.textContent = "—";
+  };
+  const base = getApiBase();
+  const isLocal = isLocalEnv();
+  if (isLocal && !(document.getElementById("app") && document.getElementById("app").getAttribute("data-api-base"))) {
+    setDash();
+    return;
+  }
+  if (!base) {
+    setDash();
+    return;
+  }
+  fetch(base + "/api/visit/stats")
+    .then((res) => res.json())
+    .then((data) => applyVisitorCounts(data, elTotal, elUnique, elReturning))
+    .catch(function () {});
 }
 
 updateVisitorCounter();
@@ -281,6 +324,7 @@ updateVisitorCounter();
   const dateStr = String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear();
   el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
 })();
+
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
