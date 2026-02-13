@@ -230,10 +230,8 @@ body {
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 0.02em;
-}
-
-.title--one-line {
-  white-space: nowrap;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .subtitle {
@@ -791,6 +789,74 @@ body {
   border-color: rgba(168, 85, 247, 0.5);
   box-shadow: 0 4px 16px rgba(168, 85, 247, 0.2);
   background: linear-gradient(135deg, #251e33, #1a1525);
+}
+
+/* Обёртка «Турнир дня» для всплывающей подсказки */
+.feature-tooltip-wrap {
+  position: relative;
+}
+
+.tournament-day-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  min-width: 200px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tournament-day-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 20px;
+  border: 6px solid transparent;
+  border-top-color: rgba(168, 85, 247, 0.4);
+}
+
+.feature-tooltip-wrap:hover .tournament-day-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tournament-day-tooltip__logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: #a78bfa;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.tournament-day-tooltip__row {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.tournament-day-tooltip__row + .tournament-day-tooltip__row {
+  margin-top: 2px;
+}
+
+.tournament-day-tooltip__note {
+  font-size: 11px;
+  color: var(--text-muted, rgba(148, 163, 184, 0.9));
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  line-height: 1.35;
 }
 
 .feature__icon {

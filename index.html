@@ -50,7 +50,7 @@
         <section class="card__content">
           <!-- Главная -->
           <div class="view view--active" data-view="home">
-            <h1 class="title title--one-line">Добро пожаловать в клуб «Два туза»</h1>
+            <h1 class="title">Добро пожаловать в клуб «Два туза»</h1>
             <p class="subtitle">
               Закрытый покерный онлайн-клуб для своих.
             </p>
@@ -91,21 +91,31 @@
             </div>
 
             <div class="features">
-              <a
-                class="feature feature--link feature--highlight"
-                href="#"
-                data-view-target="download"
-                data-download-page="poker21"
-                aria-label="Перейти в раздел Poker21"
-              >
-                <div class="feature__icon feature__icon--purple">🏆</div>
-                <div class="feature__body">
-                  <div class="feature__title">Турнир дня</div>
-                  <div class="feature__text">
-                    Фриролл в 18:00 мск на 100 000р — в Poker21
-                  </div>
+              <div class="feature-tooltip-wrap">
+                <div class="tournament-day-tooltip" role="tooltip" aria-hidden="true">
+                  <div class="tournament-day-tooltip__logo">Poker21</div>
+                  <div class="tournament-day-tooltip__row">Старт в 18:00 мск</div>
+                  <div class="tournament-day-tooltip__row">Вход 0</div>
+                  <div class="tournament-day-tooltip__row">Ребай 250р</div>
+                  <div class="tournament-day-tooltip__row">Аддон 250р</div>
+                  <div class="tournament-day-tooltip__note">Бонусы за комбинации до аддона</div>
                 </div>
-              </a>
+                <a
+                  class="feature feature--link feature--highlight"
+                  href="#"
+                  data-view-target="download"
+                  data-download-page="poker21"
+                  aria-label="Перейти в раздел Poker21"
+                >
+                  <div class="feature__icon feature__icon--purple">🏆</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Турнир дня (суббота 14.02)</div>
+                    <div class="feature__text">
+                      Фриролл в 18:00 мск на 100 000р — в Poker21
+                    </div>
+                  </div>
+                </a>
+              </div>
 
               <a
                 class="feature feature--link"
