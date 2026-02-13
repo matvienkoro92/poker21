@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pacifico&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -120,6 +120,56 @@
                   </div>
                 </div>
               </a>
+
+              <div class="tournament-day">
+                <div class="tournament-day__top">
+                  <div class="tournament-day__main-table poker-table poker-table--private-style">
+                    <div class="poker-table__title-row">
+                      <span class="poker-table__trophy" aria-hidden="true">🏆</span>
+                      <span class="poker-table__logo-name">Poker21</span>
+                      <span class="poker-table__title">Турнир дня</span>
+                    </div>
+                    <time class="poker-table__date" id="tournamentDayDate" datetime="">—</time>
+                    <div class="poker-table__info">MKO 500Р · GTD 100 000р · 18:00 мск</div>
+                    <div class="poker-table__tag">Мистери баунти</div>
+                  </div>
+                  <div class="tournament-day__arrow tournament-day__arrow--bold tournament-day__arrow--to-tournament" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+                      <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                  </div>
+                  <div class="tournament-day__bottom-row">
+                    <a href="#" class="tournament-day__freeroll-table private-table-link" data-view-target="download" data-download-page="poker21" aria-label="Перейти в раздел Poker21">
+                      <div class="private-table">
+                        <div class="private-table__logo private-table__logo--freeroll">™ Freeroll к этому турниру</div>
+                        <div class="private-table__row">
+                          <span class="private-table__lock" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                          </span>
+                          <span class="private-table__password-label">Пароль:</span>
+                          <div class="private-table__combo">
+                            <span class="private-table__digit">1</span>
+                            <span class="private-table__digit">1</span>
+                            <span class="private-table__digit">1</span>
+                            <span class="private-table__digit">1</span>
+                          </div>
+                        </div>
+                        <div class="private-table__meta">
+                          <div class="private-table__meta-line1">Фриролл на 10 билетов за 500р</div>
+                          <div class="private-table__meta-line2" id="freerollTimeDate">16:00 мск, —</div>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="https://t.me/+UjuRSQoCpBk4YzVi" target="_blank" rel="noopener noreferrer" class="lottery-ticket lottery-ticket--table-style lottery-ticket--blink lottery-ticket--link">
+                      <p class="lottery-ticket__text">Розыгрыш 20 билетов</p>
+                      <span class="lottery-ticket__link-label">Перейти к посту →</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -190,11 +240,6 @@
                 </a>
               </div>
 
-              <div class="poker21-arrow-down" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
-                  <path d="M12 5v14M19 12l-7 7-7-7"/>
-                </svg>
-              </div>
               <p class="poker21-after-download">
                 После скачивания, подайте заявку в клуб, как на картинке.
               </p>
@@ -326,6 +371,24 @@
             </div>
           </div>
 
+          <!-- Профиль -->
+          <div class="view" data-view="profile">
+            <h1 class="title">Профиль</h1>
+            <p class="profile-greeting">
+              Привет, <span id="profileUserName">имя</span>, здесь будет твой профиль со всеми твоими победами!
+            </p>
+            <p class="profile-concept">
+              Концепция ещё в разработке, но мы делаем всё очень быстро и я уверен, будет бомба!
+            </p>
+            <div class="profile-image-wrap">
+              <img
+                src="./assets/profile-pokerist.png"
+                alt="Мультяшный покерист с покерным чемоданом"
+                class="profile-image"
+              />
+            </div>
+          </div>
+
           <!-- Зал славы -->
           <div class="view" data-view="hall-of-fame">
             <h1 class="title">Зал славы</h1>
@@ -388,6 +451,10 @@
         <button class="bottom-nav__item" data-view-target="hall-of-fame">
           <span class="bottom-nav__icon">🏆</span>
           <span class="bottom-nav__label">Зал славы</span>
+        </button>
+        <button class="bottom-nav__item" data-view-target="profile">
+          <span class="bottom-nav__icon">👤</span>
+          <span class="bottom-nav__label">Профиль</span>
         </button>
       </nav>
     </div>

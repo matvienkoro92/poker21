@@ -262,7 +262,7 @@ body {
 .home-mini-icons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -270,29 +270,40 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-}
-.home-mini-icon {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 22px;
+  gap: 2px;
+  width: 54px;
+  min-height: 52px;
+  padding: 6px 3px;
+  box-sizing: border-box;
   background: rgba(148, 163, 184, 0.2);
   border: 1px solid rgba(148, 163, 184, 0.4);
   border-radius: 12px;
+}
+.home-mini-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
 }
 .home-mini-icon__label {
-  font-size: 11px;
+  font-size: 6px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
   color: var(--text);
-  line-height: 1.2;
+  line-height: 1.1;
   text-align: center;
-  max-width: 56px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .download-layout {
@@ -813,6 +824,470 @@ body {
   color: var(--text-muted);
 }
 
+/* Турнир дня: сверху стол с паролем на всю ширину + стрелка, турнир дня, внизу справа билет + стрелка вверх */
+.tournament-day {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.tournament-day__top {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tournament-day__arrow--to-tournament {
+  margin: 6px 0;
+  flex-shrink: 0;
+}
+
+.tournament-day__bottom-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.tournament-day__bottom-row .tournament-day__freeroll-table + .lottery-ticket {
+  margin-left: 16px;
+}
+
+.tournament-day__bottom-row .tournament-day__freeroll-table {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.tournament-day__arrow--left {
+  flex-shrink: 0;
+}
+
+.tournament-day__bottom-row .lottery-ticket {
+  flex-shrink: 0;
+}
+
+.tournament-day__freeroll-heading {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text);
+}
+
+.tournament-day__freeroll-table {
+  width: 100%;
+  max-width: 100%;
+}
+
+.private-table-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.private-table-link:hover .private-table {
+  filter: brightness(1.08);
+}
+
+.private-table-link:active .private-table {
+  filter: brightness(0.98);
+}
+
+/* Лотерейный билет — в стиле стола Poker21 (овал, тёмный фон, золотая рамка), меньше, по центру */
+.lottery-ticket {
+  width: 100%;
+  max-width: 100%;
+  padding: 14px 12px;
+  background: linear-gradient(145deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+  border: 2px solid #d97706;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.lottery-ticket--table-style {
+  width: auto;
+  max-width: 200px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  border: 2px solid transparent;
+  border-radius: 50% / 35%;
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 162, 39, 0.5),
+    0 0 0 2px #8b6914,
+    0 4px 0 0 #6b5010,
+    0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.lottery-ticket--table-style::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  pointer-events: none;
+}
+
+.lottery-ticket__text {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #78350f;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.lottery-ticket--table-style .lottery-ticket__text {
+  font-size: 11px;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.lottery-ticket--link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.lottery-ticket--link:hover {
+  filter: brightness(1.1);
+}
+
+.lottery-ticket__link-label {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: underline;
+}
+
+.lottery-ticket--blink {
+  animation: lottery-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes lottery-blink {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.85; filter: brightness(1.15); }
+}
+
+/* Стол фриролла в стиле Poker21 PRIVATE (овал, золотая рамка, замок, комбо 1111), на всю ширину */
+.private-table {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  padding: 14px 18px 12px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  border: 2px solid transparent;
+  border-radius: 50% / 35%;
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 162, 39, 0.5),
+    0 0 0 2px #8b6914,
+    0 4px 0 0 #6b5010,
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-align: center;
+}
+
+.private-table::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  pointer-events: none;
+}
+
+.private-table__logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+.private-table__logo--freeroll {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.private-table__freeroll-label {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #e63946;
+}
+
+.private-table__freeroll-date {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.private-table__logo-name {
+  font-family: "Pacifico", cursive;
+  font-size: 22px;
+  font-weight: 400;
+  color: #e63946;
+  letter-spacing: 0.02em;
+}
+
+.private-table__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.private-table__lock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c9a227;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.private-table__password-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+}
+
+.private-table__combo {
+  display: flex;
+  gap: 2px;
+}
+
+.private-table__digit {
+  width: 22px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #b8860b 0%, #8b6914 50%, #6b5010 100%);
+  border: 1px solid rgba(201, 162, 39, 0.6);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.private-table__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.private-table__meta-line1 {
+  line-height: 1.3;
+  white-space: nowrap;
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.private-table__meta-line2 {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.tournament-day__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tournament-day__arrow svg {
+  stroke-width: 2.5;
+}
+
+.tournament-day__arrow--bold {
+  color: #c2410c;
+}
+
+.tournament-day__arrow--bold svg {
+  stroke-width: 4;
+  filter: drop-shadow(0 0 1px #9a3412);
+}
+
+.tournament-day__arrow--between {
+  margin: 6px 0;
+  flex-shrink: 0;
+}
+
+.tournament-day__main-table {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 4px;
+}
+
+.tournament-day__main-table.poker-table {
+  max-width: none;
+}
+
+/* Турнир дня: тот же фон и обводка, что у Poker21, но обводка жирнее и ярче */
+.poker-table.poker-table--private-style {
+  padding: 14px 18px 12px;
+  gap: 8px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+  border: 2px solid transparent;
+  border-radius: 50% / 35%;
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 162, 39, 0.6),
+    0 0 0 4px #c9a227,
+    0 6px 0 0 #a78b2a,
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+.poker-table--private-style::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  border: 2px solid rgba(201, 162, 39, 0.6);
+  pointer-events: none;
+}
+
+.poker-table--private-style .poker-table__logo-name {
+  font-family: "Pacifico", cursive;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #e63946;
+}
+
+.poker-table--private-style .poker-table__title {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e63946;
+}
+
+.poker-table--private-style .poker-table__date,
+.poker-table--private-style .poker-table__info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.poker-table--private-style .poker-table__tag {
+  color: #a5d6a7;
+}
+
+.poker-table__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.poker-table__trophy {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.poker-table--featured .poker-table__title {
+  color: #fef08a;
+  text-shadow: 0 0 12px rgba(254, 240, 138, 0.5);
+}
+
+.poker-table {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  padding: 16px 20px;
+  background: linear-gradient(160deg, #0d5c2e 0%, #0a4723 40%, #083d1e 100%);
+  border-radius: 50% / 30%;
+  border: 3px solid #1a3d27;
+  box-shadow:
+    inset 0 4px 12px rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #e8f5e9;
+  text-align: center;
+}
+
+.poker-table--small {
+  max-width: 260px;
+  padding: 10px 14px;
+  gap: 2px;
+}
+
+.poker-table__title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.poker-table__date {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.poker-table__info {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.poker-table__tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a5d6a7;
+}
+
+.poker-table__label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.poker-table__detail {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .card__footer {
   margin-top: 4px;
   display: flex;
@@ -877,6 +1352,39 @@ body {
   font-size: 10px;
   line-height: 1.4;
   color: var(--text-muted);
+}
+
+/* Профиль */
+.profile-greeting {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.profile-greeting #profileUserName {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.profile-concept {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.profile-image-wrap {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-image {
+  max-width: 100%;
+  width: 240px;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
 }
 
 .bottom-nav {

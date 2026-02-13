@@ -69,6 +69,7 @@ if (tg) {
   showUnauthorized();
 })();
 
+updateProfileUserName();
 
 // Логика кнопки "Начать игру"
 const startButton = document.getElementById("startButton");
@@ -117,6 +118,17 @@ function setView(viewName) {
     }
   }
 
+  if (viewName === "profile") {
+    updateProfileUserName();
+  }
+}
+
+function updateProfileUserName() {
+  const el = document.getElementById("profileUserName");
+  if (!el) return;
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  el.textContent = user && user.first_name ? user.first_name : "гость";
 }
 
 navItems.forEach((item) => {
@@ -129,6 +141,17 @@ navItems.forEach((item) => {
       }
     }
   });
+});
+
+// Клик по столу Poker21 (и другим ссылкам) — переход в раздел и подстраницу
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("[data-view-target][data-download-page]");
+  if (!link) return;
+  e.preventDefault();
+  const view = link.getAttribute("data-view-target");
+  const page = link.getAttribute("data-download-page");
+  if (view) setView(view);
+  if (page) setDownloadPage(page);
 });
 
 // Подстраницы раздела «Скачать»
@@ -178,10 +201,28 @@ function getVisitorId() {
   return id;
 }
 
+function isLocalEnv() {
+  if (typeof window === "undefined" || !window.location) return true;
+  const hostname = window.location.hostname || "";
+  const protocol = window.location.protocol || "";
+  if (protocol === "file:") return true;
+  if (!hostname) return true;
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0") return true;
+  // Любой IP (в т.ч. 192.168.x.x, 10.x.x.x) считаем локальным
+  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+  return false;
+}
+
 function updateVisitorCounter() {
   const elUnique = document.getElementById("visitorUnique");
   const elReturning = document.getElementById("visitorReturning");
   if (!elUnique || !elReturning) return;
+
+  if (isLocalEnv()) {
+    elUnique.textContent = "—";
+    elReturning.textContent = "—";
+    return;
+  }
 
   const visitorId = getVisitorId();
   const base = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
@@ -212,6 +253,34 @@ function updateVisitorCounter() {
 }
 
 updateVisitorCounter();
+
+// Турнир дня: дата и день недели в скобках
+(function initTournamentDayDate() {
+  const days = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
+  const d = new Date();
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  const dayOfWeek = days[d.getDay()];
+  const dateStr = day + "." + month + "." + year + " (" + dayOfWeek + ")";
+  const isoStr = year + "-" + month + "-" + day;
+  const elTournament = document.getElementById("tournamentDayDate");
+  if (elTournament) {
+    elTournament.textContent = dateStr;
+    elTournament.setAttribute("datetime", isoStr);
+  }
+})();
+
+// Фриролл: время, день недели и дата (по МСК)
+(function initFreerollTimeDate() {
+  const el = document.getElementById("freerollTimeDate");
+  if (!el) return;
+  const days = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
+  const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+  const dayOfWeek = days[d.getDay()];
+  const dateStr = String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear();
+  el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
+})();
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
