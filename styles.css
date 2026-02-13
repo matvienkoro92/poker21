@@ -126,6 +126,12 @@ body {
   opacity: 0.95;
   color: #0b1120;
 }
+.auth-banner__hint {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
 
 .auth-user {
   margin: 0;

@@ -21,10 +21,14 @@ if (tg) {
   const appEl = document.getElementById("app");
   const telegramAppUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "";
 
-  if (bannerLink && telegramAppUrl && telegramAppUrl.indexOf("t.me") !== -1) {
+  const hintEl = document.getElementById("authBannerHint");
+  if (bannerLink && telegramAppUrl && telegramAppUrl.indexOf("t.me") !== -1 && telegramAppUrl.indexOf("YourBotName") === -1) {
     bannerLink.href = telegramAppUrl;
-  } else if (bannerLink) {
-    bannerLink.style.display = "none";
+    bannerLink.style.display = "";
+    if (hintEl) hintEl.style.display = "none";
+  } else {
+    if (bannerLink) bannerLink.style.display = "none";
+    if (hintEl) hintEl.style.display = "block";
   }
 
   function showAuthorized(user) {
@@ -40,37 +44,29 @@ if (tg) {
     if (banner) banner.classList.remove("auth-banner--hidden");
   }
 
-  if (!tg || !tg.initData) {
+  // Нет Telegram — показываем баннер «Откройте в Telegram»
+  if (!tg) {
     showUnauthorized();
     return;
   }
 
-  const base = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
-  if (!base) {
-    showAuthorized(tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : { first_name: "Гость" });
+  // Открыто из Telegram: сразу показываем пользователя авторизованным по данным от Telegram
+  var userFromTelegram = tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (userFromTelegram) {
+    showAuthorized(userFromTelegram);
+    // Проверку на сервере можно вызывать в фоне для логирования/аналитики (не блокируем интерфейс)
+    var base = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
+    if (base && tg.initData) {
+      fetch(base + "/api/auth-telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: tg.initData }),
+      }).catch(function () {});
+    }
     return;
   }
 
-  fetch(base + "/api/auth-telegram", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData: tg.initData }),
-  })
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-      if (data && data.ok && data.user) {
-        showAuthorized(data.user);
-      } else {
-        showUnauthorized();
-      }
-    })
-    .catch(function () {
-      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        showAuthorized(tg.initDataUnsafe.user);
-      } else {
-        showUnauthorized();
-      }
-    });
+  showUnauthorized();
 })();
 
 

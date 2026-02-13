@@ -17,14 +17,15 @@
     />
   </head>
   <body>
-    <div id="app" class="app" data-telegram-app-url="https://t.me/YourBotName">
+    <div id="app" class="app" data-telegram-app-url="">
       <div class="bg-gradient"></div>
       <div class="bg-blur"></div>
 
       <main class="card">
         <div class="auth-banner auth-banner--hidden" id="authBanner" role="alert">
           <p class="auth-banner__text">Откройте приложение в Telegram, чтобы войти.</p>
-          <a href="#" class="auth-banner__link" id="authBannerLink">Открыть в Telegram</a>
+          <a href="#" class="auth-banner__link" id="authBannerLink" style="display: none;">Открыть в Telegram</a>
+          <p class="auth-banner__hint" id="authBannerHint" style="display: none;">В index.html у тега с id="app" задайте атрибут data-telegram-app-url="https://t.me/имя_вашего_бота"</p>
         </div>
         <header class="card__header">
           <a
