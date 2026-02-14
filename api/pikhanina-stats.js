@@ -9,6 +9,7 @@ const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const KEY = "poker_app:pikhanina_claimed_count";
 const MAX_PRIZES = 10;
+const DEFAULT_CLAIMED = 3;
 const INITIAL_CLAIMED = process.env.PIKHANINA_CLAIMED_INITIAL;
 
 async function redisGet(key) {
@@ -52,9 +53,10 @@ module.exports = async function handler(req, res) {
   if (useInitial && initial > current) {
     await redisSet(KEY, Math.min(MAX_PRIZES, initial));
     raw = initial;
-  } else if ((raw === null || raw === undefined) && useInitial) {
-    await redisSet(KEY, Math.min(MAX_PRIZES, initial));
-    raw = initial;
+  } else if (raw === null || raw === undefined) {
+    const seed = useInitial ? initial : DEFAULT_CLAIMED;
+    await redisSet(KEY, Math.min(MAX_PRIZES, seed));
+    raw = seed;
   }
   const claimed = parseInt(raw, 10) || 0;
   const remaining = Math.max(0, MAX_PRIZES - claimed);

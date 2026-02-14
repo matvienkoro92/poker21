@@ -65,6 +65,10 @@ async function sendTelegramMessage(botToken, chatId, text) {
       disable_web_page_preview: true,
     }),
   });
+  if (!res.ok) {
+    const err = await res.text().catch(() => "");
+    console.error("[bonus-won] Telegram sendMessage failed:", res.status, err);
+  }
   return res.ok;
 }
 
