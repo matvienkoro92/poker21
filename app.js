@@ -1085,16 +1085,16 @@ updateVisitorCounter();
   el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
 })();
 
-// Таймер до начала сегодняшнего фрирола (18:00 мск = 15:00 UTC)
+// Таймер до конца поздней регистрации (21:00 мск = 18:00 UTC)
 function getNextFreerollStartMs() {
   var now = new Date();
-  var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
+  var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 18, 0, 0, 0));
   if (now >= start) start.setUTCDate(start.getUTCDate() + 1);
   return start.getTime() - now.getTime();
 }
 
 function formatCountdown(ms) {
-  if (ms <= 0) return "Идёт";
+  if (ms <= 0) return "Уже идёт";
   var s = Math.floor(ms / 1000);
   var m = Math.floor(s / 60);
   s = s % 60;
@@ -1110,10 +1110,11 @@ function formatCountdown(ms) {
 
 function updateFreerollTimer() {
   var ms = getNextFreerollStartMs();
-  var text = "До старта: " + formatCountdown(ms);
+  var countdownStr = formatCountdown(ms);
+  var text = "До конца поздней регистрации: " + countdownStr;
   var allTimers = document.querySelectorAll(".js-freeroll-timer");
   allTimers.forEach(function (el) {
-    if (el.id === "freerollTimer") el.textContent = " До старта: " + formatCountdown(ms);
+    if (el.id === "freerollTimer") el.textContent = " " + countdownStr;
     else el.textContent = text;
   });
 }
