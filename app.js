@@ -229,9 +229,10 @@ function setBonusAttempts(n) {
 function getUsedPromoIndices() {
   try {
     var raw = localStorage.getItem(bonusStorageKey("poker_bonus_used_promos_"));
-    return raw ? JSON.parse(raw) : [];
+    if (raw) return JSON.parse(raw);
+    return BONUS_PROMO_CODES.map(function (_, i) { return i; });
   } catch (_) {
-    return [];
+    return BONUS_PROMO_CODES.map(function (_, i) { return i; });
   }
 }
 
