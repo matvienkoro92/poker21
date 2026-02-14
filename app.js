@@ -399,6 +399,7 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
       resultEl.textContent = "Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.";
     }
   }
+  updateBonusStats();
 });
 
 document.getElementById("bonusGameRetry")?.addEventListener("click", function () {
