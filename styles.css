@@ -904,6 +904,13 @@ body {
   color: var(--text-muted);
 }
 
+.feature__timer {
+  display: block;
+  margin-top: 4px;
+  font-weight: 600;
+  color: var(--text);
+}
+
 /* Турнир дня: сверху стол с паролем на всю ширину + стрелка, турнир дня, внизу справа билет + стрелка вверх */
 .tournament-day {
   margin-top: 14px;

@@ -372,9 +372,10 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
 
   if (isWin) {
     const promoCode = getNextPromoCode();
+    updateBonusStats();
     const promoText = promoCode
       ? "Поздравляем, вы поймали Пиханину и отжали у него билет. Ваш промокод — " + promoCode + ". Напишите его в чат игроков."
-      : "Поздравляем, вы поймали Пиханину. Вы уже получили все промокоды. Напишите в чат игроков.";
+      : "Все билеты уже выданы, вы можете сыграть просто так.";
     resultEl.textContent = promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -548,6 +549,42 @@ updateVisitorCounter();
   el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
 })();
 
+// Таймер до начала сегодняшнего фрирола (18:00 мск = 15:00 UTC)
+function getNextFreerollStartMs() {
+  var now = new Date();
+  var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
+  if (now >= start) start.setUTCDate(start.getUTCDate() + 1);
+  return start.getTime() - now.getTime();
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return "Идёт";
+  var s = Math.floor(ms / 1000);
+  var m = Math.floor(s / 60);
+  s = s % 60;
+  var h = Math.floor(m / 60);
+  m = m % 60;
+  var d = Math.floor(h / 24);
+  h = h % 24;
+  if (d > 0) return d + " д " + h + " ч " + m + " мин";
+  if (h > 0) return h + " ч " + m + " мин";
+  if (m > 0) return m + " мин " + s + " с";
+  return s + " с";
+}
+
+function updateFreerollTimer() {
+  var ms = getNextFreerollStartMs();
+  var text = "До старта: " + formatCountdown(ms);
+  var el = document.getElementById("freerollTimer");
+  var elTooltip = document.getElementById("freerollTimerTooltip");
+  if (el) el.textContent = " До старта: " + formatCountdown(ms);
+  if (elTooltip) elTooltip.textContent = text;
+}
+
+(function initFreerollTimer() {
+  updateFreerollTimer();
+  setInterval(updateFreerollTimer, 1000);
+})();
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
