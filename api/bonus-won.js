@@ -92,7 +92,7 @@ module.exports = async function handler(req, res) {
   const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Без имени";
   const username = user.username ? "@" + user.username : "—";
   const text = [
-    "🎟 Кто-то выбил промокод в «Найди Пиханину»",
+    "🎟 Кто-то выбил приз 200р в «Найди Пиханину»",
     "",
     "Кто: " + name,
     "Username: " + username,

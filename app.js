@@ -220,9 +220,9 @@ const BONUS_SPADES = ["2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9
 const BONUS_PIHANINA = "Пиханина";
 const BONUS_ALL_SUITS = BONUS_DIAMONDS.concat(BONUS_SPADES);
 const BONUS_GAME_CARDS_COUNT = 27;
-const BONUS_PROMO_CODES = ["ДВАТУЗА2026", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР", "ПИХАНИНАТУРНИР"];
+const BONUS_PROMO_CODES = ["ПИХ200_01", "ПИХ200_02", "ПИХ200_03", "ПИХ200_04", "ПИХ200_05", "ПИХ200_06", "ПИХ200_07", "ПИХ200_08", "ПИХ200_09", "ПИХ200_10"];
 const BONUS_MAX_ATTEMPTS = 5;
-const BONUS_STORAGE_VERSION = "v2";
+const BONUS_STORAGE_VERSION = "v3";
 let bonusGameContents = [];
 
 function bonusStorageKey(name) {
@@ -251,9 +251,9 @@ function getUsedPromoIndices() {
   try {
     var raw = localStorage.getItem(bonusStorageKey("poker_bonus_used_promos_"));
     if (raw) return JSON.parse(raw);
-    return BONUS_PROMO_CODES.map(function (_, i) { return i; });
+    return [];
   } catch (_) {
-    return BONUS_PROMO_CODES.map(function (_, i) { return i; });
+    return [];
   }
 }
 
@@ -396,8 +396,8 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
     const promoCode = getNextPromoCode();
     updateBonusStats();
     const promoText = promoCode
-      ? "Поздравляем, вы поймали Пиханину и отжали у него беккинг-билет. Ваш промокод — " + promoCode + ". Напишите его в чат игроков."
-      : "Сегодня уже у него забрали все билеты, приходите ловить Пиханину в другой день либо можете сыграть просто так без призов.";
+      ? "Поздравляем, вы поймали Пиханину! Ваш приз 200р. Промокод для получения — " + promoCode + ". Напишите его в чат игроков."
+      : "Все призы на сегодня разыграны. Приходите ловить Пиханину в другой день либо можете сыграть просто так.";
     resultEl.textContent = promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
