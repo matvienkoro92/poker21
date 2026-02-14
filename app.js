@@ -695,7 +695,7 @@ function plastererOpponentBestHandName(knownBoardCount) {
   return bestFive ? plastererGetHandName5(bestFive) : "";
 }
 
-var PLASTERER_CARD_IMAGES_BASE = "./assets/карты";
+var PLASTERER_CARD_IMAGES_BASE = "./assets/карты%20бархат";
 
 function plastererCardToFilename(card) {
   if (!card || card.length < 2) return "";
@@ -1157,11 +1157,54 @@ function subscribeFreerollRemind(btn, remindWhen, successMessage) {
 }
 
 document.getElementById("freerollRemindBtn")?.addEventListener("click", function () {
-  subscribeFreerollRemind(this, "1h", "Вы подписаны на напоминание за час до турнира дня.");
+  subscribeFreerollRemind(this, "1h", "Вам придёт сообщение за час до начала.");
 });
 
 document.getElementById("freerollRemind10Btn")?.addEventListener("click", function () {
-  subscribeFreerollRemind(this, "10min", "Вы подписаны на напоминание за 10 минут до турнира дня.");
+  subscribeFreerollRemind(this, "10min", "Вам придёт сообщение за 10 минут до начала.");
+});
+
+document.getElementById("freerollRemind10SecBtn")?.addEventListener("click", function () {
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!initData) {
+    if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+    return;
+  }
+  var base = getApiBase();
+  if (!base) {
+    if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
+    return;
+  }
+  var btn = this;
+  btn.disabled = true;
+  fetch(base + "/api/freeroll-reminder-subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: initData, remindWhen: "10sec" }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.ok || !data.subscribed) {
+        if (tg && tg.showAlert) tg.showAlert(data.error || "Не удалось подписаться.");
+        btn.disabled = false;
+        return;
+      }
+      if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение через 10 секунд.");
+      setTimeout(function () {
+        fetch(base + "/api/freeroll-reminder-send?when=10sec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData }),
+        })
+          .then(function () { btn.disabled = false; })
+          .catch(function () { btn.disabled = false; });
+      }, 10000);
+    })
+    .catch(function () {
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
+      btn.disabled = false;
+    });
 });
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)

@@ -15,7 +15,8 @@ const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CRON_SECRET = process.env.CRON_SECRET;
-const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min" };
+const crypto = require("crypto");
+const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "10sec": "poker_app:freeroll_reminder_10sec" };
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
@@ -29,7 +30,35 @@ const TOURNAMENT_DETAILS = [
 const MESSAGES = {
   "1h": "⏰ Турнир дня начнётся через час!\n\n" + TOURNAMENT_DETAILS,
   "10min": "⏰ Турнир дня начнётся через 10 минут!\n\n" + TOURNAMENT_DETAILS,
+  "10sec": "⏰ Напоминание: турнир дня стартует!\n\n" + TOURNAMENT_DETAILS,
 };
+
+function validateTelegramWebAppData(initData, botToken) {
+  if (!initData || !botToken) return null;
+  const params = new URLSearchParams(initData);
+  const hash = params.get("hash");
+  params.delete("hash");
+  const dataCheckString = [...params.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}=${v}`)
+    .join("\n");
+  const secretKey = crypto
+    .createHmac("sha256", "WebAppData")
+    .update(botToken)
+    .digest();
+  const calculatedHash = crypto
+    .createHmac("sha256", secretKey)
+    .update(dataCheckString)
+    .digest("hex");
+  if (calculatedHash !== hash) return null;
+  const userStr = params.get("user");
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
+  } catch (e) {
+    return null;
+  }
+}
 
 async function redisPipeline(commands) {
   if (!REDIS_URL || !REDIS_TOKEN) return null;
@@ -73,7 +102,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
-  if (CRON_SECRET && (req.headers["x-cron-secret"] || req.query.secret) !== CRON_SECRET) {
+  const when = (req.query && req.query.when) === "10sec" ? "10sec" : (req.query && req.query.when) === "10min" ? "10min" : "1h";
+
+  if (when !== "10sec" && CRON_SECRET && (req.headers["x-cron-secret"] || req.query.secret) !== CRON_SECRET) {
     return res.status(403).json({ ok: false, error: "Invalid or missing CRON_SECRET" });
   }
 
@@ -81,7 +112,33 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ ok: false, error: "Set TELEGRAM_BOT_TOKEN" });
   }
 
-  const when = (req.query && req.query.when) === "10min" ? "10min" : "1h";
+  if (when === "10sec") {
+    let body;
+    try {
+      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+    } catch (e) {
+      return res.status(400).json({ ok: false, error: "Invalid JSON" });
+    }
+    const initData = body.initData || body.init_data;
+    if (!initData) {
+      return res.status(400).json({ ok: false, error: "initData required for when=10sec" });
+    }
+    const user = validateTelegramWebAppData(initData, BOT_TOKEN);
+    if (!user || !user.id) {
+      return res.status(401).json({ ok: false, error: "Invalid initData" });
+    }
+    const reminderKey = REMINDER_KEYS["10sec"];
+    const results = await redisPipeline([
+      ["SISMEMBER", reminderKey, String(user.id)],
+      ["SREM", reminderKey, String(user.id)],
+    ]);
+    if (!results || !results[0] || results[0].result !== 1) {
+      return res.status(200).json({ ok: true, when: "10sec", sent: 0, message: "Not subscribed or already sent" });
+    }
+    const sent = (await sendTelegramMessage(String(user.id), MESSAGES["10sec"])) ? 1 : 0;
+    return res.status(200).json({ ok: true, when: "10sec", sent, total: 1 });
+  }
+
   const reminderKey = REMINDER_KEYS[when];
   const messageText = MESSAGES[when];
 

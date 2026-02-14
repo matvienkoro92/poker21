@@ -9,7 +9,7 @@ const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min" };
+const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "10sec": "poker_app:freeroll_reminder_10sec" };
 
 function validateTelegramWebAppData(initData, botToken) {
   if (!initData || !botToken) return null;
@@ -88,7 +88,8 @@ module.exports = async function handler(req, res) {
     return res.status(401).json({ ok: false, error: "Invalid initData" });
   }
 
-  const when = (body.remindWhen || body.remind_when || "1h") === "10min" ? "10min" : "1h";
+  const whenRaw = body.remindWhen || body.remind_when || "1h";
+  const when = whenRaw === "10sec" ? "10sec" : whenRaw === "10min" ? "10min" : "1h";
   const key = REMINDER_KEYS[when];
   const added = await redisCommand("SADD", key, String(user.id));
   if (added === null) {
