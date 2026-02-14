@@ -12,3 +12,6 @@ logs
 *.log
 log.txt
 
+# Локальные резервные копии (папка на уровень выше проекта)
+../poker-club-miniapp-backups/
+
