@@ -93,7 +93,7 @@ module.exports = async function handler(req, res) {
   const key = REMINDER_KEYS[when];
   const added = await redisCommand("SADD", key, String(user.id));
   if (added === null) {
-    return res.status(500).json({ ok: false, error: "Redis unavailable. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN." });
+    return res.status(503).json({ ok: false, error: "Сервис напоминаний временно недоступен. Попробуйте позже." });
   }
 
   return res.status(200).json({ ok: true, subscribed: true });

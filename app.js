@@ -1146,7 +1146,8 @@ function subscribeFreerollRemind(btn, remindWhen, successMessage) {
       if (data.ok && data.subscribed) {
         if (tg && tg.showAlert) tg.showAlert(successMessage);
       } else {
-        if (tg && tg.showAlert) tg.showAlert(data.error || "Не удалось подписаться.");
+        var msg = data.error && data.error.indexOf("UPSTASH") === -1 ? data.error : "Сервис напоминаний временно недоступен. Попробуйте позже.";
+        if (tg && tg.showAlert) tg.showAlert(msg);
         btn.disabled = false;
       }
     })
@@ -1186,7 +1187,8 @@ document.getElementById("freerollRemind10SecBtn")?.addEventListener("click", fun
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (!data.ok || !data.subscribed) {
-        if (tg && tg.showAlert) tg.showAlert(data.error || "Не удалось подписаться.");
+        var msg = data.error && data.error.indexOf("UPSTASH") === -1 ? data.error : "Сервис напоминаний временно недоступен. Попробуйте позже.";
+        if (tg && tg.showAlert) tg.showAlert(msg);
         btn.disabled = false;
         return;
       }
