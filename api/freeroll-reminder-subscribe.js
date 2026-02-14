@@ -38,8 +38,13 @@ function validateTelegramWebAppData(initData, botToken) {
   }
 }
 
-async function redisCommand(command, ...args) {
-  if (!REDIS_URL || !REDIS_TOKEN) return null;
+/**
+ * Выполняет команду Redis через Upstash Pipeline. Возвращает { result } или { error, status }.
+ */
+async function redisCommandWithStatus(command, ...args) {
+  if (!REDIS_URL || !REDIS_TOKEN) {
+    return { error: "not_configured", status: 0 };
+  }
   const url = REDIS_URL.replace(/\/$/, "") + "/pipeline";
   const res = await fetch(url, {
     method: "POST",
@@ -49,9 +54,17 @@ async function redisCommand(command, ...args) {
     },
     body: JSON.stringify([[command, ...args]]),
   });
-  if (!res.ok) return null;
-  const data = await res.json();
-  return Array.isArray(data) && data[0] && data[0].result !== undefined ? data[0].result : null;
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    return { error: "request_failed", status: res.status };
+  }
+  if (!Array.isArray(data) || !data[0]) {
+    return { error: "bad_response", status: 200 };
+  }
+  if (data[0].error) {
+    return { error: "redis_error", status: res.status };
+  }
+  return { result: data[0].result };
 }
 
 module.exports = async function handler(req, res) {
@@ -91,10 +104,20 @@ module.exports = async function handler(req, res) {
   const whenRaw = body.remindWhen || body.remind_when || "1h";
   const when = whenRaw === "10sec" ? "10sec" : whenRaw === "10min" ? "10min" : "1h";
   const key = REMINDER_KEYS[when];
-  const added = await redisCommand("SADD", key, String(user.id));
-  if (added === null) {
-    return res.status(503).json({ ok: false, error: "Сервис напоминаний временно недоступен. Попробуйте позже." });
+  const out = await redisCommandWithStatus("SADD", key, String(user.id));
+
+  if (out.result !== undefined) {
+    return res.status(200).json({ ok: true, subscribed: true });
   }
 
-  return res.status(200).json({ ok: true, subscribed: true });
+  let userMessage = "Сервис напоминаний временно недоступен. Попробуйте позже.";
+  if (out.error === "not_configured") {
+    userMessage = "Не настроены переменные Redis. В Vercel добавьте UPSTASH_REDIS_REST_URL и UPSTASH_REDIS_REST_TOKEN, затем Redeploy.";
+  } else if (out.status === 401 || out.status === 403) {
+    userMessage = "Неверный токен Redis. В Upstash скопируйте стандартный токен (не Read Only).";
+  } else if (out.error === "bad_response" || out.error === "redis_error") {
+    userMessage = "Ошибка Redis. Проверьте настройки в Upstash и что база не приостановлена.";
+  }
+
+  return res.status(503).json({ ok: false, error: userMessage });
 };
