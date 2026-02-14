@@ -1,15 +1,31 @@
 /**
  * Уведомление тебе в Telegram, когда кто-то выбил промокод в «Найди Пиханину».
+ * При каждом выигрыше увеличивает глобальный счётчик выданных призов в Redis (для счётчика «осталось N»).
  *
  * В Vercel Environment Variables задай:
- *   TELEGRAM_BOT_TOKEN — токен бота (как в auth-telegram).
- *   TELEGRAM_NOTIFY_CHAT_ID — твой Telegram chat id (куда слать сообщения).
- *
- * Как узнать свой chat id: напиши боту /start, затем открой в браузере:
- *   https://api.telegram.org/bot<ТВОЙ_ТОКЕН>/getUpdates
- * В ответе найди "chat":{"id": 123456789} — это и есть TELEGRAM_NOTIFY_CHAT_ID.
+ *   TELEGRAM_BOT_TOKEN, TELEGRAM_NOTIFY_CHAT_ID,
+ *   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN (для счётчика).
  */
 const crypto = require("crypto");
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const PIKHANINA_CLAIMED_KEY = "poker_app:pikhanina_claimed_count";
+
+async function redisIncr(key) {
+  if (!REDIS_URL || !REDIS_TOKEN) return null;
+  const url = REDIS_URL.replace(/\/$/, "") + "/pipeline";
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${REDIS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify([["INCR", key]]),
+  });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null);
+  return Array.isArray(data) && data[0] && data[0].result !== undefined ? data[0].result : null;
+}
 
 function validateTelegramWebAppData(initData, botToken) {
   if (!initData || !botToken) return null;
@@ -99,6 +115,8 @@ module.exports = async function handler(req, res) {
     "ID: " + user.id,
     "Промокод: " + promoCode,
   ].join("\n");
+
+  await redisIncr(PIKHANINA_CLAIMED_KEY);
 
   const sent = await sendTelegramMessage(botToken, notifyChatId.trim(), text);
   if (!sent) {

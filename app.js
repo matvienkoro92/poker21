@@ -269,10 +269,37 @@ function resetBonusLimitForDevice() {
 }
 
 function updateBonusStats() {
-  const promoEl = document.getElementById("bonusGamePromoCount");
   const attemptsEl = document.getElementById("bonusGameAttemptsCount");
-  if (promoEl) promoEl.textContent = String(Math.max(0, BONUS_PROMO_CODES.length - getUsedPromoIndices().length));
   if (attemptsEl) attemptsEl.textContent = String(Math.max(0, BONUS_MAX_ATTEMPTS - getBonusAttempts()));
+}
+
+function updatePikhaninaRemainingFromServer(remaining) {
+  const promoEl = document.getElementById("bonusGamePromoCount");
+  const allCodesDoneEl = document.getElementById("bonusGameAllCodesDone");
+  const statsEl = document.getElementById("bonusGameStats");
+  if (promoEl) promoEl.textContent = String(remaining >= 0 ? remaining : 0);
+  if (allCodesDoneEl) allCodesDoneEl.style.display = remaining === 0 ? "block" : "none";
+  if (statsEl) statsEl.style.display = "block";
+}
+
+function fetchPikhaninaRemaining(callback) {
+  const base = getApiBase();
+  if (!base) {
+    updatePikhaninaRemainingFromServer(BONUS_PROMO_CODES.length);
+    if (callback) callback();
+    return;
+  }
+  fetch(base + "/api/pikhanina-stats")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      const remaining = typeof data.remaining === "number" ? data.remaining : BONUS_PROMO_CODES.length;
+      updatePikhaninaRemainingFromServer(remaining);
+      if (callback) callback();
+    })
+    .catch(function () {
+      updatePikhaninaRemainingFromServer(BONUS_PROMO_CODES.length);
+      if (callback) callback();
+    });
 }
 
 function notifyBonusWon(promoCode) {
@@ -321,6 +348,7 @@ function initBonusGame() {
   const noAttemptsEl = document.getElementById("bonusGameNoAttempts");
   if (!container || !resultEl || !retryBtn) return;
 
+  fetchPikhaninaRemaining();
   updateBonusStats();
   const attempts = getBonusAttempts();
   if (attempts >= BONUS_MAX_ATTEMPTS) {
@@ -334,11 +362,6 @@ function initBonusGame() {
 
   if (noAttemptsEl) noAttemptsEl.style.display = "none";
   container.style.display = "";
-
-  const allCodesDoneEl = document.getElementById("bonusGameAllCodesDone");
-  if (allCodesDoneEl) {
-    allCodesDoneEl.style.display = getUsedPromoIndices().length >= BONUS_PROMO_CODES.length ? "block" : "none";
-  }
 
   const pihaninaIndex = Math.floor(Math.random() * BONUS_GAME_CARDS_COUNT);
   bonusGameContents = [];
@@ -397,12 +420,15 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
     updateBonusStats();
     const promoText = promoCode
       ? "Поздравляем, вы поймали Пиханину! Ваш приз 200р. Промокод для получения — " + promoCode + ". Напишите его в чат игроков."
-      : "Все призы на сегодня разыграны. Приходите ловить Пиханину в другой день либо можете сыграть просто так.";
+      : "На сегодня из Пиханины выбили все бонусы.";
     resultEl.textContent = promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
-    if (promoCode) notifyBonusWon(promoCode);
+    if (promoCode) {
+      notifyBonusWon(promoCode);
+      fetchPikhaninaRemaining();
+    }
   } else {
     const attemptsLeft = BONUS_MAX_ATTEMPTS - getBonusAttempts();
     resultEl.textContent = "Это не Пиханина. В следующий раз повезёт! Осталось попыток: " + attemptsLeft + ".";
