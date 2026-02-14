@@ -47,11 +47,11 @@ async function redisCommand(command, ...args) {
       Authorization: `Bearer ${REDIS_TOKEN}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ commands: [[command, ...args]] }),
+    body: JSON.stringify([[command, ...args]]),
   });
   if (!res.ok) return null;
   const data = await res.json();
-  return data && data[0] && data[0].result !== undefined ? data[0].result : null;
+  return Array.isArray(data) && data[0] && data[0].result !== undefined ? data[0].result : null;
 }
 
 module.exports = async function handler(req, res) {

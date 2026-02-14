@@ -69,7 +69,7 @@ async function redisPipeline(commands) {
       Authorization: `Bearer ${REDIS_TOKEN}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ commands }),
+    body: JSON.stringify(commands),
   });
   if (!res.ok) return null;
   return res.json();
