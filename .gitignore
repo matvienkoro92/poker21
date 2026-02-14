@@ -3,6 +3,7 @@
 
 # Node / tooling
 node_modules/
+.venv/
 npm-debug.log*
 yarn.lock
 pnpm-lock.yaml

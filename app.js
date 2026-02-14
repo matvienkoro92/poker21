@@ -125,6 +125,12 @@ function setView(viewName) {
   if (viewName === "bonus-game") {
     initBonusGame();
   }
+  if (viewName === "cooler-game") {
+    initCoolerGame();
+  }
+  if (viewName === "plasterer-game") {
+    initPlastererGame();
+  }
 }
 
 function updateProfileUserName() {
@@ -191,6 +197,21 @@ downloadAppButtons.forEach((btn) => {
 
 downloadBackButtons.forEach((btn) => {
   btn.addEventListener("click", () => setDownloadPage("main"));
+});
+
+// Турнир дня: развернуть/свернуть блок с подробностями
+document.addEventListener("click", function (e) {
+  var toggle = e.target.closest(".js-tournament-day-toggle");
+  if (!toggle) return;
+  e.preventDefault();
+  var wrap = toggle.closest(".tournament-day-wrap");
+  var expanded = document.getElementById("tournamentDayExpanded");
+  if (!wrap || !expanded) return;
+  var isExpanded = expanded.hidden === false;
+  expanded.hidden = isExpanded;
+  toggle.setAttribute("aria-expanded", !isExpanded);
+  toggle.setAttribute("aria-label", isExpanded ? "Развернуть подробности турнира" : "Свернуть подробности турнира");
+  wrap.classList.toggle("tournament-day-wrap--expanded", !isExpanded);
 });
 
 // Мини-игра «Найди Пиханину» — колода буби (13) + колода пики (13) + джокер Пиханина = 27 карт
@@ -375,8 +396,8 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
     const promoCode = getNextPromoCode();
     updateBonusStats();
     const promoText = promoCode
-      ? "Поздравляем, вы поймали Пиханину и отжали у него билет. Ваш промокод — " + promoCode + ". Напишите его в чат игроков."
-      : "Все билеты уже выданы, вы можете сыграть просто так.";
+      ? "Поздравляем, вы поймали Пиханину и отжали у него беккинг-билет. Ваш промокод — " + promoCode + ". Напишите его в чат игроков."
+      : "Сегодня уже у него забрали все билеты, приходите ловить Пиханину в другой день либо можете сыграть просто так без призов.";
     resultEl.textContent = promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -405,6 +426,519 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
 
 document.getElementById("bonusGameRetry")?.addEventListener("click", function () {
   initBonusGame();
+});
+
+// Мини-игра «Слезы Кулера» — 27 карт (буби + пики + платок), найти платок = билет на турнир
+const COOLER_HANDKERCHIEF = "Платок";
+let coolerGameContents = [];
+
+function buildCoolerCardFaceContent(value) {
+  if (value === COOLER_HANDKERCHIEF) {
+    return "<span class=\"bonus-card__face-text bonus-card__face--joker\">Платок</span>";
+  }
+  const rank = getCardRank(value);
+  const isSpade = value.indexOf("♠") !== -1;
+  const suit = isSpade ? "♠" : "♦";
+  const suitClass = isSpade ? "bonus-card__suit bonus-card__suit--spade" : "bonus-card__suit";
+  return "<span class=\"bonus-card__rank bonus-card__rank--tl\">" + rank + "</span>" +
+         "<span class=\"bonus-card__rank bonus-card__rank--br\">" + rank + "</span>" +
+         "<span class=\"" + suitClass + "\">" + suit + "</span>";
+}
+
+function initCoolerGame() {
+  const container = document.getElementById("coolerGameCards");
+  const resultEl = document.getElementById("coolerGameResult");
+  const retryBtn = document.getElementById("coolerGameRetry");
+  if (!container || !resultEl || !retryBtn) return;
+
+  const handkerchiefIndex = Math.floor(Math.random() * BONUS_GAME_CARDS_COUNT);
+  coolerGameContents = [];
+  for (let i = 0; i < BONUS_GAME_CARDS_COUNT; i++) {
+    coolerGameContents.push(i === handkerchiefIndex ? COOLER_HANDKERCHIEF : BONUS_ALL_SUITS[i < handkerchiefIndex ? i : i - 1]);
+  }
+
+  container.innerHTML = "";
+  for (let i = 0; i < BONUS_GAME_CARDS_COUNT; i++) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "bonus-card";
+    card.dataset.cardIndex = String(i);
+    card.setAttribute("aria-label", "Карта " + (i + 1));
+    card.innerHTML = "<span class=\"bonus-card__back\">Poker21</span><span class=\"bonus-card__face\" aria-hidden=\"true\"></span>";
+    container.appendChild(card);
+  }
+
+  resultEl.textContent = "";
+  resultEl.className = "bonus-game-result";
+  retryBtn.style.display = "none";
+}
+
+document.getElementById("coolerGameCards")?.addEventListener("click", (e) => {
+  const card = e.target.closest(".bonus-card");
+  if (!card || card.classList.contains("bonus-card--revealed")) return;
+  const resultEl = document.getElementById("coolerGameResult");
+  const retryBtn = document.getElementById("coolerGameRetry");
+  if (!resultEl || !retryBtn) return;
+
+  const cards = card.parentElement.querySelectorAll(".bonus-card");
+  const clickedIndex = parseInt(card.dataset.cardIndex, 10);
+  const isWin = coolerGameContents[clickedIndex] === COOLER_HANDKERCHIEF;
+
+  cards.forEach((c, i) => {
+    c.classList.add("bonus-card--revealed");
+    c.disabled = true;
+    const face = c.querySelector(".bonus-card__face");
+    if (face) {
+      face.innerHTML = buildCoolerCardFaceContent(coolerGameContents[i]);
+    }
+    if (coolerGameContents[i] === COOLER_HANDKERCHIEF) c.classList.add("bonus-card--win");
+    else if (i === clickedIndex) c.classList.add("bonus-card--lose");
+  });
+
+  if (isWin) {
+    resultEl.textContent = "Спасибо! Кулер вытер слёзы и дал вам билет на турнир. Напишите в чат игроков.";
+    resultEl.classList.add("bonus-game-result--win");
+    retryBtn.style.display = "none";
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+  } else {
+    resultEl.textContent = "Это не платок. Попробуйте ещё раз!";
+    resultEl.classList.add("bonus-game-result--lose");
+    retryBtn.style.display = "block";
+  }
+});
+
+document.getElementById("coolerGameRetry")?.addEventListener("click", function () {
+  initCoolerGame();
+});
+
+// Игра «Переедь Штукатура» — попытки безлимитные, считаем попытки до победы
+var PLASTERER_RANKS = "2 3 4 5 6 7 8 9 T J Q K A".split(" ");
+var PLASTERER_SUITS = ["\u2660", "\u2665", "\u2666", "\u2663"];
+var plastererDeck = [];
+var plastererOpponentHand = [];
+var plastererPlayerHand = [];
+var plastererBoardCards = [];
+var plastererAttemptCount = 0;
+var plastererBoardStep = 0;
+
+function buildPlastererDeck() {
+  var d = [];
+  for (var s = 0; s < PLASTERER_SUITS.length; s++) {
+    for (var r = 0; r < PLASTERER_RANKS.length; r++) {
+      d.push(PLASTERER_RANKS[r] + PLASTERER_SUITS[s]);
+    }
+  }
+  return d;
+}
+
+function shufflePlasterer(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i];
+    arr[i] = arr[j];
+    arr[j] = t;
+  }
+  return arr;
+}
+
+function plastererCardRank(card) {
+  var r = card.charAt(0);
+  var i = PLASTERER_RANKS.indexOf(r);
+  return i >= 0 ? i : 0;
+}
+
+function plastererCardSuit(card) {
+  return card.length >= 2 ? card.charAt(1) : "";
+}
+
+function plastererEval5(cards) {
+  var ranks = cards.map(plastererCardRank).sort(function (a, b) { return b - a; });
+  var suits = cards.map(plastererCardSuit);
+  var countByRank = {};
+  var countBySuit = {};
+  for (var i = 0; i < 5; i++) {
+    countByRank[ranks[i]] = (countByRank[ranks[i]] || 0) + 1;
+    countBySuit[suits[i]] = (countBySuit[suits[i]] || 0) + 1;
+  }
+  var flush = Object.keys(countBySuit).length === 1;
+  var sorted = ranks.slice().sort(function (a, b) { return a - b; });
+  var wheel = sorted[0] === 0 && sorted[1] === 1 && sorted[2] === 2 && sorted[3] === 3 && sorted[4] === 12;
+  var straight = wheel || (sorted[4] - sorted[0] === 4 && sorted[1] - sorted[0] === 1 && sorted[2] - sorted[1] === 1 && sorted[3] - sorted[2] === 1 && sorted[4] - sorted[3] === 1);
+  var quads = false, set = false, pairCount = 0, pairRank = -1, pairRank2 = -1, setRank = -1, quadRank = -1;
+  for (var r = 12; r >= 0; r--) {
+    var c = countByRank[r] || 0;
+    if (c === 4) { quads = true; quadRank = r; }
+    if (c === 3) { set = true; setRank = r; }
+    if (c === 2) { pairCount++; if (pairRank < 0) pairRank = r; else if (pairRank2 < 0) pairRank2 = r; }
+  }
+  var kickers = ranks.filter(function (x) {
+    if (quadRank >= 0 && x === quadRank) return false;
+    if (setRank >= 0 && x === setRank) return false;
+    if (pairRank >= 0 && x === pairRank) return false;
+    if (pairRank2 >= 0 && x === pairRank2) return false;
+    return true;
+  }).slice(0, 5);
+  var score = 0;
+  if (flush && straight) score = 9000000000 + (wheel ? 0 : sorted[4]) * 1e7;
+  else if (quads) score = 8000000000 + quadRank * 1e8 + (kickers[0] !== undefined ? kickers[0] : 0) * 1e6;
+  else if (set && pairCount >= 1) score = 7000000000 + setRank * 1e8 + pairRank * 1e6;
+  else if (flush) score = 6000000000 + ranks[0] * 1e7 + ranks[1] * 1e5 + ranks[2] * 1e3 + ranks[3] * 10 + ranks[4];
+  else if (straight) score = 5000000000 + (wheel ? 0 : sorted[4]) * 1e7;
+  else if (set) score = 4000000000 + setRank * 1e8 + (kickers[0] !== undefined ? kickers[0] : 0) * 1e6 + (kickers[1] !== undefined ? kickers[1] : 0) * 1e4;
+  else if (pairCount === 2) score = 3000000000 + Math.max(pairRank, pairRank2) * 1e8 + Math.min(pairRank, pairRank2) * 1e6 + (kickers[0] !== undefined ? kickers[0] : 0) * 1e4;
+  else if (pairCount === 1) score = 2000000000 + pairRank * 1e8 + (kickers[0] !== undefined ? kickers[0] : 0) * 1e6 + (kickers[1] !== undefined ? kickers[1] : 0) * 1e4 + (kickers[2] !== undefined ? kickers[2] : 0) * 1e2;
+  else score = 1000000000 + ranks[0] * 1e7 + ranks[1] * 1e5 + ranks[2] * 1e3 + ranks[3] * 10 + ranks[4];
+  return score;
+}
+
+function plastererBestHand(seven) {
+  var best = 0;
+  for (var i = 0; i < 7; i++) {
+    for (var j = i + 1; j < 7; j++) {
+      var five = seven.filter(function (_, idx) { return idx !== i && idx !== j; });
+      var s = plastererEval5(five);
+      if (s > best) best = s;
+    }
+  }
+  return best;
+}
+
+var PLASTERER_RANK_NAMES = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "валета", "дамы", "короля", "туза"];
+var PLASTERER_RANK_NAMES_PLURAL = ["двоек", "троек", "четвёрок", "пятёрок", "шестёрок", "семёрок", "восьмёрок", "девяток", "десяток", "валетов", "дам", "королей", "тузов"];
+
+function plastererGetHandName5(fiveCards) {
+  if (!fiveCards || fiveCards.length !== 5) return "";
+  var ranks = fiveCards.map(plastererCardRank).sort(function (a, b) { return b - a; });
+  var suits = fiveCards.map(plastererCardSuit);
+  var countByRank = {};
+  var countBySuit = {};
+  for (var i = 0; i < 5; i++) {
+    countByRank[ranks[i]] = (countByRank[ranks[i]] || 0) + 1;
+    countBySuit[suits[i]] = (countBySuit[suits[i]] || 0) + 1;
+  }
+  var flush = Object.keys(countBySuit).length === 1;
+  var sorted = ranks.slice().sort(function (a, b) { return a - b; });
+  var wheel = sorted[0] === 0 && sorted[1] === 1 && sorted[2] === 2 && sorted[3] === 3 && sorted[4] === 12;
+  var straight = wheel || (sorted[4] - sorted[0] === 4 && sorted[1] - sorted[0] === 1 && sorted[2] - sorted[1] === 1 && sorted[3] - sorted[2] === 1 && sorted[4] - sorted[3] === 1);
+  var quads = false, set = false, pairCount = 0, pairRank = -1, pairRank2 = -1, setRank = -1, quadRank = -1;
+  for (var r = 12; r >= 0; r--) {
+    var c = countByRank[r] || 0;
+    if (c === 4) { quads = true; quadRank = r; }
+    if (c === 3) { set = true; setRank = r; }
+    if (c === 2) { pairCount++; if (pairRank < 0) pairRank = r; else if (pairRank2 < 0) pairRank2 = r; }
+  }
+  var rn = function (i) { return PLASTERER_RANK_NAMES[i] || ""; };
+  var rnPlural = function (i) { return PLASTERER_RANK_NAMES_PLURAL[i] || rn(i); };
+  if (flush && straight) return wheel ? "Стрит-флеш (колесо)" : "Стрит-флеш";
+  if (quads) return "Каре " + rnPlural(quadRank);
+  if (set && pairCount >= 1) return "Фулл-хаус (" + rnPlural(setRank) + " и " + rnPlural(pairRank) + ")";
+  if (flush) return "Флеш";
+  if (straight) return wheel ? "Стрит (колесо)" : "Стрит";
+  if (set) return "Сет " + rnPlural(setRank);
+  if (pairCount === 2) return "Две пары (" + rnPlural(Math.max(pairRank, pairRank2)) + " и " + rnPlural(Math.min(pairRank, pairRank2)) + ")";
+  if (pairCount === 1) return "Пара " + rnPlural(pairRank);
+  return "Старшая карта " + rn(ranks[0]);
+}
+
+function plastererPlayerBestHandName(knownBoardCount) {
+  var cards = plastererPlayerHand.concat(plastererBoardCards.slice(0, knownBoardCount));
+  if (cards.length < 5) return "";
+  var bestScore = 0, bestFive = null;
+  if (cards.length === 5) {
+    bestFive = cards;
+    bestScore = plastererEval5(cards);
+  } else {
+    if (cards.length === 6) {
+      for (var i = 0; i < cards.length; i++) {
+        var five = cards.filter(function (_, idx) { return idx !== i; });
+        var s = plastererEval5(five);
+        if (s > bestScore) { bestScore = s; bestFive = five; }
+      }
+    } else {
+      for (var i = 0; i < cards.length; i++) {
+        for (var j = i + 1; j < cards.length; j++) {
+          var five = cards.filter(function (_, idx) { return idx !== i && idx !== j; });
+          var s = plastererEval5(five);
+          if (s > bestScore) { bestScore = s; bestFive = five; }
+        }
+      }
+    }
+  }
+  return bestFive ? plastererGetHandName5(bestFive) : "";
+}
+
+function plastererOpponentBestHandName(knownBoardCount) {
+  var cards = plastererOpponentHand.concat(plastererBoardCards.slice(0, knownBoardCount));
+  if (cards.length < 5) return "";
+  var bestScore = 0, bestFive = null;
+  if (cards.length === 5) {
+    bestFive = cards;
+    bestScore = plastererEval5(cards);
+  } else {
+    if (cards.length === 6) {
+      for (var i = 0; i < cards.length; i++) {
+        var five = cards.filter(function (_, idx) { return idx !== i; });
+        var s = plastererEval5(five);
+        if (s > bestScore) { bestScore = s; bestFive = five; }
+      }
+    } else {
+      for (var i = 0; i < cards.length; i++) {
+        for (var j = i + 1; j < cards.length; j++) {
+          var five = cards.filter(function (_, idx) { return idx !== i && idx !== j; });
+          var s = plastererEval5(five);
+          if (s > bestScore) { bestScore = s; bestFive = five; }
+        }
+      }
+    }
+  }
+  return bestFive ? plastererGetHandName5(bestFive) : "";
+}
+
+var PLASTERER_CARD_IMAGES_BASE = "./assets/карты";
+
+function plastererCardToFilename(card) {
+  if (!card || card.length < 2) return "";
+  var rankCh = card.charAt(0);
+  var suitCh = card.charAt(1);
+  var suit = suitCh === "\u2660" ? "s" : suitCh === "\u2665" ? "h" : suitCh === "\u2666" ? "d" : suitCh === "\u2663" ? "c" : "";
+  if (!suit) return "";
+  var rank = rankCh === "T" ? "10" : rankCh.toLowerCase();
+  return "common_" + suit + "_" + rank + ".png";
+}
+
+function renderPlastererCard(card) {
+  if (!card) return "";
+  var suit = card.length >= 2 ? card.charAt(1) : "";
+  var cls = "plasterer-card";
+  if (suit === "\u2663") cls += " plasterer-card--club";
+  else if (suit === "\u2666") cls += " plasterer-card--diamond";
+  else if (suit === "\u2660") cls += " plasterer-card--spade";
+  else if (suit === "\u2665") cls += " plasterer-card--heart";
+  else cls += " plasterer-card--black";
+  var filename = plastererCardToFilename(card);
+  if (filename) {
+    var src = PLASTERER_CARD_IMAGES_BASE + "/" + filename;
+    return "<img class=\"" + cls + "\" src=\"" + src + "\" alt=\"" + card.replace(/"/g, "&quot;") + "\" loading=\"lazy\" />";
+  }
+  return "<div class=\"" + cls + "\">" + card + "</div>";
+}
+
+function renderPlastererCards(containerId, cards) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = cards.map(function (c) { return renderPlastererCard(c, false); }).join("");
+}
+
+function initPlastererGame() {
+  var nameEl = document.getElementById("plastererPlayerName");
+  if (nameEl) {
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    nameEl.textContent = user && user.first_name ? user.first_name : "Вы";
+  }
+  plastererOpponentHand = [];
+  plastererPlayerHand = [];
+  plastererBoardCards = [];
+  renderPlastererCards("plastererOpponentCards", []);
+  renderPlastererCards("plastererPlayerCards", []);
+  ["plastererFlop0", "plastererFlop1", "plastererFlop2", "plastererTurn", "plastererRiver"].forEach(function (id) {
+    var slot = document.getElementById(id);
+    if (slot) { slot.innerHTML = ""; slot.classList.remove("has-card"); }
+  });
+  var resultEl = document.getElementById("plastererResult");
+  if (resultEl) { resultEl.textContent = ""; resultEl.className = "plasterer-result"; }
+  plastererAttemptCount = 0;
+  var oppEq = document.getElementById("plastererOpponentEquity");
+  var plEq = document.getElementById("plastererPlayerEquity");
+  if (oppEq) oppEq.textContent = "";
+  if (plEq) plEq.textContent = "";
+  var handNameEl = document.getElementById("plastererPlayerHandName");
+  if (handNameEl) handNameEl.textContent = "";
+  var oppHandNameEl = document.getElementById("plastererOpponentHandName");
+  if (oppHandNameEl) oppHandNameEl.textContent = "";
+  var avatarImg = document.getElementById("plastererOpponentAvatarImg");
+  if (avatarImg) avatarImg.src = "./assets/plasterer-smile.png";
+  var dealBtn = document.getElementById("plastererDealBtn");
+  var spinBtn = document.getElementById("plastererSpinBtn");
+  var againBtn = document.getElementById("plastererPlayAgainBtn");
+  if (dealBtn) dealBtn.style.display = "";
+  if (spinBtn) spinBtn.style.display = "none";
+  if (againBtn) againBtn.style.display = "none";
+}
+
+function dealPlastererHands() {
+  var deck = buildPlastererDeck();
+  var aces = deck.filter(function (c) { return c.charAt(0) === "A"; });
+  shufflePlasterer(aces);
+  plastererOpponentHand = aces.slice(0, 2);
+  var rest = deck.filter(function (c) { return plastererOpponentHand.indexOf(c) < 0; });
+  shufflePlasterer(rest);
+  plastererPlayerHand = rest.slice(0, 2);
+  plastererBoardCards = rest.slice(2, 7);
+}
+
+function plastererEquity(knownBoardCount) {
+  knownBoardCount = knownBoardCount || 0;
+  var known = plastererOpponentHand.concat(plastererPlayerHand);
+  var boardKnown = plastererBoardCards.slice(0, knownBoardCount);
+  for (var i = 0; i < boardKnown.length; i++) known.push(boardKnown[i]);
+  var deck = buildPlastererDeck();
+  var remaining = deck.filter(function (c) { return known.indexOf(c) < 0; });
+  var need = 5 - knownBoardCount;
+  var playerWins = 0, oppWins = 0, ties = 0;
+  var trials = 1500;
+  for (var t = 0; t < trials; t++) {
+    shufflePlasterer(remaining);
+    var board = boardKnown.concat(remaining.slice(0, need));
+    var oppScore = plastererBestHand(plastererOpponentHand.concat(board));
+    var plScore = plastererBestHand(plastererPlayerHand.concat(board));
+    if (plScore > oppScore) playerWins++;
+    else if (plScore < oppScore) oppWins++;
+    else ties++;
+  }
+  return {
+    player: (playerWins / trials) * 100,
+    opponent: (oppWins / trials) * 100,
+    tie: (ties / trials) * 100
+  };
+}
+
+function formatEquityPct(value) {
+  if (value >= 99.95) return "100%";
+  if (value > 0 && value < 1) return value.toFixed(2) + "%";
+  if (value === 0) return "0.0%";
+  if (value >= 1 && value < 99) return Math.round(value) + "%";
+  if (value >= 99) return value.toFixed(1) + "%";
+  return value.toFixed(1) + "%";
+}
+
+function updatePlastererEquity(knownBoardCount) {
+  var eq = plastererEquity(knownBoardCount);
+  var oppEl = document.getElementById("plastererOpponentEquity");
+  var plEl = document.getElementById("plastererPlayerEquity");
+  if (oppEl) oppEl.textContent = "Шансы на победу: " + formatEquityPct(eq.opponent);
+  if (plEl) plEl.textContent = "Шансы на победу: " + formatEquityPct(eq.player);
+  var plHandEl = document.getElementById("plastererPlayerHandName");
+  if (plHandEl) plHandEl.textContent = knownBoardCount === 0 ? "—" : plastererPlayerBestHandName(knownBoardCount);
+  var oppHandEl = document.getElementById("plastererOpponentHandName");
+  if (oppHandEl) oppHandEl.textContent = knownBoardCount === 0 ? "—" : plastererOpponentBestHandName(knownBoardCount);
+}
+
+function showPlastererBoard() {
+  var ids = ["plastererFlop0", "plastererFlop1", "plastererFlop2", "plastererTurn", "plastererRiver"];
+  ids.forEach(function (id, i) {
+    var slot = document.getElementById(id);
+    if (slot && plastererBoardCards[i]) {
+      slot.innerHTML = renderPlastererCard(plastererBoardCards[i]);
+      slot.classList.add("has-card");
+    }
+  });
+}
+
+function dealPlastererOnly() {
+  plastererAttemptCount++;
+  dealPlastererHands();
+  renderPlastererCards("plastererOpponentCards", plastererOpponentHand);
+  renderPlastererCards("plastererPlayerCards", plastererPlayerHand);
+  ["plastererFlop0", "plastererFlop1", "plastererFlop2", "plastererTurn", "plastererRiver"].forEach(function (id) {
+    var slot = document.getElementById(id);
+    if (slot) { slot.innerHTML = ""; slot.classList.remove("has-card"); }
+  });
+  var resultEl = document.getElementById("plastererResult");
+  if (resultEl) resultEl.textContent = "";
+  plastererBoardStep = 0;
+  var dealBtn = document.getElementById("plastererDealBtn");
+  var spinBtn = document.getElementById("plastererSpinBtn");
+  if (dealBtn) dealBtn.style.display = "none";
+  if (spinBtn) {
+    spinBtn.style.display = "";
+    spinBtn.textContent = "Крути шарманку";
+  }
+  updatePlastererEquity(0);
+}
+
+function runPlastererBoardStep() {
+  var spinBtn = document.getElementById("plastererSpinBtn");
+  var resultEl = document.getElementById("plastererResult");
+
+  if (plastererBoardStep === 0) {
+    var ids = ["plastererFlop0", "plastererFlop1", "plastererFlop2"];
+    ids.forEach(function (id, i) {
+      var slot = document.getElementById(id);
+      if (slot && plastererBoardCards[i]) {
+        slot.innerHTML = renderPlastererCard(plastererBoardCards[i]);
+        slot.classList.add("has-card");
+      }
+    });
+    plastererBoardStep = 1;
+    if (spinBtn) spinBtn.textContent = "Показать терн";
+    updatePlastererEquity(3);
+    return;
+  }
+
+  if (plastererBoardStep === 1) {
+    var slot = document.getElementById("plastererTurn");
+    if (slot && plastererBoardCards[3]) {
+      slot.innerHTML = renderPlastererCard(plastererBoardCards[3]);
+      slot.classList.add("has-card");
+    }
+    plastererBoardStep = 2;
+    if (spinBtn) spinBtn.textContent = "Показать ривер";
+    updatePlastererEquity(4);
+    return;
+  }
+
+  if (plastererBoardStep === 2) {
+    var riverSlot = document.getElementById("plastererRiver");
+    if (riverSlot && plastererBoardCards[4]) {
+      riverSlot.innerHTML = renderPlastererCard(plastererBoardCards[4]);
+      riverSlot.classList.add("has-card");
+    }
+    updatePlastererEquity(5);
+    var oppScore = plastererBestHand(plastererOpponentHand.concat(plastererBoardCards));
+    var plScore = plastererBestHand(plastererPlayerHand.concat(plastererBoardCards));
+    if (resultEl) {
+      var avatarImg = document.getElementById("plastererOpponentAvatarImg");
+      if (plScore > oppScore) {
+        if (avatarImg) avatarImg.src = "./assets/plasterer-sad.png";
+        var ord = plastererAttemptCount === 1 ? "1-й" : plastererAttemptCount + "-й";
+        resultEl.textContent = "Вы выиграли Штукатура с " + ord + " попытки!";
+        resultEl.className = "plasterer-result plasterer-result--win";
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+        var againBtn = document.getElementById("plastererPlayAgainBtn");
+        if (spinBtn) spinBtn.style.display = "none";
+        if (againBtn) againBtn.style.display = "";
+      } else if (plScore < oppScore) {
+        if (avatarImg) avatarImg.src = "./assets/plasterer-happy.png";
+        resultEl.textContent = "Штукатур победил. В следующий раз повезёт!";
+        resultEl.className = "plasterer-result plasterer-result--lose";
+        if (spinBtn) spinBtn.style.display = "none";
+        var dealBtn = document.getElementById("plastererDealBtn");
+        if (dealBtn) dealBtn.style.display = "";
+      } else {
+        if (avatarImg) avatarImg.src = "./assets/plasterer-smile.png";
+        resultEl.textContent = "Ничья!";
+        resultEl.className = "plasterer-result";
+        if (spinBtn) spinBtn.style.display = "none";
+        var dealBtn = document.getElementById("plastererDealBtn");
+        if (dealBtn) dealBtn.style.display = "";
+      }
+    }
+  }
+}
+
+document.getElementById("plastererDealBtn")?.addEventListener("click", function () {
+  dealPlastererOnly();
+});
+
+document.getElementById("plastererSpinBtn")?.addEventListener("click", function () {
+  runPlastererBoardStep();
+});
+
+document.getElementById("plastererPlayAgainBtn")?.addEventListener("click", function () {
+  initPlastererGame();
 });
 
 // Счётчик уникальных и повторных посетителей
@@ -577,16 +1111,58 @@ function formatCountdown(ms) {
 function updateFreerollTimer() {
   var ms = getNextFreerollStartMs();
   var text = "До старта: " + formatCountdown(ms);
-  var el = document.getElementById("freerollTimer");
-  var elTooltip = document.getElementById("freerollTimerTooltip");
-  if (el) el.textContent = " До старта: " + formatCountdown(ms);
-  if (elTooltip) elTooltip.textContent = text;
+  var allTimers = document.querySelectorAll(".js-freeroll-timer");
+  allTimers.forEach(function (el) {
+    if (el.id === "freerollTimer") el.textContent = " До старта: " + formatCountdown(ms);
+    else el.textContent = text;
+  });
 }
 
 (function initFreerollTimer() {
   updateFreerollTimer();
   setInterval(updateFreerollTimer, 1000);
 })();
+
+function subscribeFreerollRemind(btn, remindWhen, successMessage) {
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!initData) {
+    if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+    return;
+  }
+  var base = getApiBase();
+  if (!base) {
+    if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
+    return;
+  }
+  btn.disabled = true;
+  fetch(base + "/api/freeroll-reminder-subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: initData, remindWhen: remindWhen }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok && data.subscribed) {
+        if (tg && tg.showAlert) tg.showAlert(successMessage);
+      } else {
+        if (tg && tg.showAlert) tg.showAlert(data.error || "Не удалось подписаться.");
+        btn.disabled = false;
+      }
+    })
+    .catch(function () {
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
+      btn.disabled = false;
+    });
+}
+
+document.getElementById("freerollRemindBtn")?.addEventListener("click", function () {
+  subscribeFreerollRemind(this, "1h", "Вы подписаны на напоминание за час до турнира дня.");
+});
+
+document.getElementById("freerollRemind10Btn")?.addEventListener("click", function () {
+  subscribeFreerollRemind(this, "10min", "Вы подписаны на напоминание за 10 минут до турнира дня.");
+});
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск

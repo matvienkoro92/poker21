@@ -18,6 +18,10 @@
   box-sizing: border-box;
 }
 
+.is-hidden {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -259,6 +263,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.features-section-title {
+  margin: 18px 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .home-mini-icons {
@@ -863,6 +874,113 @@ body {
   line-height: 1.35;
 }
 
+/* Карточка «Турнир дня» с возможностью разворота */
+.tournament-day-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border-radius: 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.tournament-day-card__toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-radius: inherit;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.tournament-day-card__toggle:hover {
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.tournament-day-card__toggle .feature__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.tournament-day-card__chevron {
+  flex-shrink: 0;
+  font-size: 10px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.tournament-day-wrap--expanded .tournament-day-card__chevron {
+  transform: rotate(180deg);
+}
+
+.tournament-day-expanded {
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.tournament-day-expanded[hidden] {
+  display: none;
+}
+
+.tournament-day-expanded__inner {
+  padding: 12px 16px 16px;
+  margin: 0 16px 14px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 12px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.tournament-day-expanded__inner .tournament-day-tooltip__logo {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+}
+
+.tournament-day-expanded__inner .tournament-day-tooltip__row + .tournament-day-tooltip__row {
+  margin-top: 2px;
+}
+
+.tournament-day-expanded__inner .tournament-day-tooltip__note {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.tournament-day-expanded__link {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.tournament-day-card__remind-row {
+  display: flex;
+  gap: 8px;
+  margin: 6px 16px 12px;
+}
+
+.tournament-day-card__remind {
+  flex: 1;
+  min-width: 0;
+  width: auto !important;
+  max-width: none;
+  margin: 0;
+  padding: 6px 4px;
+  font-size: 12px !important;
+  line-height: 1.2;
+  text-align: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
 .feature__icon {
   width: 32px;
   height: 32px;
@@ -1426,6 +1544,11 @@ body {
   line-height: 1.45;
 }
 
+.cooler-game-hint {
+  font-weight: 600;
+  color: var(--text);
+}
+
 .bonus-game-all-codes-done {
   margin: 0 0 16px;
   padding: 12px;
@@ -1632,6 +1755,179 @@ body {
 
 .bonus-game-reset:hover {
   color: var(--text);
+}
+
+/* Переедь Штукатура */
+.plasterer-desc {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.plasterer-table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 20px;
+  background: linear-gradient(145deg, #0f172a, #1e293b);
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+}
+
+.plasterer-opponent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.plasterer-opponent .plasterer-equity,
+.plasterer-opponent .plasterer-hand-name {
+  margin-bottom: 4px;
+}
+
+.plasterer-opponent .plasterer-cards {
+  margin-top: 14px;
+}
+
+.plasterer-avatar {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.plasterer-opponent-head {
+  margin-bottom: 8px;
+}
+
+.plasterer-opponent-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.plasterer-equity {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.plasterer-hand-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.plasterer-cards {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  min-height: 52px;
+}
+
+.plasterer-board {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  min-height: 52px;
+}
+
+.plasterer-board-slot {
+  width: 40px;
+  height: 52px;
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text);
+  transition: background 0.2s ease;
+}
+
+.plasterer-board-slot.has-card {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+}
+
+.plasterer-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.plasterer-card {
+  width: 40px;
+  height: 52px;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+img.plasterer-card {
+  width: 40px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Цвета мастей: трефы — зелёный, буби — синий, пики и черви — чёрный */
+.plasterer-card--club {
+  color: #22c55e;
+}
+
+.plasterer-card--diamond {
+  color: #3b82f6;
+}
+
+.plasterer-card--spade {
+  color: #e2e8f0;
+}
+
+.plasterer-card--heart {
+  color: #f87171;
+}
+
+.plasterer-card--black {
+  color: #e2e8f0;
+}
+
+.plasterer-result {
+  min-height: 1.5em;
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text);
+}
+
+.plasterer-result--win {
+  color: #22c55e;
+}
+
+.plasterer-result--lose {
+  color: #ef4444;
+}
+
+.plasterer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plasterer-actions .primary-button {
+  margin-top: 0;
 }
 
 @media (max-width: 480px) {

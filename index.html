@@ -91,32 +91,45 @@
             </div>
 
             <div class="features">
-              <div class="feature-tooltip-wrap">
+              <div class="feature-tooltip-wrap tournament-day-wrap">
                 <div class="tournament-day-tooltip" role="tooltip" aria-hidden="true">
                   <div class="tournament-day-tooltip__logo">Poker21</div>
                   <div class="tournament-day-tooltip__row">Старт в 18:00 мск</div>
-                  <div class="tournament-day-tooltip__row tournament-day-tooltip__timer" id="freerollTimerTooltip" aria-live="polite">До старта: —</div>
+                  <div class="tournament-day-tooltip__row tournament-day-tooltip__timer js-freeroll-timer" id="freerollTimerTooltip" aria-live="polite">До старта: —</div>
                   <div class="tournament-day-tooltip__row">Вход 0</div>
                   <div class="tournament-day-tooltip__row">Ребай 250р</div>
                   <div class="tournament-day-tooltip__row">Аддон 250р</div>
                   <div class="tournament-day-tooltip__note">Бонусы за комбинации до аддона</div>
                 </div>
-                <a
-                  class="feature feature--link feature--highlight"
-                  href="#"
-                  data-view-target="download"
-                  data-download-page="poker21"
-                  aria-label="Перейти в раздел Poker21"
-                >
-                  <div class="feature__icon feature__icon--purple">🏆</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Турнир дня (суббота 14.02)</div>
-                    <div class="feature__text">
-                      Фриролл в 18:00 мск на 100 000р — в Poker21
-                      <span class="feature__timer" id="freerollTimer" aria-live="polite"></span>
+                <div class="feature feature--highlight tournament-day-card" id="tournamentDayCard">
+                  <button type="button" class="tournament-day-card__toggle js-tournament-day-toggle" aria-expanded="false" aria-controls="tournamentDayExpanded" aria-label="Развернуть подробности турнира">
+                    <span class="feature__icon feature__icon--purple">🏆</span>
+                    <span class="feature__body">
+                      <span class="feature__title">Турнир дня (суббота 14.02)</span>
+                      <span class="feature__text">
+                        Фриролл в 18:00 мск на 100 000р — в Poker21
+                        <span class="feature__timer js-freeroll-timer" id="freerollTimer" aria-live="polite"></span>
+                      </span>
+                    </span>
+                    <span class="tournament-day-card__chevron" aria-hidden="true">▼</span>
+                  </button>
+                  <div class="tournament-day-card__remind-row">
+                    <button type="button" class="tournament-day-card__remind primary-button primary-button--secondary" id="freerollRemindBtn">Напомнить за час</button>
+                    <button type="button" class="tournament-day-card__remind primary-button primary-button--secondary" id="freerollRemind10Btn">Напомнить за 10 мин</button>
+                  </div>
+                  <div class="tournament-day-expanded" id="tournamentDayExpanded" hidden>
+                    <div class="tournament-day-expanded__inner">
+                      <div class="tournament-day-tooltip__logo">Poker21</div>
+                      <div class="tournament-day-tooltip__row">Старт в 18:00 мск</div>
+                      <div class="tournament-day-tooltip__row js-freeroll-timer" aria-live="polite">До старта: —</div>
+                      <div class="tournament-day-tooltip__row">Вход 0</div>
+                      <div class="tournament-day-tooltip__row">Ребай 250р</div>
+                      <div class="tournament-day-tooltip__row">Аддон 250р</div>
+                      <div class="tournament-day-tooltip__note">Бонусы за комбинации до аддона</div>
+                      <a class="tournament-day-expanded__link primary-button" href="#" data-view-target="download" data-download-page="poker21">Перейти в Poker21</a>
                     </div>
                   </div>
-                </a>
+                </div>
               </div>
 
               <a
@@ -149,12 +162,33 @@
                 </div>
               </a>
 
+              <h2 class="features-section-title">Клубные игры с бонусами</h2>
               <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
                 <div class="feature__icon feature__icon--purple">🃏</div>
                 <div class="feature__body">
                   <div class="feature__title">Найди Пиханину</div>
                   <div class="feature__text">
                     колода буби, колода пики и джокер Пиханина (27 карт). Найди его — получи бонус.
+                  </div>
+                </div>
+              </a>
+
+              <a href="#" class="feature feature--link feature--cooler-game is-hidden" data-view-target="cooler-game" aria-label="Слезы Кулера">
+                <div class="feature__icon feature__icon--orange">😢</div>
+                <div class="feature__body">
+                  <div class="feature__title">Слезы Кулера</div>
+                  <div class="feature__text">
+                    Кулер ревет — найдите платок и получите билет на турнир.
+                  </div>
+                </div>
+              </a>
+
+              <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
+                <div class="feature__icon feature__icon--purple">🃏</div>
+                <div class="feature__body">
+                  <div class="feature__title">Переедь Штукатура</div>
+                  <div class="feature__text">
+                    Играем в покер против Штукатура. У него два туза — побейте его комбинацию.
                   </div>
                 </div>
               </a>
@@ -215,8 +249,9 @@
                   <span class="app-store-btn__text">App Store</span>
                 </a>
                 <a
-                  href="https://github.com/matvienkoro92/Poker-app/releases/latest/download/Poker21Plus_release_2.5.0.apk"
-                  download="Poker21Plus_release_2.5.0.apk"
+                  href="https://www.poker21.plus/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   class="android-btn"
                 >
                   <span class="android-btn__icon" aria-hidden="true">
@@ -390,15 +425,63 @@
           <div class="view" data-view="bonus-game">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Найди Пиханину</h1>
-            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду, а может и в пиковую. Он знает 6 промокодов на беккинг-билет за 1000р. У вас 5 попыток, чтобы найти его и выбить из него 1 промокод. Если узнаете промокод — напишите его в чат игроков.</p>
+            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду, а может и в пиковую. Он знает 6 промокодов на беккинг-билет за 1000р. У вас 5 попыток, чтобы найти его и выбить из него 1 промокод на беккинг-билет. Если узнаете промокод — напишите его в чат игроков.</p>
             <p class="bonus-game-desc">Перед вами колода буби (13 карт от двойки до туза), колода пики (13 карт) и 27-я карта — джокер Пиханина.</p>
             <p class="bonus-game-desc">Выберите одну из карт.</p>
-            <p class="bonus-game-all-codes-done" id="bonusGameAllCodesDone" style="display: none;">Все билеты уже выданы, вы можете сыграть просто так.</p>
+            <p class="bonus-game-all-codes-done" id="bonusGameAllCodesDone" style="display: none;">Сегодня уже у него забрали все билеты, приходите ловить Пиханину в другой день либо можете сыграть просто так без призов.</p>
             <p class="bonus-game-no-attempts" id="bonusGameNoAttempts" style="display: none;">Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.</p>
-            <p class="bonus-game-stats" id="bonusGameStats">У Пиханины осталось промокодов: <span id="bonusGamePromoCount">0</span>.<br>Ваших попыток: <span id="bonusGameAttemptsCount">5</span>. Вы можете выбить 1 промокод.</p>
+            <p class="bonus-game-stats" id="bonusGameStats">У Пиханины осталось беккинг-билетов: <span id="bonusGamePromoCount">0</span>.<br>Ваших попыток: <span id="bonusGameAttemptsCount">5</span>. Вы можете выбить 1 беккинг-билет (промокод).</p>
             <div class="bonus-game-cards" id="bonusGameCards" role="group" aria-label="Выбери одну из 27 карт"></div>
             <p class="bonus-game-result" id="bonusGameResult" aria-live="polite" aria-atomic="true"></p>
             <button type="button" class="bonus-game-retry primary-button" id="bonusGameRetry" style="display: none;">Играть снова</button>
+          </div>
+
+          <!-- Мини-игра: Слезы Кулера (пока скрыта) -->
+          <div class="view is-hidden" data-view="cooler-game">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Слезы Кулера</h1>
+            <p class="bonus-game-desc">Платок Кулера для вытирания слёз улетел в колоду. Помогите ему найти платок, потому что он снова плачет из-за переезда. Он будет вам благодарен и выдаст билет на турнир.</p>
+            <p class="bonus-game-desc">Перед вами колода буби (13 карт), колода пики (13 карт) и 27-я карта — платок. Выберите одну из карт.</p>
+            <p class="bonus-game-desc cooler-game-hint">Под картами надо найти платок.</p>
+            <div class="bonus-game-cards" id="coolerGameCards" role="group" aria-label="Выбери одну из 27 карт"></div>
+            <p class="bonus-game-result" id="coolerGameResult" aria-live="polite" aria-atomic="true"></p>
+            <button type="button" class="bonus-game-retry primary-button" id="coolerGameRetry" style="display: none;">Играть снова</button>
+          </div>
+
+          <!-- Игра: Переедь Штукатура -->
+          <div class="view" data-view="plasterer-game">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Переедь Штукатура</h1>
+            <p class="plasterer-desc">Мы остались в ХУ против Штукатура, но у него как обычно всегда 2 туза на руках. Обыграйте его. Попытки безлимитные.</p>
+            <div class="plasterer-table">
+              <div class="plasterer-opponent">
+                <div class="plasterer-opponent-head">
+                  <span class="plasterer-opponent-name">Штукатур</span>
+                </div>
+                <div class="plasterer-equity" id="plastererOpponentEquity" aria-live="polite"></div>
+                <div class="plasterer-hand-name" id="plastererOpponentHandName" aria-live="polite"></div>
+                <div class="plasterer-cards" id="plastererOpponentCards"></div>
+              </div>
+              <div class="plasterer-board" id="plastererBoard">
+                <div class="plasterer-board-slot" id="plastererFlop0"></div>
+                <div class="plasterer-board-slot" id="plastererFlop1"></div>
+                <div class="plasterer-board-slot" id="plastererFlop2"></div>
+                <div class="plasterer-board-slot" id="plastererTurn"></div>
+                <div class="plasterer-board-slot" id="plastererRiver"></div>
+              </div>
+              <div class="plasterer-player">
+                <div class="plasterer-cards" id="plastererPlayerCards"></div>
+                <div class="plasterer-avatar plasterer-avatar--player" id="plastererPlayerName">Вы</div>
+                <div class="plasterer-equity" id="plastererPlayerEquity" aria-live="polite"></div>
+                <div class="plasterer-hand-name" id="plastererPlayerHandName" aria-live="polite"></div>
+              </div>
+            </div>
+            <p class="plasterer-result" id="plastererResult" aria-live="polite"></p>
+            <div class="plasterer-actions">
+              <button type="button" class="primary-button" id="plastererDealBtn">Раздать карты</button>
+              <button type="button" class="primary-button" id="plastererSpinBtn" style="display: none;">Крути шарманку</button>
+              <button type="button" class="primary-button" id="plastererPlayAgainBtn" style="display: none;">Играть заново</button>
+            </div>
           </div>
 
           <!-- Депозит / кэшаут -->
