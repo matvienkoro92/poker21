@@ -1408,6 +1408,10 @@ body {
   color: var(--text);
 }
 
+[data-view="bonus-game"] .bonus-game-desc:first-of-type {
+  margin-top: 16px;
+}
+
 .bonus-game-desc {
   margin: 0 0 16px;
   font-size: 14px;
@@ -1436,20 +1440,33 @@ body {
   border-radius: 12px;
 }
 
+.bonus-game-stats {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.bonus-game-stats #bonusGamePromoCount,
+.bonus-game-stats #bonusGameAttemptsCount {
+  font-weight: 600;
+  color: var(--text);
+}
+
 .bonus-game-cards {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 6px;
   margin-bottom: 16px;
 }
 
 .bonus-card {
   aspect-ratio: 2.5/3.5;
-  max-height: 72px;
-  min-height: 56px;
+  max-height: 56px;
+  min-height: 44px;
   border-radius: 8px;
-  border: 2px solid var(--border-subtle);
-  background: linear-gradient(145deg, #1e3a5f, #0f172a);
+  border: 2px solid rgba(0, 0, 0, 0.4);
+  background: #0a0a0a;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1461,8 +1478,8 @@ body {
 
 .bonus-card:hover:not(.bonus-card--revealed):not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
-  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+  border-color: rgba(239, 68, 68, 0.6);
 }
 
 .bonus-card:disabled {
@@ -1470,13 +1487,16 @@ body {
 }
 
 .bonus-card__back {
-  font-size: 11px;
-  font-weight: 700;
+  font-family: "Permanent Marker", cursive;
+  font-size: 9px;
+  font-weight: 400;
   line-height: 1.1;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.85);
+  color: #ef4444;
   text-align: center;
-  padding: 0 4px;
+  padding: 0 2px;
+  transform: rotate(-42deg);
+  white-space: nowrap;
 }
 
 .bonus-card__face {
@@ -1520,10 +1540,16 @@ body {
   color: #f87171;
 }
 
+.bonus-card__suit--spade {
+  color: #94a3b8;
+}
+
 .bonus-card__face-text.bonus-card__face--joker {
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.02em;
   color: #a78bfa;
+  transform: rotate(42deg);
+  white-space: nowrap;
 }
 
 .bonus-card--revealed .bonus-card__back {
@@ -1603,7 +1629,7 @@ body {
 
 @media (max-width: 480px) {
   .bonus-game-cards {
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(9, 1fr);
     gap: 6px;
   }
   .bonus-card {
@@ -1620,7 +1646,7 @@ body {
     font-size: 18px;
   }
   .bonus-card__face-text.bonus-card__face--joker {
-    font-size: 8px;
+    font-size: 9px;
   }
 }
 

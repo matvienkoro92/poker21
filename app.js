@@ -193,10 +193,12 @@ downloadBackButtons.forEach((btn) => {
   btn.addEventListener("click", () => setDownloadPage("main"));
 });
 
-// Мини-игра «Найди Пиханину» — 13 карт буби по порядку (2–туз) + 14-я Пиханина, рубашка Poker21
+// Мини-игра «Найди Пиханину» — колода буби (13) + колода пики (13) + джокер Пиханина = 27 карт
 const BONUS_DIAMONDS = ["2♦", "3♦", "4♦", "5♦", "6♦", "7♦", "8♦", "9♦", "10♦", "J♦", "Q♦", "K♦", "A♦"];
+const BONUS_SPADES = ["2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9♠", "10♠", "J♠", "Q♠", "K♠", "A♠"];
 const BONUS_PIHANINA = "Пиханина";
-const BONUS_GAME_CARDS_COUNT = 14;
+const BONUS_ALL_SUITS = BONUS_DIAMONDS.concat(BONUS_SPADES);
+const BONUS_GAME_CARDS_COUNT = 27;
 const BONUS_PROMO_CODES = ["ДВАТУЗА2025", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР", "ПИХАНИНАТУРНИР"];
 const BONUS_MAX_ATTEMPTS = 5;
 let bonusGameContents = [];
@@ -244,6 +246,26 @@ function resetBonusLimitForDevice() {
   localStorage.removeItem("poker_bonus_used_promos_" + id);
 }
 
+function updateBonusStats() {
+  const promoEl = document.getElementById("bonusGamePromoCount");
+  const attemptsEl = document.getElementById("bonusGameAttemptsCount");
+  if (promoEl) promoEl.textContent = String(Math.max(0, BONUS_PROMO_CODES.length - getUsedPromoIndices().length));
+  if (attemptsEl) attemptsEl.textContent = String(Math.max(0, BONUS_MAX_ATTEMPTS - getBonusAttempts()));
+}
+
+function notifyBonusWon(promoCode) {
+  const base = getApiBase();
+  if (!base) return;
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  const initData = tg && tg.initData ? tg.initData : "";
+  if (!initData) return;
+  fetch(base + "/api/bonus-won", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: initData, promoCode: promoCode }),
+  }).catch(function () {});
+}
+
 function getNextPromoCode() {
   const used = getUsedPromoIndices();
   const available = BONUS_PROMO_CODES.map(function (_, i) { return i; }).filter(function (i) { return used.indexOf(i) === -1; });
@@ -253,18 +275,21 @@ function getNextPromoCode() {
   return BONUS_PROMO_CODES[idx];
 }
 
-function getDiamondRank(str) {
-  return str.replace("♦", "");
+function getCardRank(str) {
+  return str.replace("♦", "").replace("♠", "");
 }
 
 function buildCardFaceContent(value) {
   if (value === BONUS_PIHANINA) {
     return "<span class=\"bonus-card__face-text bonus-card__face--joker\">Пиханина</span>";
   }
-  const rank = getDiamondRank(value);
+  const rank = getCardRank(value);
+  const isSpade = value.indexOf("♠") !== -1;
+  const suit = isSpade ? "♠" : "♦";
+  const suitClass = isSpade ? "bonus-card__suit bonus-card__suit--spade" : "bonus-card__suit";
   return "<span class=\"bonus-card__rank bonus-card__rank--tl\">" + rank + "</span>" +
          "<span class=\"bonus-card__rank bonus-card__rank--br\">" + rank + "</span>" +
-         "<span class=\"bonus-card__suit\">♦</span>";
+         "<span class=\"" + suitClass + "\">" + suit + "</span>";
 }
 
 function initBonusGame() {
@@ -274,6 +299,7 @@ function initBonusGame() {
   const noAttemptsEl = document.getElementById("bonusGameNoAttempts");
   if (!container || !resultEl || !retryBtn) return;
 
+  updateBonusStats();
   const attempts = getBonusAttempts();
   if (attempts >= BONUS_MAX_ATTEMPTS) {
     container.innerHTML = "";
@@ -292,10 +318,10 @@ function initBonusGame() {
     allCodesDoneEl.style.display = getUsedPromoIndices().length >= BONUS_PROMO_CODES.length ? "block" : "none";
   }
 
-  const pihaninaIndex = Math.floor(Math.random() * (BONUS_DIAMONDS.length + 1));
+  const pihaninaIndex = Math.floor(Math.random() * BONUS_GAME_CARDS_COUNT);
   bonusGameContents = [];
   for (let i = 0; i < BONUS_GAME_CARDS_COUNT; i++) {
-    bonusGameContents.push(i === pihaninaIndex ? BONUS_PIHANINA : BONUS_DIAMONDS[i < pihaninaIndex ? i : i - 1]);
+    bonusGameContents.push(i === pihaninaIndex ? BONUS_PIHANINA : BONUS_ALL_SUITS[i < pihaninaIndex ? i : i - 1]);
   }
 
   container.innerHTML = "";
@@ -347,20 +373,24 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
   if (isWin) {
     const promoCode = getNextPromoCode();
     const promoText = promoCode
-      ? "Ваш промокод: " + promoCode + ". Напиши менеджеру в Telegram и назови промокод."
-      : "Вы уже получили все промокоды. Напиши менеджеру в Telegram.";
-    resultEl.textContent = "Поздравляем, вы успешно разобрались с Пиханиной и получаете свой бонус. " + promoText;
+      ? "Поздравляем, вы поймали Пиханину и отжали у него билет. Ваш промокод — " + promoCode + ". Напишите его в чат игроков."
+      : "Поздравляем, вы поймали Пиханину. Вы уже получили все промокоды. Напишите в чат игроков.";
+    resultEl.textContent = promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+    if (promoCode) notifyBonusWon(promoCode);
   } else {
-    resultEl.textContent = "Это не Пиханина. В следующий раз повезёт!";
+    const attemptsLeft = BONUS_MAX_ATTEMPTS - getBonusAttempts();
+    resultEl.textContent = "Это не Пиханина. В следующий раз повезёт! Осталось попыток: " + attemptsLeft + ".";
     resultEl.classList.add("bonus-game-result--lose");
   }
   if (isWin) {
     retryBtn.style.display = "none";
+    updateBonusStats();
   } else {
     const attemptsLeft = BONUS_MAX_ATTEMPTS - getBonusAttempts();
+    updateBonusStats();
     if (attemptsLeft > 0) {
       retryBtn.style.display = "block";
     } else {
