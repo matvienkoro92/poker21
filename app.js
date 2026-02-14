@@ -199,9 +199,14 @@ const BONUS_SPADES = ["2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9
 const BONUS_PIHANINA = "Пиханина";
 const BONUS_ALL_SUITS = BONUS_DIAMONDS.concat(BONUS_SPADES);
 const BONUS_GAME_CARDS_COUNT = 27;
-const BONUS_PROMO_CODES = ["ДВАТУЗА2025", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР", "ПИХАНИНАТУРНИР"];
+const BONUS_PROMO_CODES = ["ДВАТУЗА2026", "ПИХАНИНАБОНУС", "КЛУБ21ПРОМО", "ФРИРОЛЛ100К", "ТУЗПОКЕР", "ПИХАНИНАТУРНИР"];
 const BONUS_MAX_ATTEMPTS = 5;
+const BONUS_STORAGE_VERSION = "v2";
 let bonusGameContents = [];
+
+function bonusStorageKey(name) {
+  return name + getDeviceId() + "_" + BONUS_STORAGE_VERSION;
+}
 
 function getDeviceId() {
   var key = "poker_device_id";
@@ -214,19 +219,16 @@ function getDeviceId() {
 }
 
 function getBonusAttempts() {
-  var id = getDeviceId();
-  return parseInt(localStorage.getItem("poker_bonus_attempts_" + id) || "0", 10);
+  return parseInt(localStorage.getItem(bonusStorageKey("poker_bonus_attempts_")) || "0", 10);
 }
 
 function setBonusAttempts(n) {
-  var id = getDeviceId();
-  localStorage.setItem("poker_bonus_attempts_" + id, String(n));
+  localStorage.setItem(bonusStorageKey("poker_bonus_attempts_"), String(n));
 }
 
 function getUsedPromoIndices() {
-  var id = getDeviceId();
   try {
-    var raw = localStorage.getItem("poker_bonus_used_promos_" + id);
+    var raw = localStorage.getItem(bonusStorageKey("poker_bonus_used_promos_"));
     return raw ? JSON.parse(raw) : [];
   } catch (_) {
     return [];
@@ -234,16 +236,14 @@ function getUsedPromoIndices() {
 }
 
 function markPromoUsed(index) {
-  var id = getDeviceId();
   var used = getUsedPromoIndices();
   if (used.indexOf(index) === -1) used.push(index);
-  localStorage.setItem("poker_bonus_used_promos_" + id, JSON.stringify(used));
+  localStorage.setItem(bonusStorageKey("poker_bonus_used_promos_"), JSON.stringify(used));
 }
 
 function resetBonusLimitForDevice() {
-  var id = getDeviceId();
-  localStorage.removeItem("poker_bonus_attempts_" + id);
-  localStorage.removeItem("poker_bonus_used_promos_" + id);
+  localStorage.removeItem(bonusStorageKey("poker_bonus_attempts_"));
+  localStorage.removeItem(bonusStorageKey("poker_bonus_used_promos_"));
 }
 
 function updateBonusStats() {
@@ -401,11 +401,6 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
 });
 
 document.getElementById("bonusGameRetry")?.addEventListener("click", function () {
-  initBonusGame();
-});
-
-document.getElementById("bonusGameReset")?.addEventListener("click", function () {
-  resetBonusLimitForDevice();
   initBonusGame();
 });
 
