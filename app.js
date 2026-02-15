@@ -1129,7 +1129,7 @@ updateVisitorCounter();
   }
 })();
 
-// Таймер до турнира: понедельник 5:00 по Бали (Asia/Makassar, UTC+8)
+// Таймер до турнира: понедельник 4:04 по Бали (Asia/Makassar, UTC+8)
 (function initTournamentCountdown() {
   var el1 = document.getElementById("tournamentDayTimer");
   var el2 = document.getElementById("tournamentDayTimerExpanded");
@@ -1144,12 +1144,12 @@ updateVisitorCounter();
     var baliHour = baliNow.getUTCHours();
     var baliMin = baliNow.getUTCMinutes();
     var baliMinOfDay = baliHour * 60 + baliMin;
-    var targetMinOfDay = 5 * 60 + 0;
+    var targetMinOfDay = 4 * 60 + 4;
     var daysUntilMonday = baliDow === 1 ? (baliMinOfDay >= targetMinOfDay ? 7 : 0) : (8 - baliDow) % 7;
     if (daysUntilMonday === 0 && baliMinOfDay >= targetMinOfDay) daysUntilMonday = 7;
     var targetBali = new Date(baliNow);
     targetBali.setUTCDate(targetBali.getUTCDate() + daysUntilMonday);
-    targetBali.setUTCHours(5, 0, 0, 0);
+    targetBali.setUTCHours(4, 4, 0, 0);
     var targetUtc = new Date(targetBali.getTime() - baliOffset * 60000);
     return targetUtc.getTime() - now.getTime();
   }
@@ -1219,50 +1219,7 @@ function subscribeFreerollRemind(btn, remindWhen, successMessage) {
     });
 }
 
-function subscribeOnCheck(el, remindWhen, successMsg) {
-  if (!el) return;
-  el.addEventListener("change", function () {
-    if (!this.checked) return;
-    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    var initData = tg && tg.initData ? tg.initData : "";
-    if (!initData) {
-      if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
-      this.checked = false;
-      return;
-    }
-    var base = getApiBase();
-    if (!base) {
-      if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
-      this.checked = false;
-      return;
-    }
-    this.disabled = true;
-    fetch(base + "/api/freeroll-reminder-subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: initData, remindWhen: remindWhen }),
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        el.disabled = false;
-        if (data.ok && data.subscribed) {
-          if (tg && tg.showAlert) tg.showAlert(successMsg);
-        } else {
-          if (tg && tg.showAlert) tg.showAlert(data.error || "Ошибка. Попробуйте позже.");
-          el.checked = false;
-        }
-      })
-      .catch(function () {
-        el.disabled = false;
-        el.checked = false;
-        if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
-      });
-  });
-}
-subscribeOnCheck(document.getElementById("remind1hCheck"), "1h", "Вам придёт сообщение за час до начала.");
-subscribeOnCheck(document.getElementById("remind10minCheck"), "10min", "Вам придёт сообщение за 10 минут до начала.");
-
-document.getElementById("freerollRemindNowBtn")?.addEventListener("click", function () {
+document.getElementById("remind10minBtn")?.addEventListener("click", function () {
   var btn = this;
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var initData = tg && tg.initData ? tg.initData : "";
@@ -1276,22 +1233,23 @@ document.getElementById("freerollRemindNowBtn")?.addEventListener("click", funct
     return;
   }
   btn.disabled = true;
-  fetch(base + "/api/freeroll-reminder-send?when=5sec", {
+  fetch(base + "/api/freeroll-reminder-subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData: initData }),
+    body: JSON.stringify({ initData: initData, remindWhen: "10min" }),
   })
     .then(function (r) { return r.json(); })
-    .then(function (res) {
-      if (tg && tg.showAlert) {
-        if (res.sent === 1) tg.showAlert("Сообщение отправлено!");
-        else tg.showAlert(res.error || res.message || "Не удалось отправить. Напишите боту /start.");
-      }
+    .then(function (data) {
       btn.disabled = false;
+      if (data.ok && data.subscribed) {
+        if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение за 10 минут до старта.");
+      } else {
+        if (tg && tg.showAlert) tg.showAlert(data.error || "Ошибка. Попробуйте позже.");
+      }
     })
     .catch(function () {
-      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
       btn.disabled = false;
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
     });
 });
 
