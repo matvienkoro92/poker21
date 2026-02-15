@@ -4,9 +4,7 @@ const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : 
 if (tg) {
   tg.ready();
   if (tg.expand) tg.expand();
-  if (typeof tg.requestFullscreen === "function") {
-    tg.requestFullscreen().catch(function () {});
-  }
+  // requestFullscreen() не вызываем: после него на части устройств (iOS) перестают работать клики по кнопкам
   // Адаптация под тему Telegram
   const themeParams = tg.themeParams || {};
   if (themeParams.bg_color) {
