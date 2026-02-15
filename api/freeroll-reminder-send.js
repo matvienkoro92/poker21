@@ -106,13 +106,6 @@ module.exports = async function handler(req, res) {
     when = m >= 49 && m <= 59 ? "10min" : "1h";
   }
 
-  if (when !== "5sec" && CRON_SECRET) {
-    var auth = req.headers["x-cron-secret"] || req.query.secret || (req.headers["authorization"] || "").replace(/^Bearer\s+/i, "");
-    if (auth !== CRON_SECRET) {
-      return res.status(403).json({ ok: false, error: "Invalid or missing CRON_SECRET" });
-    }
-  }
-
   if (!BOT_TOKEN) {
     return res.status(500).json({ ok: false, error: "Set TELEGRAM_BOT_TOKEN" });
   }
@@ -138,6 +131,13 @@ module.exports = async function handler(req, res) {
     }
     if (when === "5sec") {
       return res.status(400).json({ ok: false, error: "initData required for when=5sec" });
+    }
+  }
+
+  if (when !== "5sec" && CRON_SECRET) {
+    var auth = req.headers["x-cron-secret"] || req.query.secret || (req.headers["authorization"] || "").replace(/^Bearer\s+/i, "");
+    if (auth !== CRON_SECRET) {
+      return res.status(403).json({ ok: false, error: "Invalid or missing CRON_SECRET" });
     }
   }
 

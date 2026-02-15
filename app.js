@@ -1135,6 +1135,8 @@ updateVisitorCounter();
   var el2 = document.getElementById("tournamentDayTimerExpanded");
   if (!el1 && !el2) return;
 
+  var reminder10minSent = false;
+
   function getNextTournamentMs() {
     var now = new Date();
     var utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -1163,11 +1165,29 @@ updateVisitorCounter();
     return s + " сек";
   }
 
+  function sendReminderWhen10min() {
+    if (reminder10minSent) return;
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!initData) return;
+    var base = getApiBase();
+    if (!base) return;
+    reminder10minSent = true;
+    fetch(base + "/api/freeroll-reminder-send?when=10min", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData }),
+    }).catch(function () { reminder10minSent = false; });
+  }
+
   function tick() {
     var ms = getNextTournamentMs();
     var txt = "⏱ " + format(ms) + " до старта";
     if (el1) el1.textContent = txt;
     if (el2) el2.textContent = txt;
+    if (ms > 0 && ms <= 10 * 60 * 1000 && ms > 9 * 60 * 1000) {
+      sendReminderWhen10min();
+    }
   }
 
   tick();
