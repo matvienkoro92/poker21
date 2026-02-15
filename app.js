@@ -1037,9 +1037,13 @@ function updateVisitorCounter() {
 
   const visitorId = getVisitorId();
   const apiUrl = base + "/api/visit?visitor_id=" + encodeURIComponent(visitorId);
+  const initData = tg && tg.initData ? tg.initData : null;
+  const fetchOpts = initData
+    ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData: initData }) }
+    : { method: "GET" };
 
   function doFetch(retryCount) {
-    fetch(apiUrl)
+    fetch(apiUrl, fetchOpts)
       .then(function (res) {
         if (!res.ok) return Promise.reject(new Error("visit api " + res.status));
         return res.json();
@@ -1129,7 +1133,7 @@ updateVisitorCounter();
   }
 })();
 
-// Таймер до турнира: понедельник 4:49 по Бали (Asia/Makassar, UTC+8)
+// Таймер до турнира: понедельник 5:31 по Бали (Asia/Makassar, UTC+8)
 (function initTournamentCountdown() {
   var el1 = document.getElementById("tournamentDayTimer");
   var el2 = document.getElementById("tournamentDayTimerExpanded");
@@ -1146,12 +1150,12 @@ updateVisitorCounter();
     var baliHour = baliNow.getUTCHours();
     var baliMin = baliNow.getUTCMinutes();
     var baliMinOfDay = baliHour * 60 + baliMin;
-    var targetMinOfDay = 4 * 60 + 49;
+    var targetMinOfDay = 5 * 60 + 31;
     var daysUntilMonday = baliDow === 1 ? (baliMinOfDay >= targetMinOfDay ? 7 : 0) : (8 - baliDow) % 7;
     if (daysUntilMonday === 0 && baliMinOfDay >= targetMinOfDay) daysUntilMonday = 7;
     var targetBali = new Date(baliNow);
     targetBali.setUTCDate(targetBali.getUTCDate() + daysUntilMonday);
-    targetBali.setUTCHours(4, 49, 0, 0);
+    targetBali.setUTCHours(5, 31, 0, 0);
     var targetUtc = new Date(targetBali.getTime() - baliOffset * 60000);
     return targetUtc.getTime() - now.getTime();
   }

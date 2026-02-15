@@ -11,7 +11,7 @@
   "crons": [
     {
       "path": "/api/cron-reminder-10min",
-      "schedule": "39 20 * * 0"
+      "schedule": "21 21 * * 0"
     }
   ]
 }

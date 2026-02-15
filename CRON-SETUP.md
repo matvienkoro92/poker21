@@ -1,10 +1,10 @@
 # Настройка напоминания «за 10 мин» (при закрытом приложении)
 
-Турнир в **понедельник в 4:49 (Бали, UTC+8)** → напоминание «за 10 мин» в **4:39 Бали**.
+Турнир в **понедельник в 5:31 (Бали, UTC+8)** → напоминание «за 10 мин» в **5:21 Бали**.
 
 ## Вариант 1: Vercel Cron (встроенный, работает автоматически)
 
-В `vercel.json` уже настроен cron — каждый понедельник в 4:39 по Бали Vercel вызовет API.  
+В `vercel.json` уже настроен cron — каждый понедельник в 5:21 по Бали Vercel вызовет API.  
 **Нужно:** в Vercel → Settings → Environment Variables добавить `CRON_SECRET` (пароль). Vercel передаст его при вызове.
 
 ## Вариант 2: QStash (если Vercel Cron недоступен)
@@ -34,7 +34,7 @@ https://poker-app-ebon.vercel.app/api/setup-qstash-reminder?key=ВАШ_CRON_SECR
 
 ### Итог
 
-Расписание в QStash будет вызывать API каждый понедельник в 4:39 по Бали и отправлять сообщения всем подписчикам, даже если приложение закрыто.
+Расписание в QStash будет вызывать API каждый понедельник в 5:21 по Бали и отправлять сообщения всем подписчикам, даже если приложение закрыто.
 
 ---
 
@@ -45,7 +45,7 @@ https://poker-app-ebon.vercel.app/api/setup-qstash-reminder?key=ВАШ_CRON_SECR
 1. Зарегистрируйтесь на https://cron-job.org
 2. **Create Cronjob:**
    - URL: `https://poker-app-ebon.vercel.app/api/freeroll-reminder-send?when=10min&secret=ВАШ_CRON_SECRET`
-   - Schedule: **Каждый понедельник, 04:39** (часовой пояс **Asia/Makassar**)
+   - Schedule: **Каждый понедельник, 05:21** (часовой пояс **Asia/Makassar**)
 
 ---
 

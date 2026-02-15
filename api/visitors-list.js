@@ -41,6 +41,7 @@ module.exports = async function handler(req, res) {
   const results = await redisPipeline([
     ["SMEMBERS", "poker_app:visitors"],
     ["HGETALL", "poker_app:visits"],
+    ["HGETALL", "poker_app:visitor_usernames"],
   ]);
 
   if (!results || !Array.isArray(results) || results.length < 2) {
@@ -49,6 +50,7 @@ module.exports = async function handler(req, res) {
 
   const ids = Array.isArray(results[0]?.result) ? results[0].result : [];
   const hash = results[1]?.result;
+  const usernamesRaw = results[2]?.result;
 
   let visitsHash = {};
   if (Array.isArray(hash)) {
@@ -59,7 +61,20 @@ module.exports = async function handler(req, res) {
     visitsHash = hash;
   }
 
-  const visitors = ids.map((id) => ({ id, count: visitsHash[id] || 1 }));
+  let usernames = {};
+  if (Array.isArray(usernamesRaw)) {
+    for (let i = 0; i < usernamesRaw.length; i += 2) {
+      if (usernamesRaw[i] && usernamesRaw[i + 1]) usernames[usernamesRaw[i]] = String(usernamesRaw[i + 1]).trim();
+    }
+  } else if (usernamesRaw && typeof usernamesRaw === "object") {
+    usernames = usernamesRaw;
+  }
+
+  const visitors = ids.map((id) => ({
+    id,
+    count: visitsHash[id] || 1,
+    username: usernames[id] || null,
+  }));
   visitors.sort((a, b) => b.count - a.count);
 
   const total = visitors.reduce((s, v) => s + (v.count || 0), 0);
@@ -67,14 +82,16 @@ module.exports = async function handler(req, res) {
   const format = (req.query.format || "").toLowerCase();
   if (format === "html") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    const secretParam = escapeAttr(req.query.secret || "");
     const rows = visitors.map((v, i) => {
-      let actionCell = "—";
+      let linkCell = `<code>${escapeHtml(v.id)}</code>`;
       if (v.id.startsWith("tg_")) {
         const userId = v.id.replace(/^tg_/, "");
-        actionCell = `<button type="button" class="btn-send" data-user-id="${escapeAttr(userId)}" data-secret="${secretParam}" title="Отправить сообщение через бота">💬 Написать</button>`;
+        const href = v.username
+          ? "https://t.me/" + escapeAttr(v.username.replace(/^@/, ""))
+          : "tg://user?id=" + escapeAttr(userId);
+        linkCell = `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" class="visitor-link" title="Открыть в Telegram">${escapeHtml(v.id)}</a>`;
       }
-      return `<tr><td>${i + 1}</td><td><code>${escapeHtml(v.id)}</code></td><td>${v.count}</td><td>${v.id.startsWith("tg_") ? "Telegram" : "Web"}</td><td>${actionCell}</td></tr>`;
+      return `<tr><td>${i + 1}</td><td>${linkCell}</td><td>${v.count}</td><td>${v.id.startsWith("tg_") ? "Telegram" : "Web"}</td></tr>`;
     }).join("");
     return res.status(200).send(`<!DOCTYPE html>
 <html lang="ru">
@@ -94,8 +111,7 @@ module.exports = async function handler(req, res) {
     code { font-size: 0.9em; background: #0f0f1a; padding: 2px 6px; border-radius: 4px; }
     a { color: #4fc3f7; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .btn-send { padding: 6px 12px; background: #2d5a87; color: #fff; border: none; border-radius: 6px; font-size: 0.9em; cursor: pointer; }
-    .btn-send:hover { background: #3d6a97; }
+    .visitor-link { color: #4fc3f7; }
     .empty { color: #666; padding: 24px; }
   </style>
 </head>
@@ -103,27 +119,9 @@ module.exports = async function handler(req, res) {
   <h1>Посетители приложения</h1>
   <p class="stats">Всего визитов: <strong>${total}</strong> • Уникальных: <strong>${visitors.length}</strong></p>
   <table>
-    <thead><tr><th>#</th><th>ID</th><th>Визитов</th><th>Тип</th><th>Действие</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="5" class="empty">Нет данных</td></tr>'}</tbody>
+    <thead><tr><th>#</th><th>ID</th><th>Визитов</th><th>Тип</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="4" class="empty">Нет данных</td></tr>'}</tbody>
   </table>
-  <script>
-  document.querySelectorAll(".btn-send").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      var userId = this.dataset.userId;
-      var secret = this.dataset.secret;
-      var text = prompt("Введите сообщение для пользователя:");
-      if (!text || !text.trim()) return;
-      btn.disabled = true;
-      fetch("/api/send-to-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ secret: secret, user_id: userId, text: text.trim() })
-      }).then(function(r) { return r.json(); }).then(function(data) {
-        alert(data.ok ? "Сообщение отправлено!" : (data.error || "Ошибка"));
-      }).catch(function() { alert("Ошибка сети"); }).finally(function() { btn.disabled = false; });
-    });
-  });
-  </script>
 </body>
 </html>`);
   }

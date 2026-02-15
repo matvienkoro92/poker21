@@ -1,5 +1,5 @@
 /**
- * Создаёт расписание в QStash для отправки напоминания «за 10 мин» каждый понедельник в 4:39 по Бали.
+ * Создаёт расписание в QStash для отправки напоминания «за 10 мин» каждый понедельник в 5:21 по Бали.
  * Без cron-job.org — всё через Upstash.
  *
  * Вызов: GET /api/setup-qstash-reminder?key=ВАШ_CRON_SECRET
@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
   const dest = baseUrl + "/api/freeroll-reminder-send?when=10min&secret=" + encodeURIComponent(CRON_SECRET);
   const destEncoded = encodeURIComponent(dest);
 
-  const cron = "CRON_TZ=Asia/Makassar 39 4 * * 1";
+  const cron = "CRON_TZ=Asia/Makassar 21 5 * * 1";
 
   try {
     const r = await fetch(QSTASH_BASE + "/v2/schedules/" + destEncoded, {
@@ -52,7 +52,7 @@ module.exports = async function handler(req, res) {
     if (!r.ok) {
       return res.status(r.status).json({ ok: false, error: data.message || data.error || text });
     }
-    return res.status(200).json({ ok: true, message: "QStash schedule created. Reminder will run every Monday 4:39 Bali." });
+    return res.status(200).json({ ok: true, message: "QStash schedule created. Reminder will run every Monday 5:21 Bali." });
   } catch (e) {
     return res.status(500).json({ ok: false, error: String(e.message || e) });
   }

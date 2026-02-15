@@ -1,11 +1,32 @@
 /**
  * Счётчик визитов: уникальные и повторные.
- * Нужны переменные окружения Vercel:
- *   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
- * (бесплатный Redis на https://upstash.com)
+ * При POST с initData сохраняет username для tg_ посетителей.
+ * Нужны: UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, TELEGRAM_BOT_TOKEN.
  */
+const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
+
+function getUsernameFromInitData(initData) {
+  if (!initData || !BOT_TOKEN) return null;
+  try {
+    const params = new URLSearchParams(initData);
+    const hash = params.get("hash");
+    params.delete("hash");
+    const dataCheckString = [...params.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => k + "=" + v)
+      .join("\n");
+    const secretKey = crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
+    const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+    if (calculatedHash !== hash) return null;
+    const user = JSON.parse(params.get("user") || "{}");
+    return (user.username || "").trim() || null;
+  } catch (e) {
+    return null;
+  }
+}
 
 async function redisPipeline(commands, baseUrl, baseToken) {
   const u = baseUrl || REDIS_URL;
@@ -56,14 +77,14 @@ function jsonVisits(res, unique, returning, total, ok) {
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -76,7 +97,16 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const visitorId = req.query.visitor_id || req.query.visitorId;
+  let visitorId = req.query.visitor_id || req.query.visitorId;
+  let initData = null;
+  if (req.method === 'POST') {
+    try {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+      visitorId = visitorId || body.visitor_id || body.visitorId;
+      initData = body.initData || body.init_data;
+    } catch (e) {}
+  }
+
   if (!visitorId || typeof visitorId !== 'string' || visitorId.length > 128) {
     return res.status(400).json({ error: 'visitor_id required' });
   }
@@ -89,6 +119,8 @@ module.exports = async function handler(req, res) {
     ['SCARD', 'poker_app:visitors'],
     ['HGETALL', 'poker_app:visits'],
   ];
+  const username = initData && safeId.startsWith('tg_') ? getUsernameFromInitData(initData) : null;
+  if (username) commands.push(['HSET', 'poker_app:visitor_usernames', safeId, username]);
 
   let results;
   try {
@@ -97,7 +129,8 @@ module.exports = async function handler(req, res) {
     return jsonVisits(res, 0, 0, 0, false);
   }
 
-  if (!results || !Array.isArray(results) || results.length !== 4) {
+  const expectedLen = commands.length;
+  if (!results || !Array.isArray(results) || results.length < 4) {
     return jsonVisits(res, 0, 0, 0, false);
   }
 

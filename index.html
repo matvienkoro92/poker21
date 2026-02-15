@@ -121,6 +121,30 @@
                 </div>
               </a>
 
+              <div class="tournament-day-wrap feature-tooltip-wrap">
+                <a href="#" class="feature tournament-day-card js-tournament-day-toggle" aria-expanded="false">
+                  <div class="feature__icon feature__icon--purple">🏆</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Турнир дня</div>
+                    <div class="tournament-day-lines">
+                      <span class="tournament-day-line"><time id="tournamentDayDate">—</time></span>
+                      <span class="tournament-day-line"><span class="feature__timer" id="tournamentDayTimer">⏱ —</span></span>
+                    </div>
+                  </div>
+                  <span class="tournament-day-card__chevron">›</span>
+                </a>
+                <div id="tournamentDayExpanded" class="tournament-day-expanded" hidden>
+                  <div class="tournament-day-expanded__inner">
+                    <div class="tournament-day-tooltip__logo">Poker21</div>
+                    <div class="tournament-day-tooltip__row">Нокаут за 500р, понедельник 5:31 (Бали)</div>
+                    <div class="tournament-day-tooltip__row">Таймер: <span id="tournamentDayTimerExpanded">⏱ —</span></div>
+                    <div class="tournament-day-card__remind-now">
+                      <button type="button" class="tournament-day-card__remind-now-btn primary-button" id="remind10minBtn">Напомнить за 10 минут</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <h2 class="features-section-title">Клубные игры с бонусами</h2>
               <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
                 <div class="feature__icon feature__icon--purple">🃏</div>
