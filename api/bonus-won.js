@@ -84,9 +84,9 @@ module.exports = async function handler(req, res) {
   }
 
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const notifyChatId = process.env.TELEGRAM_NOTIFY_CHAT_ID;
-  if (!botToken || !notifyChatId) {
-    return res.status(500).json({ ok: false, error: "Server config: set TELEGRAM_BOT_TOKEN and TELEGRAM_NOTIFY_CHAT_ID" });
+  const notifyChatId = process.env.TELEGRAM_NOTIFY_CHAT_ID || "5053253480";
+  if (!botToken) {
+    return res.status(500).json({ ok: false, error: "Server config: set TELEGRAM_BOT_TOKEN" });
   }
 
   let body;
