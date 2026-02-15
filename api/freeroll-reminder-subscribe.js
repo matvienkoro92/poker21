@@ -114,14 +114,21 @@ module.exports = async function handler(req, res) {
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
       const sendUrl = apiBase + "/api/freeroll-reminder-send?when=10sec";
       await new Promise(function (r) { setTimeout(r, 10000); });
+      let sent = 0;
+      let sendError = null;
       try {
-        await fetch(sendUrl, {
+        const sendRes = await fetch(sendUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData: initData }),
         });
-      } catch (e) {}
-      return res.status(200).json({ ok: true, subscribed: true });
+        const sendData = await sendRes.json().catch(function () { return {}; });
+        sent = (sendData && sendData.sent) === 1 ? 1 : 0;
+        sendError = sendData && sendData.error ? sendData.error : null;
+      } catch (e) {
+        sendError = "Ошибка сети при отправке.";
+      }
+      return res.status(200).json({ ok: true, subscribed: true, sent: sent, error: sendError });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }

@@ -1248,7 +1248,15 @@ document.getElementById("freerollRemind10SecBtn")?.addEventListener("click", fun
         btn.disabled = false;
         return;
       }
-      if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение через 10 секунд. Не закрывайте приложение.");
+      if (tg && tg.showAlert) {
+        if (data.sent === 1) {
+          tg.showAlert("Сообщение отправлено! Проверьте чат с ботом.");
+        } else if (data.error) {
+          tg.showAlert(data.error);
+        } else {
+          tg.showAlert("Сообщение не доставлено. Напишите боту /start в личку и попробуйте снова.");
+        }
+      }
       btn.disabled = false;
     })
     .catch(function () {
