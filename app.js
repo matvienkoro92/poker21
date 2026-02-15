@@ -1129,7 +1129,7 @@ updateVisitorCounter();
   }
 })();
 
-// Таймер до турнира: понедельник 3:21 по Бали (Asia/Makassar, UTC+8)
+// Таймер до турнира: понедельник 3:32 по Бали (Asia/Makassar, UTC+8)
 (function initTournamentCountdown() {
   var el1 = document.getElementById("tournamentDayTimer");
   var el2 = document.getElementById("tournamentDayTimerExpanded");
@@ -1144,12 +1144,12 @@ updateVisitorCounter();
     var baliHour = baliNow.getUTCHours();
     var baliMin = baliNow.getUTCMinutes();
     var baliMinOfDay = baliHour * 60 + baliMin;
-    var targetMinOfDay = 3 * 60 + 21;
+    var targetMinOfDay = 3 * 60 + 32;
     var daysUntilMonday = baliDow === 1 ? (baliMinOfDay >= targetMinOfDay ? 7 : 0) : (8 - baliDow) % 7;
     if (daysUntilMonday === 0 && baliMinOfDay >= targetMinOfDay) daysUntilMonday = 7;
     var targetBali = new Date(baliNow);
     targetBali.setUTCDate(targetBali.getUTCDate() + daysUntilMonday);
-    targetBali.setUTCHours(3, 21, 0, 0);
+    targetBali.setUTCHours(3, 32, 0, 0);
     var targetUtc = new Date(targetBali.getTime() - baliOffset * 60000);
     return targetUtc.getTime() - now.getTime();
   }
