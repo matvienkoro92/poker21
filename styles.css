@@ -77,6 +77,7 @@ body {
 
 .card {
   position: relative;
+  z-index: 5;
   pointer-events: auto;
   width: 100%;
   max-width: 420px;
@@ -223,6 +224,7 @@ body {
 
 .card__content {
   pointer-events: auto;
+  touch-action: manipulation;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -2096,7 +2098,7 @@ img.plasterer-card {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 15;
   pointer-events: auto;
 }
 
@@ -2119,6 +2121,7 @@ img.plasterer-card {
   letter-spacing: 0.12em;
   cursor: pointer;
   pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .bottom-nav__item:nth-child(3) {
