@@ -64,6 +64,42 @@ module.exports = async function handler(req, res) {
 
   const total = visitors.reduce((s, v) => s + (v.count || 0), 0);
 
+  const format = (req.query.format || "").toLowerCase();
+  if (format === "html") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    const rows = visitors.map(
+      (v, i) => `<tr><td>${i + 1}</td><td><code>${escapeHtml(v.id)}</code></td><td>${v.count}</td><td>${v.id.startsWith("tg_") ? "Telegram" : "Web"}</td></tr>`
+    ).join("");
+    return res.status(200).send(`<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Посетители</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 24px; background: #1a1a2e; color: #eee; }
+    h1 { font-size: 1.5rem; }
+    .stats { margin-bottom: 16px; color: #aaa; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #333; }
+    th { background: #16213e; }
+    tr:hover { background: #16213e; }
+    code { font-size: 0.9em; background: #0f0f1a; padding: 2px 6px; border-radius: 4px; }
+    .empty { color: #666; padding: 24px; }
+  </style>
+</head>
+<body>
+  <h1>Посетители приложения</h1>
+  <p class="stats">Всего визитов: <strong>${total}</strong> • Уникальных: <strong>${visitors.length}</strong></p>
+  <table>
+    <thead><tr><th>#</th><th>ID</th><th>Визитов</th><th>Тип</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="4" class="empty">Нет данных</td></tr>'}</tbody>
+  </table>
+</body>
+</html>`);
+  }
+
   return res.status(200).json({
     ok: true,
     visitors,
@@ -71,3 +107,12 @@ module.exports = async function handler(req, res) {
     unique: visitors.length,
   });
 };
+
+function escapeHtml(s) {
+  if (!s) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
