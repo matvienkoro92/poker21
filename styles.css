@@ -1009,6 +1009,13 @@ body {
   white-space: nowrap;
 }
 
+.tournament-day-card__remind--secondary {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid var(--accent-color, #3390ec);
+  color: var(--accent-color, #3390ec);
+}
+
 .feature__icon {
   width: 32px;
   height: 32px;

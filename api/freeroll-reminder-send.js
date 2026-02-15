@@ -140,9 +140,9 @@ module.exports = async function handler(req, res) {
     }
     const sendResult = await sendTelegramMessage(String(user.id), MESSAGES["10sec"]);
     const sent = sendResult && sendResult.ok ? 1 : 0;
-    const body = { ok: true, when: "10sec", sent, total: 1 };
-    if (sent === 0 && sendResult && sendResult.hint) body.error = sendResult.hint;
-    return res.status(200).json(body);
+    const resp = { ok: true, when: "10sec", sent, total: 1 };
+    if (sent === 0 && sendResult && sendResult.hint) resp.error = sendResult.hint;
+    return res.status(200).json(resp);
   }
 
   const reminderKey = REMINDER_KEYS[when];
