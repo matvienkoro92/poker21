@@ -1129,7 +1129,7 @@ updateVisitorCounter();
   }
 })();
 
-// Таймер до турнира: понедельник 3:47 по Бали (Asia/Makassar, UTC+8)
+// Таймер до турнира: понедельник 3:42 по Бали (Asia/Makassar, UTC+8)
 (function initTournamentCountdown() {
   var el1 = document.getElementById("tournamentDayTimer");
   var el2 = document.getElementById("tournamentDayTimerExpanded");
@@ -1144,12 +1144,12 @@ updateVisitorCounter();
     var baliHour = baliNow.getUTCHours();
     var baliMin = baliNow.getUTCMinutes();
     var baliMinOfDay = baliHour * 60 + baliMin;
-    var targetMinOfDay = 3 * 60 + 47;
+    var targetMinOfDay = 3 * 60 + 42;
     var daysUntilMonday = baliDow === 1 ? (baliMinOfDay >= targetMinOfDay ? 7 : 0) : (8 - baliDow) % 7;
     if (daysUntilMonday === 0 && baliMinOfDay >= targetMinOfDay) daysUntilMonday = 7;
     var targetBali = new Date(baliNow);
     targetBali.setUTCDate(targetBali.getUTCDate() + daysUntilMonday);
-    targetBali.setUTCHours(3, 47, 0, 0);
+    targetBali.setUTCHours(3, 42, 0, 0);
     var targetUtc = new Date(targetBali.getTime() - baliOffset * 60000);
     return targetUtc.getTime() - now.getTime();
   }
@@ -1163,39 +1163,11 @@ updateVisitorCounter();
     return s + " сек";
   }
 
-  var hasTriggered10min = false;
-  var hasTriggered1h = false;
-
   function tick() {
     var ms = getNextTournamentMs();
     var txt = "⏱ " + format(ms) + " до старта";
     if (el1) el1.textContent = txt;
     if (el2) el2.textContent = txt;
-
-    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    var initData = tg && tg.initData ? tg.initData : "";
-    var base = typeof getApiBase === "function" ? getApiBase() : "";
-
-    if (!hasTriggered1h && ms > 0 && ms <= 60 * 60 * 1000) {
-      hasTriggered1h = true;
-      if (initData && base) {
-        fetch(base + "/api/freeroll-reminder-send?when=1h", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData }),
-        }).catch(function () {});
-      }
-    }
-    if (!hasTriggered10min && ms > 0 && ms <= 10 * 60 * 1000) {
-      hasTriggered10min = true;
-      if (initData && base) {
-        fetch(base + "/api/freeroll-reminder-send?when=10min", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData }),
-        }).catch(function () {});
-      }
-    }
   }
 
   tick();
