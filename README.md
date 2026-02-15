@@ -49,6 +49,8 @@ http://localhost:3000
    - `UPSTASH_REDIS_REST_TOKEN` — REST Token
 3. После деплоя запросы к `/api/visit` будут сохранять визиты и отдавать счётчики.
 
+**Если в подвале везде «—» или 0:** проверьте в Vercel → Settings → Environment Variables, что заданы `UPSTASH_REDIS_REST_URL` и `UPSTASH_REDIS_REST_TOKEN`, затем сделайте повторный деплой. Убедитесь, что в `index.html` у `#app` указан актуальный `data-api-base` (URL вашего приложения на Vercel).
+
 ## Авторизация через Telegram
 
 Приложение проверяет, что пользователь открыл Mini App из Telegram: данные `initData` отправляются на сервер и проверяются по токену бота.

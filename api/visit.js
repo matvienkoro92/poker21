@@ -67,6 +67,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  if (!REDIS_URL || !REDIS_TOKEN) {
+    return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false, error: 'redis_not_configured' });
+  }
+
   const visitorId = req.query.visitor_id || req.query.visitorId;
   if (!visitorId || typeof visitorId !== 'string' || visitorId.length > 128) {
     return res.status(400).json({ error: 'visitor_id required' });

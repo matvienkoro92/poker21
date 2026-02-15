@@ -1038,35 +1038,44 @@ function updateVisitorCounter() {
   const visitorId = getVisitorId();
   const apiUrl = base + "/api/visit?visitor_id=" + encodeURIComponent(visitorId);
 
-  fetch(apiUrl)
-    .then(function (res) {
-      if (!res.ok) return Promise.reject(new Error("visit api " + res.status));
-      return res.json();
-    })
-    .then(function (data) {
-      applyVisitorCounts(data, elTotal, elUnique, elReturning);
-      if (data && data.ok === false) fetchVisitorStatsOnly();
-    })
-    .catch(function () {
-      setDash();
-      fetchVisitorStatsOnly();
-      setTimeout(updateVisitorCounter, 2000);
-    });
+  function doFetch(retryCount) {
+    fetch(apiUrl)
+      .then(function (res) {
+        if (!res.ok) return Promise.reject(new Error("visit api " + res.status));
+        return res.json();
+      })
+      .then(function (data) {
+        applyVisitorCounts(data, elTotal, elUnique, elReturning);
+        if (data && data.ok === false) fetchVisitorStatsOnly();
+      })
+      .catch(function () {
+        setDash();
+        if (retryCount > 0) {
+          setTimeout(function () { doFetch(retryCount - 1); }, 1500);
+        } else {
+          fetchVisitorStatsOnly();
+          setTimeout(updateVisitorCounter, 5000);
+        }
+      });
+  }
+  doFetch(1);
 }
 
 function applyVisitorCounts(data, elTotal, elUnique, elReturning) {
+  if (data && data.ok === false) {
+    if (elTotal) elTotal.textContent = "—";
+    elUnique.textContent = "—";
+    elReturning.textContent = "—";
+    return;
+  }
   if (data && typeof data.unique === "number" && typeof data.returning === "number") {
     if (elTotal) elTotal.textContent = typeof data.total === "number" ? data.total : data.unique + data.returning;
     elUnique.textContent = String(data.unique);
     elReturning.textContent = String(data.returning);
-  } else if (data && data.ok === false) {
+  } else {
     if (elTotal) elTotal.textContent = "—";
     elUnique.textContent = "—";
     elReturning.textContent = "—";
-  } else {
-    if (elTotal) elTotal.textContent = "0";
-    elUnique.textContent = "0";
-    elReturning.textContent = "0";
   }
 }
 

@@ -57,6 +57,10 @@ module.exports = async function handler(req, res) {
     ['HGETALL', 'poker_app:visits'],
   ];
 
+  if (!REDIS_URL || !REDIS_TOKEN) {
+    return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false, error: 'redis_not_configured' });
+  }
+
   const results = await redisPipeline(commands);
   if (!results || !Array.isArray(results) || results.length !== 2) {
     return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false });
