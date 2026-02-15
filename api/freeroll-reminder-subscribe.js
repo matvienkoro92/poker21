@@ -1,15 +1,16 @@
 /**
- * Подписка на напоминание «за час до турнира дня».
- * Для «10 сек»: ждёт 10 сек на сервере, затем отправляет. Держите приложение открытым.
- *
- * Переменные: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN.
+ * Подписка на напоминание «за час» или «за 10 мин» до турнира дня.
+ * Для «5 сек»: QStash отправит напоминание через 5 сек (работает при закрытом приложении).
+ * Переменные: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, QSTASH_TOKEN.
+ * Опционально: QSTASH_URL (для US: https://us1.qstash.upstash.io)
  */
 const crypto = require("crypto");
 
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "10sec": "poker_app:freeroll_reminder_10sec" };
+const QSTASH_TOKEN = process.env.QSTASH_TOKEN;
+const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "5sec": "poker_app:freeroll_reminder_5sec" };
 
 function validateTelegramWebAppData(initData, botToken) {
   if (!initData || !botToken) return null;
@@ -102,32 +103,35 @@ module.exports = async function handler(req, res) {
   }
 
   const whenRaw = body.remindWhen || body.remind_when || "1h";
-  const when = whenRaw === "10sec" ? "10sec" : whenRaw === "10min" ? "10min" : "1h";
+  const when = whenRaw === "5sec" ? "5sec" : whenRaw === "10min" ? "10min" : "1h";
   const key = REMINDER_KEYS[when];
   const out = await redisCommandWithStatus("SADD", key, String(user.id));
 
   if (out.result !== undefined) {
-    if (when === "10sec") {
+    if (when === "5sec") {
+      if (!QSTASH_TOKEN) {
+        return res.status(503).json({ ok: false, error: "Добавьте QSTASH_TOKEN в Vercel для напоминаний при закрытом приложении." });
+      }
       const apiBase = process.env.VERCEL_URL
         ? "https://" + process.env.VERCEL_URL
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
-      const sendUrl = apiBase + "/api/freeroll-reminder-send?when=10sec";
-      await new Promise(function (r) { setTimeout(r, 10000); });
-      let sent = 0;
-      let sendError = null;
+      const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
+      const qHost = (process.env.QSTASH_URL || "https://qstash.upstash.io").replace(/\/$/, "");
       try {
-        const sendRes = await fetch(sendUrl, {
+        const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Authorization: "Bearer " + QSTASH_TOKEN,
+            "Content-Type": "application/json",
+            "Upstash-Delay": "5s",
+          },
           body: JSON.stringify({ initData: initData }),
         });
-        const sendData = await sendRes.json().catch(function () { return {}; });
-        sent = (sendData && sendData.sent) === 1 ? 1 : 0;
-        sendError = sendData && sendData.error ? sendData.error : null;
-      } catch (e) {
-        sendError = "Ошибка сети при отправке.";
-      }
-      return res.status(200).json({ ok: true, subscribed: true, sent: sent, error: sendError });
+        if (qRes.ok) {
+          return res.status(200).json({ ok: true, subscribed: true });
+        }
+      } catch (e) {}
+      return res.status(503).json({ ok: false, error: "Не удалось запланировать напоминание. Попробуйте позже." });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }

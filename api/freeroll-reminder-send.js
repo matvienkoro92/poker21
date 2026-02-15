@@ -1,22 +1,17 @@
 /**
- * Рассылка напоминания «турнир дня через час» всем подписчикам.
- * Вызывать по крону в 17:00 МСК (или вручную с секретом).
+ * Рассылка напоминания «турнир дня» подписчикам.
+ * when=5sec: вызывается QStash через 5 сек, body: { initData }. Без CRON_SECRET.
+ * when=1h/10min: по крону, требуется CRON_SECRET.
  *
  * Переменные: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN.
- * Опционально: CRON_SECRET — если задан, запрос должен содержать заголовок X-Cron-Secret: <CRON_SECRET>
- *   или query ?secret=<CRON_SECRET>.
- *
- * Пример крона: два вызова в день:
- *   За час:  14:00 UTC (17:00 МСК) — GET/POST .../api/freeroll-reminder-send?when=1h
- *   За 10 мин: 17:50 МСК = 14:50 UTC — GET/POST .../api/freeroll-reminder-send?when=10min
- *   Header: X-Cron-Secret: <CRON_SECRET>
+ * Опционально: CRON_SECRET — для when=1h/10min.
  */
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CRON_SECRET = process.env.CRON_SECRET;
+const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "5sec": "poker_app:freeroll_reminder_5sec" };
 const crypto = require("crypto");
-const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "10sec": "poker_app:freeroll_reminder_10sec" };
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
@@ -27,7 +22,7 @@ const TOURNAMENT_DETAILS = [
 const MESSAGES = {
   "1h": "⏰ Турнир дня начнётся через час!\n\n" + TOURNAMENT_DETAILS,
   "10min": "⏰ Турнир дня начнётся через 10 минут!\n\n" + TOURNAMENT_DETAILS,
-  "10sec": "⏰ Напоминание: турнир дня стартует!\n\n" + TOURNAMENT_DETAILS,
+  "5sec": "⏰ Напоминание: турнир дня стартует!\n\n" + TOURNAMENT_DETAILS,
 };
 
 function validateTelegramWebAppData(initData, botToken) {
@@ -105,9 +100,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
-  const when = (req.query && req.query.when) === "10sec" ? "10sec" : (req.query && req.query.when) === "10min" ? "10min" : "1h";
+  const when = (req.query && req.query.when) === "5sec" ? "5sec" : (req.query && req.query.when) === "10min" ? "10min" : "1h";
 
-  if (when !== "10sec" && CRON_SECRET && (req.headers["x-cron-secret"] || req.query.secret) !== CRON_SECRET) {
+  if (when !== "5sec" && CRON_SECRET && (req.headers["x-cron-secret"] || req.query.secret) !== CRON_SECRET) {
     return res.status(403).json({ ok: false, error: "Invalid or missing CRON_SECRET" });
   }
 
@@ -115,7 +110,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ ok: false, error: "Set TELEGRAM_BOT_TOKEN" });
   }
 
-  if (when === "10sec") {
+  if (when === "5sec") {
     let body;
     try {
       body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
@@ -124,23 +119,23 @@ module.exports = async function handler(req, res) {
     }
     const initData = body.initData || body.init_data;
     if (!initData) {
-      return res.status(400).json({ ok: false, error: "initData required for when=10sec" });
+      return res.status(400).json({ ok: false, error: "initData required for when=5sec" });
     }
     const user = validateTelegramWebAppData(initData, BOT_TOKEN);
     if (!user || !user.id) {
       return res.status(401).json({ ok: false, error: "Invalid initData" });
     }
-    const reminderKey = REMINDER_KEYS["10sec"];
+    const reminderKey = REMINDER_KEYS["5sec"];
     const results = await redisPipeline([
       ["SISMEMBER", reminderKey, String(user.id)],
       ["SREM", reminderKey, String(user.id)],
     ]);
     if (!results || !results[0] || results[0].result !== 1) {
-      return res.status(200).json({ ok: true, when: "10sec", sent: 0, message: "Not subscribed or already sent" });
+      return res.status(200).json({ ok: true, when: "5sec", sent: 0, message: "Not subscribed or already sent" });
     }
-    const sendResult = await sendTelegramMessage(String(user.id), MESSAGES["10sec"]);
+    const sendResult = await sendTelegramMessage(String(user.id), MESSAGES["5sec"]);
     const sent = sendResult && sendResult.ok ? 1 : 0;
-    const resp = { ok: true, when: "10sec", sent, total: 1 };
+    const resp = { ok: true, when: "5sec", sent, total: 1 };
     if (sent === 0 && sendResult && sendResult.hint) resp.error = sendResult.hint;
     return res.status(200).json(resp);
   }

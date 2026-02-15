@@ -1221,87 +1221,8 @@ document.getElementById("freerollRemind10Btn")?.addEventListener("click", functi
   subscribeFreerollRemind(this, "10min", "Вам придёт сообщение за 10 минут до начала.");
 });
 
-document.getElementById("freerollRemind10SecBtn")?.addEventListener("click", function () {
-  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  var initData = tg && tg.initData ? tg.initData : "";
-  if (!initData) {
-    if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
-    return;
-  }
-  var base = getApiBase();
-  if (!base) {
-    if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
-    return;
-  }
-  var btn = this;
-  btn.disabled = true;
-  if (tg && tg.showAlert) tg.showAlert("Держите приложение открытым 10 секунд. Сообщение придёт в конце.");
-  fetch(base + "/api/freeroll-reminder-subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData: initData, remindWhen: "10sec" }),
-  })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (!data.ok || !data.subscribed) {
-        var msg = data.error && data.error.indexOf("UPSTASH") === -1 ? data.error : "Сервис напоминаний временно недоступен. Попробуйте позже.";
-        if (tg && tg.showAlert) tg.showAlert(msg);
-        btn.disabled = false;
-        return;
-      }
-      if (tg && tg.showAlert) {
-        if (data.sent === 1) {
-          tg.showAlert("Сообщение отправлено! Проверьте чат с ботом.");
-        } else if (data.error) {
-          tg.showAlert(data.error);
-        } else {
-          tg.showAlert("Сообщение не доставлено. Напишите боту /start в личку и попробуйте снова.");
-        }
-      }
-      btn.disabled = false;
-    })
-    .catch(function () {
-      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
-      btn.disabled = false;
-    });
-});
-
-document.getElementById("testRemindNowBtn")?.addEventListener("click", function () {
-  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  var initData = tg && tg.initData ? tg.initData : "";
-  if (!initData) {
-    if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
-    return;
-  }
-  var base = getApiBase();
-  if (!base) {
-    if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
-    return;
-  }
-  var btn = this;
-  btn.disabled = true;
-  fetch(base + "/api/test-reminder-now", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData: initData }),
-  })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (tg && tg.showAlert) {
-        if (data.sent === 1) {
-          tg.showAlert("Сообщение отправлено! Проверьте чат с ботом.");
-        } else if (data.error) {
-          tg.showAlert(data.error);
-        } else {
-          tg.showAlert("Не удалось отправить. Напишите боту /start в личку.");
-        }
-      }
-      btn.disabled = false;
-    })
-    .catch(function () {
-      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
-      btn.disabled = false;
-    });
+document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", function () {
+  subscribeFreerollRemind(this, "5sec", "Через 5 секунд придёт напоминание в личку. Можно закрыть приложение.");
 });
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)

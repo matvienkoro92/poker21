@@ -2,10 +2,12 @@
   "headers": [
     {
       "source": "/index.html",
-      "headers": [{"key": "Cache-Control", "value": "no-store, max-age=0"}]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
     }
-  ],
-  "functions": {
-    "api/freeroll-reminder-subscribe.js": {"maxDuration": 15}
-  }
+  ]
 }
