@@ -15,7 +15,7 @@ const crypto = require("crypto");
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
-  "Нокаут за 500р, старт в понедельник в 3:56 (Бали)",
+  "Нокаут за 500р, старт в понедельник в 4:04 (Бали)",
   "Гарантия 100 000р",
 ].join("\n");
 
@@ -103,7 +103,7 @@ module.exports = async function handler(req, res) {
   var when = (req.query && req.query.when) === "5sec" ? "5sec" : (req.query && req.query.when) === "10min" ? "10min" : (req.query && req.query.when) === "1h" ? "1h" : null;
   if (!when) {
     var m = new Date().getUTCMinutes();
-    when = m >= 41 && m <= 51 ? "10min" : "1h";
+    when = m >= 49 && m <= 59 ? "10min" : "1h";
   }
 
   if (when !== "5sec" && CRON_SECRET) {
