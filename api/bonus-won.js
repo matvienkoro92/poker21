@@ -1,10 +1,8 @@
 /**
  * Уведомление тебе в Telegram, когда кто-то выбил промокод в «Найди Пиханину».
- * При каждом выигрыше увеличивает глобальный счётчик выданных призов в Redis (для счётчика «осталось N»).
+ * При каждом выигрыше увеличивает счётчик выданных призов в Redis (осталось = PIKHANINA_MAX_PRIZES - claimed).
  *
- * В Vercel Environment Variables задай:
- *   TELEGRAM_BOT_TOKEN, TELEGRAM_NOTIFY_CHAT_ID,
- *   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN (для счётчика).
+ * В Vercel: TELEGRAM_BOT_TOKEN, TELEGRAM_NOTIFY_CHAT_ID, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN.
  */
 const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;

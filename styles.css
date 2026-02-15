@@ -1595,8 +1595,8 @@ body {
   line-height: 1.4;
 }
 
-.bonus-game-stats #bonusGamePromoCount,
-.bonus-game-stats #bonusGameAttemptsCount {
+.bonus-game-stats #bonusGameAttemptsCount,
+.bonus-game-stats #bonusGamePromoCount {
   font-weight: 600;
   color: var(--text);
 }

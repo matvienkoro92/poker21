@@ -1,42 +1,23 @@
 /**
- * GET /api/pikhanina-stats — сколько призов по 200р ещё осталось (глобальный счётчик в Redis).
- * Всего призов с старта: 5. Ответ: { remaining: 0..5 }
- *
- * Учёт уже выданных: в Vercel задай PIKHANINA_CLAIMED_INITIAL = число уже выданных (0–5).
+ * GET /api/pikhanina-stats — сколько призов ещё осталось (глобальный счётчик в Redis).
+ * Ответ: { remaining: 0..N }. N задаётся в Vercel: PIKHANINA_MAX_PRIZES (по умолчанию 5).
+ * При каждом выигрыше в bonus-won делается INCR по ключу — счётчик уменьшается.
  */
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const KEY = "poker_app:pikhanina_claimed_count";
-const MAX_PRIZES = 5;
-const DEFAULT_CLAIMED = 0;
-const INITIAL_CLAIMED = process.env.PIKHANINA_CLAIMED_INITIAL;
+const MAX_PRIZES = Math.max(0, parseInt(process.env.PIKHANINA_MAX_PRIZES, 10) || 5);
 
 async function redisGet(key) {
   if (!REDIS_URL || !REDIS_TOKEN) return null;
   const url = REDIS_URL.replace(/\/$/, "") + "/get/" + encodeURIComponent(key);
   const res = await fetch(url, {
     method: "GET",
-    headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+    headers: { Authorization: "Bearer " + REDIS_TOKEN },
   });
   if (!res.ok) return null;
-  const data = await res.json().catch(() => null);
+  const data = await res.json().catch(function () { return null; });
   return data && data.result !== undefined ? data.result : null;
-}
-
-async function redisSet(key, value) {
-  if (!REDIS_URL || !REDIS_TOKEN) return false;
-  const url = REDIS_URL.replace(/\/$/, "") + "/pipeline";
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${REDIS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify([["SET", key, String(value)]]),
-  });
-  if (!res.ok) return false;
-  const data = await res.json().catch(() => null);
-  return Array.isArray(data) && data[0] && data[0].result !== undefined;
 }
 
 module.exports = async function handler(req, res) {
@@ -45,23 +26,8 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
 
-  let raw = await redisGet(KEY);
-  const initial = parseInt(INITIAL_CLAIMED, 10);
-  const useInitial = !isNaN(initial) && initial >= 0;
-  let current = parseInt(raw, 10) || 0;
-  if (current > MAX_PRIZES) {
-    await redisSet(KEY, "0");
-    current = 0;
-  }
-  if (useInitial && initial > current) {
-    await redisSet(KEY, Math.min(MAX_PRIZES, initial));
-    current = initial;
-  } else if (raw === null || raw === undefined) {
-    const seed = useInitial ? initial : DEFAULT_CLAIMED;
-    await redisSet(KEY, Math.min(MAX_PRIZES, seed));
-    current = seed;
-  }
-  const claimed = current;
+  const raw = await redisGet(KEY);
+  const claimed = Math.max(0, parseInt(raw, 10) || 0);
   const remaining = Math.max(0, MAX_PRIZES - claimed);
-  return res.status(200).json({ remaining });
+  return res.status(200).json({ remaining: remaining });
 };
