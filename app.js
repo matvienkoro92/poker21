@@ -1248,16 +1248,8 @@ document.getElementById("freerollRemind10SecBtn")?.addEventListener("click", fun
         btn.disabled = false;
         return;
       }
-      if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение через 10 секунд.");
-      setTimeout(function () {
-        fetch(base + "/api/freeroll-reminder-send?when=10sec", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData }),
-        })
-          .then(function () { btn.disabled = false; })
-          .catch(function () { btn.disabled = false; });
-      }, 10000);
+      if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение через 10 секунд. Можно закрыть приложение.");
+      btn.disabled = false;
     })
     .catch(function () {
       if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");

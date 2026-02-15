@@ -83,7 +83,13 @@ async function sendTelegramMessage(chatId, text) {
       disable_web_page_preview: true,
     }),
   });
-  return res.ok;
+  const data = await res.json().catch(() => ({}));
+  if (res.ok) return { ok: true };
+  const desc = (data && data.description) || "";
+  if (desc.indexOf("can't initiate") !== -1 || desc.indexOf("blocked") !== -1) {
+    return { ok: false, hint: "Напишите боту /start в личку, затем попробуйте снова." };
+  }
+  return { ok: false, hint: desc || "Ошибка Telegram" };
 }
 
 module.exports = async function handler(req, res) {
@@ -132,8 +138,11 @@ module.exports = async function handler(req, res) {
     if (!results || !results[0] || results[0].result !== 1) {
       return res.status(200).json({ ok: true, when: "10sec", sent: 0, message: "Not subscribed or already sent" });
     }
-    const sent = (await sendTelegramMessage(String(user.id), MESSAGES["10sec"])) ? 1 : 0;
-    return res.status(200).json({ ok: true, when: "10sec", sent, total: 1 });
+    const sendResult = await sendTelegramMessage(String(user.id), MESSAGES["10sec"]);
+    const sent = sendResult && sendResult.ok ? 1 : 0;
+    const body = { ok: true, when: "10sec", sent, total: 1 };
+    if (sent === 0 && sendResult && sendResult.hint) body.error = sendResult.hint;
+    return res.status(200).json(body);
   }
 
   const reminderKey = REMINDER_KEYS[when];
@@ -147,7 +156,8 @@ module.exports = async function handler(req, res) {
   const chatIds = Array.isArray(results[0].result) ? results[0].result : [];
   let sent = 0;
   for (const chatId of chatIds) {
-    if (await sendTelegramMessage(chatId, messageText)) sent++;
+    const r = await sendTelegramMessage(chatId, messageText);
+    if (r && r.ok) sent++;
   }
 
   return res.status(200).json({ ok: true, when, sent, total: chatIds.length });

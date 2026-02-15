@@ -107,6 +107,21 @@ module.exports = async function handler(req, res) {
   const out = await redisCommandWithStatus("SADD", key, String(user.id));
 
   if (out.result !== undefined) {
+    if (when === "10sec") {
+      const apiBase = process.env.VERCEL_URL
+        ? "https://" + process.env.VERCEL_URL
+        : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
+      res.status(200).json({ ok: true, subscribed: true });
+      await new Promise(function (r) { setTimeout(r, 10000); });
+      try {
+        await fetch(apiBase + "/api/freeroll-reminder-send?when=10sec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData }),
+        });
+      } catch (e) {}
+      return;
+    }
     return res.status(200).json({ ok: true, subscribed: true });
   }
 
