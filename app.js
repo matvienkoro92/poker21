@@ -1140,16 +1140,16 @@ updateVisitorCounter();
   el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
 })();
 
-// Таймер до старта турнира дня (18:00 мск = 15:00 UTC)
-function getNextFreerollStartMs() {
-  var now = new Date();
-  var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
-  if (now >= start) start.setUTCDate(start.getUTCDate() + 1);
-  return start.getTime() - now.getTime();
+// Таймер «До конца регистрации» — 2 часа с момента открытия. По окончании блок удаляется.
+var freerollRegistrationEndTime = Date.now() + 2 * 60 * 60 * 1000;
+var freerollTimerIntervalId = null;
+
+function getFreerollRegistrationMs() {
+  return Math.max(0, freerollRegistrationEndTime - Date.now());
 }
 
 function formatCountdown(ms) {
-  if (ms <= 0) return "Уже идёт";
+  if (ms <= 0) return "0 с";
   var s = Math.floor(ms / 1000);
   var m = Math.floor(s / 60);
   s = s % 60;
@@ -1164,9 +1164,20 @@ function formatCountdown(ms) {
 }
 
 function updateFreerollTimer() {
-  var ms = getNextFreerollStartMs();
+  var ms = getFreerollRegistrationMs();
+  if (ms <= 0) {
+    var wrap = document.querySelector(".tournament-day-wrap");
+    if (wrap && wrap.parentNode) {
+      wrap.parentNode.removeChild(wrap);
+    }
+    if (freerollTimerIntervalId) {
+      clearInterval(freerollTimerIntervalId);
+      freerollTimerIntervalId = null;
+    }
+    return;
+  }
   var countdownStr = formatCountdown(ms);
-  var text = "До старта: " + countdownStr;
+  var text = "До конца регистрации: " + countdownStr;
   var allTimers = document.querySelectorAll(".js-freeroll-timer");
   allTimers.forEach(function (el) {
     if (el.id === "freerollTimer") el.textContent = " " + countdownStr;
@@ -1176,7 +1187,7 @@ function updateFreerollTimer() {
 
 (function initFreerollTimer() {
   updateFreerollTimer();
-  setInterval(updateFreerollTimer, 1000);
+  freerollTimerIntervalId = setInterval(updateFreerollTimer, 1000);
 })();
 
 function subscribeFreerollRemind(btn, remindWhen, successMessage) {
