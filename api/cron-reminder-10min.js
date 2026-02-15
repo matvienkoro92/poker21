@@ -3,7 +3,7 @@
  * Вызывается cron'ом (без query). Проксирует на freeroll-reminder-send с when=10min.
  */
 const CRON_SECRET = process.env.CRON_SECRET;
-const VERCEL_URL = process.env.VERCEL_URL || "poker-app-ebon.vercel.app";
+const BASE_URL = "https://poker-app-ebon.vercel.app";
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,8 +14,7 @@ module.exports = async function handler(req, res) {
     return res.status(403).json({ ok: false, error: "Invalid CRON_SECRET" });
   }
 
-  const base = VERCEL_URL.startsWith("http") ? VERCEL_URL : "https://" + VERCEL_URL;
-  const url = base + "/api/freeroll-reminder-send?when=10min&secret=" + encodeURIComponent(CRON_SECRET);
+  const url = BASE_URL.replace(/\/$/, "") + "/api/freeroll-reminder-send?when=10min&secret=" + encodeURIComponent(CRON_SECRET);
 
   try {
     const r = await fetch(url, { method: "GET" });
