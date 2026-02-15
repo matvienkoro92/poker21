@@ -113,26 +113,28 @@ module.exports = async function handler(req, res) {
         ? "https://" + process.env.VERCEL_URL
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
       const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
-      const qHost = (process.env.QSTASH_URL || "https://qstash.upstash.io").replace(/\/$/, "");
+      const qHosts = process.env.QSTASH_URL ? [process.env.QSTASH_URL.replace(/\/$/, "")] : ["https://qstash-us-east-1.upstash.io", "https://qstash.upstash.io"];
       var qstashErr = "";
       if (QSTASH_TOKEN) {
-        try {
-          const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
-            method: "POST",
-            headers: {
-              Authorization: "Bearer " + QSTASH_TOKEN,
-              "Content-Type": "application/json",
-              "Upstash-Delay": "5s",
-            },
-            body: JSON.stringify({ initData: initData }),
-          });
-          if (qRes.ok) {
-            return res.status(200).json({ ok: true, subscribed: true });
+        for (var qi = 0; qi < qHosts.length; qi++) {
+          try {
+            const qRes = await fetch(qHosts[qi] + "/v2/publish/" + encodeURIComponent(sendUrl), {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + QSTASH_TOKEN,
+                "Content-Type": "application/json",
+                "Upstash-Delay": "5s",
+              },
+              body: JSON.stringify({ initData: initData }),
+            });
+            if (qRes.ok) {
+              return res.status(200).json({ ok: true, subscribed: true });
+            }
+            const errData = await qRes.json().catch(function () { return {}; });
+            qstashErr = (errData && errData.error) ? String(errData.error) : "HTTP " + qRes.status;
+          } catch (e) {
+            qstashErr = (e && e.message) || "Сеть";
           }
-          const errData = await qRes.json().catch(function () { return {}; });
-          qstashErr = (errData && errData.error) ? String(errData.error) : "HTTP " + qRes.status;
-        } catch (e) {
-          qstashErr = (e && e.message) || "Сеть";
         }
       }
       var hint = !QSTASH_TOKEN

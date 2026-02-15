@@ -14,22 +14,27 @@ module.exports = async function handler(req, res) {
     ? "https://" + process.env.VERCEL_URL
     : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
   const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
-  try {
-    const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + QSTASH_TOKEN,
-        "Content-Type": "application/json",
-        "Upstash-Delay": "5s",
-      },
-      body: JSON.stringify({ initData: "test", test: true }),
-    });
-    const data = await qRes.json().catch(() => ({}));
-    if (qRes.ok) {
-      return res.status(200).json({ ok: true, message: "QStash принял задачу. Через 5 сек будет вызов (send вернёт ошибку initData — это ок)." });
+  const hosts = process.env.QSTASH_URL ? [process.env.QSTASH_URL.replace(/\/$/, "")] : ["https://qstash-us-east-1.upstash.io", "https://qstash.upstash.io"];
+  var lastErr = "";
+  for (var i = 0; i < hosts.length; i++) {
+    try {
+      const qRes = await fetch(hosts[i] + "/v2/publish/" + encodeURIComponent(sendUrl), {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + QSTASH_TOKEN,
+          "Content-Type": "application/json",
+          "Upstash-Delay": "5s",
+        },
+        body: JSON.stringify({ initData: "test", test: true }),
+      });
+      const data = await qRes.json().catch(() => ({}));
+      if (qRes.ok) {
+        return res.status(200).json({ ok: true, message: "QStash принял задачу (хост: " + hosts[i] + ")." });
+      }
+      lastErr = data.error || "HTTP " + qRes.status;
+    } catch (e) {
+      lastErr = (e && e.message) || "fetch failed";
     }
-    return res.status(200).json({ ok: false, error: data.error || "HTTP " + qRes.status, status: qRes.status });
-  } catch (e) {
-    return res.status(200).json({ ok: false, error: (e && e.message) || "Ошибка сети" });
   }
+  return res.status(200).json({ ok: false, error: lastErr, hint: "Проверьте QSTASH_TOKEN и регион. Для US: QSTASH_URL=https://qstash-us-east-1.upstash.io" });
 };
