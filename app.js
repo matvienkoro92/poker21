@@ -3,6 +3,7 @@ const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : 
 
 if (tg) {
   tg.ready();
+  if (tg.expand) tg.expand();
   // Адаптация под тему Telegram
   const themeParams = tg.themeParams || {};
   if (themeParams.bg_color) {
