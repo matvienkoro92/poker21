@@ -7,16 +7,16 @@
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-async function redisPipeline(commands) {
-  if (!REDIS_URL || !REDIS_TOKEN) {
-    return null;
-  }
-  const base = REDIS_URL.replace(/\/$/, '');
-  const url = base.indexOf('/pipeline') !== -1 ? base : base + '/pipeline';
-  const res = await fetch(url, {
+async function redisPipeline(commands, baseUrl, baseToken) {
+  const u = baseUrl || REDIS_URL;
+  const t = baseToken || REDIS_TOKEN;
+  if (!u || !t) return null;
+  const base = String(u).replace(/\/$/, '');
+  const pipelineUrl = base.indexOf('/pipeline') !== -1 ? base : base + '/pipeline';
+  const res = await fetch(pipelineUrl, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${REDIS_TOKEN}`,
+      Authorization: `Bearer ${t}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(commands),
@@ -67,8 +67,13 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!REDIS_URL || !REDIS_TOKEN) {
-    return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false, error: 'redis_not_configured' });
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) {
+    return res.status(200).json({
+      unique: 0, returning: 0, total: 0, ok: false, error: 'redis_not_configured',
+      debug: { hasUrl: !!url, hasToken: !!token },
+    });
   }
 
   const visitorId = req.query.visitor_id || req.query.visitorId;
@@ -87,7 +92,7 @@ module.exports = async function handler(req, res) {
 
   let results;
   try {
-    results = await redisPipeline(commands);
+    results = await redisPipeline(commands, url, token);
   } catch (e) {
     return jsonVisits(res, 0, 0, 0, false);
   }
