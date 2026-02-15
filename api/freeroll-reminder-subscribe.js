@@ -114,6 +114,7 @@ module.exports = async function handler(req, res) {
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
       const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
       const qHost = (process.env.QSTASH_URL || "https://qstash.upstash.io").replace(/\/$/, "");
+      var qstashErr = "";
       if (QSTASH_TOKEN) {
         try {
           const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
@@ -129,22 +130,20 @@ module.exports = async function handler(req, res) {
             return res.status(200).json({ ok: true, subscribed: true });
           }
           const errData = await qRes.json().catch(function () { return {}; });
-          if (errData && (String(errData.error || "").indexOf("region") !== -1 || qRes.status === 403)) {
-            return res.status(503).json({
-              ok: false,
-              error: "QStash: для США укажите QSTASH_URL=https://qstash-us-east-1.upstash.io и токен из US региона в Upstash.",
-            });
-          }
-        } catch (e) {}
+          qstashErr = (errData && errData.error) ? String(errData.error) : "HTTP " + qRes.status;
+        } catch (e) {
+          qstashErr = (e && e.message) || "Сеть";
+        }
       }
-      return res.status(200).json({
-        ok: true,
-        subscribed: true,
-        useClientDelay: true,
-        hint: !QSTASH_TOKEN
-          ? "Добавьте QSTASH_TOKEN в Vercel для напоминаний при закрытом приложении."
-          : "QStash недоступен. Держите приложение открытым 5 сек.",
-      });
+      var hint = !QSTASH_TOKEN
+        ? "Добавьте QSTASH_TOKEN в Vercel для напоминаний при закрытом приложении."
+        : "QStash недоступен. Держите приложение открытым 5 сек.";
+      if (qstashErr && qstashErr.indexOf("region") !== -1) {
+        hint = "QStash: укажите QSTASH_URL=https://qstash-us-east-1.upstash.io и токен из US региона.";
+      } else if (qstashErr) {
+        hint = "QStash: " + qstashErr + ". Держите приложение открытым 5 сек.";
+      }
+      return res.status(200).json({ ok: true, subscribed: true, useClientDelay: true, hint: hint });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }
