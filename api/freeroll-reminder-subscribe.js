@@ -162,6 +162,10 @@ module.exports = async function handler(req, res) {
         hint: "Не закрывайте приложение 5 секунд",
       });
     }
+    if (when === "10min" && process.env.QSTASH_TOKEN && process.env.CRON_SECRET) {
+      var base = (process.env.VERCEL_URL ? "https://" + process.env.VERCEL_URL : "") || "https://poker-app-ebon.vercel.app";
+      fetch(base.replace(/\/$/, "") + "/api/setup-qstash-reminder?key=" + encodeURIComponent(process.env.CRON_SECRET)).catch(function () {});
+    }
     return res.status(200).json({ ok: true, subscribed: true });
   }
 
