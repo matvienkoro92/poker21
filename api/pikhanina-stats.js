@@ -48,16 +48,20 @@ module.exports = async function handler(req, res) {
   let raw = await redisGet(KEY);
   const initial = parseInt(INITIAL_CLAIMED, 10);
   const useInitial = !isNaN(initial) && initial >= 0;
-  const current = parseInt(raw, 10) || 0;
+  let current = parseInt(raw, 10) || 0;
+  if (current > MAX_PRIZES) {
+    await redisSet(KEY, "0");
+    current = 0;
+  }
   if (useInitial && initial > current) {
     await redisSet(KEY, Math.min(MAX_PRIZES, initial));
-    raw = initial;
+    current = initial;
   } else if (raw === null || raw === undefined) {
     const seed = useInitial ? initial : DEFAULT_CLAIMED;
     await redisSet(KEY, Math.min(MAX_PRIZES, seed));
-    raw = seed;
+    current = seed;
   }
-  const claimed = parseInt(raw, 10) || 0;
+  const claimed = current;
   const remaining = Math.max(0, MAX_PRIZES - claimed);
   return res.status(200).json({ remaining });
 };
