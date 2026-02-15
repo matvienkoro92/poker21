@@ -67,12 +67,12 @@ module.exports = async function handler(req, res) {
   const format = (req.query.format || "").toLowerCase();
   if (format === "html") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
+    const secretParam = escapeAttr(req.query.secret || "");
     const rows = visitors.map((v, i) => {
       let actionCell = "—";
       if (v.id.startsWith("tg_")) {
         const userId = v.id.replace(/^tg_/, "");
-        const tgUrl = `tg://user?id=${escapeAttr(userId)}`;
-        actionCell = `<a href="${tgUrl}" class="btn-open" target="_blank" rel="noopener" title="Открыть чат с пользователем">💬 Написать</a>`;
+        actionCell = `<button type="button" class="btn-send" data-user-id="${escapeAttr(userId)}" data-secret="${secretParam}" title="Отправить сообщение через бота">💬 Написать</button>`;
       }
       return `<tr><td>${i + 1}</td><td><code>${escapeHtml(v.id)}</code></td><td>${v.count}</td><td>${v.id.startsWith("tg_") ? "Telegram" : "Web"}</td><td>${actionCell}</td></tr>`;
     }).join("");
@@ -94,8 +94,8 @@ module.exports = async function handler(req, res) {
     code { font-size: 0.9em; background: #0f0f1a; padding: 2px 6px; border-radius: 4px; }
     a { color: #4fc3f7; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .btn-open { display: inline-block; padding: 6px 12px; background: #2d5a87; color: #fff; border-radius: 6px; font-size: 0.9em; }
-    .btn-open:hover { background: #3d6a97; }
+    .btn-send { padding: 6px 12px; background: #2d5a87; color: #fff; border: none; border-radius: 6px; font-size: 0.9em; cursor: pointer; }
+    .btn-send:hover { background: #3d6a97; }
     .empty { color: #666; padding: 24px; }
   </style>
 </head>
@@ -106,6 +106,24 @@ module.exports = async function handler(req, res) {
     <thead><tr><th>#</th><th>ID</th><th>Визитов</th><th>Тип</th><th>Действие</th></tr></thead>
     <tbody>${rows || '<tr><td colspan="5" class="empty">Нет данных</td></tr>'}</tbody>
   </table>
+  <script>
+  document.querySelectorAll(".btn-send").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var userId = this.dataset.userId;
+      var secret = this.dataset.secret;
+      var text = prompt("Введите сообщение для пользователя:");
+      if (!text || !text.trim()) return;
+      btn.disabled = true;
+      fetch("/api/send-to-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret: secret, user_id: userId, text: text.trim() })
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        alert(data.ok ? "Сообщение отправлено!" : (data.error || "Ошибка"));
+      }).catch(function() { alert("Ошибка сети"); }).finally(function() { btn.disabled = false; });
+    });
+  });
+  </script>
 </body>
 </html>`);
   }
