@@ -1229,56 +1229,27 @@ document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", func
     return;
   }
   btn.disabled = true;
-  if (tg && tg.showAlert) tg.showAlert("Подождите 5–6 секунд…");
-  fetch(base + "/api/freeroll-reminder-subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData: initData, remindWhen: "5sec" }),
-  })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (!data.ok || !data.subscribed) {
-        if (tg && tg.showAlert) tg.showAlert(data.error || "Ошибка. Попробуйте позже.");
-        btn.disabled = false;
-        return;
-      }
-      if (data.serverWait) {
+  if (tg && tg.showAlert) tg.showAlert("Не закрывайте приложение 5 секунд");
+  setTimeout(function () {
+    var freshInitData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || initData;
+    fetch(base + "/api/freeroll-reminder-send?when=5sec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: freshInitData }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
         if (tg && tg.showAlert) {
-          if (data.sent === 1) tg.showAlert("Сообщение отправлено!");
-          else tg.showAlert(data.error || "Не удалось отправить.");
+          if (res.sent === 1) tg.showAlert("Сообщение отправлено!");
+          else tg.showAlert(res.error || res.message || "Не удалось отправить. Напишите боту /start.");
         }
         btn.disabled = false;
-      } else if (data.useClientDelay) {
-        if (tg && tg.showAlert) tg.showAlert(data.hint || "Не закрывайте приложение 5 секунд");
-        setTimeout(function () {
-          fetch(base + "/api/freeroll-reminder-send?when=5sec", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData: initData }),
-          })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
-              if (tg && tg.showAlert) {
-                if (res.sent === 1) tg.showAlert("Сообщение отправлено!");
-                else tg.showAlert(res.error || (res.message || "Не удалось отправить. Напишите боту /start."));
-              }
-              btn.disabled = false;
-            })
-            .catch(function () {
-              if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
-              btn.disabled = false;
-            });
-        }, 5000);
-      } else {
-        if (tg && tg.showAlert) tg.showAlert("Через 5 секунд придёт напоминание. Можно закрыть приложение.");
+      })
+      .catch(function () {
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
         btn.disabled = false;
-      }
-      if (!data.useClientDelay) btn.disabled = false;
-    })
-    .catch(function () {
-      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
-      btn.disabled = false;
-    });
+      });
+  }, 5000);
 });
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
