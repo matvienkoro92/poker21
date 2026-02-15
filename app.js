@@ -93,9 +93,9 @@ if (startButton) {
 }
 
 // Простая навигация по разделам (вкладки внизу)
-var views = [];
-var navItems = [];
-var footer = null;
+const views = document.querySelectorAll("[data-view]");
+const navItems = document.querySelectorAll("[data-view-target]");
+const footer = document.querySelector(".card__footer");
 
 function setView(viewName) {
   views.forEach(function (view) {
@@ -105,7 +105,6 @@ function setView(viewName) {
       view.classList.remove("view--active");
     }
   });
-
   navItems.forEach(function (item) {
     if (item.dataset.viewTarget === viewName) {
       item.classList.add("bottom-nav__item--active");
@@ -113,7 +112,6 @@ function setView(viewName) {
       item.classList.remove("bottom-nav__item--active");
     }
   });
-
   if (footer) {
     if (viewName === "home") {
       footer.classList.remove("card__footer--hidden");
@@ -122,100 +120,48 @@ function setView(viewName) {
       footer.classList.add("card__footer--hidden");
     }
   }
-
-  if (viewName === "profile") {
-    updateProfileUserName();
-  }
-  if (viewName === "bonus-game") {
-    initBonusGame();
-  }
-  if (viewName === "cooler-game") {
-    initCoolerGame();
-  }
-  if (viewName === "plasterer-game") {
-    initPlastererGame();
-  }
+  if (viewName === "profile") updateProfileUserName();
+  if (viewName === "bonus-game") initBonusGame();
+  if (viewName === "cooler-game") initCoolerGame();
+  if (viewName === "plasterer-game") initPlastererGame();
 }
 
 function updateProfileUserName() {
-  const el = document.getElementById("profileUserName");
+  var el = document.getElementById("profileUserName");
   if (!el) return;
-  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   el.textContent = user && user.first_name ? user.first_name : "гость";
 }
 
-function initNav() {
-  views = document.querySelectorAll("[data-view]");
-  navItems = document.querySelectorAll("[data-view-target]");
-  footer = document.querySelector(".card__footer");
-  navItems.forEach(function (item) {
-    item.addEventListener("click", function () {
-      const target = item.dataset.viewTarget;
-      if (target) {
-        setView(target);
-        if (target === "download") {
-          setDownloadPage("main");
-        }
-      });
-    });
+navItems.forEach(function (item) {
+  item.addEventListener("click", function () {
+    var target = item.dataset.viewTarget;
+    if (target) {
+      setView(target);
+      if (target === "download") setDownloadPage("main");
+    }
   });
-}
+});
 
 document.addEventListener("click", function (e) {
-  var el = e.target.closest("[data-view-target]");
-  if (!el) return;
-  var view = el.getAttribute("data-view-target");
-  if (!view) return;
+  var link = e.target.closest("a[data-view-target]");
+  if (!link || link.getAttribute("data-download-page")) return;
   e.preventDefault();
-  e.stopPropagation();
-  setView(view);
-  if (view === "download") {
-    var page = el.getAttribute("data-download-page");
-    setDownloadPage(page || "main");
-  }
-}, true);
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initNav);
-} else {
-  initNav();
-}
+  var view = link.getAttribute("data-view-target");
+  if (view) setView(view);
+});
 
 document.addEventListener("click", function (e) {
   var link = e.target.closest("[data-view-target][data-download-page]");
   if (!link) return;
+  e.preventDefault();
+  var view = link.getAttribute("data-view-target");
   var page = link.getAttribute("data-download-page");
+  if (view) setView(view);
   if (page) setDownloadPage(page);
 });
 
-// Подстраницы раздела «Скачать»
-const downloadPages = document.querySelectorAll("[data-download-page]");
-const downloadAppButtons = document.querySelectorAll("[data-download-app]");
-const downloadBackButtons = document.querySelectorAll("[data-download-back]");
-
-function setDownloadPage(pageName) {
-  downloadPages.forEach((page) => {
-    if (page.dataset.downloadPage === pageName) {
-      page.classList.add("download-page--active");
-    } else {
-      page.classList.remove("download-page--active");
-    }
-  });
-}
-
-downloadAppButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const app = btn.dataset.downloadApp;
-    if (app) setDownloadPage(app);
-  });
-});
-
-downloadBackButtons.forEach((btn) => {
-  btn.addEventListener("click", () => setDownloadPage("main"));
-});
-
-// Турнир дня: развернуть/свернуть блок с подробностями
+// Турнир дня: развернуть/свернуть
 document.addEventListener("click", function (e) {
   var toggle = e.target.closest(".js-tournament-day-toggle");
   if (!toggle) return;
@@ -226,8 +172,33 @@ document.addEventListener("click", function (e) {
   var isExpanded = expanded.hidden === false;
   expanded.hidden = isExpanded;
   toggle.setAttribute("aria-expanded", !isExpanded);
-  toggle.setAttribute("aria-label", isExpanded ? "Развернуть подробности турнира" : "Свернуть подробности турнира");
   wrap.classList.toggle("tournament-day-wrap--expanded", !isExpanded);
+});
+
+// Подстраницы раздела «Скачать»
+const downloadPages = document.querySelectorAll("[data-download-page]");
+const downloadAppButtons = document.querySelectorAll("[data-download-app]");
+const downloadBackButtons = document.querySelectorAll("[data-download-back]");
+
+function setDownloadPage(pageName) {
+  downloadPages.forEach(function (page) {
+    if (page.dataset.downloadPage === pageName) {
+      page.classList.add("download-page--active");
+    } else {
+      page.classList.remove("download-page--active");
+    }
+  });
+}
+
+downloadAppButtons.forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var app = btn.dataset.downloadApp;
+    if (app) setDownloadPage(app);
+  });
+});
+
+downloadBackButtons.forEach(function (btn) {
+  btn.addEventListener("click", function () { setDownloadPage("main"); });
 });
 
 // Мини-игра «Найди Пиханину» — колода буби (13) + колода пики (13) + джокер Пиханина = 27 карт
@@ -1197,14 +1168,7 @@ function updateFreerollTimer() {
 }
 
 (function initFreerollTimer() {
-  function tick() {
-    updateFreerollTimer();
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", tick);
-  } else {
-    tick();
-  }
+  updateFreerollTimer();
   setInterval(updateFreerollTimer, 1000);
 })();
 

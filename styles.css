@@ -51,6 +51,7 @@ body {
 .bg-gradient {
   position: absolute;
   inset: -40%;
+  pointer-events: none;
   background:
     radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.35), transparent 55%),
     radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.3), transparent 55%),
@@ -63,6 +64,7 @@ body {
 .bg-blur {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   backdrop-filter: blur(20px) saturate(150%);
   background: linear-gradient(
     145deg,
@@ -75,7 +77,6 @@ body {
 
 .card {
   position: relative;
-  z-index: 0;
   width: 100%;
   max-width: 420px;
   background: linear-gradient(
@@ -220,8 +221,6 @@ body {
 }
 
 .card__content {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -796,9 +795,6 @@ body {
 .feature--link {
   text-decoration: none;
   color: inherit;
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
 }
 
 .feature--link:hover {
@@ -2098,11 +2094,7 @@ img.plasterer-card {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  pointer-events: none;
-}
-.bottom-nav > * {
-  pointer-events: auto;
+  z-index: 10;
 }
 
 .bottom-nav__item {
@@ -2123,8 +2115,6 @@ img.plasterer-card {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   cursor: pointer;
-  position: relative;
-  z-index: 1;
 }
 
 .bottom-nav__item:nth-child(3) {

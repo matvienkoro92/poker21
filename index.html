@@ -111,6 +111,18 @@
                     </span>
                     <span class="tournament-day-card__chevron" aria-hidden="true">▼</span>
                   </button>
+                  <script>
+                    (function(){
+                      var el = document.getElementById("freerollTimer");
+                      if (!el) return;
+                      var now = new Date();
+                      var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
+                      if (now >= start) start.setUTCDate(start.getUTCDate() + 1);
+                      var ms = start.getTime() - now.getTime();
+                      var h = Math.floor(ms / 36e5), m = Math.floor((ms % 36e5) / 6e4);
+                      el.textContent = ms <= 0 ? "Уже идёт" : (h > 0 ? h + " ч " + m + " мин" : m > 0 ? m + " мин" : "—");
+                    })();
+                  </script>
                   <div class="tournament-day-expanded" id="tournamentDayExpanded" hidden>
                     <div class="tournament-day-expanded__inner">
                       <div class="tournament-day-tooltip__logo">Poker21</div>
@@ -603,27 +615,24 @@
         </footer>
       </main>
 
-      <nav class="bottom-nav">
-        <button
-          class="bottom-nav__item bottom-nav__item--active"
-          data-view-target="home"
-        >
+      <nav class="bottom-nav" role="navigation">
+        <button type="button" class="bottom-nav__item bottom-nav__item--active" data-view-target="home">
           <span class="bottom-nav__icon">🏠</span>
           <span class="bottom-nav__label">Главная</span>
         </button>
-        <button class="bottom-nav__item" data-view-target="download">
+        <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>
           <span class="bottom-nav__label">Скачать</span>
         </button>
-        <button class="bottom-nav__item" data-view-target="cashout">
+        <button type="button" class="bottom-nav__item" data-view-target="cashout">
           <span class="bottom-nav__icon">💳</span>
           <span class="bottom-nav__label">Депозит</span>
         </button>
-        <button class="bottom-nav__item" data-view-target="hall-of-fame">
+        <button type="button" class="bottom-nav__item" data-view-target="hall-of-fame">
           <span class="bottom-nav__icon">🏆</span>
           <span class="bottom-nav__label">Зал славы</span>
         </button>
-        <button class="bottom-nav__item" data-view-target="profile">
+        <button type="button" class="bottom-nav__item" data-view-target="profile">
           <span class="bottom-nav__icon">👤</span>
           <span class="bottom-nav__label">Профиль</span>
         </button>
@@ -631,7 +640,7 @@
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./app.js"></script>
+    <script src="./app.js" defer></script>
   </body>
 </html>
 
