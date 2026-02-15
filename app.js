@@ -1058,7 +1058,10 @@ function updateVisitorCounter() {
   const apiUrl = base + "/api/visit?visitor_id=" + encodeURIComponent(visitorId);
 
   fetch(apiUrl)
-    .then((res) => res.json())
+    .then(function (res) {
+      if (!res.ok) return Promise.reject(new Error("visit api " + res.status));
+      return res.json();
+    })
     .then((data) => applyVisitorCounts(data, elTotal, elUnique, elReturning))
     .catch(function () {
       setDash();
@@ -1103,9 +1106,14 @@ function fetchVisitorStatsOnly() {
     return;
   }
   fetch(base + "/api/visit/stats")
-    .then((res) => res.json())
+    .then(function (res) {
+      if (!res.ok) return Promise.reject(new Error("stats " + res.status));
+      return res.json();
+    })
     .then((data) => applyVisitorCounts(data, elTotal, elUnique, elReturning))
-    .catch(function () {});
+    .catch(function () {
+      setDash();
+    });
 }
 
 updateVisitorCounter();

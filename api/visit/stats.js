@@ -57,7 +57,12 @@ module.exports = async function handler(req, res) {
   ];
 
   const results = await redisPipeline(commands);
-  if (!results || results.length !== 2) {
+  if (!results || !Array.isArray(results) || results.length !== 2) {
+    return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false });
+  }
+
+  const hasError = results.some(function (r) { return r && r.error; });
+  if (hasError) {
     return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false });
   }
 
