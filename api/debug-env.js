@@ -1,7 +1,7 @@
 /**
  * Отладка: проверка переменных и подписчиков напоминаний.
  * GET /api/debug-env — переменные окружения.
- * GET /api/debug-env?reminders=1 — + кол-во подписчиков «за час» и «за 10 мин».
+ * GET /api/debug-env?reminders=1 — + кол-во подписчиков «за час» и «за 5 мин».
  */
 async function redisScard(key) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
   };
   if (req.query && req.query.reminders === "1") {
     out.subscribers1h = await redisScard("poker_app:freeroll_reminder");
-    out.subscribers10min = await redisScard("poker_app:freeroll_reminder_10min");
+    out.subscribers5min = await redisScard("poker_app:freeroll_reminder_5min");
   }
   return res.status(200).json(out);
 };

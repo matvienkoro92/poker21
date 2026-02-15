@@ -1002,14 +1002,15 @@ body {
 
 .tournament-day-card__remind-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 8px;
-  margin: 6px 16px 12px;
+  margin: 6px 0 12px;
 }
 
 .tournament-day-card__remind {
-  display: block;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   margin: 0;
   padding: 10px 16px;
   font-size: 13px !important;

@@ -1,27 +1,27 @@
 /**
  * Рассылка напоминания «турнир дня» подписчикам.
  * when=5sec: вызывается QStash через 5 сек, body: { initData }. Без CRON_SECRET.
- * when=1h/10min: по крону, требуется CRON_SECRET.
+ * when=1h/5min: по крону, требуется CRON_SECRET.
  *
  * Переменные: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN.
- * Опционально: CRON_SECRET — для when=1h/10min.
+ * Опционально: CRON_SECRET — для when=1h/5min.
  */
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
 const CRON_SECRET = process.env.CRON_SECRET;
-const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "5sec": "poker_app:freeroll_reminder_5sec" };
+const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "5min": "poker_app:freeroll_reminder_5min", "5sec": "poker_app:freeroll_reminder_5sec" };
 const crypto = require("crypto");
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
-  "Нокаут за 500р, старт в понедельник в 3:32 (Бали)",
+  "Нокаут за 500р, старт в понедельник в 3:42 (Бали)",
   "Гарантия 100 000р",
 ].join("\n");
 
 const MESSAGES = {
   "1h": "⏰ Турнир дня начнётся через час!\n\n" + TOURNAMENT_DETAILS,
-  "10min": "⏰ Турнир дня начнётся через 10 минут!\n\n" + TOURNAMENT_DETAILS,
+  "5min": "⏰ Турнир дня начнётся через 5 минут!\n\n" + TOURNAMENT_DETAILS,
   "5sec": "⏰ Напоминание: турнир дня стартует!\n\n" + TOURNAMENT_DETAILS,
 };
 
@@ -100,10 +100,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
-  var when = (req.query && req.query.when) === "5sec" ? "5sec" : (req.query && req.query.when) === "10min" ? "10min" : (req.query && req.query.when) === "1h" ? "1h" : null;
+  var when = (req.query && req.query.when) === "5sec" ? "5sec" : (req.query && req.query.when) === "5min" ? "5min" : (req.query && req.query.when) === "1h" ? "1h" : null;
   if (!when) {
     var m = new Date().getUTCMinutes();
-    when = m >= 45 && m <= 55 ? "10min" : "1h";
+    when = m >= 32 && m <= 42 ? "5min" : "1h";
   }
 
   if (when !== "5sec" && CRON_SECRET) {
@@ -117,7 +117,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ ok: false, error: "Set TELEGRAM_BOT_TOKEN" });
   }
 
-  if (when === "5sec" || when === "10min") {
+  if (when === "5sec" || when === "5min" || when === "1h") {
     var bodyInit;
     try {
       bodyInit = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};

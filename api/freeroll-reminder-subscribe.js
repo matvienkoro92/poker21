@@ -1,5 +1,5 @@
 /**
- * Подписка на напоминание «за час» или «за 10 мин» до турнира дня.
+ * Подписка на напоминание «за час» или «за 5 мин» до турнира дня.
  * Для «5 сек»: QStash отправит напоминание через 5 сек (работает при закрытом приложении).
  * Переменные: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, QSTASH_TOKEN.
  * Опционально: QSTASH_URL (для US: https://us1.qstash.upstash.io)
@@ -11,7 +11,7 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
 const NOTIFY_CHAT_ID = process.env.TELEGRAM_NOTIFY_CHAT_ID || "";
 const QSTASH_TOKEN = process.env.QSTASH_TOKEN;
-const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "5sec": "poker_app:freeroll_reminder_5sec" };
+const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "5min": "poker_app:freeroll_reminder_5min", "5sec": "poker_app:freeroll_reminder_5sec" };
 
 function validateTelegramWebAppData(initData, botToken) {
   if (!initData || !botToken) return null;
@@ -131,26 +131,26 @@ module.exports = async function handler(req, res) {
   }
 
   const whenRaw = body.remindWhen || body.remind_when || "1h";
-  const when = whenRaw === "5sec" ? "5sec" : whenRaw === "10min" ? "10min" : "1h";
+  const when = whenRaw === "5sec" ? "5sec" : (whenRaw === "5min" || whenRaw === "10min") ? "5min" : "1h";
   const key = REMINDER_KEYS[when];
   const out = await redisCommandWithStatus("SADD", key, String(user.id));
 
   if (out.result !== undefined) {
     if (NOTIFY_CHAT_ID) {
-      var whenLabel = when === "1h" ? "за час" : when === "10min" ? "за 10 мин" : "5 сек";
+      var whenLabel = when === "1h" ? "за час" : when === "5min" ? "за 5 мин" : "5 сек";
       var name = [user.first_name, user.last_name].filter(Boolean).join(" ") || "—";
       var uname = user.username ? "@" + user.username : "";
       var pipe = await redisPipeline([
         ["SCARD", REMINDER_KEYS["1h"]],
-        ["SCARD", REMINDER_KEYS["10min"]],
+        ["SCARD", REMINDER_KEYS["5min"]],
         ["SMEMBERS", REMINDER_KEYS["1h"]],
-        ["SMEMBERS", REMINDER_KEYS["10min"]],
+        ["SMEMBERS", REMINDER_KEYS["5min"]],
       ]);
       var c1 = pipe && pipe[0] && pipe[0].result !== undefined ? pipe[0].result : 0;
       var c2 = pipe && pipe[1] && pipe[1].result !== undefined ? pipe[1].result : 0;
       var ids1 = Array.isArray(pipe[2] && pipe[2].result) ? pipe[2].result : [];
       var ids2 = Array.isArray(pipe[3] && pipe[3].result) ? pipe[3].result : [];
-      var msg = "📩 Подписка на напоминание\n\nПодписался: " + name + (uname ? " " + uname : "") + " (id " + user.id + ")\nТип: " + whenLabel + "\n\nВсего «за час»: " + c1 + (ids1.length ? " [" + ids1.join(", ") + "]" : "") + "\nВсего «за 10 мин»: " + c2 + (ids2.length ? " [" + ids2.join(", ") + "]" : "");
+      var msg = "📩 Подписка на напоминание\n\nПодписался: " + name + (uname ? " " + uname : "") + " (id " + user.id + ")\nТип: " + whenLabel + "\n\nВсего «за час»: " + c1 + (ids1.length ? " [" + ids1.join(", ") + "]" : "") + "\nВсего «за 5 мин»: " + c2 + (ids2.length ? " [" + ids2.join(", ") + "]" : "");
       sendNotify(msg);
     }
     if (when === "5sec") {
