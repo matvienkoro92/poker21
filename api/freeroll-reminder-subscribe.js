@@ -1,8 +1,9 @@
 /**
  * Подписка на напоминание «за час до турнира дня».
  * Сохраняет Telegram user id в Redis (тот же Upstash, что и api/visit.js).
+ * Для «10 сек»: ждёт 10 сек на сервере и отправляет (приложение должно быть открыто).
  *
- * Переменные окружения: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN.
+ * Переменные: TELEGRAM_BOT_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN.
  */
 const crypto = require("crypto");
 
@@ -111,16 +112,16 @@ module.exports = async function handler(req, res) {
       const apiBase = process.env.VERCEL_URL
         ? "https://" + process.env.VERCEL_URL
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
-      res.status(200).json({ ok: true, subscribed: true });
+      const sendUrl = apiBase + "/api/freeroll-reminder-send?when=10sec";
       await new Promise(function (r) { setTimeout(r, 10000); });
       try {
-        await fetch(apiBase + "/api/freeroll-reminder-send?when=10sec", {
+        await fetch(sendUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData: initData }),
         });
       } catch (e) {}
-      return;
+      return res.status(200).json({ ok: true, subscribed: true });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }

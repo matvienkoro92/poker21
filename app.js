@@ -1248,7 +1248,7 @@ document.getElementById("freerollRemind10SecBtn")?.addEventListener("click", fun
         btn.disabled = false;
         return;
       }
-      if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение через 10 секунд. Можно закрыть приложение.");
+      if (tg && tg.showAlert) tg.showAlert("Вам придёт сообщение через 10 секунд. Не закрывайте приложение.");
       btn.disabled = false;
     })
     .catch(function () {
