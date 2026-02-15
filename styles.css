@@ -989,6 +989,17 @@ body {
   text-decoration: none;
 }
 
+.tournament-day-card__remind-now {
+  margin: 8px 16px 4px;
+}
+
+.tournament-day-card__remind-now-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px !important;
+}
+
 .tournament-day-card__remind-row {
   display: flex;
   flex-wrap: wrap;
