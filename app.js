@@ -1065,8 +1065,12 @@ function updateVisitorCounter() {
 function applyVisitorCounts(data, elTotal, elUnique, elReturning) {
   if (data && typeof data.unique === "number" && typeof data.returning === "number") {
     if (elTotal) elTotal.textContent = typeof data.total === "number" ? data.total : data.unique + data.returning;
-    elUnique.textContent = data.unique;
-    elReturning.textContent = data.returning;
+    elUnique.textContent = String(data.unique);
+    elReturning.textContent = String(data.returning);
+  } else if (data && data.ok === false) {
+    if (elTotal) elTotal.textContent = "—";
+    elUnique.textContent = "—";
+    elReturning.textContent = "—";
   } else {
     if (elTotal) elTotal.textContent = "0";
     elUnique.textContent = "0";

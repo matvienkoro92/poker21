@@ -34,12 +34,13 @@ body {
   justify-content: center;
 }
 
+/* Отступ сверху: safe-area + высота шапки Telegram («Закрыть»), чтобы заголовок не перекрывался */
 .app {
   position: relative;
   width: 100%;
   min-height: 100vh;
   padding: 16px 16px 100px;
-  padding-top: max(16px, env(safe-area-inset-top, 0px));
+  padding-top: max(20px, calc(env(safe-area-inset-top, 0px) + 52px));
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
   display: flex;
   align-items: center;
