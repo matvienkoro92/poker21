@@ -5,7 +5,7 @@
  * В Vercel добавьте TEST_SECRET (любой пароль для защиты).
  * Ваш chat_id можно узнать через @userinfobot в Telegram.
  */
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
 const TEST_SECRET = process.env.TEST_SECRET;
 
 async function sendTelegramMessage(chatId, text) {
