@@ -2,7 +2,12 @@
 
 Турнир в **понедельник в 4:35 (Бали, UTC+8)** → напоминание «за 10 мин» в **4:25 Бали**.
 
-## Вариант 1: QStash (рекомендуется, без cron-job.org)
+## Вариант 1: Vercel Cron (встроенный, работает автоматически)
+
+В `vercel.json` уже настроен cron — каждый понедельник в 4:25 по Бали Vercel вызовет API.  
+**Нужно:** в Vercel → Settings → Environment Variables добавить `CRON_SECRET` (пароль). Vercel передаст его при вызове.
+
+## Вариант 2: QStash (если Vercel Cron недоступен)
 
 Используется Upstash QStash — тот же сервис, что и Redis. Расписание создаётся один раз.
 
@@ -33,7 +38,7 @@ https://poker-app-ebon.vercel.app/api/setup-qstash-reminder?key=ВАШ_CRON_SECR
 
 ---
 
-## Вариант 2: cron-job.org (запасной)
+## Вариант 3: cron-job.org (запасной)
 
 Если QStash недоступен:
 
