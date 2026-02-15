@@ -15,7 +15,7 @@ const crypto = require("crypto");
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
-  "Нокаут за 500р, старт в понедельник в 3:27 (Бали)",
+  "Нокаут за 500р, старт в понедельник в 3:21 (Бали)",
   "Гарантия 100 000р",
 ].join("\n");
 
@@ -117,26 +117,28 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ ok: false, error: "Set TELEGRAM_BOT_TOKEN" });
   }
 
-  if (when === "5sec") {
-    let body;
+  if (when === "5sec" || when === "10min") {
+    var bodyInit;
     try {
-      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      bodyInit = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
     } catch (e) {
       return res.status(400).json({ ok: false, error: "Invalid JSON" });
     }
-    const initData = body.initData || body.init_data;
-    if (!initData) {
+    var initDataVal = bodyInit.initData || bodyInit.init_data;
+    if (initDataVal) {
+      var userInit = validateTelegramWebAppData(initDataVal, BOT_TOKEN);
+      if (!userInit || !userInit.id) {
+        return res.status(401).json({ ok: false, error: "Invalid initData" });
+      }
+      var sendRes = await sendTelegramMessage(String(userInit.id), MESSAGES[when]);
+      var sentCount = sendRes && sendRes.ok ? 1 : 0;
+      var r = { ok: true, when: when, sent: sentCount, total: 1 };
+      if (sentCount === 0 && sendRes && sendRes.hint) r.error = sendRes.hint;
+      return res.status(200).json(r);
+    }
+    if (when === "5sec") {
       return res.status(400).json({ ok: false, error: "initData required for when=5sec" });
     }
-    const user = validateTelegramWebAppData(initData, BOT_TOKEN);
-    if (!user || !user.id) {
-      return res.status(401).json({ ok: false, error: "Invalid initData" });
-    }
-    const sendResult = await sendTelegramMessage(String(user.id), MESSAGES["5sec"]);
-    const sent = sendResult && sendResult.ok ? 1 : 0;
-    const resp = { ok: true, when: "5sec", sent, total: 1 };
-    if (sent === 0 && sendResult && sendResult.hint) resp.error = sendResult.hint;
-    return res.status(200).json(resp);
   }
 
   const reminderKey = REMINDER_KEYS[when];
