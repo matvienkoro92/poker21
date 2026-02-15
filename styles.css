@@ -991,6 +991,7 @@ body {
 
 .tournament-day-card__remind-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 6px 16px 12px;
 }

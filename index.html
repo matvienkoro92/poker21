@@ -96,7 +96,6 @@
                   <div class="tournament-day-tooltip__logo">Poker21</div>
                   <div class="tournament-day-tooltip__row">🏆 Нокаут за 500р</div>
                   <div class="tournament-day-tooltip__row">💰 Призы 100 000р</div>
-                  <div class="tournament-day-tooltip__row tournament-day-tooltip__timer js-freeroll-timer" id="freerollTimerTooltip" aria-live="polite">До конца регистрации: —</div>
                 </div>
                 <div class="feature feature--highlight tournament-day-card" id="tournamentDayCard">
                   <button type="button" class="tournament-day-card__toggle js-tournament-day-toggle" aria-expanded="false" aria-controls="tournamentDayExpanded" aria-label="Развернуть подробности турнира">
@@ -106,7 +105,6 @@
                       <span class="feature__text tournament-day-lines">
                         <span class="tournament-day-line">🏆 Нокаут за 500р</span>
                         <span class="tournament-day-line">💰 Призы 100 000р</span>
-                        <span class="tournament-day-line">До конца регистрации: <span class="feature__timer js-freeroll-timer" id="freerollTimer" aria-live="polite">—</span></span>
                       </span>
                     </span>
                     <span class="tournament-day-card__chevron" aria-hidden="true">▼</span>
@@ -116,9 +114,10 @@
                       <div class="tournament-day-tooltip__logo">Poker21</div>
                       <div class="tournament-day-tooltip__row">🏆 Нокаут за 500р</div>
                       <div class="tournament-day-tooltip__row">💰 Призы 100 000р</div>
-                      <div class="tournament-day-tooltip__row js-freeroll-timer" aria-live="polite">До конца регистрации: —</div>
                       <div class="tournament-day-card__remind-row">
                         <button type="button" class="primary-button tournament-day-card__remind" id="freerollRemind5SecBtn">Напомнить через 5 сек</button>
+                        <button type="button" class="primary-button tournament-day-card__remind" id="freerollRemindBtn">За час до старта</button>
+                        <button type="button" class="primary-button tournament-day-card__remind" id="freerollRemind10Btn">За 10 мин до старта</button>
                       </div>
                       <a class="tournament-day-expanded__link primary-button" href="#" data-view-target="download" data-download-page="poker21">Перейти в Poker21</a>
                     </div>
@@ -631,7 +630,7 @@
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./app.js?v=7"></script>
+    <script src="./app.js?v=9"></script>
   </body>
 </html>
 

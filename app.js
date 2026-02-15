@@ -1140,56 +1140,6 @@ updateVisitorCounter();
   el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
 })();
 
-// Таймер «До конца регистрации» — 2 часа с момента открытия. По окончании блок удаляется.
-var freerollRegistrationEndTime = Date.now() + 2 * 60 * 60 * 1000;
-var freerollTimerIntervalId = null;
-
-function getFreerollRegistrationMs() {
-  return Math.max(0, freerollRegistrationEndTime - Date.now());
-}
-
-function formatCountdown(ms) {
-  if (ms <= 0) return "0 с";
-  var s = Math.floor(ms / 1000);
-  var m = Math.floor(s / 60);
-  s = s % 60;
-  var h = Math.floor(m / 60);
-  m = m % 60;
-  var d = Math.floor(h / 24);
-  h = h % 24;
-  if (d > 0) return d + " д " + h + " ч " + m + " мин";
-  if (h > 0) return h + " ч " + m + " мин";
-  if (m > 0) return m + " мин " + s + " с";
-  return s + " с";
-}
-
-function updateFreerollTimer() {
-  var ms = getFreerollRegistrationMs();
-  if (ms <= 0) {
-    var wrap = document.querySelector(".tournament-day-wrap");
-    if (wrap && wrap.parentNode) {
-      wrap.parentNode.removeChild(wrap);
-    }
-    if (freerollTimerIntervalId) {
-      clearInterval(freerollTimerIntervalId);
-      freerollTimerIntervalId = null;
-    }
-    return;
-  }
-  var countdownStr = formatCountdown(ms);
-  var text = "До конца регистрации: " + countdownStr;
-  var allTimers = document.querySelectorAll(".js-freeroll-timer");
-  allTimers.forEach(function (el) {
-    if (el.id === "freerollTimer") el.textContent = " " + countdownStr;
-    else el.textContent = text;
-  });
-}
-
-(function initFreerollTimer() {
-  updateFreerollTimer();
-  freerollTimerIntervalId = setInterval(updateFreerollTimer, 1000);
-})();
-
 function subscribeFreerollRemind(btn, remindWhen, successMessage) {
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var initData = tg && tg.initData ? tg.initData : "";
