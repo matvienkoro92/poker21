@@ -5,6 +5,9 @@
       "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
     }
   ],
+  "functions": {
+    "api/freeroll-reminder-subscribe.js": { "maxDuration": 15 }
+  },
   "crons": [
     { "path": "/api/freeroll-reminder-send", "schedule": "0 14 * * *" },
     { "path": "/api/freeroll-reminder-send", "schedule": "50 14 * * *" }

@@ -113,39 +113,27 @@ module.exports = async function handler(req, res) {
         ? "https://" + process.env.VERCEL_URL
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
       const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
-      const qHosts = process.env.QSTASH_URL ? [process.env.QSTASH_URL.replace(/\/$/, "")] : ["https://qstash-us-east-1.upstash.io", "https://qstash.upstash.io"];
-      var qstashErr = "";
-      if (QSTASH_TOKEN) {
-        for (var qi = 0; qi < qHosts.length; qi++) {
-          try {
-            const qRes = await fetch(qHosts[qi] + "/v2/publish/" + encodeURIComponent(sendUrl), {
-              method: "POST",
-              headers: {
-                Authorization: "Bearer " + QSTASH_TOKEN,
-                "Content-Type": "application/json",
-                "Upstash-Delay": "5s",
-              },
-              body: JSON.stringify({ initData: initData }),
-            });
-            if (qRes.ok) {
-              return res.status(200).json({ ok: true, subscribed: true });
-            }
-            const errData = await qRes.json().catch(function () { return {}; });
-            qstashErr = (errData && errData.error) ? String(errData.error) : "HTTP " + qRes.status;
-          } catch (e) {
-            qstashErr = (e && e.message) || "Сеть";
-          }
-        }
+      await new Promise(function (r) { setTimeout(r, 5000); });
+      var sent = 0, sendErr = null;
+      try {
+        const sendRes = await fetch(sendUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData }),
+        });
+        const sendData = await sendRes.json().catch(function () { return {}; });
+        sent = (sendData && sendData.sent) === 1 ? 1 : 0;
+        sendErr = sendData && sendData.error ? sendData.error : null;
+      } catch (e) {
+        sendErr = (e && e.message) || "Ошибка сети";
       }
-      var hint = !QSTASH_TOKEN
-        ? "Добавьте QSTASH_TOKEN в Vercel для напоминаний при закрытом приложении."
-        : "QStash недоступен. Держите приложение открытым 5 сек.";
-      if (qstashErr && qstashErr.indexOf("region") !== -1) {
-        hint = "QStash: укажите QSTASH_URL=https://qstash-us-east-1.upstash.io и токен из US региона.";
-      } else if (qstashErr) {
-        hint = "QStash: " + qstashErr + ". Держите приложение открытым 5 сек.";
-      }
-      return res.status(200).json({ ok: true, subscribed: true, useClientDelay: true, hint: hint });
+      return res.status(200).json({
+        ok: true,
+        subscribed: true,
+        sent: sent,
+        error: sendErr,
+        serverWait: true,
+      });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }
