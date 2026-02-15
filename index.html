@@ -94,20 +94,18 @@
               <div class="feature-tooltip-wrap tournament-day-wrap">
                 <div class="tournament-day-tooltip" role="tooltip" aria-hidden="true">
                   <div class="tournament-day-tooltip__logo">Poker21</div>
-                  <div class="tournament-day-tooltip__row">Старт в 18:00 мск. Поздняя регистрация до 21:00 мск</div>
-                  <div class="tournament-day-tooltip__row tournament-day-tooltip__timer js-freeroll-timer" id="freerollTimerTooltip" aria-live="polite">До конца поздней регистрации: —</div>
-                  <div class="tournament-day-tooltip__row">Вход 0</div>
-                  <div class="tournament-day-tooltip__row">Ребай 250р</div>
-                  <div class="tournament-day-tooltip__row">Аддон 250р</div>
-                  <div class="tournament-day-tooltip__note">Бонусы за комбинации до аддона</div>
+                  <div class="tournament-day-tooltip__row">Старт в 18:00 мск</div>
+                  <div class="tournament-day-tooltip__row tournament-day-tooltip__timer js-freeroll-timer" id="freerollTimerTooltip" aria-live="polite">До старта: —</div>
+                  <div class="tournament-day-tooltip__row">Вход 500р</div>
+                  <div class="tournament-day-tooltip__row">Гарантия 100 000р</div>
                 </div>
                 <div class="feature feature--highlight tournament-day-card" id="tournamentDayCard">
                   <button type="button" class="tournament-day-card__toggle js-tournament-day-toggle" aria-expanded="false" aria-controls="tournamentDayExpanded" aria-label="Развернуть подробности турнира">
                     <span class="feature__icon feature__icon--purple">🏆</span>
                     <span class="feature__body">
-                      <span class="feature__title">Турнир дня (суббота 14.02). Уже идёт</span>
+                      <span class="feature__title">Турнир дня</span>
                       <span class="feature__text">
-                        Фриролл в 18:00 мск на 100 000р — в Poker21. До конца поздней регистрации:
+                        Нокаут за 500р в 18:00 мск — гарантия 100 000р. В Poker21. До старта:
                         <span class="feature__timer js-freeroll-timer" id="freerollTimer" aria-live="polite"></span>
                       </span>
                     </span>
@@ -116,12 +114,10 @@
                   <div class="tournament-day-expanded" id="tournamentDayExpanded" hidden>
                     <div class="tournament-day-expanded__inner">
                       <div class="tournament-day-tooltip__logo">Poker21</div>
-                      <div class="tournament-day-tooltip__row">Старт в 18:00 мск. Поздняя регистрация до 21:00 мск</div>
-                      <div class="tournament-day-tooltip__row js-freeroll-timer" aria-live="polite">До конца поздней регистрации: —</div>
-                      <div class="tournament-day-tooltip__row">Вход 0</div>
-                      <div class="tournament-day-tooltip__row">Ребай 250р</div>
-                      <div class="tournament-day-tooltip__row">Аддон 250р</div>
-                      <div class="tournament-day-tooltip__note">Бонусы за комбинации до аддона</div>
+                      <div class="tournament-day-tooltip__row">Старт в 18:00 мск</div>
+                      <div class="tournament-day-tooltip__row js-freeroll-timer" aria-live="polite">До старта: —</div>
+                      <div class="tournament-day-tooltip__row">Вход 500р</div>
+                      <div class="tournament-day-tooltip__row">Гарантия 100 000р</div>
                       <a class="tournament-day-expanded__link primary-button" href="#" data-view-target="download" data-download-page="poker21">Перейти в Poker21</a>
                     </div>
                   </div>
@@ -421,10 +417,10 @@
           <div class="view" data-view="bonus-game">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Найди Пиханину</h1>
-            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду, а может и в пиковую. 10 призов по 200р. У вас 5 попыток, чтобы найти его и выбить 1 приз 200р. Промокод для получения приза напишите в чат игроков.</p>
+            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду, а может и в пиковую. 5 призов по 200р. У вас 5 попыток, чтобы найти его и выбить 1 приз 200р. Промокод для получения приза напишите в чат игроков.</p>
             <p class="bonus-game-desc">Перед вами колода буби (13 карт от двойки до туза), колода пики (13 карт) и 27-я карта — джокер Пиханина.</p>
             <p class="bonus-game-desc">Выберите одну из карт.</p>
-            <p class="bonus-game-all-codes-done" id="bonusGameAllCodesDone" style="display: none;">На сегодня из Пиханины выбили все бонусы.</p>
+            <p class="bonus-game-all-codes-done" id="bonusGameAllCodesDone" style="display: none;">Пиханина раздал все призы. Вы можете сыграть бесплатно.</p>
             <p class="bonus-game-no-attempts" id="bonusGameNoAttempts" style="display: none;">Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.</p>
             <p class="bonus-game-stats" id="bonusGameStats">Осталось призов по 200р: <span id="bonusGamePromoCount">0</span>.<br>Ваших попыток: <span id="bonusGameAttemptsCount">5</span>. Вы можете выбить 1 приз 200р.</p>
             <div class="bonus-game-cards" id="bonusGameCards" role="group" aria-label="Выбери одну из 27 карт"></div>

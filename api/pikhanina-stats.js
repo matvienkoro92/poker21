@@ -1,15 +1,14 @@
 /**
  * GET /api/pikhanina-stats — сколько призов по 200р ещё осталось (глобальный счётчик в Redis).
- * Ответ: { remaining: 0..10 }
+ * Всего призов с старта: 5. Ответ: { remaining: 0..5 }
  *
- * Учёт уже выданных призов: в Vercel задай PIKHANINA_CLAIMED_INITIAL = число уже выданных (0–10).
- * При первом запросе, если в Redis ключа ещё нет, он будет установлен в это значение — счётчик станет корректным.
+ * Учёт уже выданных: в Vercel задай PIKHANINA_CLAIMED_INITIAL = число уже выданных (0–5).
  */
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const KEY = "poker_app:pikhanina_claimed_count";
-const MAX_PRIZES = 10;
-const DEFAULT_CLAIMED = 3;
+const MAX_PRIZES = 5;
+const DEFAULT_CLAIMED = 0;
 const INITIAL_CLAIMED = process.env.PIKHANINA_CLAIMED_INITIAL;
 
 async function redisGet(key) {

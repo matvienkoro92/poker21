@@ -220,7 +220,7 @@ const BONUS_SPADES = ["2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9
 const BONUS_PIHANINA = "Пиханина";
 const BONUS_ALL_SUITS = BONUS_DIAMONDS.concat(BONUS_SPADES);
 const BONUS_GAME_CARDS_COUNT = 27;
-const BONUS_PROMO_CODES = ["ПИХ200-7К2М", "ПИХ200-Л9Н4", "ПИХ200-П1РС", "ПИХ200-Т8УФ", "ПИХ200-Х3ЦЧ", "ПИХ200-Ш0ЩВ", "ПИХ200-ЖБ1Г", "ПИХ200-ДЕ9Й", "ПИХ200-ЗИ8Ю", "ПИХ200-Э5Ы4"];
+const BONUS_PROMO_CODES = ["ПИХ200-7К2М", "ПИХ200-Л9Н4", "ПИХ200-П1РС", "ПИХ200-Т8УФ", "ПИХ200-Х3ЦЧ"];
 const BONUS_MAX_ATTEMPTS = 5;
 const BONUS_STORAGE_VERSION = "v3";
 let bonusGameContents = [];
@@ -423,7 +423,7 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
     updateBonusStats();
     const promoText = promoCode
       ? "Поздравляем, вы поймали Пиханину! Ваш приз 200р. Промокод для получения — " + promoCode + ". Напишите его в чат игроков."
-      : "На сегодня из Пиханины выбили все бонусы.";
+      : "Пиханина раздал все призы. Вы можете сыграть бесплатно.";
     resultEl.textContent = promoText;
     resultEl.classList.add("bonus-game-result--win");
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -1114,10 +1114,10 @@ updateVisitorCounter();
   el.textContent = "16:00 мск, " + dayOfWeek + ", " + dateStr;
 })();
 
-// Таймер до конца поздней регистрации (21:00 мск = 18:00 UTC)
+// Таймер до старта турнира дня (18:00 мск = 15:00 UTC)
 function getNextFreerollStartMs() {
   var now = new Date();
-  var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 18, 0, 0, 0));
+  var start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
   if (now >= start) start.setUTCDate(start.getUTCDate() + 1);
   return start.getTime() - now.getTime();
 }
@@ -1140,7 +1140,7 @@ function formatCountdown(ms) {
 function updateFreerollTimer() {
   var ms = getNextFreerollStartMs();
   var countdownStr = formatCountdown(ms);
-  var text = "До конца поздней регистрации: " + countdownStr;
+  var text = "До старта: " + countdownStr;
   var allTimers = document.querySelectorAll(".js-freeroll-timer");
   allTimers.forEach(function (el) {
     if (el.id === "freerollTimer") el.textContent = " " + countdownStr;

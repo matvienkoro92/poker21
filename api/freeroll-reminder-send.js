@@ -20,11 +20,8 @@ const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
-  "Старт в 18:00 мск",
-  "Вход 0",
-  "Ребай 250р",
-  "Аддон 250р",
-  "Бонусы за комбинации до аддона",
+  "Нокаут за 500р, старт в 18:00 мск",
+  "Гарантия 100 000р",
 ].join("\n");
 
 const MESSAGES = {
