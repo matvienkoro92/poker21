@@ -1183,7 +1183,44 @@ document.getElementById("freerollRemind10Btn")?.addEventListener("click", functi
 });
 
 document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", function () {
-  subscribeFreerollRemind(this, "5sec", "Через 5 секунд придёт напоминание в личку. Можно закрыть приложение.");
+  var btn = this;
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!initData) {
+    if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+    return;
+  }
+  var base = getApiBase();
+  if (!base) {
+    if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
+    return;
+  }
+  btn.disabled = true;
+  if (tg && tg.showAlert) tg.showAlert("Подождите 5–6 секунд…");
+  fetch(base + "/api/freeroll-reminder-subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: initData, remindWhen: "5sec" }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.ok || !data.subscribed) {
+        if (tg && tg.showAlert) tg.showAlert(data.error || "Ошибка. Попробуйте позже.");
+        btn.disabled = false;
+        return;
+      }
+      if (data.fallback && tg && tg.showAlert) {
+        if (data.sent === 1) tg.showAlert("Сообщение отправлено!");
+        else if (data.error) tg.showAlert(data.error);
+      } else if (tg && tg.showAlert) {
+        tg.showAlert("Через 5 секунд придёт напоминание. Можно закрыть приложение.");
+      }
+      btn.disabled = false;
+    })
+    .catch(function () {
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
+      btn.disabled = false;
+    });
 });
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)

@@ -117,21 +117,45 @@ module.exports = async function handler(req, res) {
         : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
       const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
       const qHost = (process.env.QSTASH_URL || "https://qstash.upstash.io").replace(/\/$/, "");
+      let qstashOk = false;
+      if (QSTASH_TOKEN) {
+        try {
+          const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + QSTASH_TOKEN,
+              "Content-Type": "application/json",
+              "Upstash-Delay": "5s",
+            },
+            body: JSON.stringify({ initData: initData }),
+          });
+          if (qRes.ok) qstashOk = true;
+        } catch (e) {}
+      }
+      if (qstashOk) {
+        return res.status(200).json({ ok: true, subscribed: true });
+      }
+      await new Promise(function (r) { setTimeout(r, 5000); });
+      var sent = 0, sendErr = null;
       try {
-        const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
+        const sendRes = await fetch(sendUrl, {
           method: "POST",
-          headers: {
-            Authorization: "Bearer " + QSTASH_TOKEN,
-            "Content-Type": "application/json",
-            "Upstash-Delay": "5s",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData: initData }),
         });
-        if (qRes.ok) {
-          return res.status(200).json({ ok: true, subscribed: true });
-        }
-      } catch (e) {}
-      return res.status(503).json({ ok: false, error: "Не удалось запланировать напоминание. Попробуйте позже." });
+        const sendData = await sendRes.json().catch(function () { return {}; });
+        sent = (sendData && sendData.sent) === 1 ? 1 : 0;
+        sendErr = sendData && sendData.error ? sendData.error : null;
+      } catch (e) {
+        sendErr = "Ошибка сети.";
+      }
+      return res.status(200).json({
+        ok: true,
+        subscribed: true,
+        sent: sent,
+        error: sendErr,
+        fallback: true,
+      });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }

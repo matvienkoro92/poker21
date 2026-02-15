@@ -100,10 +100,17 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
-  const when = (req.query && req.query.when) === "5sec" ? "5sec" : (req.query && req.query.when) === "10min" ? "10min" : "1h";
+  var when = (req.query && req.query.when) === "5sec" ? "5sec" : (req.query && req.query.when) === "10min" ? "10min" : (req.query && req.query.when) === "1h" ? "1h" : null;
+  if (!when) {
+    var m = new Date().getUTCMinutes();
+    when = m >= 45 && m <= 55 ? "10min" : "1h";
+  }
 
-  if (when !== "5sec" && CRON_SECRET && (req.headers["x-cron-secret"] || req.query.secret) !== CRON_SECRET) {
-    return res.status(403).json({ ok: false, error: "Invalid or missing CRON_SECRET" });
+  if (when !== "5sec" && CRON_SECRET) {
+    var auth = req.headers["x-cron-secret"] || req.query.secret || (req.headers["authorization"] || "").replace(/^Bearer\s+/i, "");
+    if (auth !== CRON_SECRET) {
+      return res.status(403).json({ ok: false, error: "Invalid or missing CRON_SECRET" });
+    }
   }
 
   if (!BOT_TOKEN) {
