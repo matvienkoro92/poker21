@@ -93,12 +93,12 @@ if (startButton) {
 }
 
 // Простая навигация по разделам (вкладки внизу)
-const views = document.querySelectorAll("[data-view]");
-const navItems = document.querySelectorAll("[data-view-target]");
-const footer = document.querySelector(".card__footer");
+var views = [];
+var navItems = [];
+var footer = null;
 
 function setView(viewName) {
-  views.forEach((view) => {
+  views.forEach(function (view) {
     if (view.dataset.view === viewName) {
       view.classList.add("view--active");
     } else {
@@ -106,7 +106,7 @@ function setView(viewName) {
     }
   });
 
-  navItems.forEach((item) => {
+  navItems.forEach(function (item) {
     if (item.dataset.viewTarget === viewName) {
       item.classList.add("bottom-nav__item--active");
     } else {
@@ -145,36 +145,48 @@ function updateProfileUserName() {
   el.textContent = user && user.first_name ? user.first_name : "гость";
 }
 
-navItems.forEach((item) => {
-  item.addEventListener("click", () => {
-    const target = item.dataset.viewTarget;
-    if (target) {
-      setView(target);
-      if (target === "download") {
-        setDownloadPage("main");
-      }
-    }
+function initNav() {
+  views = document.querySelectorAll("[data-view]");
+  navItems = document.querySelectorAll("[data-view-target]");
+  footer = document.querySelector(".card__footer");
+  navItems.forEach(function (item) {
+    item.addEventListener("click", function () {
+      const target = item.dataset.viewTarget;
+      if (target) {
+        setView(target);
+        if (target === "download") {
+          setDownloadPage("main");
+        }
+      });
+    });
   });
-});
+}
 
-// Клик по столу Poker21 (и другим ссылкам) — переход в раздел и подстраницу
-document.addEventListener("click", (e) => {
-  const link = e.target.closest("[data-view-target][data-download-page]");
+document.addEventListener("click", function (e) {
+  var el = e.target.closest("[data-view-target]");
+  if (!el) return;
+  var view = el.getAttribute("data-view-target");
+  if (!view) return;
+  e.preventDefault();
+  e.stopPropagation();
+  setView(view);
+  if (view === "download") {
+    var page = el.getAttribute("data-download-page");
+    setDownloadPage(page || "main");
+  }
+}, true);
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initNav);
+} else {
+  initNav();
+}
+
+document.addEventListener("click", function (e) {
+  var link = e.target.closest("[data-view-target][data-download-page]");
   if (!link) return;
-  e.preventDefault();
-  const view = link.getAttribute("data-view-target");
-  const page = link.getAttribute("data-download-page");
-  if (view) setView(view);
+  var page = link.getAttribute("data-download-page");
   if (page) setDownloadPage(page);
-});
-
-// Клик по ссылке только с data-view-target (например «Найди туза»)
-document.addEventListener("click", (e) => {
-  const link = e.target.closest("a[data-view-target]");
-  if (!link || link.getAttribute("data-download-page")) return;
-  e.preventDefault();
-  const view = link.getAttribute("data-view-target");
-  if (view) setView(view);
 });
 
 // Подстраницы раздела «Скачать»
@@ -1062,9 +1074,13 @@ function updateVisitorCounter() {
       if (!res.ok) return Promise.reject(new Error("visit api " + res.status));
       return res.json();
     })
-    .then((data) => applyVisitorCounts(data, elTotal, elUnique, elReturning))
+    .then(function (data) {
+      applyVisitorCounts(data, elTotal, elUnique, elReturning);
+      if (data && data.ok === false) fetchVisitorStatsOnly();
+    })
     .catch(function () {
       setDash();
+      fetchVisitorStatsOnly();
       setTimeout(updateVisitorCounter, 2000);
     });
 }
@@ -1181,7 +1197,14 @@ function updateFreerollTimer() {
 }
 
 (function initFreerollTimer() {
-  updateFreerollTimer();
+  function tick() {
+    updateFreerollTimer();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", tick);
+  } else {
+    tick();
+  }
   setInterval(updateFreerollTimer, 1000);
 })();
 

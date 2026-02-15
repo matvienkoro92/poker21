@@ -7,7 +7,8 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 async function redisPipeline(commands) {
   if (!REDIS_URL || !REDIS_TOKEN) return null;
-  const url = REDIS_URL.replace(/\/$/, '') + '/pipeline';
+  const base = REDIS_URL.replace(/\/$/, '');
+  const url = base.indexOf('/pipeline') !== -1 ? base : base + '/pipeline';
   const res = await fetch(url, {
     method: 'POST',
     headers: {

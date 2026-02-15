@@ -11,7 +11,8 @@ async function redisPipeline(commands) {
   if (!REDIS_URL || !REDIS_TOKEN) {
     return null;
   }
-  const url = REDIS_URL.replace(/\/$/, '') + '/pipeline';
+  const base = REDIS_URL.replace(/\/$/, '');
+  const url = base.indexOf('/pipeline') !== -1 ? base : base + '/pipeline';
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -48,6 +49,11 @@ function totalVisits(hgetallResult) {
   return getVisitValues(hgetallResult).reduce((sum, v) => sum + v, 0);
 }
 
+function jsonVisits(res, unique, returning, total, ok) {
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(200).json({ unique: unique || 0, returning: returning || 0, total: total || 0, ok: !!ok });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -75,25 +81,19 @@ module.exports = async function handler(req, res) {
     ['HGETALL', 'poker_app:visits'],
   ];
 
-  const results = await redisPipeline(commands);
-
-  if (!results || !Array.isArray(results) || results.length !== 4) {
-    return res.status(200).json({
-      unique: 0,
-      returning: 0,
-      total: 0,
-      ok: false,
-    });
+  let results;
+  try {
+    results = await redisPipeline(commands);
+  } catch (e) {
+    return jsonVisits(res, 0, 0, 0, false);
   }
 
-  const hasError = results.some(function (r) { return r && r.error; });
-  if (hasError) {
-    return res.status(200).json({
-      unique: 0,
-      returning: 0,
-      total: 0,
-      ok: false,
-    });
+  if (!results || !Array.isArray(results) || results.length !== 4) {
+    return jsonVisits(res, 0, 0, 0, false);
+  }
+
+  if (results.some(function (r) { return r && r.error; })) {
+    return jsonVisits(res, 0, 0, 0, false);
   }
 
   const r2 = results[2] && results[2].result !== undefined ? results[2].result : 0;
@@ -102,10 +102,5 @@ module.exports = async function handler(req, res) {
   const returning = countReturning(r3);
   const total = totalVisits(r3);
 
-  return res.status(200).json({
-    unique,
-    returning,
-    total,
-    ok: true,
-  });
+  return jsonVisits(res, unique, returning, total, true);
 };
