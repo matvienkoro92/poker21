@@ -1242,7 +1242,7 @@ document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", func
         return;
       }
       if (data.useClientDelay) {
-        if (tg && tg.showAlert) tg.showAlert("Не закрывайте приложение 5 секунд");
+        if (tg && tg.showAlert) tg.showAlert(data.hint || "Не закрывайте приложение 5 секунд");
         setTimeout(function () {
           fetch(base + "/api/freeroll-reminder-send?when=5sec", {
             method: "POST",

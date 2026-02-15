@@ -109,12 +109,12 @@ module.exports = async function handler(req, res) {
 
   if (out.result !== undefined) {
     if (when === "5sec") {
+      const apiBase = process.env.VERCEL_URL
+        ? "https://" + process.env.VERCEL_URL
+        : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
+      const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
+      const qHost = (process.env.QSTASH_URL || "https://qstash.upstash.io").replace(/\/$/, "");
       if (QSTASH_TOKEN) {
-        const apiBase = process.env.VERCEL_URL
-          ? "https://" + process.env.VERCEL_URL
-          : (process.env.VERCEL_BRANCH_URL || "https://poker-app-ebon.vercel.app");
-        const sendUrl = apiBase + "/api/freeroll-reminder-send?when=5sec";
-        const qHost = (process.env.QSTASH_URL || "https://qstash.upstash.io").replace(/\/$/, "");
         try {
           const qRes = await fetch(qHost + "/v2/publish/" + encodeURIComponent(sendUrl), {
             method: "POST",
@@ -128,9 +128,23 @@ module.exports = async function handler(req, res) {
           if (qRes.ok) {
             return res.status(200).json({ ok: true, subscribed: true });
           }
+          const errData = await qRes.json().catch(function () { return {}; });
+          if (errData && (String(errData.error || "").indexOf("region") !== -1 || qRes.status === 403)) {
+            return res.status(503).json({
+              ok: false,
+              error: "QStash: для США укажите QSTASH_URL=https://qstash-us-east-1.upstash.io и токен из US региона в Upstash.",
+            });
+          }
         } catch (e) {}
       }
-      return res.status(200).json({ ok: true, subscribed: true, useClientDelay: true });
+      return res.status(200).json({
+        ok: true,
+        subscribed: true,
+        useClientDelay: true,
+        hint: !QSTASH_TOKEN
+          ? "Добавьте QSTASH_TOKEN в Vercel для напоминаний при закрытом приложении."
+          : "QStash недоступен. Держите приложение открытым 5 сек.",
+      });
     }
     return res.status(200).json({ ok: true, subscribed: true });
   }
