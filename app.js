@@ -1129,6 +1129,51 @@ updateVisitorCounter();
   }
 })();
 
+// Таймер до турнира: воскресенье 3:17 по Бали (Asia/Makassar, UTC+8)
+(function initTournamentCountdown() {
+  var el1 = document.getElementById("tournamentDayTimer");
+  var el2 = document.getElementById("tournamentDayTimerExpanded");
+  if (!el1 && !el2) return;
+
+  function getNextTournamentMs() {
+    var now = new Date();
+    var utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    var baliOffset = 8 * 60;
+    var baliNow = new Date(utc + baliOffset * 60000);
+    var baliDow = baliNow.getUTCDay();
+    var baliHour = baliNow.getUTCHours();
+    var baliMin = baliNow.getUTCMinutes();
+    var baliMinOfDay = baliHour * 60 + baliMin;
+    var targetMinOfDay = 3 * 60 + 17;
+    var daysUntilSunday = baliDow === 0 ? (baliMinOfDay >= targetMinOfDay ? 7 : 0) : (7 - baliDow);
+    if (daysUntilSunday === 0 && baliMinOfDay >= targetMinOfDay) daysUntilSunday = 7;
+    var targetBali = new Date(baliNow);
+    targetBali.setUTCDate(targetBali.getUTCDate() + daysUntilSunday);
+    targetBali.setUTCHours(3, 17, 0, 0);
+    var targetUtc = new Date(targetBali.getTime() - baliOffset * 60000);
+    return targetUtc.getTime() - now.getTime();
+  }
+
+  function format(ms) {
+    if (ms <= 0) return "Старт!";
+    var s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60), d = Math.floor(h / 24);
+    if (d > 0) return d + " д " + (h % 24) + " ч " + (m % 60) + " мин";
+    if (h > 0) return h + " ч " + (m % 60) + " мин " + (s % 60) + " сек";
+    if (m > 0) return m + " мин " + (s % 60) + " сек";
+    return s + " сек";
+  }
+
+  function tick() {
+    var ms = getNextTournamentMs();
+    var txt = "⏱ " + format(ms) + " до старта";
+    if (el1) el1.textContent = txt;
+    if (el2) el2.textContent = txt;
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
 // Фриролл: время, день недели и дата (по МСК)
 (function initFreerollTimeDate() {
   const el = document.getElementById("freerollTimeDate");

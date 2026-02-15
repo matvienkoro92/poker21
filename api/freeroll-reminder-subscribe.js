@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
+const NOTIFY_CHAT_ID = process.env.TELEGRAM_NOTIFY_CHAT_ID || "";
 const QSTASH_TOKEN = process.env.QSTASH_TOKEN;
 const REMINDER_KEYS = { "1h": "poker_app:freeroll_reminder", "10min": "poker_app:freeroll_reminder_10min", "5sec": "poker_app:freeroll_reminder_5sec" };
 
@@ -37,6 +38,33 @@ function validateTelegramWebAppData(initData, botToken) {
   } catch (e) {
     return null;
   }
+}
+
+async function redisPipeline(commands) {
+  if (!REDIS_URL || !REDIS_TOKEN) return null;
+  const url = REDIS_URL.replace(/\/$/, "") + "/pipeline";
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${REDIS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(commands),
+  });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null);
+  if (!Array.isArray(data) || !data[0]) return null;
+  return data;
+}
+
+async function sendNotify(text) {
+  if (!BOT_TOKEN || !NOTIFY_CHAT_ID) return;
+  const url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage";
+  await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: NOTIFY_CHAT_ID.trim(), text: text, disable_web_page_preview: true }),
+  });
 }
 
 /**
@@ -108,6 +136,23 @@ module.exports = async function handler(req, res) {
   const out = await redisCommandWithStatus("SADD", key, String(user.id));
 
   if (out.result !== undefined) {
+    if (NOTIFY_CHAT_ID) {
+      var whenLabel = when === "1h" ? "за час" : when === "10min" ? "за 10 мин" : "5 сек";
+      var name = [user.first_name, user.last_name].filter(Boolean).join(" ") || "—";
+      var uname = user.username ? "@" + user.username : "";
+      var pipe = await redisPipeline([
+        ["SCARD", REMINDER_KEYS["1h"]],
+        ["SCARD", REMINDER_KEYS["10min"]],
+        ["SMEMBERS", REMINDER_KEYS["1h"]],
+        ["SMEMBERS", REMINDER_KEYS["10min"]],
+      ]);
+      var c1 = pipe && pipe[0] && pipe[0].result !== undefined ? pipe[0].result : 0;
+      var c2 = pipe && pipe[1] && pipe[1].result !== undefined ? pipe[1].result : 0;
+      var ids1 = Array.isArray(pipe[2] && pipe[2].result) ? pipe[2].result : [];
+      var ids2 = Array.isArray(pipe[3] && pipe[3].result) ? pipe[3].result : [];
+      var msg = "📩 Подписка на напоминание\n\nПодписался: " + name + (uname ? " " + uname : "") + " (id " + user.id + ")\nТип: " + whenLabel + "\n\nВсего «за час»: " + c1 + (ids1.length ? " [" + ids1.join(", ") + "]" : "") + "\nВсего «за 10 мин»: " + c2 + (ids2.length ? " [" + ids2.join(", ") + "]" : "");
+      sendNotify(msg);
+    }
     if (when === "5sec") {
       // Клиент сам подождёт 5 сек и вызовет send — без долгого запроса и таймаута Vercel
       return res.status(200).json({
