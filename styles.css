@@ -1000,23 +1000,26 @@ body {
   font-size: 14px !important;
 }
 
-.tournament-day-card__remind-row {
+.tournament-day-card__remind-options {
+  margin: 8px 0 0;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  margin: 6px 0 12px;
 }
 
-.tournament-day-card__remind {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-  padding: 10px 16px;
-  font-size: 13px !important;
-  line-height: 1.2;
-  text-align: center;
-  box-sizing: border-box;
+.tournament-day-card__remind-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.tournament-day-card__remind-option input {
+  width: 18px;
+  height: 18px;
+  accent-color: #a855f7;
 }
 
 .feature__icon {
