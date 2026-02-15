@@ -132,14 +132,6 @@ module.exports = async function handler(req, res) {
     if (!user || !user.id) {
       return res.status(401).json({ ok: false, error: "Invalid initData" });
     }
-    const reminderKey = REMINDER_KEYS["5sec"];
-    const results = await redisPipeline([
-      ["SISMEMBER", reminderKey, String(user.id)],
-      ["SREM", reminderKey, String(user.id)],
-    ]);
-    if (!results || !results[0] || results[0].result !== 1) {
-      return res.status(200).json({ ok: true, when: "5sec", sent: 0, message: "Not subscribed or already sent" });
-    }
     const sendResult = await sendTelegramMessage(String(user.id), MESSAGES["5sec"]);
     const sent = sendResult && sendResult.ok ? 1 : 0;
     const resp = { ok: true, when: "5sec", sent, total: 1 };

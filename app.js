@@ -1182,6 +1182,39 @@ document.getElementById("freerollRemind10Btn")?.addEventListener("click", functi
   subscribeFreerollRemind(this, "10min", "Вам придёт сообщение за 10 минут до начала.");
 });
 
+document.getElementById("freerollRemindNowBtn")?.addEventListener("click", function () {
+  var btn = this;
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!initData) {
+    if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+    return;
+  }
+  var base = getApiBase();
+  if (!base) {
+    if (tg && tg.showAlert) tg.showAlert("Не задан адрес API.");
+    return;
+  }
+  btn.disabled = true;
+  fetch(base + "/api/freeroll-reminder-send?when=5sec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: initData }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (tg && tg.showAlert) {
+        if (res.sent === 1) tg.showAlert("Сообщение отправлено!");
+        else tg.showAlert(res.error || res.message || "Не удалось отправить. Напишите боту /start.");
+      }
+      btn.disabled = false;
+    })
+    .catch(function () {
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
+      btn.disabled = false;
+    });
+});
+
 document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", function () {
   var btn = this;
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -1220,7 +1253,7 @@ document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", func
             .then(function (res) {
               if (tg && tg.showAlert) {
                 if (res.sent === 1) tg.showAlert("Сообщение отправлено!");
-                else tg.showAlert(res.error || "Не удалось отправить. Напишите боту /start.");
+                else tg.showAlert(res.error || (res.message || "Не удалось отправить. Напишите боту /start."));
               }
               btn.disabled = false;
             })
