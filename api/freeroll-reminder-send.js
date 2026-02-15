@@ -15,7 +15,7 @@ const crypto = require("crypto");
 
 const TOURNAMENT_DETAILS = [
   "Poker21",
-  "Нокаут за 500р, старт в 18:00 мск",
+  "Нокаут за 500р, старт в воскресенье в 22:03 мск",
   "Гарантия 100 000р",
 ].join("\n");
 
