@@ -68,14 +68,13 @@ module.exports = async function handler(req, res) {
   if (format === "html") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     const rows = visitors.map((v, i) => {
-      let idCell;
+      let actionCell = "—";
       if (v.id.startsWith("tg_")) {
         const userId = v.id.replace(/^tg_/, "");
-        idCell = `<a href="tg://user?id=${escapeAttr(userId)}" target="_blank" rel="noopener">${escapeHtml(v.id)}</a>`;
-      } else {
-        idCell = `<code>${escapeHtml(v.id)}</code>`;
+        const tgUrl = `tg://user?id=${escapeAttr(userId)}`;
+        actionCell = `<a href="${tgUrl}" class="btn-open" target="_blank" rel="noopener" title="Открыть чат с пользователем">💬 Написать</a>`;
       }
-      return `<tr><td>${i + 1}</td><td>${idCell}</td><td>${v.count}</td><td>${v.id.startsWith("tg_") ? "Telegram" : "Web"}</td></tr>`;
+      return `<tr><td>${i + 1}</td><td><code>${escapeHtml(v.id)}</code></td><td>${v.count}</td><td>${v.id.startsWith("tg_") ? "Telegram" : "Web"}</td><td>${actionCell}</td></tr>`;
     }).join("");
     return res.status(200).send(`<!DOCTYPE html>
 <html lang="ru">
@@ -95,6 +94,8 @@ module.exports = async function handler(req, res) {
     code { font-size: 0.9em; background: #0f0f1a; padding: 2px 6px; border-radius: 4px; }
     a { color: #4fc3f7; text-decoration: none; }
     a:hover { text-decoration: underline; }
+    .btn-open { display: inline-block; padding: 6px 12px; background: #2d5a87; color: #fff; border-radius: 6px; font-size: 0.9em; }
+    .btn-open:hover { background: #3d6a97; }
     .empty { color: #666; padding: 24px; }
   </style>
 </head>
@@ -102,8 +103,8 @@ module.exports = async function handler(req, res) {
   <h1>Посетители приложения</h1>
   <p class="stats">Всего визитов: <strong>${total}</strong> • Уникальных: <strong>${visitors.length}</strong></p>
   <table>
-    <thead><tr><th>#</th><th>ID</th><th>Визитов</th><th>Тип</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="4" class="empty">Нет данных</td></tr>'}</tbody>
+    <thead><tr><th>#</th><th>ID</th><th>Визитов</th><th>Тип</th><th>Действие</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="5" class="empty">Нет данных</td></tr>'}</tbody>
   </table>
 </body>
 </html>`);
