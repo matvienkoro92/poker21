@@ -1129,7 +1129,7 @@ updateVisitorCounter();
   }
 })();
 
-// Таймер до турнира: понедельник 3:45 по Бали (Asia/Makassar, UTC+8)
+// Таймер до турнира: понедельник 3:47 по Бали (Asia/Makassar, UTC+8)
 (function initTournamentCountdown() {
   var el1 = document.getElementById("tournamentDayTimer");
   var el2 = document.getElementById("tournamentDayTimerExpanded");
@@ -1144,12 +1144,12 @@ updateVisitorCounter();
     var baliHour = baliNow.getUTCHours();
     var baliMin = baliNow.getUTCMinutes();
     var baliMinOfDay = baliHour * 60 + baliMin;
-    var targetMinOfDay = 3 * 60 + 45;
+    var targetMinOfDay = 3 * 60 + 47;
     var daysUntilMonday = baliDow === 1 ? (baliMinOfDay >= targetMinOfDay ? 7 : 0) : (8 - baliDow) % 7;
     if (daysUntilMonday === 0 && baliMinOfDay >= targetMinOfDay) daysUntilMonday = 7;
     var targetBali = new Date(baliNow);
     targetBali.setUTCDate(targetBali.getUTCDate() + daysUntilMonday);
-    targetBali.setUTCHours(3, 45, 0, 0);
+    targetBali.setUTCHours(3, 47, 0, 0);
     var targetUtc = new Date(targetBali.getTime() - baliOffset * 60000);
     return targetUtc.getTime() - now.getTime();
   }
@@ -1163,7 +1163,7 @@ updateVisitorCounter();
     return s + " сек";
   }
 
-  var hasTriggered5min = false;
+  var hasTriggered10min = false;
   var hasTriggered1h = false;
 
   function tick() {
@@ -1186,10 +1186,10 @@ updateVisitorCounter();
         }).catch(function () {});
       }
     }
-    if (!hasTriggered5min && ms > 0 && ms <= 5 * 60 * 1000) {
-      hasTriggered5min = true;
+    if (!hasTriggered10min && ms > 0 && ms <= 10 * 60 * 1000) {
+      hasTriggered10min = true;
       if (initData && base) {
-        fetch(base + "/api/freeroll-reminder-send?when=5min", {
+        fetch(base + "/api/freeroll-reminder-send?when=10min", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData: initData }),
@@ -1252,7 +1252,7 @@ document.getElementById("freerollRemindBtn")?.addEventListener("click", function
 });
 
 document.getElementById("freerollRemind5minBtn")?.addEventListener("click", function () {
-  subscribeFreerollRemind(this, "5min", "Вам придёт сообщение за 5 минут до начала.");
+  subscribeFreerollRemind(this, "10min", "Вам придёт сообщение за 10 минут до начала.");
 });
 
 document.getElementById("freerollRemindNowBtn")?.addEventListener("click", function () {
