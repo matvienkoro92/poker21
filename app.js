@@ -1196,7 +1196,6 @@ document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", func
     return;
   }
   btn.disabled = true;
-  if (tg && tg.showAlert) tg.showAlert("Подождите 5–6 секунд…");
   fetch(base + "/api/freeroll-reminder-subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1209,13 +1208,31 @@ document.getElementById("freerollRemind5SecBtn")?.addEventListener("click", func
         btn.disabled = false;
         return;
       }
-      if (data.fallback && tg && tg.showAlert) {
-        if (data.sent === 1) tg.showAlert("Сообщение отправлено!");
-        else if (data.error) tg.showAlert(data.error);
-      } else if (tg && tg.showAlert) {
-        tg.showAlert("Через 5 секунд придёт напоминание. Можно закрыть приложение.");
+      if (data.useClientDelay) {
+        if (tg && tg.showAlert) tg.showAlert("Не закрывайте приложение 5 секунд");
+        setTimeout(function () {
+          fetch(base + "/api/freeroll-reminder-send?when=5sec", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: initData }),
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+              if (tg && tg.showAlert) {
+                if (res.sent === 1) tg.showAlert("Сообщение отправлено!");
+                else tg.showAlert(res.error || "Не удалось отправить. Напишите боту /start.");
+              }
+              btn.disabled = false;
+            })
+            .catch(function () {
+              if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
+              btn.disabled = false;
+            });
+        }, 5000);
+      } else {
+        if (tg && tg.showAlert) tg.showAlert("Через 5 секунд придёт напоминание. Можно закрыть приложение.");
+        btn.disabled = false;
       }
-      btn.disabled = false;
     })
     .catch(function () {
       if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
