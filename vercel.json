@@ -9,7 +9,7 @@
     "api/freeroll-reminder-subscribe.js": { "maxDuration": 15 }
   },
   "crons": [
-    { "path": "/api/freeroll-reminder-send", "schedule": "43 18 * * 0" },
-    { "path": "/api/freeroll-reminder-send", "schedule": "38 19 * * 0" }
+    { "path": "/api/freeroll-reminder-send", "schedule": "45 18 * * 0" },
+    { "path": "/api/freeroll-reminder-send", "schedule": "40 19 * * 0" }
   ]
 }
