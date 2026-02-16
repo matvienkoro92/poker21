@@ -194,7 +194,7 @@
               <div class="chat-admins-block">
                 <span class="chat-admins-label">Админы:</span>
                 <div class="chat-managers-inline">
-                  <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="ID803668" data-chat-user-name="Анна">Анна</button>
+                  <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">Анна</button>
                   <button type="button" class="chat-manager-btn chat-manager-btn--compact chat-manager-btn--disabled" data-chat-user-id="" data-chat-user-name="Вика" disabled>Вика</button>
                 </div>
               </div>
@@ -203,9 +203,15 @@
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
               </div>
-              <div class="chat-input-wrap">
-                <input type="text" class="chat-input" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" autocomplete="off" />
-                <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
+              <div class="chat-input-area">
+                <div class="chat-reply-preview" id="chatGeneralReplyPreview">
+                  <div class="chat-reply-preview__text"></div>
+                  <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
+                </div>
+                <div class="chat-input-wrap">
+                  <input type="text" class="chat-input" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" autocomplete="off" />
+                  <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
+                </div>
               </div>
             </div>
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
@@ -226,12 +232,24 @@
                   <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
                     <p class="chat-empty">Загрузка...</p>
                   </div>
-                  <div class="chat-input-wrap">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." maxlength="500" autocomplete="off" />
-                    <button type="button" class="chat-send-btn" id="chatSendBtn">Отправить</button>
+                  <div class="chat-input-area">
+                    <div class="chat-reply-preview" id="chatPersonalReplyPreview">
+                      <div class="chat-reply-preview__text"></div>
+                      <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
+                    </div>
+                    <div class="chat-input-wrap">
+                      <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." maxlength="500" autocomplete="off" />
+                      <button type="button" class="chat-send-btn" id="chatSendBtn">Отправить</button>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="chat-ctx-menu" id="chatContextMenu" role="menu" aria-hidden="true">
+              <button type="button" class="chat-ctx-menu__item" data-action="delete">Удалить сообщение</button>
+              <button type="button" class="chat-ctx-menu__item" data-action="block">Заблокировать</button>
+              <button type="button" class="chat-ctx-menu__item" data-action="copy">Копировать</button>
+              <button type="button" class="chat-ctx-menu__item" data-action="reply">Ответить</button>
             </div>
           </div>
 

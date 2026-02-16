@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
-const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_ID || "388008256")
+const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_ID || "388008256,2144406710,5053253480")
   .toString()
   .split(",")
   .map((s) => s.trim())
@@ -315,6 +315,12 @@ module.exports = async function handler(req, res) {
   // POST
   const withId = body.with || body.to || body.userId;
   const text = (body.text || body.message || "").trim();
+  const replyTo = body.replyTo && typeof body.replyTo === "object" ? {
+    id: body.replyTo.id || null,
+    text: String(body.replyTo.text || "").slice(0, 500),
+    from: body.replyTo.from || null,
+    fromName: String(body.replyTo.fromName || "Игрок").slice(0, 100),
+  } : null;
 
   if (!text || text.length > 500) {
     return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов" });
@@ -334,6 +340,7 @@ module.exports = async function handler(req, res) {
       fromDtId: dtIdsForMsg[myId] || null,
       text,
       time: new Date().toISOString(),
+      ...(replyTo && replyTo.text ? { replyTo } : {}),
     };
 
     const results = await redisPipeline([
@@ -368,6 +375,7 @@ module.exports = async function handler(req, res) {
     fromDtId: dtIds[myId] || null,
     text,
     time: new Date().toISOString(),
+    ...(replyTo && replyTo.text ? { replyTo } : {}),
   };
 
   const results = await redisPipeline([
