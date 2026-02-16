@@ -1,14 +1,13 @@
 // Темы: тёмная / светлая
 (function initTheme() {
-  var LIGHT_BG = "radial-gradient(circle at top, #ffedd5 0%, #fed7aa 45%, #fdba74 100%)";
+  var LIGHT_OUTER_BG = "#f1f5f9";
   var DARK_BG = "radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%)";
   function applyBg() {
     var isLight = document.documentElement.getAttribute("data-theme") === "light";
-    var bg = isLight ? LIGHT_BG : DARK_BG;
-    document.documentElement.style.background = bg;
-    document.body.style.background = bg;
+    document.documentElement.style.background = isLight ? LIGHT_OUTER_BG : DARK_BG;
+    document.body.style.background = isLight ? LIGHT_OUTER_BG : DARK_BG;
     var app = document.getElementById("app");
-    if (app) app.style.background = bg;
+    if (app) app.style.background = isLight ? LIGHT_OUTER_BG : DARK_BG;
   }
   var stored = localStorage.getItem("poker_theme");
   var theme = stored === "light" ? "light" : "dark";
@@ -16,7 +15,7 @@
   applyBg();
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg && tg.setBackgroundColor) {
-    tg.setBackgroundColor(theme === "light" ? "#ffedd5" : "#0f172a");
+    tg.setBackgroundColor(theme === "light" ? "#f1f5f9" : "#0f172a");
   }
   var btn = document.getElementById("themeToggle");
   if (btn) {
@@ -25,7 +24,7 @@
       document.documentElement.setAttribute("data-theme", theme);
       localStorage.setItem("poker_theme", theme);
       applyBg();
-      if (tg && tg.setBackgroundColor) tg.setBackgroundColor(theme === "light" ? "#ffedd5" : "#0f172a");
+      if (tg && tg.setBackgroundColor) tg.setBackgroundColor(theme === "light" ? "#f1f5f9" : "#0f172a");
     });
   }
 })();
