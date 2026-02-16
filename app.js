@@ -199,13 +199,6 @@ function setView(viewName) {
       view.classList.remove("view--active");
     }
   });
-  if (viewName === "chat") {
-    var chatGreeting = document.getElementById("chatGreeting");
-    if (chatGreeting) {
-      var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-      chatGreeting.textContent = "Привет, " + (u && u.first_name ? u.first_name : "Роман");
-    }
-  }
   navItems.forEach(function (item) {
     if (item.dataset.viewTarget === viewName) {
       item.classList.add("bottom-nav__item--active");
@@ -1360,6 +1353,12 @@ function initChat() {
 
   var lastViewedGeneral = null;
   var lastViewedPersonal = {};
+  var lastGeneralMessagesSig = null;
+  var lastPersonalMessagesSig = null;
+  function generalMessagesSignature(messages) {
+    if (!messages || messages.length === 0) return "";
+    return messages.length + "-" + (messages[messages.length - 1].id || "") + "-" + (messages[messages.length - 1].time || "");
+  }
   function updateUnreadDots() {
     var gDot = document.getElementById("chatGeneralDot");
     var pDot = document.getElementById("chatPersonalDot");
@@ -1390,7 +1389,13 @@ function initChat() {
         var online = data.onlineCount != null ? data.onlineCount : "—";
         window.lastGeneralStats = total + " уч · " + online + " онл";
         updateChatHeaderStats();
-        if (isChatViewActive && chatActiveTab === "general" && !chatIsEditingMessage) renderGeneralMessages(messages);
+        if (isChatViewActive && chatActiveTab === "general" && !chatIsEditingMessage) {
+          var sig = generalMessagesSignature(messages);
+          if (sig !== lastGeneralMessagesSig) {
+            lastGeneralMessagesSig = sig;
+            renderGeneralMessages(messages);
+          }
+        }
         updateUnreadDots();
       }
     }).catch(function () { if (chatActiveTab === "general") generalMessages.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
@@ -1849,7 +1854,13 @@ function initChat() {
         } else if (latest && chatWithUserId && (!lastViewedPersonal[chatWithUserId] || latest > lastViewedPersonal[chatWithUserId])) {
           window.chatPersonalUnread = true;
         }
-        if (Array.isArray(messages) && !chatIsEditingMessage) renderMessages(messages);
+        if (Array.isArray(messages) && !chatIsEditingMessage) {
+          var sig = (chatWithUserId || "") + "-" + (messages.length) + "-" + (messages.length ? (messages[messages.length - 1].id || "") + "-" + (messages[messages.length - 1].time || "") : "");
+          if (sig !== lastPersonalMessagesSig) {
+            lastPersonalMessagesSig = sig;
+            renderMessages(messages);
+          }
+        }
         updateUnreadDots();
       }
     });

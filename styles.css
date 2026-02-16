@@ -888,26 +888,6 @@ img.chat-contact__avatar {
 .chat-send-btn:hover { opacity: 0.9; }
 .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.chat-top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-bottom: 4px;
-  width: 100%;
-}
-.chat-greeting {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-}
-.theme-toggle--in-chat {
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  font-size: 18px;
-}
-
 .chat-header-row {
   display: flex;
   flex-wrap: nowrap;
