@@ -297,6 +297,8 @@ function updateProfileDtId() {
 
 function initProfileP21Id() {
   var input = document.getElementById("profileP21IdInput");
+  var saveBtn = document.getElementById("profileSaveBtn");
+  var feedback = document.getElementById("profileSaveFeedback");
   if (!input) return;
   var saved = sessionStorage.getItem("poker_p21_id");
   if (saved) input.value = saved.replace(/\D/g, "").slice(0, 6);
@@ -306,11 +308,20 @@ function initProfileP21Id() {
     input.value = val;
     if (val) sessionStorage.setItem("poker_p21_id", val);
     else sessionStorage.removeItem("poker_p21_id");
+    if (feedback) {
+      feedback.textContent = "Сохранено";
+      feedback.classList.add("profile-save-feedback--visible");
+      setTimeout(function () {
+        feedback.textContent = "";
+        feedback.classList.remove("profile-save-feedback--visible");
+      }, 2000);
+    }
   }
   input.addEventListener("input", function () {
     input.value = (input.value || "").replace(/\D/g, "").slice(0, 6);
   });
   input.addEventListener("blur", saveP21Id);
+  if (saveBtn) saveBtn.addEventListener("click", saveP21Id);
 }
 
 function loadHeaderAvatar() {

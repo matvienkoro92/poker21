@@ -3479,6 +3479,30 @@ img.plasterer-card {
 .profile-p21-id input::placeholder {
   color: var(--text-muted);
 }
+.profile-save-btn {
+  margin-left: 10px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--accent);
+  color: var(--btn-on-accent);
+  cursor: pointer;
+}
+.profile-save-btn:hover {
+  opacity: 0.9;
+}
+.profile-save-feedback {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--accent-2);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.profile-save-feedback--visible {
+  opacity: 1;
+}
 .profile-concept {
   margin: 12px 0 0;
   font-size: 14px;
