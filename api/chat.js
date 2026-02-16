@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
-const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_ID || "388008256,2144406710,5053253480")
+const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_ID || "388008256,2144406710,5053253480,1897001087")
   .toString()
   .split(",")
   .map((s) => s.trim())
@@ -381,7 +381,7 @@ module.exports = async function handler(req, res) {
     const msg = {
       id: msgId,
       from: myId,
-      fromName: admin ? "Админ" : (user.firstName || (user.username ? "@" + user.username : "Игрок")),
+      fromName: user.firstName || (user.username ? "@" + user.username : "Игрок"),
       fromDtId: dtIdsForMsg[myId] || null,
       text,
       time: new Date().toISOString(),
@@ -418,7 +418,7 @@ module.exports = async function handler(req, res) {
   const msg = {
     id: msgId,
     from: myId,
-    fromName: admin ? "Админ" : (user.firstName || (user.username ? "@" + user.username : "Игрок")),
+    fromName: user.firstName || (user.username ? "@" + user.username : "Игрок"),
     fromDtId: dtIds[myId] || null,
     text,
     time: new Date().toISOString(),

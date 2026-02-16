@@ -1279,6 +1279,8 @@ function initChat() {
           window.chatGeneralUnread = false;
         } else if (latest && (!lastViewedGeneral || latest > lastViewedGeneral)) {
           window.chatGeneralUnread = true;
+        } else {
+          window.chatGeneralUnread = false;
         }
         var statsEl = document.getElementById("chatGeneralStats");
         if (statsEl) {
@@ -1392,6 +1394,7 @@ function initChat() {
     if (!chatIsAdmin) return;
     var ctxMenu = document.getElementById("chatContextMenu");
     var longPressTimer = null;
+    var menuOpenedAt = 0;
     function showMenu(el, msg) {
       chatCtxMsg = msg;
       chatCtxSource = source;
@@ -1401,6 +1404,7 @@ function initChat() {
       ctxMenu.style.top = Math.max(12, rect.top - 4) + "px";
       ctxMenu.classList.add("chat-ctx-menu--visible");
       ctxMenu.setAttribute("aria-hidden", "false");
+      menuOpenedAt = Date.now();
     }
     function hideMenu() {
       if (ctxMenu) {
@@ -1455,9 +1459,14 @@ function initChat() {
     });
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
-      document.addEventListener("click", function (e) {
-        if (ctxMenu.classList.contains("chat-ctx-menu--visible") && !ctxMenu.contains(e.target)) hideMenu();
-      });
+      function closeIfOutside(e) {
+        if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
+        if (ctxMenu.contains(e.target)) return;
+        if (Date.now() - menuOpenedAt < 300) return;
+        hideMenu();
+      }
+      document.addEventListener("click", closeIfOutside);
+      document.addEventListener("touchend", closeIfOutside, { passive: true });
       function runAction(action) {
         var msg = chatCtxMsg;
         var src = chatCtxSource;
@@ -1734,8 +1743,17 @@ function initChat() {
     tabs.forEach(function (t) {
       t.addEventListener("click", function () { setTab(t.dataset.chatTab); });
     });
-    document.querySelectorAll(".chat-manager-btn").forEach(function (btn) {
-      btn.addEventListener("click", function () {
+    document.querySelectorAll(".chat-manager-btn--tg").forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        var href = link.getAttribute("href");
+        if (href && href.startsWith("tg://") && tg && tg.openTelegramLink) {
+          e.preventDefault();
+          tg.openTelegramLink(href);
+        }
+      });
+    });
+    document.querySelectorAll(".chat-manager-btn[data-chat-user-id]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
         var raw = (btn.dataset.chatUserId || "").trim();
         var userName = btn.dataset.chatUserName || "Менеджер";
         if (!raw) {
@@ -1964,26 +1982,22 @@ function getMskHour() {
 function updateTournamentTimer() {
   var el = document.getElementById("tournamentDayTimer");
   if (!el) return;
-  var now = new Date();
-  var msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
-  var targetHour = 18;
-  var targetMin = 0;
+  var msk = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+  var targetHour = 20;
+  var targetMin = 30;
   var targetToday = new Date(msk);
   targetToday.setHours(targetHour, targetMin, 0, 0);
   if (msk >= targetToday) {
-    targetToday.setDate(targetToday.getDate() + 1);
-  }
-  var diff = targetToday - msk;
-  if (diff <= 0) {
-    el.textContent = "Начинается";
+    el.textContent = "Регистрация закрыта";
     return;
   }
+  var diff = targetToday - msk;
   var h = Math.floor(diff / 3600000);
   var m = Math.floor((diff % 3600000) / 60000);
   var parts = [];
   if (h > 0) parts.push(h + " ч");
   parts.push(m + " мин");
-  el.textContent = "До начала: " + parts.join(" ");
+  el.textContent = "До конца регистрации: " + parts.join(" ");
 }
 
 function updateCashoutManager() {
