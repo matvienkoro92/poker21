@@ -1366,7 +1366,12 @@ function initChat() {
   var lastPersonalMessagesSig = null;
   function generalMessagesSignature(messages) {
     if (!messages || messages.length === 0) return "";
-    return messages.length + "-" + (messages[messages.length - 1].id || "") + "-" + (messages[messages.length - 1].time || "");
+    var last = messages[messages.length - 1];
+    var reactionsPart = messages.map(function (m) {
+      var r = m.reactions && typeof m.reactions === "object" ? m.reactions : {};
+      return (m.id || "") + ":" + JSON.stringify(r);
+    }).join(";");
+    return messages.length + "-" + (last.id || "") + "-" + (last.time || "") + "-" + reactionsPart;
   }
   function updateUnreadDots() {
     var gDot = document.getElementById("chatGeneralDot");
@@ -1377,6 +1382,79 @@ function initChat() {
   }
   window.chatGeneralUnread = false;
   window.chatPersonalUnread = false;
+
+  var reactionPickerEl = document.getElementById("chatReactionPicker");
+  var currentReactionPickerClose = null;
+  function sendReaction(msgId, emoji, source, withId) {
+    if (!msgId || !emoji || !initData) return;
+    var body = { initData: initData, action: "reaction", messageId: msgId, emoji: emoji };
+    if (source === "personal" && withId) body.with = withId;
+    fetch(base + "/api/chat", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) {
+        if (source === "general") {
+          lastGeneralMessagesSig = null;
+          loadGeneral();
+        } else {
+          lastPersonalMessagesSig = null;
+          loadMessages();
+        }
+      }
+    });
+  }
+  function showReactionPicker(btn) {
+    if (!reactionPickerEl) return;
+    var rect = btn.getBoundingClientRect();
+    reactionPickerEl.dataset.msgId = btn.dataset.msgId || "";
+    reactionPickerEl.dataset.source = btn.dataset.source || "general";
+    reactionPickerEl.dataset.with = btn.dataset.with || "";
+    reactionPickerEl.style.left = rect.left + "px";
+    reactionPickerEl.style.top = (rect.top - 44) + "px";
+    reactionPickerEl.classList.remove("chat-reaction-picker--hidden");
+    reactionPickerEl.setAttribute("aria-hidden", "false");
+    function closePicker(ev) {
+      if (ev && ev.target && ev.target.closest && ev.target.closest(".chat-reaction-picker")) return;
+      reactionPickerEl.classList.add("chat-reaction-picker--hidden");
+      reactionPickerEl.setAttribute("aria-hidden", "true");
+      document.removeEventListener("click", closePicker);
+      document.removeEventListener("touchend", closePicker);
+      currentReactionPickerClose = null;
+    }
+    currentReactionPickerClose = closePicker;
+    setTimeout(function () {
+      document.addEventListener("click", closePicker);
+      document.addEventListener("touchend", closePicker, { passive: true });
+    }, 0);
+  }
+  document.body.addEventListener("click", function (e) {
+    var reactionBtn = e.target && e.target.closest ? e.target.closest(".chat-msg__reaction") : null;
+    var addReactBtn = e.target && e.target.closest ? e.target.closest(".chat-msg__react-btn") : null;
+    var pickerEmoji = e.target && e.target.closest ? e.target.closest(".chat-reaction-picker__emoji") : null;
+    if (reactionBtn) {
+      e.preventDefault();
+      sendReaction(reactionBtn.dataset.msgId, reactionBtn.dataset.emoji, reactionBtn.dataset.source || "general", reactionBtn.dataset.with || "");
+    } else if (addReactBtn) {
+      e.preventDefault();
+      showReactionPicker(addReactBtn);
+    } else if (pickerEmoji) {
+      e.preventDefault();
+      var msgId = reactionPickerEl && reactionPickerEl.dataset.msgId;
+      var source = reactionPickerEl && reactionPickerEl.dataset.source;
+      var withId = reactionPickerEl && reactionPickerEl.dataset.with;
+      if (msgId && pickerEmoji.dataset.emoji) {
+        sendReaction(msgId, pickerEmoji.dataset.emoji, source || "general", withId || "");
+        if (currentReactionPickerClose) {
+          currentReactionPickerClose();
+        } else if (reactionPickerEl) {
+          reactionPickerEl.classList.add("chat-reaction-picker--hidden");
+          reactionPickerEl.setAttribute("aria-hidden", "true");
+        }
+      }
+    }
+  });
 
   function loadGeneral() {
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=general";
@@ -1468,7 +1546,21 @@ function initChat() {
       var nameStr = escapeHtml(m.fromName || "Игрок") + dtBadge;
       var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>';
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div></div></div></div>';
+      var reactionsHtml = "";
+      if (m.id && m.reactions && typeof m.reactions === "object") {
+        var pills = [];
+        for (var em in m.reactions) {
+          if (Object.prototype.hasOwnProperty.call(m.reactions, em) && Array.isArray(m.reactions[em]) && m.reactions[em].length > 0) {
+            var count = m.reactions[em].length;
+            var iReacted = myId && m.reactions[em].indexOf(myId) >= 0;
+            pills.push('<button type="button" class="chat-msg__reaction ' + (iReacted ? 'chat-msg__reaction--mine' : '') + '" data-msg-id="' + escapeHtml(m.id) + '" data-emoji="' + escapeHtml(em) + '" data-source="general">' + escapeHtml(em) + ' <span class="chat-msg__reaction-count">' + count + '</span></button>');
+          }
+        }
+        reactionsHtml = pills.join("");
+      }
+      var reactBtnHtml = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="general" title="Реакция">😊</button>' : "";
+      var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span>' + reactBtnHtml + '</div>' : "";
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
@@ -1784,7 +1876,21 @@ function initChat() {
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + editBtn + delBtn + '</span>' + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div></div></div></div>';
+      var reactionsHtmlP = "";
+      if (m.id && m.reactions && typeof m.reactions === "object") {
+        var pillsP = [];
+        for (var emp in m.reactions) {
+          if (Object.prototype.hasOwnProperty.call(m.reactions, emp) && Array.isArray(m.reactions[emp]) && m.reactions[emp].length > 0) {
+            var countP = m.reactions[emp].length;
+            var iReactedP = myId && m.reactions[emp].indexOf(myId) >= 0;
+            pillsP.push('<button type="button" class="chat-msg__reaction ' + (iReactedP ? 'chat-msg__reaction--mine' : '') + '" data-msg-id="' + escapeHtml(m.id) + '" data-emoji="' + escapeHtml(emp) + '" data-source="personal" data-with="' + escapeHtml(chatWithUserId || "") + '">' + escapeHtml(emp) + ' <span class="chat-msg__reaction-count">' + countP + '</span></button>');
+          }
+        }
+        reactionsHtmlP = pillsP.join("");
+      }
+      var reactBtnHtmlP = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="personal" data-with="' + escapeHtml(chatWithUserId || "") + '" title="Реакция">😊</button>' : "";
+      var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span>' + reactBtnHtmlP + '</div>' : "";
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + editBtn + delBtn + '</span>' + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTop = messagesEl.scrollTop;
     var prevScrollHeight = messagesEl.scrollHeight;
@@ -1864,7 +1970,11 @@ function initChat() {
           window.chatPersonalUnread = true;
         }
         if (Array.isArray(messages) && !chatIsEditingMessage) {
-          var sig = (chatWithUserId || "") + "-" + (messages.length) + "-" + (messages.length ? (messages[messages.length - 1].id || "") + "-" + (messages[messages.length - 1].time || "") : "");
+          var reactionsPartP = messages.map(function (m) {
+            var r = m.reactions && typeof m.reactions === "object" ? m.reactions : {};
+            return (m.id || "") + ":" + JSON.stringify(r);
+          }).join(";");
+          var sig = (chatWithUserId || "") + "-" + (messages.length) + "-" + (messages.length ? (messages[messages.length - 1].id || "") + "-" + (messages[messages.length - 1].time || "") : "") + "-" + reactionsPartP;
           if (sig !== lastPersonalMessagesSig) {
             lastPersonalMessagesSig = sig;
             renderMessages(messages);

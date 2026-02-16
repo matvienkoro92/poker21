@@ -204,7 +204,47 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, blocked: action === "block" });
     }
 
-    return res.status(400).json({ ok: false, error: "action: edit, block или unblock" });
+    if (action === "reaction") {
+      const messageId = body.messageId || body.message_id || req.query.messageId;
+      const emoji = (body.emoji || req.query.emoji || "").toString().trim();
+      const withId = body.with || body.conversationWith || req.query.with;
+      const allowedEmojis = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
+      if (!messageId) return res.status(400).json({ ok: false, error: "messageId обязателен" });
+      if (!allowedEmojis.includes(emoji)) return res.status(400).json({ ok: false, error: "Недопустимая реакция" });
+      const redisKey = withId ? convKey(myId, withId.startsWith("tg_") ? withId : "tg_" + withId) : GENERAL_KEY;
+      const results = await redisPipeline([["LRANGE", redisKey, "0", "-1"]]);
+      const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
+      const list = Array.isArray(raw) ? raw : [];
+      let idx = -1;
+      let msgObj = null;
+      for (let i = 0; i < list.length; i++) {
+        try {
+          const m = JSON.parse(list[i]);
+          if (m.id === messageId) {
+            idx = i;
+            msgObj = m;
+            break;
+          }
+        } catch (e) {}
+      }
+      if (idx < 0 || !msgObj) return res.status(404).json({ ok: false, error: "Сообщение не найдено" });
+      if (!msgObj.reactions || typeof msgObj.reactions !== "object") msgObj.reactions = {};
+      if (!Array.isArray(msgObj.reactions[emoji])) msgObj.reactions[emoji] = [];
+      const arr = msgObj.reactions[emoji];
+      const myIdx = arr.indexOf(myId);
+      if (myIdx >= 0) {
+        arr.splice(myIdx, 1);
+        if (arr.length === 0) delete msgObj.reactions[emoji];
+      } else {
+        arr.push(myId);
+      }
+      const newStr = JSON.stringify(msgObj);
+      const resSet = await redisPipeline([["LSET", redisKey, String(idx), newStr]]);
+      if (!resSet || resSet[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
+      return res.status(200).json({ ok: true, message: msgObj });
+    }
+
+    return res.status(400).json({ ok: false, error: "action: edit, block, unblock или reaction" });
   }
 
   // GET
