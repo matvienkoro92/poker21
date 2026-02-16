@@ -2352,6 +2352,13 @@ img.plasterer-card {
   display: flex;
   justify-content: center;
 }
+.profile-hall-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+}
+.profile-hall-title { font-size: 18px; margin-bottom: 4px; }
+.profile-hall-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 16px; }
 
 .profile-avatar-wrap {
   display: flex;
