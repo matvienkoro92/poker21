@@ -800,7 +800,41 @@ body:has(.view--active[data-view="chat"]) {
 [data-theme="light"] .chat-msg--other .chat-msg__body::before {
   border-right-color: #e2e8f0;
 }
-.chat-msg__meta { margin-bottom: 2px; }
+.chat-msg__meta {
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.chat-msg__msg-actions {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+.chat-msg__edit,
+.chat-msg__delete {
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+.chat-msg__edit:hover,
+.chat-msg__delete:hover {
+  background: rgba(30, 41, 59, 0.95);
+  color: #f1f5f9;
+}
+[data-theme="light"] .chat-msg__edit,
+[data-theme="light"] .chat-msg__delete {
+  color: #1e293b;
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(100, 116, 139, 0.4);
+}
+[data-theme="light"] .chat-msg__edit:hover,
+[data-theme="light"] .chat-msg__delete:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: #0f172a;
+}
 .chat-msg__name-btn {
   background: none;
   border: none;
@@ -937,16 +971,11 @@ body:has(.view--active[data-view="chat"]) {
   margin-left: auto;
 }
 .chat-msg__edit {
-  margin-left: 4px;
-  padding: 2px 6px;
+  padding: 2px 5px;
   font-size: 12px;
-  background: rgba(34, 197, 94, 0.3);
-  color: #4ade80;
-  border: none;
   border-radius: 4px;
   cursor: pointer;
 }
-.chat-msg__edit:hover { background: rgba(34, 197, 94, 0.5); }
 .chat-msg__edit-form {
   display: flex;
   flex-direction: column;
@@ -1371,13 +1400,9 @@ img.chat-contact__avatar {
   padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 .chat-msg__delete {
-  margin-left: 8px;
-  padding: 2px 6px;
+  padding: 2px 5px;
   font-size: 12px;
-  background: rgba(239, 68, 68, 0.3);
-  border: none;
   border-radius: 4px;
-  color: #fca5a5;
   cursor: pointer;
 }
 .chat-msg__delete:hover { background: rgba(239, 68, 68, 0.5); }
@@ -2126,6 +2151,43 @@ img.chat-contact__avatar {
   border-color: rgba(168, 85, 247, 0.5);
   box-shadow: 0 4px 16px rgba(168, 85, 247, 0.2);
   background: linear-gradient(135deg, #251e33, #1a1525);
+}
+
+/* Главная: все кнопки и карточки светло-оранжевые */
+.view--active[data-view="home"] .feature.feature--link {
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.15);
+}
+.view--active[data-view="home"] .feature.feature--link:hover {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.2);
+}
+.view--active[data-view="home"] .feature.feature--link.feature--highlight {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.25);
+}
+.view--active[data-view="home"] .updates-block__toggle {
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  color: #c2410c;
+}
+.view--active[data-view="home"] .updates-block__toggle:hover {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  border-color: rgba(249, 115, 22, 0.6);
+  color: #9a3412;
+}
+.view--active[data-view="home"] .home-mini-icon-item {
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.12);
+}
+.view--active[data-view="home"] .home-mini-icon-item:hover {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
 /* Обёртка «Турнир дня» для всплывающей подсказки */
@@ -3392,6 +3454,30 @@ img.plasterer-card {
   font-size: 13px;
   color: var(--text-muted);
   font-family: monospace;
+}
+.profile-p21-id {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text);
+}
+.profile-p21-id label {
+  display: inline-block;
+  margin-right: 8px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.profile-p21-id input {
+  width: 80px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: monospace;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--block-bg);
+  color: var(--text);
+}
+.profile-p21-id input::placeholder {
+  color: var(--text-muted);
 }
 .profile-concept {
   margin: 12px 0 0;

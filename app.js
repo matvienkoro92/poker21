@@ -227,6 +227,7 @@ function setView(viewName) {
   if (viewName === "profile") {
     updateProfileUserName();
     updateProfileDtId();
+    initProfileP21Id();
     initProfileAvatar();
   }
   if (viewName === "bonus-game") {
@@ -292,6 +293,24 @@ function updateProfileDtId() {
       }
     })
     .catch(function () { el.textContent = "\u2014"; });
+}
+
+function initProfileP21Id() {
+  var input = document.getElementById("profileP21IdInput");
+  if (!input) return;
+  var saved = sessionStorage.getItem("poker_p21_id");
+  if (saved) input.value = saved.replace(/\D/g, "").slice(0, 6);
+  else input.value = "";
+  function saveP21Id() {
+    var val = (input.value || "").replace(/\D/g, "").slice(0, 6);
+    input.value = val;
+    if (val) sessionStorage.setItem("poker_p21_id", val);
+    else sessionStorage.removeItem("poker_p21_id");
+  }
+  input.addEventListener("input", function () {
+    input.value = (input.value || "").replace(/\D/g, "").slice(0, 6);
+  });
+  input.addEventListener("blur", saveP21Id);
 }
 
 function loadHeaderAvatar() {
@@ -1555,12 +1574,13 @@ function initChat() {
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var blockBtn = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
-      var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
+      var p21Id = (isOwn && typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) ? sessionStorage.getItem("poker_p21_id") : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
+      var dtBadge = ' <span class="chat-msg__dt">P21 ID: ' + escapeHtml(p21Id || "—") + '</span>';
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStr = escapeHtml(m.fromName || "Игрок") + dtBadge;
-      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>';
+      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>';
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -1892,10 +1912,12 @@ function initChat() {
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
-      var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
+      var p21IdP = (isOwn && typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) ? sessionStorage.getItem("poker_p21_id") : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
+      var dtBadgeP = ' <span class="chat-msg__dt">P21 ID: ' + escapeHtml(p21IdP || "—") + '</span>';
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
+      var nameStrP = escapeHtml(m.fromName || "Игрок") + dtBadgeP;
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
       var reactionsHtmlP = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -1911,7 +1933,8 @@ function initChat() {
       }
       var reactBtnHtmlP = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="personal" data-with="' + escapeHtml(chatWithUserId || "") + '" title="Реакция">😊</button>' : "";
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span>' + reactBtnHtmlP + '</div>' : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + editBtn + delBtn + '</span>' + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
+      var nameElP = isOwn ? '<span class="chat-msg__name">' + nameStrP + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<span class="chat-msg__name">' + nameStrP + '</span>';
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameElP + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;
     var prevScrollHeightP = messagesEl.scrollHeight;
