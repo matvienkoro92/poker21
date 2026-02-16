@@ -2092,25 +2092,35 @@ function getMskHour() {
   return msk.getHours();
 }
 
+var TOURNAMENT_WEEKDAY = 0; // 0=воскресенье, 1=пн, ..., 6=суббота
 function updateTournamentTimer() {
   var el = document.getElementById("tournamentDayTimer");
-  if (!el) return;
+  var block = document.getElementById("tournamentDayBlock");
+  if (!el && !block) return;
   var msk = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+  var todayWeekday = msk.getDay();
+  if (todayWeekday !== TOURNAMENT_WEEKDAY) {
+    if (block) block.style.display = "none";
+    if (el) el.textContent = "";
+    return;
+  }
   var targetHour = 20;
   var targetMin = 30;
   var targetToday = new Date(msk);
   targetToday.setHours(targetHour, targetMin, 0, 0);
   if (msk >= targetToday) {
-    el.textContent = "Регистрация закрыта";
+    if (block) block.style.display = "none";
+    if (el) el.textContent = "";
     return;
   }
+  if (block) block.style.display = "";
   var diff = targetToday - msk;
   var h = Math.floor(diff / 3600000);
   var m = Math.floor((diff % 3600000) / 60000);
   var parts = [];
   if (h > 0) parts.push(h + " ч");
   parts.push(m + " мин");
-  el.textContent = "До конца регистрации: " + parts.join(" ");
+  if (el) el.textContent = "До конца регистрации: " + parts.join(" ");
 }
 
 function updateCashoutManager() {
