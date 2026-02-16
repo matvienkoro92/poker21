@@ -291,22 +291,7 @@ body {
   white-space: nowrap;
   font-family: "Inter", system-ui, sans-serif;
 }
-.bg-decor__emoji {
-  position: absolute;
-  font-size: clamp(24px, 8vw, 44px);
-  opacity: 0.08;
-}
-.bg-decor__emoji--1 { left: 8%;  top: 12%; }
-.bg-decor__emoji--2 { right: 10%; top: 15%; }
-.bg-decor__emoji--3 { left: 5%;  bottom: 25%; }
-.bg-decor__emoji--4 { right: 8%; bottom: 22%; }
-.bg-decor__emoji--5 { left: 18%;  top: 45%; font-size: clamp(20px, 6vw, 32px); }
-.bg-decor__emoji--6 { right: 20%; top: 48%; font-size: clamp(20px, 6vw, 32px); }
-.bg-decor__emoji--7 { left: 22%;  bottom: 40%; font-size: clamp(18px, 5vw, 28px); }
-.bg-decor__emoji--8 { right: 15%; bottom: 38%; font-size: clamp(18px, 5vw, 28px); }
-
-[data-theme="light"] .bg-decor__text,
-[data-theme="light"] .bg-decor__emoji {
+[data-theme="light"] .bg-decor__text {
   opacity: 0.07;
 }
 
@@ -700,8 +685,8 @@ body {
   position: relative;
 }
 .chat-msg--own .chat-msg__body {
-  background: var(--accent-soft);
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: #1e293b;
+  border: 1px solid rgba(249, 115, 22, 0.4);
   border-bottom-right-radius: 4px;
 }
 .chat-msg--own .chat-msg__body::before {
@@ -713,10 +698,10 @@ body {
   height: 0;
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
-  border-left: 8px solid var(--accent-soft);
+  border-left: 8px solid #1e293b;
 }
 .chat-msg--other .chat-msg__body {
-  background: rgba(148, 163, 184, 0.15);
+  background: #1e293b;
   border: 1px solid var(--border-subtle);
   border-bottom-left-radius: 4px;
 }
@@ -729,7 +714,21 @@ body {
   height: 0;
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
-  border-right: 8px solid rgba(148, 163, 184, 0.15);
+  border-right: 8px solid #1e293b;
+}
+[data-theme="light"] .chat-msg--own .chat-msg__body {
+  background: #ffedd5;
+  border-color: rgba(249, 115, 22, 0.5);
+}
+[data-theme="light"] .chat-msg--own .chat-msg__body::before {
+  border-left-color: #ffedd5;
+}
+[data-theme="light"] .chat-msg--other .chat-msg__body {
+  background: #e2e8f0;
+  border-color: var(--border-subtle);
+}
+[data-theme="light"] .chat-msg--other .chat-msg__body::before {
+  border-right-color: #e2e8f0;
 }
 .chat-msg__meta { margin-bottom: 2px; }
 .chat-msg__name-btn {

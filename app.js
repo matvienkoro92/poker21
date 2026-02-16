@@ -1436,13 +1436,11 @@ function initChat() {
       reactionPickerEl.classList.add("chat-reaction-picker--hidden");
       reactionPickerEl.setAttribute("aria-hidden", "true");
       document.removeEventListener("click", closePicker);
-      document.removeEventListener("touchend", closePicker);
       currentReactionPickerClose = null;
     }
     currentReactionPickerClose = closePicker;
     setTimeout(function () {
       document.addEventListener("click", closePicker);
-      document.addEventListener("touchend", closePicker, { passive: true });
     }, 0);
   }
   document.body.addEventListener("click", function (e) {
@@ -1457,10 +1455,12 @@ function initChat() {
       showReactionPicker(addReactBtn);
     } else if (pickerEmoji) {
       e.preventDefault();
+      e.stopPropagation();
       var msgId = reactionPickerEl && reactionPickerEl.dataset.msgId;
       var source = reactionPickerEl && reactionPickerEl.dataset.source;
       var withId = reactionPickerEl && reactionPickerEl.dataset.with;
       if (msgId && pickerEmoji.dataset.emoji) {
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
         sendReaction(msgId, pickerEmoji.dataset.emoji, source || "general", withId || "");
         if (currentReactionPickerClose) {
           currentReactionPickerClose();
@@ -1582,10 +1582,11 @@ function initChat() {
     var prevScrollHeight = generalMessages.scrollHeight;
     var wasNearBottom = prevScrollHeight - prevScrollTop - generalMessages.clientHeight < 80;
     generalMessages.innerHTML = html;
-    if (wasNearBottom || generalMessages.scrollHeight <= generalMessages.clientHeight) {
+    var maxScroll = generalMessages.scrollHeight - generalMessages.clientHeight;
+    if (wasNearBottom || maxScroll <= 0) {
       generalMessages.scrollTop = generalMessages.scrollHeight;
     } else {
-      generalMessages.scrollTop = generalMessages.scrollHeight - (prevScrollHeight - prevScrollTop);
+      generalMessages.scrollTop = Math.min(prevScrollTop, Math.max(0, maxScroll));
     }
     generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -1912,10 +1913,11 @@ function initChat() {
     var prevScrollHeight = messagesEl.scrollHeight;
     var wasNearBottom = prevScrollHeight - prevScrollTop - messagesEl.clientHeight < 80;
     messagesEl.innerHTML = html;
-    if (wasNearBottom || messagesEl.scrollHeight <= messagesEl.clientHeight) {
+    var maxScrollP = messagesEl.scrollHeight - messagesEl.clientHeight;
+    if (wasNearBottom || maxScrollP <= 0) {
       messagesEl.scrollTop = messagesEl.scrollHeight;
     } else {
-      messagesEl.scrollTop = messagesEl.scrollHeight - (prevScrollHeight - prevScrollTop);
+      messagesEl.scrollTop = Math.min(prevScrollTop, Math.max(0, maxScrollP));
     }
     messagesEl.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
       btn.addEventListener("click", function () {
