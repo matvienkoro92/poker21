@@ -200,6 +200,10 @@
               </div>
             </div>
             <div class="chat-general-view" id="chatGeneralView">
+              <div class="chat-stats-block" id="chatGeneralStatsBlock">
+                <span class="chat-stats-block__title">Чат клуба</span>
+                <span class="chat-stats-block__stats" id="chatGeneralStats" aria-live="polite">Участников: — • Онлайн: —</span>
+              </div>
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
               </div>
@@ -216,6 +220,10 @@
             </div>
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
               <div class="chat-list-view" id="chatListView">
+                <div class="chat-stats-block" id="chatPersonalListStatsBlock">
+                  <span class="chat-stats-block__title">Личные сообщения</span>
+                  <span class="chat-stats-block__stats" id="chatPersonalListStats" aria-live="polite">Контактов: — • Онлайн: —</span>
+                </div>
                 <div class="chat-find-by-id">
                   <input type="text" class="chat-input chat-find-input" id="chatFindByIdInput" placeholder="ID123456 — написать по ID" maxlength="10" autocomplete="off" />
                   <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtn">Найти</button>
@@ -229,6 +237,9 @@
                 <button type="button" class="chat-back-btn" id="chatBackBtn">← Назад</button>
                 <h2 class="chat-title--small" id="chatConvTitle">Чат</h2>
                 <div class="chat-container">
+                  <div class="chat-stats-block" id="chatPersonalConvStatsBlock">
+                    <span class="chat-stats-block__stats" id="chatPersonalConvStats" aria-live="polite">Участников: — • Онлайн: —</span>
+                  </div>
                   <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
                     <p class="chat-empty">Загрузка...</p>
                   </div>

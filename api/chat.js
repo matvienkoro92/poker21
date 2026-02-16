@@ -14,6 +14,8 @@ const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_ID || "388008256,2144406710,505325
   .filter(Boolean);
 const GENERAL_KEY = "poker_app:chat_messages";
 const BLOCKED_KEY = "poker_app:chat_blocked";
+const CHAT_ONLINE_KEY = "poker_app:chat_online";
+const ONLINE_TTL_MS = 5 * 60 * 1000; // 5 минут
 const DT_IDS_KEY = "poker_app:visitor_dt_ids";
 const AVATAR_PREFIX = "poker_app:avatar:";
 const MAX_MESSAGES = 100;
@@ -211,8 +213,18 @@ module.exports = async function handler(req, res) {
     const mode = req.query.mode || body.mode;
 
     if (withId) {
-      const key = convKey(myId, withId);
-      const results = await redisPipeline([["LRANGE", key, "0", String(MAX_MESSAGES - 1)]]);
+      const otherId = withId.startsWith("tg_") ? withId : "tg_" + withId;
+      const key = convKey(myId, otherId);
+      const now = Date.now();
+      const minScore = now - ONLINE_TTL_MS;
+      const pipeline = [
+        ["LRANGE", key, "0", String(MAX_MESSAGES - 1)],
+        ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
+        ["ZREMRANGEBYSCORE", CHAT_ONLINE_KEY, "-inf", String(minScore)],
+        ["ZSCORE", CHAT_ONLINE_KEY, myId],
+        ["ZSCORE", CHAT_ONLINE_KEY, otherId],
+      ];
+      const results = await redisPipeline(pipeline);
       const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
       const messages = (Array.isArray(raw) ? raw : [])
         .map((s) => {
@@ -226,12 +238,18 @@ module.exports = async function handler(req, res) {
         .reverse();
       const seen = new Set();
       const deduped = messages.filter((m) => {
-        const key = m.id || (m.from + "|" + (m.time || "") + "|" + (m.text || ""));
-        if (seen.has(key)) return false;
-        seen.add(key);
+        const k = m.id || (m.from + "|" + (m.time || "") + "|" + (m.text || ""));
+        if (seen.has(k)) return false;
+        seen.add(k);
         return true;
       });
       const fromIds = [...new Set(deduped.map((m) => m.from).filter(Boolean))];
+      const participantsCount = fromIds.length;
+      const myScore = results && results[3] && results[3].result != null ? parseFloat(results[3].result) : 0;
+      const otherScore = results && results[4] && results[4].result != null ? parseFloat(results[4].result) : 0;
+      let onlineCount = 0;
+      if (fromIds.includes(myId) && myScore >= minScore) onlineCount++;
+      if (fromIds.includes(otherId) && otherScore >= minScore) onlineCount++;
       const [dtIdsMap, avatarsMap] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds)]);
       deduped.forEach((m) => {
         if (m.from) {
@@ -240,16 +258,24 @@ module.exports = async function handler(req, res) {
           m.fromAdmin = isAdmin(m.from);
         }
       });
-      return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin });
+      return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin, participantsCount, onlineCount });
     }
 
     if (mode === "general") {
-      const [msgResults, blockedResults] = await Promise.all([
+      const now = Date.now();
+      const minScore = now - ONLINE_TTL_MS;
+      const [msgResults, blockedResults, onlineResults] = await Promise.all([
         redisPipeline([["LRANGE", GENERAL_KEY, "0", String(MAX_MESSAGES - 1)]]),
         redisPipeline([["SMEMBERS", BLOCKED_KEY]]),
+        redisPipeline([
+          ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
+          ["ZREMRANGEBYSCORE", CHAT_ONLINE_KEY, "-inf", String(minScore)],
+          ["ZCOUNT", CHAT_ONLINE_KEY, String(minScore), "+inf"],
+        ]),
       ]);
       const raw = msgResults && msgResults[0] && msgResults[0].result !== undefined ? msgResults[0].result : [];
       const blockedSet = new Set(Array.isArray(blockedResults?.[0]?.result) ? blockedResults[0].result : []);
+      const onlineCount = (onlineResults && onlineResults[2] && typeof onlineResults[2].result === "number") ? onlineResults[2].result : 0;
       const messages = (Array.isArray(raw) ? raw : [])
         .map((s) => {
           try {
@@ -268,7 +294,9 @@ module.exports = async function handler(req, res) {
         seen.add(key);
         return true;
       });
-      const fromIds = [...new Set(deduped.map((m) => m.from).filter(Boolean))];
+      const participantsSet = new Set(deduped.map((m) => m.from).filter(Boolean));
+      const participantsCount = participantsSet.size;
+      const fromIds = [...participantsSet];
       const [dtIds, avatars] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds)]);
       deduped.forEach((m) => {
         if (m.from) {
@@ -277,20 +305,38 @@ module.exports = async function handler(req, res) {
           m.fromAdmin = isAdmin(m.from);
         }
       });
-      return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin });
+      return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin, participantsCount, onlineCount });
     }
 
+    const now = Date.now();
+    const minScore = now - ONLINE_TTL_MS;
     const results = await redisPipeline([
       ["SMEMBERS", "poker_app:visitors"],
       ["HGETALL", "poker_app:visitor_usernames"],
       ["SMEMBERS", "poker_app:chat_partners:" + myId],
+      ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
+      ["ZREMRANGEBYSCORE", CHAT_ONLINE_KEY, "-inf", String(minScore)],
     ]);
     if (!results || !Array.isArray(results) || results.length < 1) {
-      return res.status(200).json({ ok: true, contacts: [], isAdmin: admin });
+      return res.status(200).json({ ok: true, contacts: [], isAdmin: admin, participantsCount: 0, onlineCount: 0 });
     }
     const visitors = Array.isArray(results[0]?.result) ? results[0].result : [];
     const usernamesRaw = results[1]?.result;
     const partners = Array.isArray(results[2]?.result) ? results[2].result : [];
+
+    const partnerIds = partners.filter((id) => id.startsWith("tg_") && id !== myId);
+    let onlineCount = 0;
+    if (partnerIds.length > 0) {
+      const scoreCmds = partnerIds.flatMap((id) => [["ZSCORE", CHAT_ONLINE_KEY, id]]);
+      const scoreResults = await redisPipeline(scoreCmds);
+      if (scoreResults && Array.isArray(scoreResults)) {
+        partnerIds.forEach((_, i) => {
+          const s = scoreResults[i]?.result;
+          if (s != null && parseFloat(s) >= minScore) onlineCount++;
+        });
+      }
+    }
+    const participantsCount = partnerIds.length;
 
     let usernames = {};
     if (Array.isArray(usernamesRaw)) {
@@ -301,7 +347,6 @@ module.exports = async function handler(req, res) {
       usernames = usernamesRaw;
     }
 
-    const partnerIds = partners.filter((id) => id.startsWith("tg_") && id !== myId);
     const [dtIds, avatars] = await Promise.all([getDtIds(partnerIds), getAvatars(partnerIds)]);
     const contacts = partnerIds.map((id) => ({
       id,
@@ -309,7 +354,7 @@ module.exports = async function handler(req, res) {
       dtId: dtIds[id] || null,
       avatar: avatars[id] || null,
     }));
-    return res.status(200).json({ ok: true, contacts, isAdmin: admin });
+    return res.status(200).json({ ok: true, contacts, isAdmin: admin, participantsCount, onlineCount });
   }
 
   // POST
@@ -343,11 +388,13 @@ module.exports = async function handler(req, res) {
       ...(replyTo && replyTo.text ? { replyTo } : {}),
     };
 
+    const now = Date.now();
     const results = await redisPipeline([
       ["LPUSH", key, JSON.stringify(msg)],
       ["LTRIM", key, "0", String(MAX_MESSAGES - 1)],
       ["SADD", "poker_app:chat_partners:" + myId, otherId],
       ["SADD", "poker_app:chat_partners:" + otherId, myId],
+      ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
     ]);
 
     if (!results || results.some((r) => r && r.error)) {
@@ -378,9 +425,11 @@ module.exports = async function handler(req, res) {
     ...(replyTo && replyTo.text ? { replyTo } : {}),
   };
 
+  const now = Date.now();
   const results = await redisPipeline([
     ["LPUSH", GENERAL_KEY, JSON.stringify(msg)],
     ["LTRIM", GENERAL_KEY, "0", String(MAX_MESSAGES - 1)],
+    ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
   ]);
 
   if (!results || results.some((r) => r && r.error)) {

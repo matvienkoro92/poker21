@@ -284,6 +284,31 @@ body {
   gap: 12px;
   margin-top: 12px;
 }
+.chat-stats-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+}
+.chat-stats-block__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.chat-stats-block__stats {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.chat-stats {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
 .chat-messages {
   min-height: 200px;
   max-height: 50vh;

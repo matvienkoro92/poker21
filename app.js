@@ -1280,6 +1280,12 @@ function initChat() {
         } else if (latest && (!lastViewedGeneral || latest > lastViewedGeneral)) {
           window.chatGeneralUnread = true;
         }
+        var statsEl = document.getElementById("chatGeneralStats");
+        if (statsEl) {
+          var total = data.participantsCount != null ? data.participantsCount : "—";
+          var online = data.onlineCount != null ? data.onlineCount : "—";
+          statsEl.textContent = "Участников: " + total + " • Онлайн: " + online;
+        }
         if (isChatViewActive && chatActiveTab === "general" && !chatIsEditingMessage) renderGeneralMessages(messages);
         updateUnreadDots();
       }
@@ -1571,6 +1577,12 @@ function initChat() {
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.ok && Array.isArray(data.contacts)) {
         chatIsAdmin = !!data.isAdmin;
+        var listStatsEl = document.getElementById("chatPersonalListStats");
+        if (listStatsEl) {
+          var total = data.participantsCount != null ? data.participantsCount : "—";
+          var online = data.onlineCount != null ? data.onlineCount : "—";
+          listStatsEl.textContent = "Контактов: " + total + " • Онлайн: " + online;
+        }
         if (data.contacts.length === 0) {
           contactsEl.innerHTML = '<p class="chat-empty">Пока нет личных переписок. Напишите кому-то по ID выше или дождитесь ответа.</p>';
         } else {
@@ -1673,6 +1685,12 @@ function initChat() {
       if (data && data.ok) {
         if (data.isAdmin !== undefined) chatIsAdmin = !!data.isAdmin;
         var messages = data.messages || [];
+        var convStatsEl = document.getElementById("chatPersonalConvStats");
+        if (convStatsEl) {
+          var pt = data.participantsCount != null ? data.participantsCount : "—";
+          var ol = data.onlineCount != null ? data.onlineCount : "—";
+          convStatsEl.textContent = "Участников: " + pt + " • Онлайн: " + ol;
+        }
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
         if (isChatViewActive && chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) {
