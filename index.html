@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -8,7 +8,7 @@
       name="description"
       content="Приветственная страница покерного клуба «Два туза» в Telegram Mini App."
     />
-    <link rel="stylesheet" href="./styles.css?v=11" />
+    <link rel="stylesheet" href="./styles.css?v=12" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -44,9 +44,15 @@
               <div class="logo__subtitle">Poker Club</div>
             </div>
           </a>
-          <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
-            <img id="authUserAvatar" class="auth-user__avatar" alt="" />
-            <span id="authUserText"></span>
+          <div class="header-actions">
+            <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
+              <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
+              <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
+            </button>
+            <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
+              <img id="authUserAvatar" class="auth-user__avatar" alt="" />
+              <span id="authUserText"></span>
+            </div>
           </div>
         </header>
 
@@ -196,9 +202,10 @@
           <div class="view" data-view="chat">
             <div class="chat-header-row">
               <div class="chat-tabs-wrap">
-                <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general"><span class="chat-tab__label">Чат клуба</span><span class="chat-tab__dot" id="chatGeneralDot" aria-hidden="true"></span></button>
-                <button type="button" class="chat-tab" data-chat-tab="personal"><span class="chat-tab__label">Личные сообщения</span><span class="chat-tab__dot" id="chatPersonalDot" aria-hidden="true"></span></button>
+                <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general"><span class="chat-tab__label">Клуб</span><span class="chat-tab__dot" id="chatGeneralDot" aria-hidden="true"></span></button>
+                <button type="button" class="chat-tab" data-chat-tab="personal"><span class="chat-tab__label">ЛС</span><span class="chat-tab__dot" id="chatPersonalDot" aria-hidden="true"></span></button>
               </div>
+              <span class="chat-header-stats" id="chatHeaderStats" aria-live="polite"></span>
               <span class="chat-header-divider"></span>
               <div class="chat-admins-block">
                 <span class="chat-admins-label">Админы:</span>
@@ -206,18 +213,9 @@
                   <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">Анна</button>
                   <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика">Вика</button>
                 </div>
-                <span class="chat-admins-label">Админы в тг:</span>
-                <div class="chat-managers-inline">
-                  <a href="tg://user?id=2144406710" class="chat-manager-btn chat-manager-btn--compact chat-manager-btn--tg" target="_blank" rel="noopener">Анна <span class="chat-manager-btn__tg-icon" aria-hidden="true"></span></a>
-                  <a href="tg://user?id=1897001087" class="chat-manager-btn chat-manager-btn--compact chat-manager-btn--tg" target="_blank" rel="noopener">Вика <span class="chat-manager-btn__tg-icon" aria-hidden="true"></span></a>
-                </div>
               </div>
             </div>
             <div class="chat-general-view" id="chatGeneralView">
-              <div class="chat-stats-block" id="chatGeneralStatsBlock">
-                <span class="chat-stats-block__title">Чат клуба</span>
-                <span class="chat-stats-block__stats" id="chatGeneralStats" aria-live="polite">Участников: — • Онлайн: —</span>
-              </div>
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
               </div>
@@ -226,7 +224,10 @@
                   <div class="chat-reply-preview__text"></div>
                   <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
                 </div>
+                <div class="chat-image-preview" id="chatGeneralImagePreview"></div>
                 <div class="chat-input-wrap">
+                  <input type="file" class="chat-input-file" id="chatGeneralFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
+                  <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить картинку">📷</button>
                   <input type="text" class="chat-input" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" autocomplete="off" />
                   <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
                 </div>
@@ -234,10 +235,6 @@
             </div>
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
               <div class="chat-list-view" id="chatListView">
-                <div class="chat-stats-block" id="chatPersonalListStatsBlock">
-                  <span class="chat-stats-block__title">Личные сообщения</span>
-                  <span class="chat-stats-block__stats" id="chatPersonalListStats" aria-live="polite">Контактов: — • Онлайн: —</span>
-                </div>
                 <div class="chat-find-by-id">
                   <input type="text" class="chat-input chat-find-input" id="chatFindByIdInput" placeholder="ID123456 — написать по ID" maxlength="10" autocomplete="off" />
                   <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtn">Найти</button>
@@ -251,9 +248,6 @@
                 <button type="button" class="chat-back-btn" id="chatBackBtn">← Назад</button>
                 <h2 class="chat-title--small" id="chatConvTitle">Чат</h2>
                 <div class="chat-container">
-                  <div class="chat-stats-block" id="chatPersonalConvStatsBlock">
-                    <span class="chat-stats-block__stats" id="chatPersonalConvStats" aria-live="polite">Участников: — • Онлайн: —</span>
-                  </div>
                   <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
                     <p class="chat-empty">Загрузка...</p>
                   </div>
@@ -262,7 +256,10 @@
                       <div class="chat-reply-preview__text"></div>
                       <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
                     </div>
+                    <div class="chat-image-preview" id="chatPersonalImagePreview"></div>
                     <div class="chat-input-wrap">
+                      <input type="file" class="chat-input-file" id="chatPersonalFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
+                      <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить картинку">📷</button>
                       <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." maxlength="500" autocomplete="off" />
                       <button type="button" class="chat-send-btn" id="chatSendBtn">Отправить</button>
                     </div>

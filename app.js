@@ -1,3 +1,18 @@
+// Темы: тёмная / светлая
+(function initTheme() {
+  var stored = localStorage.getItem("poker_theme");
+  var theme = stored === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+  var btn = document.getElementById("themeToggle");
+  if (btn) {
+    btn.addEventListener("click", function () {
+      theme = theme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("poker_theme", theme);
+    });
+  }
+})();
+
 // Инициализация Telegram WebApp (если открыто внутри Telegram)
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
@@ -1238,6 +1253,18 @@ function initChat() {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  window.lastGeneralStats = "";
+  window.lastListStats = "";
+  window.lastConvStats = "";
+  function updateChatHeaderStats() {
+    var el = document.getElementById("chatHeaderStats");
+    if (!el) return;
+    var txt = "";
+    if (chatActiveTab === "general") txt = window.lastGeneralStats || "";
+    else if (chatWithUserId && convView && !convView.classList.contains("chat-conv-view--hidden")) txt = window.lastConvStats || "";
+    else txt = window.lastListStats || "";
+    el.textContent = txt;
+  }
   function setTab(tab) {
     chatActiveTab = tab;
     tabs.forEach(function (t) {
@@ -1251,6 +1278,7 @@ function initChat() {
       if (chatWithUserId) loadMessages();
       else loadContacts();
     }
+    updateChatHeaderStats();
     updateUnreadDots();
   }
 
@@ -1282,12 +1310,10 @@ function initChat() {
         } else {
           window.chatGeneralUnread = false;
         }
-        var statsEl = document.getElementById("chatGeneralStats");
-        if (statsEl) {
-          var total = data.participantsCount != null ? data.participantsCount : "—";
-          var online = data.onlineCount != null ? data.onlineCount : "—";
-          statsEl.textContent = "Участников: " + total + " • Онлайн: " + online;
-        }
+        var total = data.participantsCount != null ? data.participantsCount : "—";
+        var online = data.onlineCount != null ? data.onlineCount : "—";
+        window.lastGeneralStats = total + " уч · " + online + " онл";
+        updateChatHeaderStats();
         if (isChatViewActive && chatActiveTab === "general" && !chatIsEditingMessage) renderGeneralMessages(messages);
         updateUnreadDots();
       }
@@ -1296,8 +1322,38 @@ function initChat() {
 
   var generalReplyTo = null;
   var personalReplyTo = null;
+  var generalImage = null;
+  var personalImage = null;
   var chatCtxMsg = null;
   var chatCtxSource = null;
+
+  function resizeImage(file, maxW, maxH, quality) {
+    maxW = maxW || 800; maxH = maxH || 800; quality = quality || 0.8;
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var w = img.width, h = img.height;
+        if (w > maxW || h > maxH) {
+          if (w > h) { h = Math.round(h * maxW / w); w = maxW; } else { w = Math.round(w * maxH / h); h = maxH; }
+        }
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(url); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        try {
+          var dataUrl = canvas.toDataURL("image/jpeg", quality);
+          if (dataUrl.length > 250000) {
+            resolve(canvas.toDataURL("image/jpeg", 0.6));
+          } else resolve(dataUrl);
+        } catch (e) { reject(e); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Не удалось загрузить")); };
+      img.src = url;
+    });
+  }
 
   function renderGeneralMessages(messages) {
     if (!messages || messages.length === 0) {
@@ -1310,8 +1366,9 @@ function initChat() {
       var dataAttrs = chatIsAdmin && !isOwn && m.id ? ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
-      var editBtn = isOwn && m.id ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
+      var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var blockBtn = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
@@ -1320,7 +1377,8 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStr = escapeHtml(m.fromName || "Игрок") + dtBadge;
       var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>';
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + '<div class="chat-msg__text">' + text + '</div><div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div></div></div></div>';
+      var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div></div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
@@ -1539,11 +1597,12 @@ function initChat() {
   var sendingGeneral = false;
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
-    if (!text || !initData || sendingGeneral) return;
+    if ((!text && !generalImage) || !initData || sendingGeneral) return;
     if (!initData) { if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram."); return; }
     sendingGeneral = true;
     if (generalSendBtn) generalSendBtn.disabled = true;
     var body = { initData: initData, text: text };
+    if (generalImage) body.image = generalImage;
     if (generalReplyTo) body.replyTo = generalReplyTo;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -1554,8 +1613,11 @@ function initChat() {
       if (generalSendBtn) generalSendBtn.disabled = false;
       if (generalInput) generalInput.value = "";
       generalReplyTo = null;
+      generalImage = null;
       var prevEl = document.getElementById("chatGeneralReplyPreview");
       if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
+      var imgPrev = document.getElementById("chatGeneralImagePreview");
+      if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
       if (data && data.ok) loadGeneral();
       else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
     }).catch(function () { sendingGeneral = false; if (generalSendBtn) generalSendBtn.disabled = false; });
@@ -1565,6 +1627,7 @@ function initChat() {
     chatWithUserId = null;
     if (listView) listView.classList.remove("chat-list-view--hidden");
     if (convView) convView.classList.add("chat-conv-view--hidden");
+    updateChatHeaderStats();
     loadContacts();
   }
 
@@ -1572,11 +1635,15 @@ function initChat() {
     chatWithUserId = userId;
     chatWithUserName = userName || userId;
     personalReplyTo = null;
+    personalImage = null;
     var prevP = document.getElementById("chatPersonalReplyPreview");
     if (prevP) { prevP.classList.remove("chat-reply-preview--visible"); prevP.querySelector(".chat-reply-preview__text").textContent = ""; }
+    var imgP = document.getElementById("chatPersonalImagePreview");
+    if (imgP) { imgP.classList.remove("chat-image-preview--visible"); imgP.innerHTML = ""; }
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     if (convTitle) convTitle.textContent = userName || userId;
+    updateChatHeaderStats();
     loadMessages();
   }
 
@@ -1586,12 +1653,10 @@ function initChat() {
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.ok && Array.isArray(data.contacts)) {
         chatIsAdmin = !!data.isAdmin;
-        var listStatsEl = document.getElementById("chatPersonalListStats");
-        if (listStatsEl) {
-          var total = data.participantsCount != null ? data.participantsCount : "—";
-          var online = data.onlineCount != null ? data.onlineCount : "—";
-          listStatsEl.textContent = "Контактов: " + total + " • Онлайн: " + online;
-        }
+        var total = data.participantsCount != null ? data.participantsCount : "—";
+        var online = data.onlineCount != null ? data.onlineCount : "—";
+        window.lastListStats = total + " конт · " + online + " онл";
+        updateChatHeaderStats();
         if (data.contacts.length === 0) {
           contactsEl.innerHTML = '<p class="chat-empty">Пока нет личных переписок. Напишите кому-то по ID выше или дождитесь ответа.</p>';
         } else {
@@ -1620,14 +1685,16 @@ function initChat() {
       var dataAttrs = chatIsAdmin && !isOwn && m.id ? ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
-      var editBtn = isOwn && m.id ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
+      var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + editBtn + delBtn + '</span>' + adminBadge + '</div>' + replyBlock + '<div class="chat-msg__text">' + text + '</div><div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div></div></div></div>';
+      var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + editBtn + delBtn + '</span>' + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div></div></div></div>';
     }).join("");
     var prevScrollTop = messagesEl.scrollTop;
     var prevScrollHeight = messagesEl.scrollHeight;
@@ -1694,12 +1761,10 @@ function initChat() {
       if (data && data.ok) {
         if (data.isAdmin !== undefined) chatIsAdmin = !!data.isAdmin;
         var messages = data.messages || [];
-        var convStatsEl = document.getElementById("chatPersonalConvStats");
-        if (convStatsEl) {
-          var pt = data.participantsCount != null ? data.participantsCount : "—";
-          var ol = data.onlineCount != null ? data.onlineCount : "—";
-          convStatsEl.textContent = "Участников: " + pt + " • Онлайн: " + ol;
-        }
+        var pt = data.participantsCount != null ? data.participantsCount : "—";
+        var ol = data.onlineCount != null ? data.onlineCount : "—";
+        window.lastConvStats = pt + " уч · " + ol + " онл";
+        updateChatHeaderStats();
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
         if (isChatViewActive && chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) {
@@ -1717,10 +1782,11 @@ function initChat() {
   var sendingPrivate = false;
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
-    if (!text || !chatWithUserId || !initData || sendingPrivate) return;
+    if ((!text && !personalImage) || !chatWithUserId || !initData || sendingPrivate) return;
     sendingPrivate = true;
     if (sendBtn) sendBtn.disabled = true;
     var body = { initData: initData, with: chatWithUserId, text: text };
+    if (personalImage) body.image = personalImage;
     if (personalReplyTo) body.replyTo = personalReplyTo;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -1731,8 +1797,11 @@ function initChat() {
       if (sendBtn) sendBtn.disabled = false;
       if (inputEl) inputEl.value = "";
       personalReplyTo = null;
+      personalImage = null;
       var prevEl = document.getElementById("chatPersonalReplyPreview");
       if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
+      var imgPrev = document.getElementById("chatPersonalImagePreview");
+      if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
       if (data && data.ok) loadMessages();
       else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
     }).catch(function () { sendingPrivate = false; if (sendBtn) sendBtn.disabled = false; });
@@ -1811,6 +1880,28 @@ function initChat() {
         if (e.key === "Enter") { e.preventDefault(); findByIdAndOpen(); }
       });
     }
+    var generalFileInput = document.getElementById("chatGeneralFileInput");
+    var generalAttachBtn = document.getElementById("chatGeneralAttachBtn");
+    var generalImagePreview = document.getElementById("chatGeneralImagePreview");
+    if (generalAttachBtn && generalFileInput) {
+      generalAttachBtn.addEventListener("click", function () { generalFileInput.click(); });
+      generalFileInput.addEventListener("change", function () {
+        var f = generalFileInput.files && generalFileInput.files[0];
+        if (!f || !f.type.startsWith("image/")) return;
+        resizeImage(f).then(function (dataUrl) {
+          generalImage = dataUrl;
+          if (generalImagePreview) {
+            generalImagePreview.innerHTML = '<img class="chat-image-preview__thumb" src="' + dataUrl.replace(/"/g, "&quot;") + '" alt="" /><button type="button" class="chat-image-preview__remove">Убрать</button>';
+            generalImagePreview.classList.add("chat-image-preview--visible");
+            generalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
+              generalImage = null; generalFileInput.value = "";
+              generalImagePreview.classList.remove("chat-image-preview--visible"); generalImagePreview.innerHTML = "";
+            });
+          }
+        }).catch(function () { if (tg && tg.showAlert) tg.showAlert("Не удалось обработать изображение"); });
+        generalFileInput.value = "";
+      });
+    }
     if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
     if (generalInput) generalInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendGeneral(); }
@@ -1821,6 +1912,28 @@ function initChat() {
       var p = document.getElementById("chatGeneralReplyPreview");
       if (p) { p.classList.remove("chat-reply-preview--visible"); p.querySelector(".chat-reply-preview__text").textContent = ""; }
     });
+    var personalFileInput = document.getElementById("chatPersonalFileInput");
+    var personalAttachBtn = document.getElementById("chatPersonalAttachBtn");
+    var personalImagePreview = document.getElementById("chatPersonalImagePreview");
+    if (personalAttachBtn && personalFileInput) {
+      personalAttachBtn.addEventListener("click", function () { personalFileInput.click(); });
+      personalFileInput.addEventListener("change", function () {
+        var f = personalFileInput.files && personalFileInput.files[0];
+        if (!f || !f.type.startsWith("image/")) return;
+        resizeImage(f).then(function (dataUrl) {
+          personalImage = dataUrl;
+          if (personalImagePreview) {
+            personalImagePreview.innerHTML = '<img class="chat-image-preview__thumb" src="' + dataUrl.replace(/"/g, "&quot;") + '" alt="" /><button type="button" class="chat-image-preview__remove">Убрать</button>';
+            personalImagePreview.classList.add("chat-image-preview--visible");
+            personalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
+              personalImage = null; personalFileInput.value = "";
+              personalImagePreview.classList.remove("chat-image-preview--visible"); personalImagePreview.innerHTML = "";
+            });
+          }
+        }).catch(function () { if (tg && tg.showAlert) tg.showAlert("Не удалось обработать изображение"); });
+        personalFileInput.value = "";
+      });
+    }
     if (sendBtn) sendBtn.addEventListener("click", sendMessage);
     if (inputEl) inputEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }

@@ -360,6 +360,11 @@ module.exports = async function handler(req, res) {
   // POST
   const withId = body.with || body.to || body.userId;
   const text = (body.text || body.message || "").trim();
+  let image = body.image;
+  if (image && typeof image === "string") {
+    const m = image.match(/^data:image\/(jpeg|jpg|png|gif|webp);base64,(.+)$/);
+    image = m && m[2] && m[2].length < 250000 ? image : null;
+  }
   const replyTo = body.replyTo && typeof body.replyTo === "object" ? {
     id: body.replyTo.id || null,
     text: String(body.replyTo.text || "").slice(0, 500),
@@ -367,8 +372,11 @@ module.exports = async function handler(req, res) {
     fromName: String(body.replyTo.fromName || "Игрок").slice(0, 100),
   } : null;
 
-  if (!text || text.length > 500) {
-    return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов" });
+  if ((!text || text.length > 500) && !image) {
+    return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов или картинка" });
+  }
+  if (text && text.length > 500) {
+    return res.status(400).json({ ok: false, error: "Текст до 500 символов" });
   }
 
   if (withId) {
@@ -383,8 +391,9 @@ module.exports = async function handler(req, res) {
       from: myId,
       fromName: user.firstName || (user.username ? "@" + user.username : "Игрок"),
       fromDtId: dtIdsForMsg[myId] || null,
-      text,
+      text: text || "",
       time: new Date().toISOString(),
+      ...(image ? { image } : {}),
       ...(replyTo && replyTo.text ? { replyTo } : {}),
     };
 
@@ -420,8 +429,9 @@ module.exports = async function handler(req, res) {
     from: myId,
     fromName: user.firstName || (user.username ? "@" + user.username : "Игрок"),
     fromDtId: dtIds[myId] || null,
-    text,
+    text: text || "",
     time: new Date().toISOString(),
+    ...(image ? { image } : {}),
     ...(replyTo && replyTo.text ? { replyTo } : {}),
   };
 
