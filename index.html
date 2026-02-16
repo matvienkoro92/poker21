@@ -44,7 +44,10 @@
               <div class="logo__subtitle">Poker Club</div>
             </div>
           </a>
-          <p class="auth-user auth-user--hidden" id="authUser" aria-live="polite"></p>
+          <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
+            <img id="authUserAvatar" class="auth-user__avatar" alt="" />
+            <span id="authUserText"></span>
+          </div>
         </header>
 
         <section class="card__content">
@@ -154,26 +157,44 @@
             </div>
           </div>
 
-          <!-- Чат -->
+          <!-- Чат: общий + личные -->
           <div class="view" data-view="chat">
-            <h1 class="title chat-title">Чат клуба</h1>
-            <p class="subtitle chat-subtitle">Общайтесь с участниками клуба</p>
-            <div class="chat-container">
-              <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
-                <p class="chat-empty" id="chatEmpty">Загрузка...</p>
+            <div class="chat-tabs">
+              <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general">Общий чат</button>
+              <button type="button" class="chat-tab" data-chat-tab="personal">Личные</button>
+            </div>
+            <div class="chat-general-view" id="chatGeneralView">
+              <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
+                <p class="chat-empty">Загрузка...</p>
               </div>
               <div class="chat-input-wrap">
-                <input
-                  type="text"
-                  class="chat-input"
-                  id="chatInput"
-                  placeholder="Написать сообщение..."
-                  maxlength="500"
-                  autocomplete="off"
-                />
-                <button type="button" class="chat-send-btn" id="chatSendBtn" aria-label="Отправить">
-                  Отправить
-                </button>
+                <input type="text" class="chat-input" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" autocomplete="off" />
+                <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
+              </div>
+            </div>
+            <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
+              <div class="chat-list-view" id="chatListView">
+                <div class="chat-find-by-id">
+                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInput" placeholder="ID123456 — написать по ID" maxlength="10" autocomplete="off" />
+                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtn">Найти</button>
+                </div>
+                <p class="subtitle chat-subtitle">Выберите пользователя</p>
+                <div class="chat-contacts" id="chatContacts">
+                  <p class="chat-empty">Загрузка...</p>
+                </div>
+              </div>
+              <div class="chat-conv-view chat-conv-view--hidden" id="chatConvView">
+                <button type="button" class="chat-back-btn" id="chatBackBtn">← Назад</button>
+                <h2 class="chat-title--small" id="chatConvTitle">Чат</h2>
+                <div class="chat-container">
+                  <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
+                    <p class="chat-empty">Загрузка...</p>
+                  </div>
+                  <div class="chat-input-wrap">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." maxlength="500" autocomplete="off" />
+                    <button type="button" class="chat-send-btn" id="chatSendBtn">Отправить</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -539,15 +560,23 @@
             <p class="profile-greeting">
               Привет, <span id="profileUserName">имя</span>, здесь будет твой профиль со всеми твоими победами!
             </p>
+            <p class="profile-user-id">Ваш ID: <span id="profileUserId" aria-label="Ваш ID">—</span></p>
             <p class="profile-concept">
               Концепция ещё в разработке, но мы делаем всё очень быстро и я уверен, будет бомба!
             </p>
-            <div class="profile-image-wrap">
-              <img
-                src="./assets/profile-pokerist.png"
-                alt="Мультяшный покерист с покерным чемоданом"
-                class="profile-image"
-              />
+            <div class="profile-avatar-section">
+              <div class="profile-avatar-wrap">
+                <img
+                  id="profileAvatar"
+                  src="./assets/profile-pokerist.png"
+                  alt="Ваш аватар"
+                  class="profile-avatar"
+                />
+                <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
+                <button type="button" class="profile-avatar-btn" id="profileAvatarBtn">
+                  Загрузить аватар
+                </button>
+              </div>
             </div>
           </div>
 
@@ -602,7 +631,7 @@
         </button>
         <button type="button" class="bottom-nav__item" data-view-target="chat">
           <span class="bottom-nav__icon">💬</span>
-          <span class="bottom-nav__label">Чат</span>
+          <span class="bottom-nav__label">Сообщения</span>
         </button>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>

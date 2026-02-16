@@ -1,14 +1,27 @@
 /**
- * Чат клуба: GET — список сообщений, POST — отправить сообщение.
- * Redis: poker_app:chat_messages (LIST, до 100 сообщений).
- * Нужны: UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, TELEGRAM_BOT_TOKEN.
+ * Чат: общий для всех + личные сообщения.
+ * Админ (TELEGRAM_ADMIN_ID): удаляет сообщения в общем чате, пишет в личку любому.
+ * Redis: poker_app:chat_messages (общий), poker_app:chat:{id1}_{id2} (личные).
  */
 const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
-const CHAT_KEY = "poker_app:chat_messages";
+const ADMIN_ID = (process.env.TELEGRAM_ADMIN_ID || "388008256").toString().trim();
+const GENERAL_KEY = "poker_app:chat_messages";
+const DT_IDS_KEY = "poker_app:visitor_dt_ids";
 const MAX_MESSAGES = 100;
+
+function convKey(id1, id2) {
+  const a = String(id1).replace(/^tg_/, "");
+  const b = String(id2).replace(/^tg_/, "");
+  return "poker_app:chat:" + (a < b ? a + "_" + b : b + "_" + a);
+}
+
+function isAdmin(userId) {
+  const id = String(userId).replace(/^tg_/, "");
+  return id && ADMIN_ID && id === ADMIN_ID;
+}
 
 function validateUser(initData) {
   if (!initData || !BOT_TOKEN) return null;
@@ -30,23 +43,6 @@ function validateUser(initData) {
   }
 }
 
-async function redisCommand(cmd, ...args) {
-  if (!REDIS_URL || !REDIS_TOKEN) return null;
-  const base = String(REDIS_URL).replace(/\/$/, "");
-  const url = base + "/pipeline";
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${REDIS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify([[cmd, CHAT_KEY, ...args].filter((x) => x !== undefined)]),
-  });
-  if (!res.ok) return null;
-  const data = await res.json().catch(() => null);
-  return data && data[0] ? data[0].result : null;
-}
-
 async function redisPipeline(commands) {
   if (!REDIS_URL || !REDIS_TOKEN) return null;
   const base = String(REDIS_URL).replace(/\/$/, "");
@@ -62,13 +58,36 @@ async function redisPipeline(commands) {
   return res.json();
 }
 
+async function getDtIds(userIds) {
+  if (!userIds || userIds.length === 0) return {};
+  const cmds = userIds.map((id) => ["HGET", DT_IDS_KEY, id]);
+  const res = await redisPipeline(cmds);
+  const out = {};
+  if (res && Array.isArray(res)) {
+    userIds.forEach((id, i) => {
+      const v = res[i] && res[i].result ? String(res[i].result).trim() : null;
+      if (v) out[id] = v;
+    });
+  }
+  return out;
+}
+
+async function sendTelegram(toChatId, text) {
+  if (!BOT_TOKEN || !toChatId) return;
+  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: String(toChatId), text, disable_web_page_preview: true }),
+  });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "GET" && req.method !== "POST") {
+  if (req.method !== "GET" && req.method !== "POST" && req.method !== "DELETE") {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
@@ -76,53 +95,185 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ ok: false, error: "Redis not configured" });
   }
 
-  if (req.method === "GET") {
-    const raw = await redisCommand("LRANGE", "0", String(MAX_MESSAGES - 1));
-    const list = Array.isArray(raw) ? raw : [];
-    const messages = list
-      .map((s) => {
-        try {
-          return typeof s === "string" ? JSON.parse(s) : null;
-        } catch (e) {
-          return null;
-        }
-      })
-      .filter(Boolean)
-      .reverse();
-    return res.status(200).json({ ok: true, messages });
+  let body;
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+  } catch (e) {
+    body = {};
   }
 
-  if (req.method === "POST") {
-    let body;
-    try {
-      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
-    } catch (e) {
-      return res.status(400).json({ ok: false, error: "Invalid JSON" });
+  const initData = req.query.initData || body.initData || body.init_data;
+  const user = validateUser(initData);
+  if (!user) return res.status(401).json({ ok: false, error: "Откройте приложение в Telegram" });
+
+  const myId = "tg_" + user.id;
+  const admin = isAdmin(myId);
+
+  // DELETE: админ удаляет сообщение из общего чата
+  if (req.method === "DELETE") {
+    const messageId = body.messageId || body.message_id || req.query.messageId;
+    if (!admin) return res.status(403).json({ ok: false, error: "Только для админа" });
+    if (!messageId) return res.status(400).json({ ok: false, error: "messageId обязателен" });
+
+    const results = await redisPipeline([["LRANGE", GENERAL_KEY, "0", "-1"]]);
+    const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
+    const list = Array.isArray(raw) ? raw : [];
+    const toRemove = list.find((s) => {
+      try {
+        const m = JSON.parse(s);
+        return m.id === messageId;
+      } catch (e) {
+        return false;
+      }
+    });
+    if (!toRemove) return res.status(404).json({ ok: false, error: "Сообщение не найдено" });
+
+    const results2 = await redisPipeline([["LREM", GENERAL_KEY, "0", toRemove]]);
+    if (!results2 || results2[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка удаления" });
+    return res.status(200).json({ ok: true, deleted: true });
+  }
+
+  // GET
+  if (req.method === "GET") {
+    const withId = req.query.with || req.query.other;
+    const mode = req.query.mode || body.mode;
+
+    if (withId) {
+      const key = convKey(myId, withId);
+      const results = await redisPipeline([["LRANGE", key, "0", String(MAX_MESSAGES - 1)]]);
+      const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
+      const messages = (Array.isArray(raw) ? raw : [])
+        .map((s) => {
+          try {
+            return typeof s === "string" ? JSON.parse(s) : null;
+          } catch (e) {
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .reverse();
+      const fromIds = [...new Set(messages.map((m) => m.from).filter(Boolean))];
+      const dtIdsMap = await getDtIds(fromIds);
+      messages.forEach((m) => {
+        if (m.from && dtIdsMap[m.from]) m.fromDtId = dtIdsMap[m.from];
+      });
+      return res.status(200).json({ ok: true, messages, isAdmin: admin });
     }
-    const initData = body.initData || body.init_data;
-    const text = (body.text || body.message || "").trim();
-    const user = validateUser(initData);
 
-    if (!user) return res.status(401).json({ ok: false, error: "Откройте приложение в Telegram" });
-    if (!text || text.length > 500) return res.status(400).json({ ok: false, error: "Сообщение от 1 до 500 символов" });
+    if (mode === "general") {
+      const results = await redisPipeline([["LRANGE", GENERAL_KEY, "0", String(MAX_MESSAGES - 1)]]);
+      const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
+      const messages = (Array.isArray(raw) ? raw : [])
+        .map((s) => {
+          try {
+            return typeof s === "string" ? JSON.parse(s) : null;
+          } catch (e) {
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .reverse();
+      const fromIds = [...new Set(messages.map((m) => m.from).filter(Boolean))];
+      const dtIds = await getDtIds(fromIds);
+      messages.forEach((m) => {
+        if (m.from && dtIds[m.from]) m.fromDtId = dtIds[m.from];
+      });
+      return res.status(200).json({ ok: true, messages, isAdmin: admin });
+    }
 
+    const results = await redisPipeline([
+      ["SMEMBERS", "poker_app:visitors"],
+      ["HGETALL", "poker_app:visitor_usernames"],
+      ["SMEMBERS", "poker_app:chat_partners:" + myId],
+    ]);
+    if (!results || !Array.isArray(results) || results.length < 1) {
+      return res.status(200).json({ ok: true, contacts: [], isAdmin: admin });
+    }
+    const visitors = Array.isArray(results[0]?.result) ? results[0].result : [];
+    const usernamesRaw = results[1]?.result;
+    const partners = Array.isArray(results[2]?.result) ? results[2].result : [];
+
+    let usernames = {};
+    if (Array.isArray(usernamesRaw)) {
+      for (let i = 0; i < usernamesRaw.length; i += 2) {
+        if (usernamesRaw[i] && usernamesRaw[i + 1]) usernames[usernamesRaw[i]] = String(usernamesRaw[i + 1]).trim();
+      }
+    } else if (usernamesRaw && typeof usernamesRaw === "object") {
+      usernames = usernamesRaw;
+    }
+
+    const tgVisitors = visitors.filter((id) => id.startsWith("tg_") && id !== myId);
+    const partnerSet = new Set(partners);
+    const dtIds = await getDtIds(tgVisitors);
+    const contacts = tgVisitors.map((id) => ({
+      id,
+      name: usernames[id] ? "@" + usernames[id] : id,
+      isPartner: partnerSet.has(id),
+      dtId: dtIds[id] || null,
+    }));
+    const sorted = contacts.sort((a, b) => (b.isPartner ? 1 : 0) - (a.isPartner ? 1 : 0));
+    return res.status(200).json({ ok: true, contacts: sorted, isAdmin: admin });
+  }
+
+  // POST
+  const withId = body.with || body.to || body.userId;
+  const text = (body.text || body.message || "").trim();
+
+  if (!text || text.length > 500) {
+    return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов" });
+  }
+
+  if (withId) {
+    const otherId = withId.startsWith("tg_") ? withId : "tg_" + withId;
+    if (otherId === myId) return res.status(400).json({ ok: false, error: "Нельзя отправить себе" });
+
+    const key = convKey(myId, otherId);
+    const dtIdsForMsg = await getDtIds([myId]);
     const msg = {
-      id: Date.now() + "_" + Math.random().toString(36).slice(2, 9),
-      userId: user.id,
-      userName: user.firstName || ("@" + user.username) || "Игрок",
-      username: user.username || null,
-      text: text,
+      from: myId,
+      fromName: admin ? "Админ" : (user.firstName || (user.username ? "@" + user.username : "Игрок")),
+      fromDtId: dtIdsForMsg[myId] || null,
+      text,
       time: new Date().toISOString(),
     };
 
     const results = await redisPipeline([
-      ["LPUSH", CHAT_KEY, JSON.stringify(msg)],
-      ["LTRIM", CHAT_KEY, "0", String(MAX_MESSAGES - 1)],
+      ["LPUSH", key, JSON.stringify(msg)],
+      ["LTRIM", key, "0", String(MAX_MESSAGES - 1)],
+      ["SADD", "poker_app:chat_partners:" + myId, otherId],
+      ["SADD", "poker_app:chat_partners:" + otherId, myId],
     ]);
 
     if (!results || results.some((r) => r && r.error)) {
       return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
     }
+
+    const otherTgId = otherId.replace(/^tg_/, "");
+    if (otherTgId.match(/^\d+$/) && BOT_TOKEN) {
+      await sendTelegram(otherTgId, "💬 " + msg.fromName + ": " + text);
+    }
+
     return res.status(200).json({ ok: true, message: msg });
   }
+
+  const dtIds = await getDtIds([myId]);
+  const msgId = "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+  const msg = {
+    id: msgId,
+    from: myId,
+    fromName: admin ? "Админ" : (user.firstName || (user.username ? "@" + user.username : "Игрок")),
+    fromDtId: dtIds[myId] || null,
+    text,
+    time: new Date().toISOString(),
+  };
+
+  const results = await redisPipeline([
+    ["LPUSH", GENERAL_KEY, JSON.stringify(msg)],
+    ["LTRIM", GENERAL_KEY, "0", String(MAX_MESSAGES - 1)],
+  ]);
+
+  if (!results || results.some((r) => r && r.error)) {
+    return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
+  }
+  return res.status(200).json({ ok: true, message: msg });
 };

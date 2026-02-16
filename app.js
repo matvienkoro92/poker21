@@ -51,8 +51,10 @@ if (tg) {
 
   function showAuthorized(user) {
     if (userEl) {
-      userEl.textContent = user.first_name ? "Привет, " + user.first_name + "!" : "Вы вошли";
+      var textEl = userEl.querySelector("#authUserText");
+      if (textEl) textEl.textContent = user.first_name ? "Привет, " + user.first_name + "!" : "Вы вошли";
       userEl.classList.remove("auth-user--hidden");
+      loadHeaderAvatar();
     }
     if (banner) banner.classList.add("auth-banner--hidden");
   }
@@ -134,7 +136,11 @@ function setView(viewName) {
       footer.classList.add("card__footer--hidden");
     }
   }
-  if (viewName === "profile") updateProfileUserName();
+  if (viewName === "profile") {
+    updateProfileUserName();
+    updateProfileDtId();
+    initProfileAvatar();
+  }
   if (viewName === "bonus-game") initBonusGame();
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
@@ -151,6 +157,177 @@ function updateProfileUserName() {
   if (!el) return;
   var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   el.textContent = user && user.first_name ? user.first_name : "гость";
+}
+
+function updateProfileDtId() {
+  var el = document.getElementById("profileUserId");
+  if (!el) return;
+  var cached = sessionStorage.getItem("poker_dt_id");
+  if (cached) {
+    el.textContent = cached;
+    return;
+  }
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!base || !initData) {
+    el.textContent = "\u2014";
+    return;
+  }
+  el.textContent = "\u2026";
+  fetch(base + "/api/user-dt?initData=" + encodeURIComponent(initData))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.ok && data.dtId) {
+        sessionStorage.setItem("poker_dt_id", data.dtId);
+        el.textContent = data.dtId;
+      } else {
+        el.textContent = "\u2014";
+      }
+    })
+    .catch(function () { el.textContent = "\u2014"; });
+}
+
+function loadHeaderAvatar() {
+  var avatarEl = document.getElementById("authUserAvatar");
+  if (!avatarEl) return;
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!base || !initData) {
+    avatarEl.style.display = "none";
+    return;
+  }
+  fetch(base + "/api/avatar?initData=" + encodeURIComponent(initData))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.ok && data.avatar) {
+        avatarEl.src = data.avatar;
+        avatarEl.alt = "Аватар";
+        avatarEl.style.display = "";
+      } else {
+        avatarEl.removeAttribute("src");
+        avatarEl.style.display = "none";
+      }
+    })
+    .catch(function () {
+      avatarEl.style.display = "none";
+    });
+}
+
+function initProfileAvatar() {
+  var avatarEl = document.getElementById("profileAvatar");
+  var inputEl = document.getElementById("profileAvatarInput");
+  var btnEl = document.getElementById("profileAvatarBtn");
+  if (!avatarEl || !inputEl || !btnEl) return;
+
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!base) return;
+
+  function loadAvatar() {
+    var url = base + "/api/avatar";
+    if (initData) url += "?initData=" + encodeURIComponent(initData);
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && data.avatar) {
+          avatarEl.src = data.avatar;
+        } else {
+          avatarEl.src = "./assets/profile-pokerist.png";
+        }
+      })
+      .catch(function () {
+        avatarEl.src = "./assets/profile-pokerist.png";
+      });
+  }
+
+  function resizeImage(file, maxW, maxH, quality, cb) {
+    var img = new Image();
+    var canvas = document.createElement("canvas");
+    img.onload = function () {
+      var w = img.width, h = img.height;
+      if (w > maxW || h > maxH) {
+        var r = Math.min(maxW / w, maxH / h);
+        w = Math.round(w * r);
+        h = Math.round(h * r);
+      }
+      canvas.width = w;
+      canvas.height = h;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      try {
+        var dataUrl = canvas.toDataURL("image/jpeg", quality);
+        cb(dataUrl);
+      } catch (e) {
+        var reader = new FileReader();
+        reader.onload = function () { cb(reader.result); };
+        reader.readAsDataURL(file);
+      }
+    };
+    img.onerror = function () {
+      var reader = new FileReader();
+      reader.onload = function () { cb(reader.result); };
+      reader.readAsDataURL(file);
+    };
+    img.src = URL.createObjectURL(file);
+  }
+
+  btnEl.addEventListener("click", function () {
+    if (!initData) {
+      if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+      return;
+    }
+    inputEl.click();
+  });
+
+  inputEl.addEventListener("change", function () {
+    var file = inputEl.files && inputEl.files[0];
+    if (!file || !file.type.match(/^image\/(jpeg|png|webp)$/)) {
+      if (tg && tg.showAlert) tg.showAlert("Выберите изображение (JPG, PNG или WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      if (tg && tg.showAlert) tg.showAlert("Файл не более 5 МБ.");
+      return;
+    }
+    btnEl.disabled = true;
+    resizeImage(file, 200, 200, 0.8, function (dataUrl) {
+      var base64 = dataUrl.replace(/^data:image\/\w+;base64,/, "");
+      if (base64.length > 100000) {
+        resizeImage(file, 150, 150, 0.6, function (dataUrl2) {
+          uploadAvatar(dataUrl2);
+        });
+      } else {
+        uploadAvatar(dataUrl);
+      }
+    });
+
+    function uploadAvatar(dataUrl) {
+      fetch(base + "/api/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, image: dataUrl }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          btnEl.disabled = false;
+          inputEl.value = "";
+          if (data && data.ok && data.avatar) {
+            avatarEl.src = data.avatar;
+            loadHeaderAvatar();
+            if (tg && tg.showAlert) tg.showAlert("Аватар обновлён!");
+          } else {
+            if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка загрузки");
+          }
+        })
+        .catch(function () {
+          btnEl.disabled = false;
+          inputEl.value = "";
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+        });
+    }
+  });
+
+  loadAvatar();
 }
 
 navItems.forEach(function (item) {
@@ -1000,105 +1177,247 @@ function getVisitorId() {
   return id;
 }
 
-// Чат клуба
+// Чат: общий + личные сообщения
 var chatPollInterval = null;
+var chatWithUserId = null;
+var chatWithUserName = null;
+var chatActiveTab = "general";
+var chatIsAdmin = false;
 
 function initChat() {
+  var generalView = document.getElementById("chatGeneralView");
+  var personalView = document.getElementById("chatPersonalView");
+  var generalMessages = document.getElementById("chatGeneralMessages");
+  var generalInput = document.getElementById("chatGeneralInput");
+  var generalSendBtn = document.getElementById("chatGeneralSendBtn");
+  var listView = document.getElementById("chatListView");
+  var convView = document.getElementById("chatConvView");
+  var contactsEl = document.getElementById("chatContacts");
+  var findByIdInput = document.getElementById("chatFindByIdInput");
+  var findByIdBtn = document.getElementById("chatFindByIdBtn");
+  var backBtn = document.getElementById("chatBackBtn");
+  var convTitle = document.getElementById("chatConvTitle");
   var messagesEl = document.getElementById("chatMessages");
-  var emptyEl = document.getElementById("chatEmpty");
   var inputEl = document.getElementById("chatInput");
   var sendBtn = document.getElementById("chatSendBtn");
-  if (!messagesEl || !inputEl || !sendBtn) return;
+  var tabs = document.querySelectorAll(".chat-tab");
+  if (!generalView || !personalView || !generalMessages) return;
 
   var base = getApiBase();
   var initData = tg && tg.initData ? tg.initData : "";
   if (!base) {
-    if (emptyEl) { emptyEl.textContent = "Не задан адрес API."; }
+    generalMessages.innerHTML = "<p class=\"chat-empty\">Не задан адрес API.</p>";
     return;
   }
 
-  function renderMessages(messages) {
-    var userId = null;
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-      userId = tg.initDataUnsafe.user.id;
-    }
-    var html = "";
-    if (!messages || messages.length === 0) {
-      html = '<p class="chat-empty">Пока нет сообщений. Напишите первым!</p>';
-    } else {
-      html = messages.map(function (m) {
-        var isOwn = userId && String(m.userId) === String(userId);
-        var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
-        var name = m.userName || (m.username ? "@" + m.username : "Игрок");
-        var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
-        var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
-        return '<div class="' + cls + '"><div class="chat-msg__name">' + escapeHtml(name) + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div>';
-      }).join("");
-    }
-    messagesEl.innerHTML = html;
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
+  var myId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? "tg_" + tg.initDataUnsafe.user.id : null;
 
   function escapeHtml(s) {
     if (!s) return "";
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
-  function loadMessages() {
-    fetch(base + "/api/chat")
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data && data.ok && Array.isArray(data.messages)) {
-          renderMessages(data.messages);
-        } else if (emptyEl) {
-          emptyEl.textContent = "Нет сообщений";
-        }
-      })
-      .catch(function () {
-        if (emptyEl) emptyEl.textContent = "Ошибка загрузки";
-      });
+  function setTab(tab) {
+    chatActiveTab = tab;
+    tabs.forEach(function (t) {
+      t.classList.toggle("chat-tab--active", t.dataset.chatTab === tab);
+    });
+    generalView.style.display = tab === "general" ? "" : "none";
+    personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
+    if (tab === "general") loadGeneral();
+    else loadContacts();
   }
 
-  function sendMessage() {
-    var text = (inputEl.value || "").trim();
-    if (!text) return;
-    if (!initData) {
-      if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+  function loadGeneral() {
+    var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=general";
+    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      if (data && data.ok) {
+        chatIsAdmin = !!data.isAdmin;
+        renderGeneralMessages(data.messages || []);
+      }
+    }).catch(function () { generalMessages.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
+  }
+
+  function renderGeneralMessages(messages) {
+    if (!messages || messages.length === 0) {
+      generalMessages.innerHTML = '<p class="chat-empty">Нет сообщений. Напишите первым!</p>';
       return;
     }
-    sendBtn.disabled = true;
+    var html = messages.map(function (m) {
+      var isOwn = myId && m.from === myId;
+      var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
+      var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
+      var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var delBtn = chatIsAdmin && m.id ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
+      var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
+      return '<div class="' + cls + '"><div class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + delBtn + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div>';
+    }).join("");
+    generalMessages.innerHTML = html;
+    generalMessages.scrollTop = generalMessages.scrollHeight;
+    generalMessages.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.dataset.msgId;
+        if (!id) return;
+        fetch(base + "/api/chat", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, messageId: id }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.ok) loadGeneral();
+        });
+      });
+    });
+  }
+
+  function sendGeneral() {
+    var text = (generalInput && generalInput.value || "").trim();
+    if (!text || !initData) return;
+    if (!initData) { if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram."); return; }
+    if (generalSendBtn) generalSendBtn.disabled = true;
     fetch(base + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ initData: initData, text: text }),
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        sendBtn.disabled = false;
-        inputEl.value = "";
-        if (data && data.ok && data.message) {
-          loadMessages();
-        } else {
-          if (tg && tg.showAlert) tg.showAlert(data && data.error ? data.error : "Ошибка отправки");
-        }
-      })
-      .catch(function () {
-        sendBtn.disabled = false;
-        if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
-      });
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      if (generalSendBtn) generalSendBtn.disabled = false;
+      if (generalInput) generalInput.value = "";
+      if (data && data.ok) loadGeneral();
+      else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
+    }).catch(function () { if (generalSendBtn) generalSendBtn.disabled = false; });
   }
 
-  sendBtn.addEventListener("click", sendMessage);
-  inputEl.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  function showList() {
+    chatWithUserId = null;
+    if (listView) listView.classList.remove("chat-list-view--hidden");
+    if (convView) convView.classList.add("chat-conv-view--hidden");
+    loadContacts();
+  }
+
+  function showConv(userId, userName) {
+    chatWithUserId = userId;
+    chatWithUserName = userName || userId;
+    if (listView) listView.classList.add("chat-list-view--hidden");
+    if (convView) convView.classList.remove("chat-conv-view--hidden");
+    if (convTitle) convTitle.textContent = userName || userId;
+    loadMessages();
+  }
+
+  function loadContacts() {
+    if (!contactsEl) return;
+    var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=contacts";
+    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      if (data && data.ok && Array.isArray(data.contacts)) {
+        chatIsAdmin = !!data.isAdmin;
+        if (data.contacts.length === 0) {
+          contactsEl.innerHTML = '<p class="chat-empty">Пока нет других пользователей.</p>';
+        } else {
+          contactsEl.innerHTML = data.contacts.map(function (c) {
+            var dtSpan = c.dtId ? '<span class="chat-contact__dt">' + escapeHtml(c.dtId) + '</span>' : "";
+            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '"><span class="chat-contact__icon">💬</span><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '<span class="chat-contact__id">' + escapeHtml(c.id) + '</span></button>';
+          }).join("");
+          contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
+            btn.addEventListener("click", function () { showConv(btn.dataset.chatId, btn.dataset.chatName); });
+          });
+        }
+      }
+    }).catch(function () { contactsEl.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
+  }
+
+  function renderMessages(messages) {
+    if (!messagesEl) return;
+    if (!messages || messages.length === 0) {
+      messagesEl.innerHTML = '<p class="chat-empty">Нет сообщений.</p>';
+      return;
     }
+    var html = messages.map(function (m) {
+      var isOwn = myId && m.from === myId;
+      var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
+      var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
+      var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
+      return '<div class="' + cls + '"><div class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div>';
+    }).join("");
+    messagesEl.innerHTML = html;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function loadMessages() {
+    if (!chatWithUserId || !messagesEl) return;
+    var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&with=" + encodeURIComponent(chatWithUserId);
+    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      if (data && data.ok && Array.isArray(data.messages)) renderMessages(data.messages);
+    });
+  }
+
+  function sendMessage() {
+    var text = (inputEl && inputEl.value || "").trim();
+    if (!text || !chatWithUserId || !initData) return;
+    if (sendBtn) sendBtn.disabled = true;
+    fetch(base + "/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData, with: chatWithUserId, text: text }),
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      if (sendBtn) sendBtn.disabled = false;
+      if (inputEl) inputEl.value = "";
+      if (data && data.ok) loadMessages();
+      else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
+    }).catch(function () { if (sendBtn) sendBtn.disabled = false; });
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () { setTab(t.dataset.chatTab); });
+  });
+  if (backBtn) backBtn.addEventListener("click", showList);
+  if (findByIdBtn && findByIdInput) {
+    function findByIdAndOpen() {
+      var raw = (findByIdInput.value || "").trim().toUpperCase();
+      var id = raw.startsWith("ID") ? raw : "ID" + raw;
+      if (id.length !== 8 || !/^ID\d{6}$/.test(id)) {
+        if (tg && tg.showAlert) tg.showAlert("Введите ID в формате ID123456");
+        return;
+      }
+      findByIdBtn.disabled = true;
+      fetch(base + "/api/user-by-id?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          findByIdBtn.disabled = false;
+          findByIdInput.value = "";
+          if (data && data.ok && data.userId) {
+            showConv(data.userId, data.userName || data.userId);
+          } else {
+            if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+          }
+        })
+        .catch(function () {
+          findByIdBtn.disabled = false;
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+        });
+    }
+    findByIdBtn.addEventListener("click", findByIdAndOpen);
+    if (findByIdInput) findByIdInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); findByIdAndOpen(); }
+    });
+  }
+  if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
+  if (generalInput) generalInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendGeneral(); }
+  });
+  if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+  if (inputEl) inputEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
-  loadMessages();
+  setTab(chatActiveTab);
+  if (chatWithUserId) showConv(chatWithUserId, chatWithUserName);
+  else showList();
+
   if (chatPollInterval) clearInterval(chatPollInterval);
-  chatPollInterval = setInterval(loadMessages, 5000);
+  chatPollInterval = setInterval(function () {
+    if (chatActiveTab === "general") loadGeneral();
+    else if (chatWithUserId) loadMessages();
+    else loadContacts();
+  }, 5000);
 }
 
 function isLocalEnv() {
@@ -1159,6 +1478,7 @@ function updateVisitorCounter() {
       })
       .then(function (data) {
         applyVisitorCounts(data, elTotal, elUnique, elReturning);
+        if (data && data.dtId) sessionStorage.setItem("poker_dt_id", data.dtId);
         if (data && data.ok === false) fetchVisitorStatsOnly();
       })
       .catch(function () {

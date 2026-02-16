@@ -70,9 +70,18 @@ function totalVisits(hgetallResult) {
   return getVisitValues(hgetallResult).reduce((sum, v) => sum + v, 0);
 }
 
-function jsonVisits(res, unique, returning, total, ok) {
+const DT_IDS_KEY = 'poker_app:visitor_dt_ids';
+const ID_TO_USER_KEY = 'poker_app:id_to_user';
+
+function generateUserId() {
+  return 'ID' + String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function jsonVisits(res, unique, returning, total, ok, dtId) {
   res.setHeader('Content-Type', 'application/json');
-  return res.status(200).json({ unique: unique || 0, returning: returning || 0, total: total || 0, ok: !!ok });
+  const body = { unique: unique || 0, returning: returning || 0, total: total || 0, ok: !!ok };
+  if (dtId) body.dtId = dtId;
+  return res.status(200).json(body);
 }
 
 module.exports = async function handler(req, res) {
@@ -118,6 +127,7 @@ module.exports = async function handler(req, res) {
     ['HINCRBY', 'poker_app:visits', safeId, '1'],
     ['SCARD', 'poker_app:visitors'],
     ['HGETALL', 'poker_app:visits'],
+    ['HGET', DT_IDS_KEY, safeId],
   ];
   const username = initData && safeId.startsWith('tg_') ? getUsernameFromInitData(initData) : null;
   if (username) commands.push(['HSET', 'poker_app:visitor_usernames', safeId, username]);
@@ -129,8 +139,7 @@ module.exports = async function handler(req, res) {
     return jsonVisits(res, 0, 0, 0, false);
   }
 
-  const expectedLen = commands.length;
-  if (!results || !Array.isArray(results) || results.length < 4) {
+  if (!results || !Array.isArray(results) || results.length < 5) {
     return jsonVisits(res, 0, 0, 0, false);
   }
 
@@ -144,5 +153,22 @@ module.exports = async function handler(req, res) {
   const returning = countReturning(r3);
   const total = totalVisits(r3);
 
-  return jsonVisits(res, unique, returning, total, true);
+  let dtId = results[4] && results[4].result ? String(results[4].result).trim() : null;
+  const needsNewId = !dtId || /^DT#\d+$/.test(dtId);
+  if (needsNewId && safeId.startsWith('tg_')) {
+    for (let i = 0; i < 10; i++) {
+      dtId = generateUserId();
+      const exists = await redisPipeline([['HGET', ID_TO_USER_KEY, dtId]], url, token);
+      const taken = exists && exists[0] && exists[0].result;
+      if (!taken) {
+        await redisPipeline([
+          ['HSET', DT_IDS_KEY, safeId, dtId],
+          ['HSET', ID_TO_USER_KEY, dtId, safeId],
+        ], url, token);
+        break;
+      }
+    }
+  }
+
+  return jsonVisits(res, unique, returning, total, true, dtId);
 };
