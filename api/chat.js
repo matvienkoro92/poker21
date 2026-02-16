@@ -7,8 +7,13 @@ const crypto = require("crypto");
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
-const ADMIN_ID = (process.env.TELEGRAM_ADMIN_ID || "388008256").toString().trim();
+const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_ID || "388008256")
+  .toString()
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 const GENERAL_KEY = "poker_app:chat_messages";
+const BLOCKED_KEY = "poker_app:chat_blocked";
 const DT_IDS_KEY = "poker_app:visitor_dt_ids";
 const AVATAR_PREFIX = "poker_app:avatar:";
 const MAX_MESSAGES = 100;
@@ -21,7 +26,7 @@ function convKey(id1, id2) {
 
 function isAdmin(userId) {
   const id = String(userId).replace(/^tg_/, "");
-  return id && ADMIN_ID && id === ADMIN_ID;
+  return id && ADMIN_IDS.length > 0 && ADMIN_IDS.includes(id);
 }
 
 function validateUser(initData) {
@@ -98,11 +103,11 @@ async function sendTelegram(toChatId, text) {
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "GET" && req.method !== "POST" && req.method !== "DELETE") {
+  if (req.method !== "GET" && req.method !== "POST" && req.method !== "DELETE" && req.method !== "PATCH") {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
@@ -124,13 +129,15 @@ module.exports = async function handler(req, res) {
   const myId = "tg_" + user.id;
   const admin = isAdmin(myId);
 
-  // DELETE: админ удаляет сообщение из общего чата
+  // DELETE: админ удаляет сообщение из общего чата или из личного
   if (req.method === "DELETE") {
     const messageId = body.messageId || body.message_id || req.query.messageId;
+    const withId = body.with || body.conversationWith || req.query.with;
     if (!admin) return res.status(403).json({ ok: false, error: "Только для админа" });
     if (!messageId) return res.status(400).json({ ok: false, error: "messageId обязателен" });
 
-    const results = await redisPipeline([["LRANGE", GENERAL_KEY, "0", "-1"]]);
+    const redisKey = withId ? convKey(myId, withId.startsWith("tg_") ? withId : "tg_" + withId) : GENERAL_KEY;
+    const results = await redisPipeline([["LRANGE", redisKey, "0", "-1"]]);
     const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
     const list = Array.isArray(raw) ? raw : [];
     const toRemove = list.find((s) => {
@@ -143,9 +150,22 @@ module.exports = async function handler(req, res) {
     });
     if (!toRemove) return res.status(404).json({ ok: false, error: "Сообщение не найдено" });
 
-    const results2 = await redisPipeline([["LREM", GENERAL_KEY, "0", toRemove]]);
+    const results2 = await redisPipeline([["LREM", redisKey, "0", toRemove]]);
     if (!results2 || results2[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка удаления" });
     return res.status(200).json({ ok: true, deleted: true });
+  }
+
+  // PATCH: админ блокирует пользователя в общем чате
+  if (req.method === "PATCH") {
+    const action = body.action || req.query.action;
+    const targetId = (body.userId || body.targetId || req.query.userId || "").toString().trim();
+    if (!admin) return res.status(403).json({ ok: false, error: "Только для админа" });
+    if (action !== "block" && action !== "unblock") return res.status(400).json({ ok: false, error: "action: block или unblock" });
+    if (!targetId || !targetId.startsWith("tg_")) return res.status(400).json({ ok: false, error: "userId обязателен (tg_xxx)" });
+    const cmd = action === "block" ? ["SADD", BLOCKED_KEY, targetId] : ["SREM", BLOCKED_KEY, targetId];
+    const resBlock = await redisPipeline([cmd]);
+    if (!resBlock || resBlock[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка операции" });
+    return res.status(200).json({ ok: true, blocked: action === "block" });
   }
 
   // GET
@@ -180,14 +200,19 @@ module.exports = async function handler(req, res) {
         if (m.from) {
           if (dtIdsMap[m.from]) m.fromDtId = dtIdsMap[m.from];
           if (avatarsMap[m.from]) m.fromAvatar = avatarsMap[m.from];
+          m.fromAdmin = isAdmin(m.from);
         }
       });
       return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin });
     }
 
     if (mode === "general") {
-      const results = await redisPipeline([["LRANGE", GENERAL_KEY, "0", String(MAX_MESSAGES - 1)]]);
-      const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
+      const [msgResults, blockedResults] = await Promise.all([
+        redisPipeline([["LRANGE", GENERAL_KEY, "0", String(MAX_MESSAGES - 1)]]),
+        redisPipeline([["SMEMBERS", BLOCKED_KEY]]),
+      ]);
+      const raw = msgResults && msgResults[0] && msgResults[0].result !== undefined ? msgResults[0].result : [];
+      const blockedSet = new Set(Array.isArray(blockedResults?.[0]?.result) ? blockedResults[0].result : []);
       const messages = (Array.isArray(raw) ? raw : [])
         .map((s) => {
           try {
@@ -197,6 +222,7 @@ module.exports = async function handler(req, res) {
           }
         })
         .filter(Boolean)
+        .filter((m) => !m.from || !blockedSet.has(m.from))
         .reverse();
       const seen = new Set();
       const deduped = messages.filter((m) => {
@@ -211,6 +237,7 @@ module.exports = async function handler(req, res) {
         if (m.from) {
           if (dtIds[m.from]) m.fromDtId = dtIds[m.from];
           if (avatars[m.from]) m.fromAvatar = avatars[m.from];
+          m.fromAdmin = isAdmin(m.from);
         }
       });
       return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin });
@@ -290,6 +317,10 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ ok: true, message: msg });
   }
+
+  const blockedCheck = await redisPipeline([["SISMEMBER", BLOCKED_KEY, myId]]);
+  const amBlocked = blockedCheck && blockedCheck[0] && blockedCheck[0].result === 1;
+  if (amBlocked) return res.status(403).json({ ok: false, error: "Вы заблокированы в чате" });
 
   const dtIds = await getDtIds([myId]);
   const msgId = "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);

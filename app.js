@@ -1237,18 +1237,43 @@ function initChat() {
     });
     generalView.style.display = tab === "general" ? "" : "none";
     personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
-    if (tab === "general") loadGeneral();
-    else loadContacts();
+    if (tab === "general") { window.chatGeneralUnread = false; loadGeneral(); }
+    else if (tab === "personal") {
+      window.chatPersonalUnread = false;
+      if (chatWithUserId) loadMessages();
+      else loadContacts();
+    }
+    updateUnreadDots();
   }
+
+  var lastViewedGeneral = null;
+  var lastViewedPersonal = {};
+  function updateUnreadDots() {
+    var gDot = document.getElementById("chatGeneralDot");
+    var pDot = document.getElementById("chatPersonalDot");
+    if (gDot) gDot.classList.toggle("chat-tab__dot--on", !!window.chatGeneralUnread);
+    if (pDot) pDot.classList.toggle("chat-tab__dot--on", !!window.chatPersonalUnread);
+  }
+  window.chatGeneralUnread = false;
+  window.chatPersonalUnread = false;
 
   function loadGeneral() {
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=general";
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.ok) {
         chatIsAdmin = !!data.isAdmin;
-        renderGeneralMessages(data.messages || []);
+        var messages = data.messages || [];
+        var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
+        if (chatActiveTab === "general") {
+          lastViewedGeneral = latest;
+          window.chatGeneralUnread = false;
+        } else if (latest && (!lastViewedGeneral || latest > lastViewedGeneral)) {
+          window.chatGeneralUnread = true;
+        }
+        if (chatActiveTab === "general") renderGeneralMessages(messages);
+        updateUnreadDots();
       }
-    }).catch(function () { generalMessages.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
+    }).catch(function () { if (chatActiveTab === "general") generalMessages.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
   }
 
   function renderGeneralMessages(messages) {
@@ -1262,14 +1287,23 @@ function initChat() {
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
       var delBtn = chatIsAdmin && m.id ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
+      var blockBtn = chatIsAdmin && !isOwn && m.from ? ' <button type="button" class="chat-msg__block" data-block-user-id="' + escapeHtml(m.from) + '" data-block-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '" title="Заблокировать в чате">🚫</button>' : "";
       var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
+      var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStr = escapeHtml(m.fromName || "Игрок") + dtBadge;
-      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>' + delBtn;
-      return '<div class="' + cls + '"><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div></div></div>';
+      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>' + delBtn + blockBtn;
+      return '<div class="' + cls + '"><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div></div></div>';
     }).join("");
+    var prevScrollTop = generalMessages.scrollTop;
+    var prevScrollHeight = generalMessages.scrollHeight;
+    var wasNearBottom = prevScrollHeight - prevScrollTop - generalMessages.clientHeight < 80;
     generalMessages.innerHTML = html;
-    generalMessages.scrollTop = generalMessages.scrollHeight;
+    if (wasNearBottom || generalMessages.scrollHeight <= generalMessages.clientHeight) {
+      generalMessages.scrollTop = generalMessages.scrollHeight;
+    } else {
+      generalMessages.scrollTop = generalMessages.scrollHeight - (prevScrollHeight - prevScrollTop);
+    }
     generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var id = btn.dataset.pmId;
@@ -1291,6 +1325,25 @@ function initChat() {
         }).then(function (r) { return r.json(); }).then(function (d) {
           if (d && d.ok) loadGeneral();
         });
+      });
+    });
+    generalMessages.querySelectorAll(".chat-msg__block").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var uid = btn.dataset.blockUserId;
+        var uname = btn.dataset.blockUserName || "пользователь";
+        if (!uid) return;
+        if (!confirm("Заблокировать " + uname + " в чате? Он не сможет писать.")) return;
+        (function doBlock(userId) {
+          fetch(base + "/api/chat", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: initData, action: "block", userId: userId }),
+          }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.ok) loadGeneral();
+            else if (tg && tg.showAlert) tg.showAlert((d && d.error) || "Ошибка");
+          });
+        })(uid);
       });
     });
   }
@@ -1364,19 +1417,53 @@ function initChat() {
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var delBtn = chatIsAdmin && m.id ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
+      var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
-      return '<div class="' + cls + '"><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + '</span></div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div></div></div>';
+      return '<div class="' + cls + '"><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + delBtn + '</span>' + adminBadge + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div></div></div>';
     }).join("");
+    var prevScrollTop = messagesEl.scrollTop;
+    var prevScrollHeight = messagesEl.scrollHeight;
+    var wasNearBottom = prevScrollHeight - prevScrollTop - messagesEl.clientHeight < 80;
     messagesEl.innerHTML = html;
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    if (wasNearBottom || messagesEl.scrollHeight <= messagesEl.clientHeight) {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    } else {
+      messagesEl.scrollTop = messagesEl.scrollHeight - (prevScrollHeight - prevScrollTop);
+    }
+    messagesEl.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.dataset.msgId;
+        if (!id) return;
+        fetch(base + "/api/chat", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, messageId: id, with: chatWithUserId }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.ok) loadMessages();
+        });
+      });
+    });
   }
 
   function loadMessages() {
     if (!chatWithUserId || !messagesEl) return;
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&with=" + encodeURIComponent(chatWithUserId);
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
-      if (data && data.ok && Array.isArray(data.messages)) renderMessages(data.messages);
+      if (data && data.ok) {
+        if (data.isAdmin !== undefined) chatIsAdmin = !!data.isAdmin;
+        var messages = data.messages || [];
+        var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
+        if (chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) {
+          lastViewedPersonal[chatWithUserId] = latest;
+          window.chatPersonalUnread = false;
+        } else if (latest && chatWithUserId && (!lastViewedPersonal[chatWithUserId] || latest > lastViewedPersonal[chatWithUserId])) {
+          window.chatPersonalUnread = true;
+        }
+        if (Array.isArray(messages)) renderMessages(messages);
+        updateUnreadDots();
+      }
     });
   }
 
@@ -1403,6 +1490,34 @@ function initChat() {
     chatListenersAttached = true;
     tabs.forEach(function (t) {
       t.addEventListener("click", function () { setTab(t.dataset.chatTab); });
+    });
+    document.querySelectorAll(".chat-manager-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var raw = (btn.dataset.chatUserId || "").trim();
+        var userName = btn.dataset.chatUserName || "Менеджер";
+        if (!raw) {
+          if (tg && tg.showAlert) tg.showAlert("Укажите data-chat-user-id (ID приложения или Telegram ID)");
+          return;
+        }
+        function doShow(tgUserId) {
+          setTab("personal");
+          showConv(tgUserId, userName);
+        }
+        if (raw.startsWith("tg_")) {
+          doShow(raw);
+        } else if (/^ID\d{6}$/.test(raw.toUpperCase())) {
+          var id = raw.toUpperCase();
+          fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (data && data.ok && data.userId) doShow(data.userId);
+              else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+            })
+            .catch(function () { if (tg && tg.showAlert) tg.showAlert("Ошибка сети"); });
+        } else {
+          doShow("tg_" + raw);
+        }
+      });
     });
     if (backBtn) backBtn.addEventListener("click", showList);
     if (findByIdBtn && findByIdInput) {
@@ -1451,9 +1566,9 @@ function initChat() {
 
   if (chatPollInterval) clearInterval(chatPollInterval);
   chatPollInterval = setInterval(function () {
-    if (chatActiveTab === "general") loadGeneral();
-    else if (chatWithUserId) loadMessages();
-    else loadContacts();
+    loadGeneral();
+    if (chatWithUserId) loadMessages();
+    else if (chatActiveTab === "personal") loadContacts();
   }, 5000);
 }
 

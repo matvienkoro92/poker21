@@ -185,9 +185,19 @@
 
           <!-- Чат: общий + личные -->
           <div class="view" data-view="chat">
-            <div class="chat-tabs">
-              <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general">Общий чат</button>
-              <button type="button" class="chat-tab" data-chat-tab="personal">Личные</button>
+            <div class="chat-header-row">
+              <div class="chat-tabs-wrap">
+                <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general"><span class="chat-tab__label">Чат клуба</span><span class="chat-tab__dot" id="chatGeneralDot" aria-hidden="true"></span></button>
+                <button type="button" class="chat-tab" data-chat-tab="personal"><span class="chat-tab__label">Личные</span><span class="chat-tab__dot" id="chatPersonalDot" aria-hidden="true"></span></button>
+              </div>
+              <span class="chat-header-divider"></span>
+              <div class="chat-admins-block">
+                <span class="chat-admins-label">Админы:</span>
+                <div class="chat-managers-inline">
+                  <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="ID803668" data-chat-user-name="Анна">Анна</button>
+                  <button type="button" class="chat-manager-btn chat-manager-btn--compact chat-manager-btn--disabled" data-chat-user-id="" data-chat-user-name="Вика" disabled>Вика</button>
+                </div>
+              </div>
             </div>
             <div class="chat-general-view" id="chatGeneralView">
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
