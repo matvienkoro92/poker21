@@ -1452,15 +1452,12 @@ function initChat() {
       document.addEventListener("click", function (e) {
         if (ctxMenu.classList.contains("chat-ctx-menu--visible") && !ctxMenu.contains(e.target)) hideMenu();
       });
-      ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          var action = btn.dataset.action;
-          var msg = chatCtxMsg;
-          var src = chatCtxSource;
-          hideMenu();
-          if (!msg) return;
-          if (action === "delete") {
+      function runAction(action) {
+        var msg = chatCtxMsg;
+        var src = chatCtxSource;
+        hideMenu();
+        if (!msg) return;
+        if (action === "delete") {
             var delBody = { initData: initData, messageId: msg.id };
             if (src === "personal" && chatWithUserId) delBody.with = chatWithUserId;
             fetch(base + "/api/chat", {
@@ -1509,6 +1506,16 @@ function initChat() {
               if (inputEl) inputEl.focus();
             }
           }
+        }
+      ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(function (btn) {
+        btn.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          runAction(btn.dataset.action);
+        });
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
         });
       });
     }
