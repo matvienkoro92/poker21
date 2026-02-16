@@ -154,6 +154,30 @@
             </div>
           </div>
 
+          <!-- Чат -->
+          <div class="view" data-view="chat">
+            <h1 class="title chat-title">Чат клуба</h1>
+            <p class="subtitle chat-subtitle">Общайтесь с участниками клуба</p>
+            <div class="chat-container">
+              <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
+                <p class="chat-empty" id="chatEmpty">Загрузка...</p>
+              </div>
+              <div class="chat-input-wrap">
+                <input
+                  type="text"
+                  class="chat-input"
+                  id="chatInput"
+                  placeholder="Написать сообщение..."
+                  maxlength="500"
+                  autocomplete="off"
+                />
+                <button type="button" class="chat-send-btn" id="chatSendBtn" aria-label="Отправить">
+                  Отправить
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Скачать -->
           <div class="view" data-view="download">
             <!-- Главный экран: список приложений -->
@@ -575,6 +599,10 @@
         <button type="button" class="bottom-nav__item bottom-nav__item--active" data-view-target="home">
           <span class="bottom-nav__icon">🏠</span>
           <span class="bottom-nav__label">Главная</span>
+        </button>
+        <button type="button" class="bottom-nav__item" data-view-target="chat">
+          <span class="bottom-nav__icon">💬</span>
+          <span class="bottom-nav__label">Чат</span>
         </button>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>

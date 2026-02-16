@@ -138,6 +138,12 @@ function setView(viewName) {
   if (viewName === "bonus-game") initBonusGame();
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
+  if (viewName === "chat") {
+    initChat();
+  } else if (chatPollInterval) {
+    clearInterval(chatPollInterval);
+    chatPollInterval = null;
+  }
 }
 
 function updateProfileUserName() {
@@ -992,6 +998,107 @@ function getVisitorId() {
     localStorage.setItem("poker_visitor_id", id);
   }
   return id;
+}
+
+// Чат клуба
+var chatPollInterval = null;
+
+function initChat() {
+  var messagesEl = document.getElementById("chatMessages");
+  var emptyEl = document.getElementById("chatEmpty");
+  var inputEl = document.getElementById("chatInput");
+  var sendBtn = document.getElementById("chatSendBtn");
+  if (!messagesEl || !inputEl || !sendBtn) return;
+
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!base) {
+    if (emptyEl) { emptyEl.textContent = "Не задан адрес API."; }
+    return;
+  }
+
+  function renderMessages(messages) {
+    var userId = null;
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+      userId = tg.initDataUnsafe.user.id;
+    }
+    var html = "";
+    if (!messages || messages.length === 0) {
+      html = '<p class="chat-empty">Пока нет сообщений. Напишите первым!</p>';
+    } else {
+      html = messages.map(function (m) {
+        var isOwn = userId && String(m.userId) === String(userId);
+        var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
+        var name = m.userName || (m.username ? "@" + m.username : "Игрок");
+        var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
+        var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+        return '<div class="' + cls + '"><div class="chat-msg__name">' + escapeHtml(name) + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div>';
+      }).join("");
+    }
+    messagesEl.innerHTML = html;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    if (!s) return "";
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function loadMessages() {
+    fetch(base + "/api/chat")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && Array.isArray(data.messages)) {
+          renderMessages(data.messages);
+        } else if (emptyEl) {
+          emptyEl.textContent = "Нет сообщений";
+        }
+      })
+      .catch(function () {
+        if (emptyEl) emptyEl.textContent = "Ошибка загрузки";
+      });
+  }
+
+  function sendMessage() {
+    var text = (inputEl.value || "").trim();
+    if (!text) return;
+    if (!initData) {
+      if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+      return;
+    }
+    sendBtn.disabled = true;
+    fetch(base + "/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData, text: text }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        sendBtn.disabled = false;
+        inputEl.value = "";
+        if (data && data.ok && data.message) {
+          loadMessages();
+        } else {
+          if (tg && tg.showAlert) tg.showAlert(data && data.error ? data.error : "Ошибка отправки");
+        }
+      })
+      .catch(function () {
+        sendBtn.disabled = false;
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+      });
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  inputEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  loadMessages();
+  if (chatPollInterval) clearInterval(chatPollInterval);
+  chatPollInterval = setInterval(loadMessages, 5000);
 }
 
 function isLocalEnv() {
