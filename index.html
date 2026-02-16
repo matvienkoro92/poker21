@@ -181,6 +181,15 @@
                 </div>
               </a>
             </div>
+
+            <div class="updates-block" id="updatesBlock">
+              <h3 class="updates-block__title">Последние обновления</h3>
+              <ul class="updates-block__list" id="updatesList" aria-live="polite"></ul>
+              <div class="updates-block__footer" id="updatesFooter">
+                <span class="updates-block__ellipsis" id="updatesEllipsis">…</span>
+                <button type="button" class="updates-block__toggle" id="updatesToggle">Показать все</button>
+              </div>
+            </div>
           </div>
 
           <!-- Чат: общий + личные -->
@@ -703,6 +712,7 @@
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="./updates-data.js"></script>
     <script src="./app.js?v=11"></script>
   </body>
 </html>
