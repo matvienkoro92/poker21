@@ -28,8 +28,14 @@
 [data-theme="light"] .app {
   background: #f1f5f9 !important;
 }
+[data-theme="light"] .app:has(.view--active[data-view="home"]) {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%) !important;
+}
 [data-theme="light"] .bg-blur {
   background: linear-gradient(145deg, rgba(241, 245, 249, 0.95), rgba(248, 250, 252, 0.95)) !important;
+}
+[data-theme="light"] .app:has(.view--active[data-view="home"]) .bg-blur {
+  background: linear-gradient(135deg, rgba(255, 247, 237, 0.97), rgba(255, 237, 213, 0.97), rgba(254, 215, 170, 0.95)) !important;
 }
 [data-theme="light"] {
   --bg-color: #fff8f0;
@@ -310,6 +316,30 @@ body {
   flex-direction: column;
   gap: 16px;
   min-height: 0;
+}
+.card:has(.view--active[data-view="home"]) {
+  background: linear-gradient(135deg, #0f172a 0%, #0f172a 100%);
+}
+.card:has(.view--active[data-view="home"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #0f172a 0%, #0f172a 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+[data-theme="light"] .card:has(.view--active[data-view="home"]) {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%) !important;
+}
+[data-theme="light"] .card:has(.view--active[data-view="home"])::after {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+}
+.card:has(.view--active[data-view="home"]) .card__header,
+.card:has(.view--active[data-view="home"]) .card__content,
+.card:has(.view--active[data-view="home"]) .auth-banner {
+  position: relative;
+  z-index: 2;
 }
 .card:has(.view--active[data-view="chat"]) {
   max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 76px);
@@ -1224,7 +1254,7 @@ img.chat-contact__avatar {
 }
 .chat-general-view .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: max(6px, env(safe-area-inset-bottom, 0));
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 .chat-personal-view {
   display: flex;
@@ -1298,7 +1328,7 @@ img.chat-contact__avatar {
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: max(6px, env(safe-area-inset-bottom, 0));
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 .chat-msg__delete {
   margin-left: 8px;
