@@ -1582,12 +1582,16 @@ function initChat() {
     var prevScrollHeight = generalMessages.scrollHeight;
     var wasNearBottom = prevScrollHeight - prevScrollTop - generalMessages.clientHeight < 80;
     generalMessages.innerHTML = html;
-    var maxScroll = generalMessages.scrollHeight - generalMessages.clientHeight;
-    if (wasNearBottom || maxScroll <= 0) {
-      generalMessages.scrollTop = generalMessages.scrollHeight;
-    } else {
-      generalMessages.scrollTop = Math.min(prevScrollTop, Math.max(0, maxScroll));
+    function restoreScroll() {
+      var maxScroll = generalMessages.scrollHeight - generalMessages.clientHeight;
+      if (wasNearBottom || maxScroll <= 0) {
+        generalMessages.scrollTop = generalMessages.scrollHeight;
+      } else {
+        generalMessages.scrollTop = Math.min(prevScrollTop, Math.max(0, maxScroll));
+      }
     }
+    restoreScroll();
+    requestAnimationFrame(function () { requestAnimationFrame(restoreScroll); });
     generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var id = btn.dataset.pmId;
@@ -1909,16 +1913,20 @@ function initChat() {
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span>' + reactBtnHtmlP + '</div>' : "";
       return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + editBtn + delBtn + '</span>' + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
-    var prevScrollTop = messagesEl.scrollTop;
-    var prevScrollHeight = messagesEl.scrollHeight;
-    var wasNearBottom = prevScrollHeight - prevScrollTop - messagesEl.clientHeight < 80;
+    var prevScrollTopP = messagesEl.scrollTop;
+    var prevScrollHeightP = messagesEl.scrollHeight;
+    var wasNearBottomP = prevScrollHeightP - prevScrollTopP - messagesEl.clientHeight < 80;
     messagesEl.innerHTML = html;
-    var maxScrollP = messagesEl.scrollHeight - messagesEl.clientHeight;
-    if (wasNearBottom || maxScrollP <= 0) {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    } else {
-      messagesEl.scrollTop = Math.min(prevScrollTop, Math.max(0, maxScrollP));
+    function restoreScrollP() {
+      var maxScrollP = messagesEl.scrollHeight - messagesEl.clientHeight;
+      if (wasNearBottomP || maxScrollP <= 0) {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      } else {
+        messagesEl.scrollTop = Math.min(prevScrollTopP, Math.max(0, maxScrollP));
+      }
     }
+    restoreScrollP();
+    requestAnimationFrame(function () { requestAnimationFrame(restoreScrollP); });
     messagesEl.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var id = btn.dataset.msgId;
