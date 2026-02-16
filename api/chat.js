@@ -155,17 +155,54 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, deleted: true });
   }
 
-  // PATCH: админ блокирует пользователя в общем чате
+  // PATCH: блокировка админом или редактирование своего сообщения
   if (req.method === "PATCH") {
     const action = body.action || req.query.action;
-    const targetId = (body.userId || body.targetId || req.query.userId || "").toString().trim();
-    if (!admin) return res.status(403).json({ ok: false, error: "Только для админа" });
-    if (action !== "block" && action !== "unblock") return res.status(400).json({ ok: false, error: "action: block или unblock" });
-    if (!targetId || !targetId.startsWith("tg_")) return res.status(400).json({ ok: false, error: "userId обязателен (tg_xxx)" });
-    const cmd = action === "block" ? ["SADD", BLOCKED_KEY, targetId] : ["SREM", BLOCKED_KEY, targetId];
-    const resBlock = await redisPipeline([cmd]);
-    if (!resBlock || resBlock[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка операции" });
-    return res.status(200).json({ ok: true, blocked: action === "block" });
+
+    if (action === "edit") {
+      const messageId = body.messageId || body.message_id || req.query.messageId;
+      const newText = (body.text || body.message || "").trim();
+      const withId = body.with || body.conversationWith || req.query.with;
+      if (!messageId) return res.status(400).json({ ok: false, error: "messageId обязателен" });
+      if (!newText || newText.length > 500) return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов" });
+      const redisKey = withId ? convKey(myId, withId.startsWith("tg_") ? withId : "tg_" + withId) : GENERAL_KEY;
+      const results = await redisPipeline([["LRANGE", redisKey, "0", "-1"]]);
+      const raw = results && results[0] && results[0].result !== undefined ? results[0].result : [];
+      const list = Array.isArray(raw) ? raw : [];
+      let idx = -1;
+      let msgObj = null;
+      for (let i = 0; i < list.length; i++) {
+        try {
+          const m = JSON.parse(list[i]);
+          if (m.id === messageId) {
+            if (m.from !== myId) return res.status(403).json({ ok: false, error: "Можно редактировать только свои сообщения" });
+            idx = i;
+            msgObj = m;
+            break;
+          }
+        } catch (e) {}
+      }
+      if (idx < 0 || !msgObj) return res.status(404).json({ ok: false, error: "Сообщение не найдено" });
+      msgObj.text = newText;
+      msgObj.edited = true;
+      msgObj.editedAt = new Date().toISOString();
+      const newStr = JSON.stringify(msgObj);
+      const resSet = await redisPipeline([["LSET", redisKey, String(idx), newStr]]);
+      if (!resSet || resSet[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
+      return res.status(200).json({ ok: true, message: msgObj });
+    }
+
+    if (action === "block" || action === "unblock") {
+      const targetId = (body.userId || body.targetId || req.query.userId || "").toString().trim();
+      if (!admin) return res.status(403).json({ ok: false, error: "Только для админа" });
+      if (!targetId || !targetId.startsWith("tg_")) return res.status(400).json({ ok: false, error: "userId обязателен (tg_xxx)" });
+      const cmd = action === "block" ? ["SADD", BLOCKED_KEY, targetId] : ["SREM", BLOCKED_KEY, targetId];
+      const resBlock = await redisPipeline([cmd]);
+      if (!resBlock || resBlock[0]?.error) return res.status(500).json({ ok: false, error: "Ошибка операции" });
+      return res.status(200).json({ ok: true, blocked: action === "block" });
+    }
+
+    return res.status(400).json({ ok: false, error: "action: edit, block или unblock" });
   }
 
   // GET
