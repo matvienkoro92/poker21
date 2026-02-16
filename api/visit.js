@@ -106,6 +106,25 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  // Только статистика (без регистрации визита)
+  if (req.method === 'GET' && req.query.stats === '1') {
+    const results = await redisPipeline([
+      ['SCARD', 'poker_app:visitors'],
+      ['HGETALL', 'poker_app:visits'],
+    ], url, token);
+    if (!results || !Array.isArray(results) || results.length !== 2) {
+      return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false });
+    }
+    if (results.some(function (r) { return r && r.error; })) {
+      return res.status(200).json({ unique: 0, returning: 0, total: 0, ok: false });
+    }
+    const unique = parseInt(results[0]?.result, 10) || 0;
+    const r1 = results[1]?.result || [];
+    const returning = countReturning(r1);
+    const total = totalVisits(r1);
+    return res.status(200).json({ unique, returning, total, ok: true });
+  }
+
   let visitorId = req.query.visitor_id || req.query.visitorId;
   let initData = null;
   if (req.method === 'POST') {

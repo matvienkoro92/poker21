@@ -174,7 +174,7 @@ function updateProfileDtId() {
     return;
   }
   el.textContent = "\u2026";
-  fetch(base + "/api/user-dt?initData=" + encodeURIComponent(initData))
+  fetch(base + "/api/users?initData=" + encodeURIComponent(initData))
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (data && data.ok && data.dtId) {
@@ -455,7 +455,7 @@ function updatePikhaninaStats() {
     if (allDoneEl) allDoneEl.style.display = "none";
     return;
   }
-  fetch(base + "/api/pikhanina-stats", { method: "GET" })
+  fetch(base + "/api/pikhanina", { method: "GET" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (data && typeof data.remaining === "number") {
@@ -478,7 +478,7 @@ function notifyBonusWon(promoCode) {
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   const initData = tg && tg.initData ? tg.initData : "";
   if (!initData) return;
-  fetch(base + "/api/bonus-won", {
+      fetch(base + "/api/pikhanina", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ initData: initData, promoCode: promoCode }),
@@ -603,7 +603,7 @@ document.getElementById("bonusGameCards")?.addEventListener("click", (e) => {
       updatePikhaninaStats();
     };
     if (base) {
-      fetch(base + "/api/pikhanina-stats", { method: "GET" })
+      fetch(base + "/api/pikhanina", { method: "GET" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
           const remaining = (data && typeof data.remaining === "number") ? data.remaining : 0;
@@ -1378,7 +1378,7 @@ function initChat() {
         return;
       }
       findByIdBtn.disabled = true;
-      fetch(base + "/api/user-by-id?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+      fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
         .then(function (r) { return r.json(); })
         .then(function (data) {
           findByIdBtn.disabled = false;
@@ -1532,7 +1532,7 @@ function fetchVisitorStatsOnly() {
     setDash();
     return;
   }
-  fetch(base + "/api/visit/stats")
+  fetch(base + "/api/visit?stats=1")
     .then(function (res) {
       if (!res.ok) return Promise.reject(new Error("stats " + res.status));
       return res.json();
