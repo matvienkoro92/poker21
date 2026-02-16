@@ -10,6 +10,7 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN |
 const ADMIN_ID = (process.env.TELEGRAM_ADMIN_ID || "388008256").toString().trim();
 const GENERAL_KEY = "poker_app:chat_messages";
 const DT_IDS_KEY = "poker_app:visitor_dt_ids";
+const AVATAR_PREFIX = "poker_app:avatar:";
 const MAX_MESSAGES = 100;
 
 function convKey(id1, id2) {
@@ -67,6 +68,20 @@ async function getDtIds(userIds) {
     userIds.forEach((id, i) => {
       const v = res[i] && res[i].result ? String(res[i].result).trim() : null;
       if (v) out[id] = v;
+    });
+  }
+  return out;
+}
+
+async function getAvatars(userIds) {
+  if (!userIds || userIds.length === 0) return {};
+  const cmds = userIds.map((id) => ["GET", AVATAR_PREFIX + id.replace(/[^a-zA-Z0-9_-]/g, "_")]);
+  const res = await redisPipeline(cmds);
+  const out = {};
+  if (res && Array.isArray(res)) {
+    userIds.forEach((id, i) => {
+      const v = res[i] && res[i].result;
+      if (v && typeof v === "string" && v.startsWith("data:")) out[id] = v;
     });
   }
   return out;
@@ -152,12 +167,22 @@ module.exports = async function handler(req, res) {
         })
         .filter(Boolean)
         .reverse();
-      const fromIds = [...new Set(messages.map((m) => m.from).filter(Boolean))];
-      const dtIdsMap = await getDtIds(fromIds);
-      messages.forEach((m) => {
-        if (m.from && dtIdsMap[m.from]) m.fromDtId = dtIdsMap[m.from];
+      const seen = new Set();
+      const deduped = messages.filter((m) => {
+        const key = m.id || (m.from + "|" + (m.time || "") + "|" + (m.text || ""));
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       });
-      return res.status(200).json({ ok: true, messages, isAdmin: admin });
+      const fromIds = [...new Set(deduped.map((m) => m.from).filter(Boolean))];
+      const [dtIdsMap, avatarsMap] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds)]);
+      deduped.forEach((m) => {
+        if (m.from) {
+          if (dtIdsMap[m.from]) m.fromDtId = dtIdsMap[m.from];
+          if (avatarsMap[m.from]) m.fromAvatar = avatarsMap[m.from];
+        }
+      });
+      return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin });
     }
 
     if (mode === "general") {
@@ -173,12 +198,22 @@ module.exports = async function handler(req, res) {
         })
         .filter(Boolean)
         .reverse();
-      const fromIds = [...new Set(messages.map((m) => m.from).filter(Boolean))];
-      const dtIds = await getDtIds(fromIds);
-      messages.forEach((m) => {
-        if (m.from && dtIds[m.from]) m.fromDtId = dtIds[m.from];
+      const seen = new Set();
+      const deduped = messages.filter((m) => {
+        const key = m.id || (m.from + "|" + (m.time || "") + "|" + (m.text || ""));
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       });
-      return res.status(200).json({ ok: true, messages, isAdmin: admin });
+      const fromIds = [...new Set(deduped.map((m) => m.from).filter(Boolean))];
+      const [dtIds, avatars] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds)]);
+      deduped.forEach((m) => {
+        if (m.from) {
+          if (dtIds[m.from]) m.fromDtId = dtIds[m.from];
+          if (avatars[m.from]) m.fromAvatar = avatars[m.from];
+        }
+      });
+      return res.status(200).json({ ok: true, messages: deduped, isAdmin: admin });
     }
 
     const results = await redisPipeline([
@@ -202,17 +237,15 @@ module.exports = async function handler(req, res) {
       usernames = usernamesRaw;
     }
 
-    const tgVisitors = visitors.filter((id) => id.startsWith("tg_") && id !== myId);
-    const partnerSet = new Set(partners);
-    const dtIds = await getDtIds(tgVisitors);
-    const contacts = tgVisitors.map((id) => ({
+    const partnerIds = partners.filter((id) => id.startsWith("tg_") && id !== myId);
+    const [dtIds, avatars] = await Promise.all([getDtIds(partnerIds), getAvatars(partnerIds)]);
+    const contacts = partnerIds.map((id) => ({
       id,
       name: usernames[id] ? "@" + usernames[id] : id,
-      isPartner: partnerSet.has(id),
       dtId: dtIds[id] || null,
+      avatar: avatars[id] || null,
     }));
-    const sorted = contacts.sort((a, b) => (b.isPartner ? 1 : 0) - (a.isPartner ? 1 : 0));
-    return res.status(200).json({ ok: true, contacts: sorted, isAdmin: admin });
+    return res.status(200).json({ ok: true, contacts, isAdmin: admin });
   }
 
   // POST
@@ -229,7 +262,9 @@ module.exports = async function handler(req, res) {
 
     const key = convKey(myId, otherId);
     const dtIdsForMsg = await getDtIds([myId]);
+    const msgId = "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
     const msg = {
+      id: msgId,
       from: myId,
       fromName: admin ? "Админ" : (user.firstName || (user.username ? "@" + user.username : "Игрок")),
       fromDtId: dtIdsForMsg[myId] || null,

@@ -1250,10 +1250,23 @@ function initChat() {
       var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
       var delBtn = chatIsAdmin && m.id ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
-      return '<div class="' + cls + '"><div class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + delBtn + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div>';
+      var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
+      var nameStr = escapeHtml(m.fromName || "Игрок") + dtBadge;
+      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>' + delBtn;
+      return '<div class="' + cls + '"><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div></div></div>';
     }).join("");
     generalMessages.innerHTML = html;
     generalMessages.scrollTop = generalMessages.scrollHeight;
+    generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.dataset.pmId;
+        var name = btn.dataset.pmName;
+        if (id) {
+          setTab("personal");
+          showConv(id, name);
+        }
+      });
+    });
     generalMessages.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var id = btn.dataset.msgId;
@@ -1269,21 +1282,24 @@ function initChat() {
     });
   }
 
+  var sendingGeneral = false;
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
-    if (!text || !initData) return;
+    if (!text || !initData || sendingGeneral) return;
     if (!initData) { if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram."); return; }
+    sendingGeneral = true;
     if (generalSendBtn) generalSendBtn.disabled = true;
     fetch(base + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ initData: initData, text: text }),
     }).then(function (r) { return r.json(); }).then(function (data) {
+      sendingGeneral = false;
       if (generalSendBtn) generalSendBtn.disabled = false;
       if (generalInput) generalInput.value = "";
       if (data && data.ok) loadGeneral();
       else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
-    }).catch(function () { if (generalSendBtn) generalSendBtn.disabled = false; });
+    }).catch(function () { sendingGeneral = false; if (generalSendBtn) generalSendBtn.disabled = false; });
   }
 
   function showList() {
@@ -1309,11 +1325,12 @@ function initChat() {
       if (data && data.ok && Array.isArray(data.contacts)) {
         chatIsAdmin = !!data.isAdmin;
         if (data.contacts.length === 0) {
-          contactsEl.innerHTML = '<p class="chat-empty">Пока нет других пользователей.</p>';
+          contactsEl.innerHTML = '<p class="chat-empty">Пока нет личных переписок. Напишите кому-то по ID выше или дождитесь ответа.</p>';
         } else {
           contactsEl.innerHTML = data.contacts.map(function (c) {
             var dtSpan = c.dtId ? '<span class="chat-contact__dt">' + escapeHtml(c.dtId) + '</span>' : "";
-            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '"><span class="chat-contact__icon">💬</span><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '<span class="chat-contact__id">' + escapeHtml(c.id) + '</span></button>';
+            var avatarEl = c.avatar ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" />' : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + (c.name || "?")[0] + '</span>';
+            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '</span></button>';
           }).join("");
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
             btn.addEventListener("click", function () { showConv(btn.dataset.chatId, btn.dataset.chatName); });
@@ -1335,7 +1352,8 @@ function initChat() {
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
       var dtBadge = m.fromDtId ? ' <span class="chat-msg__dt">' + escapeHtml(m.fromDtId) + '</span>' : "";
-      return '<div class="' + cls + '"><div class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + '</div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div>';
+      var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
+      return '<div class="' + cls + '"><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(m.fromName || "Игрок") + dtBadge + '</span></div><div class="chat-msg__text">' + text + '</div><div class="chat-msg__time">' + time + '</div></div></div></div>';
     }).join("");
     messagesEl.innerHTML = html;
     messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -1349,20 +1367,23 @@ function initChat() {
     });
   }
 
+  var sendingPrivate = false;
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
-    if (!text || !chatWithUserId || !initData) return;
+    if (!text || !chatWithUserId || !initData || sendingPrivate) return;
+    sendingPrivate = true;
     if (sendBtn) sendBtn.disabled = true;
     fetch(base + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ initData: initData, with: chatWithUserId, text: text }),
     }).then(function (r) { return r.json(); }).then(function (data) {
+      sendingPrivate = false;
       if (sendBtn) sendBtn.disabled = false;
       if (inputEl) inputEl.value = "";
       if (data && data.ok) loadMessages();
       else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
-    }).catch(function () { if (sendBtn) sendBtn.disabled = false; });
+    }).catch(function () { sendingPrivate = false; if (sendBtn) sendBtn.disabled = false; });
   }
 
   tabs.forEach(function (t) {
