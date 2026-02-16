@@ -22,6 +22,17 @@
       <div class="bg-blur"></div>
 
       <main class="card">
+        <div class="bg-decor" aria-hidden="true">
+          <span class="bg-decor__text">Poker21</span>
+          <span class="bg-decor__emoji bg-decor__emoji--1">🃏</span>
+          <span class="bg-decor__emoji bg-decor__emoji--2">🎴</span>
+          <span class="bg-decor__emoji bg-decor__emoji--3">🂡</span>
+          <span class="bg-decor__emoji bg-decor__emoji--4">🃑</span>
+          <span class="bg-decor__emoji bg-decor__emoji--5">♠</span>
+          <span class="bg-decor__emoji bg-decor__emoji--6">♥</span>
+          <span class="bg-decor__emoji bg-decor__emoji--7">♦</span>
+          <span class="bg-decor__emoji bg-decor__emoji--8">♣</span>
+        </div>
         <div class="auth-banner auth-banner--hidden" id="authBanner" role="alert">
           <p class="auth-banner__text">Откройте приложение в Telegram, чтобы войти.</p>
           <a href="#" class="auth-banner__link" id="authBannerLink" style="display: none;">Открыть в Telegram</a>
@@ -46,6 +57,18 @@
           </a>
           <div class="header-actions">
             <span class="header-greeting" id="headerGreeting">Привет, Роман</span>
+            <div class="chat-switcher-wrap chat-switcher-wrap--header header-chat-switcher--hidden" id="headerChatSwitcherWrap">
+              <button type="button" class="chat-switcher-btn chat-switcher-btn--header" id="chatSwitcherBtn" aria-expanded="false" aria-haspopup="true" aria-label="Выбрать чат">
+                <span class="chat-switcher-btn__label" id="chatSwitcherLabel">Чат клуба</span>
+                <span class="chat-switcher-btn__dot" id="chatSwitcherDot" aria-hidden="true"></span>
+                <span class="chat-switcher-btn__arrow">▾</span>
+              </button>
+              <div class="chat-switcher-dropdown chat-switcher-dropdown--hidden" id="chatSwitcherDropdown" role="menu" aria-hidden="true">
+                <button type="button" class="chat-switcher-option" data-chat-tab="general">Чат клуба</button>
+                <button type="button" class="chat-switcher-option" data-chat-tab="personal">ЛС</button>
+                <button type="button" class="chat-switcher-option" data-chat-tab="admins">Чат с админами</button>
+              </div>
+            </div>
             <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
               <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
               <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
@@ -199,22 +222,10 @@
             </div>
           </div>
 
-          <!-- Чат: общий + личные -->
+          <!-- Чат: общий + личные + админы -->
           <div class="view" data-view="chat">
             <div class="chat-header-row">
-              <div class="chat-tabs-wrap">
-                <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general"><span class="chat-tab__label">Чат клуба</span><span class="chat-tab__dot" id="chatGeneralDot" aria-hidden="true"></span></button>
-                <button type="button" class="chat-tab" data-chat-tab="personal"><span class="chat-tab__label">ЛС</span><span class="chat-tab__dot" id="chatPersonalDot" aria-hidden="true"></span></button>
-              </div>
               <span class="chat-header-stats" id="chatHeaderStats" aria-live="polite"></span>
-              <span class="chat-header-divider"></span>
-              <div class="chat-admins-block">
-                <span class="chat-admins-label">Админы:</span>
-                <div class="chat-managers-inline">
-                  <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">Анна</button>
-                  <button type="button" class="chat-manager-btn chat-manager-btn--compact" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика">Вика</button>
-                </div>
-              </div>
             </div>
             <div class="chat-general-view" id="chatGeneralView">
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
@@ -232,6 +243,13 @@
                   <input type="text" class="chat-input" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" autocomplete="off" />
                   <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
                 </div>
+              </div>
+            </div>
+            <div class="chat-admins-view chat-admins-view--hidden" id="chatAdminsView">
+              <p class="chat-admins-view__text">Напишите админам в Telegram:</p>
+              <div class="chat-admins-view__buttons">
+                <button type="button" class="chat-manager-btn" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">Анна</button>
+                <button type="button" class="chat-manager-btn" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика">Вика</button>
               </div>
             </div>
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">

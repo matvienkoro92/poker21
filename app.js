@@ -242,6 +242,10 @@ function setView(viewName) {
   }
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
+  var headerGreeting = document.getElementById("headerGreeting");
+  var headerSwitcherWrap = document.getElementById("headerChatSwitcherWrap");
+  if (headerGreeting) headerGreeting.classList.toggle("header-greeting--hidden", viewName === "chat");
+  if (headerSwitcherWrap) headerSwitcherWrap.classList.toggle("header-chat-switcher--hidden", viewName !== "chat");
   if (viewName === "chat") {
     window.chatGeneralUnread = false;
     window.chatPersonalUnread = false;
@@ -1295,6 +1299,7 @@ var chatListenersAttached = false;
 function initChat() {
   var generalView = document.getElementById("chatGeneralView");
   var personalView = document.getElementById("chatPersonalView");
+  var adminsView = document.getElementById("chatAdminsView");
   var generalMessages = document.getElementById("chatGeneralMessages");
   var generalInput = document.getElementById("chatGeneralInput");
   var generalSendBtn = document.getElementById("chatGeneralSendBtn");
@@ -1308,7 +1313,10 @@ function initChat() {
   var messagesEl = document.getElementById("chatMessages");
   var inputEl = document.getElementById("chatInput");
   var sendBtn = document.getElementById("chatSendBtn");
-  var tabs = document.querySelectorAll(".chat-tab");
+  var switcherBtn = document.getElementById("chatSwitcherBtn");
+  var switcherDropdown = document.getElementById("chatSwitcherDropdown");
+  var switcherLabel = document.getElementById("chatSwitcherLabel");
+  var switcherOptions = document.querySelectorAll(".chat-switcher-option");
   if (!generalView || !personalView || !generalMessages) return;
 
   var base = getApiBase();
@@ -1339,17 +1347,27 @@ function initChat() {
     if (!el) return;
     var txt = "";
     if (chatActiveTab === "general") txt = window.lastGeneralStats || "";
+    else if (chatActiveTab === "admins") txt = "Админы";
     else if (chatWithUserId && convView && !convView.classList.contains("chat-conv-view--hidden")) txt = window.lastConvStats || "";
     else txt = window.lastListStats || "";
     el.textContent = txt;
   }
+  function closeSwitcherDropdown() {
+    if (switcherDropdown) {
+      switcherDropdown.classList.add("chat-switcher-dropdown--hidden");
+      switcherDropdown.setAttribute("aria-hidden", "true");
+    }
+    if (switcherBtn) switcherBtn.setAttribute("aria-expanded", "false");
+  }
   function setTab(tab) {
     chatActiveTab = tab;
-    tabs.forEach(function (t) {
-      t.classList.toggle("chat-tab--active", t.dataset.chatTab === tab);
-    });
+    if (switcherLabel) {
+      switcherLabel.textContent = tab === "general" ? "Чат клуба" : tab === "personal" ? "ЛС" : "Чат с админами";
+    }
+    closeSwitcherDropdown();
     generalView.style.display = tab === "general" ? "" : "none";
     personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
+    if (adminsView) adminsView.classList.toggle("chat-admins-view--hidden", tab !== "admins");
     if (tab === "general") { window.chatGeneralUnread = false; loadGeneral(); }
     else if (tab === "personal") {
       window.chatPersonalUnread = false;
@@ -1374,10 +1392,8 @@ function initChat() {
     return messages.length + "-" + (last.id || "") + "-" + (last.time || "") + "-" + reactionsPart;
   }
   function updateUnreadDots() {
-    var gDot = document.getElementById("chatGeneralDot");
-    var pDot = document.getElementById("chatPersonalDot");
-    if (gDot) gDot.classList.toggle("chat-tab__dot--on", !!window.chatGeneralUnread);
-    if (pDot) pDot.classList.toggle("chat-tab__dot--on", !!window.chatPersonalUnread);
+    var dot = document.getElementById("chatSwitcherDot");
+    if (dot) dot.classList.toggle("chat-switcher-btn__dot--on", !!(window.chatGeneralUnread || window.chatPersonalUnread));
     updateChatNavDot();
   }
   window.chatGeneralUnread = false;
@@ -2015,8 +2031,25 @@ function initChat() {
 
   if (!chatListenersAttached) {
     chatListenersAttached = true;
-    tabs.forEach(function (t) {
-      t.addEventListener("click", function () { setTab(t.dataset.chatTab); });
+    if (switcherBtn && switcherDropdown) {
+      switcherBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        switcherDropdown.classList.toggle("chat-switcher-dropdown--hidden");
+        var isOpen = !switcherDropdown.classList.contains("chat-switcher-dropdown--hidden");
+        switcherBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        switcherDropdown.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      });
+      document.addEventListener("click", function (e) {
+        if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
+        closeSwitcherDropdown();
+      });
+      document.addEventListener("touchend", function (e) {
+        if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
+        closeSwitcherDropdown();
+      }, { passive: true });
+    }
+    switcherOptions.forEach(function (opt) {
+      opt.addEventListener("click", function () { setTab(opt.dataset.chatTab); });
     });
     document.querySelectorAll(".chat-manager-btn--tg").forEach(function (link) {
       link.addEventListener("click", function (e) {
