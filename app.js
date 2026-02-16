@@ -132,6 +132,7 @@ function setView(viewName) {
     if (viewName === "home") {
       footer.classList.remove("card__footer--hidden");
       fetchVisitorStatsOnly();
+      updateTournamentTimer();
     } else {
       footer.classList.add("card__footer--hidden");
     }
@@ -141,7 +142,17 @@ function setView(viewName) {
     updateProfileDtId();
     initProfileAvatar();
   }
-  if (viewName === "bonus-game") initBonusGame();
+  if (viewName === "bonus-game") {
+    initBonusGame();
+    if (bonusPikhaninaInterval) clearInterval(bonusPikhaninaInterval);
+    bonusPikhaninaInterval = setInterval(function () {
+      updatePikhaninaStats();
+      updateBonusStats();
+    }, 15000);
+  } else if (bonusPikhaninaInterval) {
+    clearInterval(bonusPikhaninaInterval);
+    bonusPikhaninaInterval = null;
+  }
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
   if (viewName === "chat") {
@@ -394,6 +405,7 @@ const BONUS_PROMO_CODES = ["ПИХ200-7К2М", "ПИХ200-Л9Н4", "ПИХ200-П
 const BONUS_MAX_ATTEMPTS = 5;
 const BONUS_STORAGE_VERSION = "v3";
 let bonusGameContents = [];
+var bonusPikhaninaInterval = null;
 
 function bonusStorageKey(name) {
   return name + getDeviceId() + "_" + BONUS_STORAGE_VERSION;
@@ -1569,6 +1581,7 @@ function fetchVisitorStatsOnly() {
 }
 
 updateVisitorCounter();
+updateTournamentTimer();
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
@@ -1576,6 +1589,31 @@ function getMskHour() {
   const now = new Date();
   const msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
   return msk.getHours();
+}
+
+function updateTournamentTimer() {
+  var el = document.getElementById("tournamentDayTimer");
+  if (!el) return;
+  var now = new Date();
+  var msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+  var targetHour = 18;
+  var targetMin = 0;
+  var targetToday = new Date(msk);
+  targetToday.setHours(targetHour, targetMin, 0, 0);
+  if (msk >= targetToday) {
+    targetToday.setDate(targetToday.getDate() + 1);
+  }
+  var diff = targetToday - msk;
+  if (diff <= 0) {
+    el.textContent = "Начинается";
+    return;
+  }
+  var h = Math.floor(diff / 3600000);
+  var m = Math.floor((diff % 3600000) / 60000);
+  var parts = [];
+  if (h > 0) parts.push(h + " ч");
+  parts.push(m + " мин");
+  el.textContent = "До начала: " + parts.join(" ");
 }
 
 function updateCashoutManager() {
@@ -1603,4 +1641,5 @@ function updateCashoutManager() {
 
 updateCashoutManager();
 setInterval(updateCashoutManager, 60000);
+setInterval(updateTournamentTimer, 10000);
 
