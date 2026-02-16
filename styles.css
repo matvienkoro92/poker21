@@ -23,9 +23,17 @@
   --nav-item-bg: linear-gradient(180deg, #1e293b, #0f172a);
 }
 
+[data-theme="light"] html,
+[data-theme="light"] body,
+[data-theme="light"] .app {
+  background: radial-gradient(circle at top, #ffedd5 0, #fed7aa 45%, #fdba74 100%) !important;
+}
+[data-theme="light"] .bg-blur {
+  background: linear-gradient(145deg, rgba(255, 237, 213, 0.85), rgba(254, 215, 170, 0.9), rgba(253, 186, 116, 0.85)) !important;
+}
 [data-theme="light"] {
-  --bg-color: #fff7ed;
-  --bg-elevated: rgba(255, 247, 237, 0.95);
+  --bg-color: #fff8f0;
+  --bg-elevated: rgba(255, 248, 240, 0.95);
   --accent: #ea580c;
   --accent-soft: rgba(234, 88, 12, 0.12);
   --accent-2: #16a34a;
@@ -34,41 +42,40 @@
   --text-muted: #64748b;
   --border-subtle: rgba(100, 116, 139, 0.28);
   --shadow-strong: 0 22px 45px rgba(15, 23, 42, 0.08);
-  --body-bg: radial-gradient(circle at top, #fff7ed 0, #ffedd5 45%, #fed7aa 100%);
-  --card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 251, 245, 0.98)), radial-gradient(circle at top left, rgba(249, 115, 22, 0.06), transparent 50%);
+  --body-bg: radial-gradient(circle at top, #ffedd5 0, #fed7aa 45%, #fdba74 100%);
+  --card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
   --card-border: rgba(148, 163, 184, 0.35);
-  --bg-gradient-opacity: 0.4;
-  --bg-blur-gradient: linear-gradient(145deg, rgba(255, 251, 245, 0.95), rgba(255, 247, 237, 0.95), rgba(255, 243, 230, 0.9));
-  --block-bg: rgba(255, 237, 213, 0.6);
-  --block-bg-solid: #fed7aa;
-  --block-bg-gradient: linear-gradient(135deg, #ffedd5, #fed7aa);
+  --bg-gradient-opacity: 0.35;
+  --bg-blur-gradient: linear-gradient(145deg, rgba(255, 237, 213, 0.85), rgba(254, 215, 170, 0.9), rgba(253, 186, 116, 0.85));
+  --block-bg: rgba(241, 245, 249, 0.8);
+  --block-bg-solid: #e2e8f0;
+  --block-bg-gradient: linear-gradient(135deg, #f1f5f9, #e2e8f0);
   --btn-on-accent: #1e293b;
-  --btn-bg: linear-gradient(135deg, #dceee6, #d0e6dc);
-  --nav-bg: linear-gradient(180deg, rgba(255, 251, 245, 0.9), rgba(255, 247, 237, 0.95));
-  --nav-item-bg: linear-gradient(180deg, #ffedd5, #fed7aa);
-  --block-dark: #e8d5c4;
-  --block-dark-gradient: linear-gradient(135deg, #fed7aa, #e8d5c4);
-  --chat-stats-bg: rgba(255, 237, 213, 0.5);
+  --nav-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.95));
+  --nav-item-bg: linear-gradient(180deg, #f1f5f9, #e2e8f0);
+  --block-dark: #e2e8f0;
+  --block-dark-gradient: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  --chat-stats-bg: rgba(241, 245, 249, 0.8);
 }
 [data-theme="light"] .chat-msg__reply {
-  background: rgba(255, 245, 235, 0.8);
+  background: rgba(241, 245, 249, 0.9);
 }
 [data-theme="light"] .chat-ctx-menu {
-  background: #fff7ed;
+  background: #fff;
 }
 [data-theme="light"] .updates-block {
-  background: rgba(255, 237, 213, 0.6);
+  background: rgba(241, 245, 249, 0.8);
 }
 [data-theme="light"] .download-app:not(.download-app--poker21):not(.download-app--xpoker):not(.download-app--pppoker):not(.download-app--supremapoker) {
-  background: linear-gradient(to top, #fed7aa, #ffedd5);
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
   color: var(--text);
 }
 [data-theme="light"] .download-app:not(.download-app--poker21):not(.download-app--xpoker):not(.download-app--pppoker):not(.download-app--supremapoker):hover {
-  background: linear-gradient(to top, #dceee6, #d0e6dc);
-  color: var(--text);
+  background: linear-gradient(to top, #ea580c, #fb923c);
+  color: var(--btn-on-accent);
 }
 [data-theme="light"] .home-mini-icon-item {
-  background: rgba(255, 237, 213, 0.6);
+  background: rgba(241, 245, 249, 0.8);
   border-color: rgba(100, 116, 139, 0.25);
 }
 [data-theme="light"] .tournament-day-block {
@@ -76,24 +83,24 @@
   border-color: rgba(168, 85, 247, 0.2);
 }
 [data-theme="light"] .tournament-day-block__col {
-  background: rgba(255, 237, 213, 0.5);
+  background: rgba(241, 245, 249, 0.7);
 }
 [data-theme="light"] .feature {
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   border-color: rgba(100, 116, 139, 0.25);
 }
 [data-theme="light"] .feature--highlight {
-  background: linear-gradient(135deg, #fffbf5, #fff3e6);
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
   border-color: rgba(168, 85, 247, 0.35);
   box-shadow: 0 4px 16px rgba(168, 85, 247, 0.12);
 }
 [data-theme="light"] .tournament-day-tooltip {
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  background: linear-gradient(135deg, #fff, #f8fafc);
   border-color: rgba(168, 85, 247, 0.3);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
 }
 [data-theme="light"] .download-back {
-  background: linear-gradient(135deg, #fed7aa, #fde0b8);
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   color: var(--accent);
 }
 [data-theme="light"] .app-store-btn {
@@ -117,24 +124,24 @@
   background: linear-gradient(145deg, #4a5568, #2d3748);
 }
 [data-theme="light"] .plasterer-table {
-  background: linear-gradient(145deg, #fed7aa, #fde0b8);
+  background: linear-gradient(145deg, #c5d9d4, #b8d0ca);
 }
 [data-theme="light"] .plasterer-board-slot {
-  background: rgba(255, 237, 213, 0.6);
+  background: rgba(241, 245, 249, 0.8);
 }
 [data-theme="light"] .tournament-day-card,
 [data-theme="light"] .tournament-day-expanded__inner {
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   border-color: rgba(100, 116, 139, 0.25);
 }
 [data-theme="light"] .chat-tab {
-  background: rgba(255, 237, 213, 0.6);
+  background: rgba(241, 245, 249, 0.8);
 }
 [data-theme="light"] .chat-tab:hover {
   background: rgba(168, 85, 247, 0.1);
 }
 [data-theme="light"] .chat-manager-btn {
-  background: rgba(255, 237, 213, 0.6);
+  background: rgba(241, 245, 249, 0.9);
 }
 [data-theme="light"] .chat-manager-btn:hover {
   background: rgba(168, 85, 247, 0.15);
@@ -146,11 +153,11 @@
   background: rgba(168, 85, 247, 0.18);
 }
 [data-theme="light"] .chat-stats-block {
-  background: rgba(255, 237, 213, 0.5);
+  background: rgba(241, 245, 249, 0.8);
   border-color: rgba(168, 85, 247, 0.2);
 }
 [data-theme="light"] .chat-reply-preview {
-  background: rgba(255, 237, 213, 0.6);
+  background: rgba(241, 245, 249, 0.9);
 }
 [data-theme="light"] .poker-table {
   background: linear-gradient(160deg, #2d8b5e 0%, #207a4d 40%, #1a6b42 100%);
@@ -160,7 +167,7 @@
 }
 [data-theme="light"] .plasterer-board-slot.has-card,
 [data-theme="light"] .plasterer-card {
-  background: linear-gradient(145deg, #ffedd5, #fed7aa);
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
 }
 [data-theme="light"] .tournament-day-tooltip::after {
   border-top-color: rgba(168, 85, 247, 0.25);

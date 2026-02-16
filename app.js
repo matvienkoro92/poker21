@@ -1,14 +1,31 @@
 // Темы: тёмная / светлая
 (function initTheme() {
+  var LIGHT_BG = "radial-gradient(circle at top, #ffedd5 0%, #fed7aa 45%, #fdba74 100%)";
+  var DARK_BG = "radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%)";
+  function applyBg() {
+    var isLight = document.documentElement.getAttribute("data-theme") === "light";
+    var bg = isLight ? LIGHT_BG : DARK_BG;
+    document.documentElement.style.background = bg;
+    document.body.style.background = bg;
+    var app = document.getElementById("app");
+    if (app) app.style.background = bg;
+  }
   var stored = localStorage.getItem("poker_theme");
   var theme = stored === "light" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", theme);
+  applyBg();
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  if (tg && tg.setBackgroundColor) {
+    tg.setBackgroundColor(theme === "light" ? "#ffedd5" : "#0f172a");
+  }
   var btn = document.getElementById("themeToggle");
   if (btn) {
     btn.addEventListener("click", function () {
       theme = theme === "dark" ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", theme);
       localStorage.setItem("poker_theme", theme);
+      applyBg();
+      if (tg && tg.setBackgroundColor) tg.setBackgroundColor(theme === "light" ? "#ffedd5" : "#0f172a");
     });
   }
 })();
