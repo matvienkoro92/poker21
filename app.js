@@ -1574,7 +1574,7 @@ function initChat() {
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var blockBtn = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
-      var p21Id = (isOwn && typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) ? sessionStorage.getItem("poker_p21_id") : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
+      var p21Id = isOwn ? ((typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) || "").replace(/\D/g, "").slice(0, 6) || null : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
       var dtBadge = ' <span class="chat-msg__dt">P21 ID: ' + escapeHtml(p21Id || "—") + '</span>';
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
@@ -1912,7 +1912,7 @@ function initChat() {
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
-      var p21IdP = (isOwn && typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) ? sessionStorage.getItem("poker_p21_id") : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
+      var p21IdP = isOwn ? ((typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) || "").replace(/\D/g, "").slice(0, 6) || null : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
       var dtBadgeP = ' <span class="chat-msg__dt">P21 ID: ' + escapeHtml(p21IdP || "—") + '</span>';
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
