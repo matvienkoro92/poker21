@@ -1183,6 +1183,7 @@ var chatWithUserId = null;
 var chatWithUserName = null;
 var chatActiveTab = "general";
 var chatIsAdmin = false;
+var chatListenersAttached = false;
 
 function initChat() {
   var generalView = document.getElementById("chatGeneralView");
@@ -1386,48 +1387,51 @@ function initChat() {
     }).catch(function () { sendingPrivate = false; if (sendBtn) sendBtn.disabled = false; });
   }
 
-  tabs.forEach(function (t) {
-    t.addEventListener("click", function () { setTab(t.dataset.chatTab); });
-  });
-  if (backBtn) backBtn.addEventListener("click", showList);
-  if (findByIdBtn && findByIdInput) {
-    function findByIdAndOpen() {
-      var raw = (findByIdInput.value || "").trim().toUpperCase();
-      var id = raw.startsWith("ID") ? raw : "ID" + raw;
-      if (id.length !== 8 || !/^ID\d{6}$/.test(id)) {
-        if (tg && tg.showAlert) tg.showAlert("Введите ID в формате ID123456");
-        return;
+  if (!chatListenersAttached) {
+    chatListenersAttached = true;
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function () { setTab(t.dataset.chatTab); });
+    });
+    if (backBtn) backBtn.addEventListener("click", showList);
+    if (findByIdBtn && findByIdInput) {
+      function findByIdAndOpen() {
+        var raw = (findByIdInput.value || "").trim().toUpperCase();
+        var id = raw.startsWith("ID") ? raw : "ID" + raw;
+        if (id.length !== 8 || !/^ID\d{6}$/.test(id)) {
+          if (tg && tg.showAlert) tg.showAlert("Введите ID в формате ID123456");
+          return;
+        }
+        findByIdBtn.disabled = true;
+        fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            findByIdBtn.disabled = false;
+            findByIdInput.value = "";
+            if (data && data.ok && data.userId) {
+              showConv(data.userId, data.userName || data.userId);
+            } else {
+              if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+            }
+          })
+          .catch(function () {
+            findByIdBtn.disabled = false;
+            if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+          });
       }
-      findByIdBtn.disabled = true;
-      fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          findByIdBtn.disabled = false;
-          findByIdInput.value = "";
-          if (data && data.ok && data.userId) {
-            showConv(data.userId, data.userName || data.userId);
-          } else {
-            if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
-          }
-        })
-        .catch(function () {
-          findByIdBtn.disabled = false;
-          if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
-        });
+      findByIdBtn.addEventListener("click", findByIdAndOpen);
+      if (findByIdInput) findByIdInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); findByIdAndOpen(); }
+      });
     }
-    findByIdBtn.addEventListener("click", findByIdAndOpen);
-    if (findByIdInput) findByIdInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") { e.preventDefault(); findByIdAndOpen(); }
+    if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
+    if (generalInput) generalInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendGeneral(); }
+    });
+    if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+    if (inputEl) inputEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
   }
-  if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
-  if (generalInput) generalInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendGeneral(); }
-  });
-  if (sendBtn) sendBtn.addEventListener("click", sendMessage);
-  if (inputEl) inputEl.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
 
   setTab(chatActiveTab);
   if (chatWithUserId) showConv(chatWithUserId, chatWithUserName);
