@@ -142,14 +142,23 @@ if (tg) {
     if (banner) banner.classList.remove("auth-banner--hidden");
   }
 
+  function updateHeaderGreeting() {
+    var el = document.getElementById("headerGreeting");
+    if (!el) return;
+    var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    el.textContent = u && u.first_name ? "Привет, " + u.first_name + "!" : "Привет, Роман";
+  }
+
   // Нет Telegram — показываем баннер «Откройте в Telegram»
   if (!tg) {
+    updateHeaderGreeting();
     showUnauthorized();
     return;
   }
 
   // Открыто из Telegram: сразу показываем пользователя авторизованным по данным от Telegram
   var userFromTelegram = tg.initDataUnsafe && tg.initDataUnsafe.user;
+  updateHeaderGreeting();
   if (userFromTelegram) {
     showAuthorized(userFromTelegram);
     // Проверку на сервере можно вызывать в фоне для логирования/аналитики (не блокируем интерфейс)
