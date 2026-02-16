@@ -29,6 +29,53 @@
   }
 })();
 
+// Лайтбокс: увеличение картинок и аватарок по клику
+(function initImageLightbox() {
+  var lightbox = document.getElementById("imageLightbox");
+  var lightboxImg = lightbox ? lightbox.querySelector(".image-lightbox__img") : null;
+  var backdrop = lightbox ? lightbox.querySelector(".image-lightbox__backdrop") : null;
+  var closeBtn = lightbox ? lightbox.querySelector(".image-lightbox__close") : null;
+  if (!lightbox || !lightboxImg) return;
+  function open(src) {
+    lightboxImg.src = src;
+    lightboxImg.alt = "Увеличено";
+    lightbox.classList.add("image-lightbox--open");
+    lightbox.setAttribute("aria-hidden", "false");
+  }
+  function close() {
+    lightbox.classList.remove("image-lightbox--open");
+    lightbox.setAttribute("aria-hidden", "true");
+    lightboxImg.removeAttribute("src");
+  }
+  if (backdrop) backdrop.addEventListener("click", close);
+  if (closeBtn) closeBtn.addEventListener("click", close);
+  document.body.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.classList && t.classList.contains("chat-msg__image") && t.src) {
+      e.preventDefault();
+      open(t.src);
+      return;
+    }
+    if (t.classList && t.classList.contains("chat-msg__avatar") && t.src) {
+      e.preventDefault();
+      open(t.src);
+      return;
+    }
+    if (t.classList && t.classList.contains("chat-contact__avatar") && t.src) {
+      e.preventDefault();
+      e.stopPropagation();
+      open(t.src);
+    }
+  });
+  document.body.addEventListener("click", function (e) {
+    var link = e.target && e.target.closest ? e.target.closest(".chat-msg__tg-link") : null;
+    if (!link || !link.href) return;
+    e.preventDefault();
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.openTelegramLink) tg.openTelegramLink(link.href); else window.open(link.href, "_blank");
+  });
+})();
+
 // Инициализация Telegram WebApp (если открыто внутри Telegram)
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
@@ -152,6 +199,13 @@ function setView(viewName) {
       view.classList.remove("view--active");
     }
   });
+  if (viewName === "chat") {
+    var chatGreeting = document.getElementById("chatGreeting");
+    if (chatGreeting) {
+      var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+      chatGreeting.textContent = "Привет, " + (u && u.first_name ? u.first_name : "Роман");
+    }
+  }
   navItems.forEach(function (item) {
     if (item.dataset.viewTarget === viewName) {
       item.classList.add("bottom-nav__item--active");
@@ -1268,6 +1322,12 @@ function initChat() {
     if (!s) return "";
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
+  function linkTgUsernames(escapedText) {
+    if (!escapedText) return "";
+    return String(escapedText).replace(/@([a-zA-Z0-9_]{5,32})(?![a-zA-Z0-9_])/g, function (_, u) {
+      return '<a href="https://t.me/' + escapeHtml(u) + '" class="chat-msg__tg-link">@' + escapeHtml(u) + '</a>';
+    });
+  }
 
   window.lastGeneralStats = "";
   window.lastListStats = "";
@@ -1381,7 +1441,7 @@ function initChat() {
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var dataAttrs = chatIsAdmin && !isOwn && m.id ? ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
-      var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
@@ -1700,7 +1760,7 @@ function initChat() {
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var dataAttrs = chatIsAdmin && !isOwn && m.id ? ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
-      var text = (m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+      var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";

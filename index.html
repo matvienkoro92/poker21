@@ -45,10 +45,6 @@
             </div>
           </a>
           <div class="header-actions">
-            <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
-              <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
-              <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
-            </button>
             <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
               <img id="authUserAvatar" class="auth-user__avatar" alt="" />
               <span id="authUserText"></span>
@@ -200,6 +196,13 @@
 
           <!-- Чат: общий + личные -->
           <div class="view" data-view="chat">
+            <div class="chat-top-bar">
+              <span class="chat-greeting" id="chatGreeting">Привет, Роман</span>
+              <button type="button" class="theme-toggle theme-toggle--in-chat" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
+                <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
+                <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
+              </button>
+            </div>
             <div class="chat-header-row">
               <div class="chat-tabs-wrap">
                 <button type="button" class="chat-tab chat-tab--active" data-chat-tab="general"><span class="chat-tab__label">Чат клуба</span><span class="chat-tab__dot" id="chatGeneralDot" aria-hidden="true"></span></button>
@@ -711,6 +714,12 @@
           <span class="bottom-nav__label">Профиль</span>
         </button>
       </nav>
+
+      <div class="image-lightbox" id="imageLightbox" role="dialog" aria-modal="true" aria-label="Увеличить изображение" aria-hidden="true">
+        <button type="button" class="image-lightbox__backdrop" aria-label="Закрыть"></button>
+        <img class="image-lightbox__img" src="" alt="" />
+        <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
+      </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
