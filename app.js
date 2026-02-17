@@ -2325,10 +2325,22 @@ function initChat() {
           if (tg && tg.showAlert) tg.showAlert("Микрофон не поддерживается");
           return;
         }
+        voiceTarget = target;
+        if (target === "general" && generalVoiceBtn) {
+          generalVoiceBtn.classList.add("chat-voice-btn--recording");
+          generalVoiceBtn.title = "Остановить запись";
+        }
+        if (target === "personal") {
+          var pvb = document.getElementById("chatPersonalVoiceBtn");
+          if (pvb) { pvb.classList.add("chat-voice-btn--recording"); pvb.title = "Остановить запись"; }
+        }
         navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          if (voiceTarget !== target) {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            return;
+          }
           voiceStream = stream;
           voiceChunks = [];
-          voiceTarget = target;
           var opts = { audioBitsPerSecond: 64000 };
           try {
             voiceRecorder = new MediaRecorder(stream, opts);
@@ -2362,22 +2374,27 @@ function initChat() {
             reader.readAsDataURL(blob);
           };
           voiceRecorder.start(200);
-          if (generalVoiceBtn && target === "general") { generalVoiceBtn.classList.add("chat-voice-btn--recording"); generalVoiceBtn.title = "Остановить запись"; }
+        }).catch(function () {
+          voiceTarget = null;
+          if (generalVoiceBtn && target === "general") { generalVoiceBtn.classList.remove("chat-voice-btn--recording"); generalVoiceBtn.title = "Голосовое сообщение"; }
           if (target === "personal") {
             var pvb = document.getElementById("chatPersonalVoiceBtn");
-            if (pvb) { pvb.classList.add("chat-voice-btn--recording"); pvb.title = "Остановить запись"; }
+            if (pvb) { pvb.classList.remove("chat-voice-btn--recording"); pvb.title = "Голосовое сообщение"; }
           }
-        }).catch(function () {
           if (tg && tg.showAlert) tg.showAlert("Нет доступа к микрофону");
         });
       }
       if (generalVoiceBtn) {
         generalVoiceBtn.addEventListener("click", function () {
           if (voiceTarget === "general") {
-            if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
+            if (voiceRecorder && voiceRecorder.state !== "inactive") {
+              voiceRecorder.stop();
+            } else {
+              voiceTarget = null;
+            }
             generalVoiceBtn.classList.remove("chat-voice-btn--recording");
             generalVoiceBtn.title = "Голосовое сообщение";
-          } else if (voiceTarget) {
+          } else if (voiceTarget === "personal") {
             stopAndDiscard();
             var pvbEl = document.getElementById("chatPersonalVoiceBtn");
             if (pvbEl) pvbEl.classList.remove("chat-voice-btn--recording");
@@ -2399,10 +2416,14 @@ function initChat() {
       if (personalVoiceBtn) {
         personalVoiceBtn.addEventListener("click", function () {
           if (voiceTarget === "personal") {
-            if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
+            if (voiceRecorder && voiceRecorder.state !== "inactive") {
+              voiceRecorder.stop();
+            } else {
+              voiceTarget = null;
+            }
             personalVoiceBtn.classList.remove("chat-voice-btn--recording");
             personalVoiceBtn.title = "Голосовое сообщение";
-          } else if (voiceTarget) {
+          } else if (voiceTarget === "general") {
             stopAndDiscard();
             if (generalVoiceBtn) generalVoiceBtn.classList.remove("chat-voice-btn--recording");
             startRecording("personal");
@@ -2418,10 +2439,19 @@ function initChat() {
         });
       }
     })();
+    function resizeChatTextarea(ta) {
+      if (!ta || ta.nodeName !== "TEXTAREA") return;
+      ta.style.height = "auto";
+      var max = 140;
+      var h = Math.min(ta.scrollHeight, max);
+      ta.style.height = h + "px";
+    }
+    if (generalInput) {
+      generalInput.addEventListener("input", function () { resizeChatTextarea(generalInput); });
+      generalInput.addEventListener("focus", function () { resizeChatTextarea(generalInput); });
+      resizeChatTextarea(generalInput);
+    }
     if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
-    if (generalInput) generalInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendGeneral(); }
-    });
     var generalReplyCancel = document.querySelector("#chatGeneralReplyPreview .chat-reply-preview__cancel");
     if (generalReplyCancel) generalReplyCancel.addEventListener("click", function () {
       generalReplyTo = null;
@@ -2451,9 +2481,11 @@ function initChat() {
       });
     }
     if (sendBtn) sendBtn.addEventListener("click", sendMessage);
-    if (inputEl) inputEl.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
+    if (inputEl) {
+      inputEl.addEventListener("input", function () { resizeChatTextarea(inputEl); });
+      inputEl.addEventListener("focus", function () { resizeChatTextarea(inputEl); });
+      resizeChatTextarea(inputEl);
+    }
     var personalReplyCancel = document.querySelector("#chatPersonalReplyPreview .chat-reply-preview__cancel");
     if (personalReplyCancel) personalReplyCancel.addEventListener("click", function () {
       personalReplyTo = null;
