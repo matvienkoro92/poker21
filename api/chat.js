@@ -65,8 +65,7 @@ async function redisPipeline(commands) {
       body: JSON.stringify(commands),
     });
     if (!res.ok) return null;
-    const data = await res.json();
-    return Array.isArray(data) ? data : data && Array.isArray(data.result) ? data.result : null;
+    return await res.json();
   } catch (e) {
     return null;
   }
