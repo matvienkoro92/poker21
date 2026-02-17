@@ -1580,6 +1580,18 @@ function initRaffles() {
     }
   }
 
+  function getRaffleDeviceId() {
+    try {
+      var key = "poker_raffle_device_id";
+      var id = typeof localStorage !== "undefined" && localStorage.getItem(key);
+      if (!id) {
+        id = "dev_" + Date.now() + "_" + Math.random().toString(36).slice(2, 14);
+        if (typeof localStorage !== "undefined") localStorage.setItem(key, id);
+      }
+      return id;
+    } catch (e) { return ""; }
+  }
+
   function loadRaffles() {
     if (!base || !initData) return;
     fetch(base + "/api/raffles?initData=" + encodeURIComponent(initData))
@@ -1760,7 +1772,7 @@ function initRaffles() {
       fetch(base + "/api/raffles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData, action: "join", raffleId: currentRaffleId }),
+        body: JSON.stringify({ initData: initData, action: "join", raffleId: currentRaffleId, deviceId: getRaffleDeviceId() }),
       })
         .then(function (r) {
           return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
@@ -1778,6 +1790,8 @@ function initRaffles() {
             if (data && data.code === "P21_REQUIRED") {
               if (tg && tg.showAlert) tg.showAlert("Заполните свой ID в профиле. На него будет начисляться выигрыш!");
               if (typeof setView === "function") setView("profile");
+            } else if (data && (data.code === "SAME_IP" || data.code === "SAME_DEVICE")) {
+              if (tg && tg.showAlert) tg.showAlert(err);
             } else if (tg && tg.showAlert) tg.showAlert(err);
           }
         })
@@ -3188,3 +3202,4 @@ if (typeof initChat === "function") initChat();
   }
 })();
 
+п
