@@ -1561,14 +1561,16 @@ function initRaffles() {
         if (!data || !data.ok) return;
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
-        // Текущий розыгрыш показываем всем участникам, не только админам
         var allRaffles = data.raffles || [];
         var activeList = allRaffles.filter(function (r) { return r.status === "active"; });
-        var active = data.activeRaffle || activeList[0];
+        var completed = allRaffles.filter(function (r) { return r.status !== "active"; });
+
+        // Вкладка «Активные»: только активные розыгрыши
         var activeCount = activeList.length;
         var activeSum = activeList.reduce(function (s, r) { return s + (r.totalWinners || 0); }, 0);
         if (rafflesTabActiveCount) rafflesTabActiveCount.textContent = String(activeCount);
         if (rafflesTabActiveSum) rafflesTabActiveSum.textContent = String(activeSum);
+        var active = activeList[0] || null;
 
         if (active) {
           if (raffleCurrent) raffleCurrent.classList.remove("raffle-current--hidden");
@@ -1586,7 +1588,7 @@ function initRaffles() {
         }
         updateRaffleBadge(!!active);
 
-        var completed = allRaffles.filter(function (r) { return r.status !== "active"; });
+        // Вкладка «Завершённые»: только завершённые розыгрыши
         var completedCount = completed.length;
         var completedSum = completed.reduce(function (s, r) { return s + ((r.winners && r.winners.length) || 0); }, 0);
         if (rafflesTabCompletedCount) rafflesTabCompletedCount.textContent = String(completedCount);
