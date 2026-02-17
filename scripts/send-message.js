@@ -9,7 +9,7 @@ const userId = (process.argv[2] || "388008256").replace(/^tg_/, "");
 const text = (process.argv[3] || "куку").trim();
 
 if (!BOT_TOKEN) {
-  console.error("Укажите TELEGRAM_BOT_TOKEN в переменных окружения.");
+  console.error("Укажите токен бота (в настройках окружения или .env).");
   process.exit(1);
 }
 if (!userId || !/^\d+$/.test(userId)) {

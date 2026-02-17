@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 /**
  * Сброс счётчика призов «Найди Пиханину» в Redis (остаток снова станет 15).
- * Нужны UPSTASH_REDIS_REST_URL и UPSTASH_REDIS_REST_TOKEN (из .env или Vercel).
+ * Нужны URL и токен Redis из настроек Vercel или из .env в корне проекта.
  *
  * Использование:
  *   node scripts/reset-pikhanina.js
- * или с явными переменными:
- *   UPSTASH_REDIS_REST_URL=... UPSTASH_REDIS_REST_TOKEN=... node scripts/reset-pikhanina.js
  */
 const path = require("path");
 const fs = require("fs");
@@ -23,7 +21,7 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const KEY = "poker_app:pikhanina_claimed_count";
 
 if (!REDIS_URL || !REDIS_TOKEN) {
-  console.error("Задайте UPSTASH_REDIS_REST_URL и UPSTASH_REDIS_REST_TOKEN (например, из .env).");
+  console.error("Задайте URL и токен Redis (из настроек Vercel или из .env в корне проекта).");
   process.exit(1);
 }
 

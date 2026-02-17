@@ -5,27 +5,26 @@
 ## Вариант 1: Vercel Cron (встроенный, работает автоматически)
 
 В `vercel.json` уже настроен cron — каждый понедельник в 5:21 по Бали Vercel вызовет API.  
-**Нужно:** в Vercel → Settings → Environment Variables добавить `CRON_SECRET` (пароль). Vercel передаст его при вызове.
+**Нужно:** в Vercel → Settings добавить секретный пароль для вызова. Vercel передаст его при вызове.
 
 ## Вариант 2: QStash (если Vercel Cron недоступен)
 
 Используется Upstash QStash — тот же сервис, что и Redis. Расписание создаётся один раз.
 
-### Шаг 1. Переменные в Vercel
+### Шаг 1. Настройки в Vercel
 
-В **Settings** → **Environment Variables** добавьте:
+В **Settings** добавьте:
 
-- `CRON_SECRET` — сгенерируйте пароль (https://randomkeygen.com)
-- `QSTASH_TOKEN` — взять в [Upstash Console](https://console.upstash.com) → QStash → токен (если ещё нет)
-- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — уже должны быть
-- `TELEGRAM_BOT_TOKEN` — токен бота
+- Секретный пароль для вызова (сгенерируйте на https://randomkeygen.com)
+- Токен QStash — взять в [Upstash Console](https://console.upstash.com) → QStash (если ещё нет)
+- URL и токен Redis, токен бота — если ещё не добавлены
 
 ### Шаг 2. Создать расписание
 
-После деплоя откройте в браузере (подставьте свой `CRON_SECRET`):
+После деплоя откройте в браузере (подставьте свой секрет):
 
 ```
-https://poker-app-ebon.vercel.app/api/setup-qstash-reminder?key=ВАШ_CRON_SECRET
+https://poker-app-ebon.vercel.app/api/setup-qstash-reminder?key=ВАШ_СЕКРЕТ
 ```
 
 Должен вернуться `{"ok":true,"message":"QStash schedule created..."}`.
@@ -44,7 +43,7 @@ https://poker-app-ebon.vercel.app/api/setup-qstash-reminder?key=ВАШ_CRON_SECR
 
 1. Зарегистрируйтесь на https://cron-job.org
 2. **Create Cronjob:**
-   - URL: `https://poker-app-ebon.vercel.app/api/freeroll-reminder-send?when=10min&secret=ВАШ_CRON_SECRET`
+   - URL: `https://poker-app-ebon.vercel.app/api/freeroll-reminder-send?when=10min&secret=ВАШ_СЕКРЕТ`
    - Schedule: **Каждый понедельник, 05:21** (часовой пояс **Asia/Makassar**)
 
 ---

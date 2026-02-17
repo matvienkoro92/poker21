@@ -91,7 +91,7 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  // Сброс счётчика: GET или POST ?reset=1&secret=СЕКРЕТ (в Vercel задайте PIKHANINA_RESET_SECRET или CRON_SECRET)
+  // Сброс счётчика: GET или POST ?reset=1&secret=СЕКРЕТ (секрет из настроек Vercel)
   const resetSecret = process.env.PIKHANINA_RESET_SECRET || process.env.CRON_SECRET;
   if ((req.query.reset === "1" || req.query.reset === "true") && resetSecret && req.query.secret === resetSecret) {
     const ok = await redisSet(KEY, 0);

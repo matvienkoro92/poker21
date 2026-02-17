@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Сброс счётчика призов «Найди Пиханину» через API (остаток снова 10).
-# В Vercel должны быть заданы PIKHANINA_RESET_SECRET или CRON_SECRET.
+# Сброс счётчика призов «Найди Пиханину» через API (остаток снова 15).
+# Секрет берётся из настроек Vercel (тот же, что для напоминаний).
 #
 # Использование:
 #   chmod +x scripts/reset-pikhanina.sh   # один раз
@@ -8,7 +8,7 @@
 # или с указанием домена:
 #   ./scripts/reset-pikhanina.sh ВАШ_СЕКРЕТ https://ваш-домен.vercel.app
 set -e
-SECRET="${1:?Укажите секрет (из Vercel → Settings → Environment Variables: CRON_SECRET или PIKHANINA_RESET_SECRET): ./scripts/reset-pikhanina.sh ВАШ_СЕКРЕТ}"
+SECRET="${1:?Укажите секрет из настроек Vercel: ./scripts/reset-pikhanina.sh ВАШ_СЕКРЕТ}"
 BASE="${2:-https://poker-app-ebon.vercel.app}"
 URL="${BASE%/}/api/pikhanina?reset=1&secret=${SECRET}"
 
@@ -31,7 +31,7 @@ else
   echo "$BODY"
   echo ""
   if [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ]; then
-    echo "Секрет не подошёл. Проверь в Vercel → Environment Variables значение CRON_SECRET или PIKHANINA_RESET_SECRET (без пробелов, скопируй целиком)."
+    echo "Секрет не подошёл. Проверь в Vercel → Settings значение секрета (без пробелов, скопируй целиком)."
   fi
   exit 1
 fi
