@@ -1705,29 +1705,43 @@ function initRaffles() {
 
   if (raffleJoinBtn) {
     raffleJoinBtn.addEventListener("click", function () {
-      if (!currentRaffleId || !base || !initData) return;
+      if (!currentRaffleId) {
+        if (tg && tg.showAlert) tg.showAlert("Розыгрыш не выбран. Обновите страницу.");
+        return;
+      }
+      if (!base || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+        return;
+      }
       raffleJoinBtn.disabled = true;
       fetch(base + "/api/raffles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ initData: initData, action: "join", raffleId: currentRaffleId }),
       })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
+        })
         .then(function (data) {
           raffleJoinBtn.disabled = false;
           if (data && data.ok) {
             if (data.raffle) renderRaffle(data.raffle);
-            if (data.alreadyJoined && tg && tg.showAlert) tg.showAlert("Вы уже участвуете");
-            else if (!data.alreadyJoined && tg && tg.showAlert) tg.showAlert("Вы добавлены в розыгрыш");
+            if (tg && tg.showAlert) {
+              if (data.alreadyJoined) tg.showAlert("Вы уже участвуете");
+              else tg.showAlert("Вы добавлены в розыгрыш");
+            }
           } else {
             var err = (data && data.error) || "Ошибка";
             if (data && data.code === "P21_REQUIRED") {
               if (tg && tg.showAlert) tg.showAlert("Заполните P21_ID в профиле");
-              setView("profile");
+              if (typeof setView === "function") setView("profile");
             } else if (tg && tg.showAlert) tg.showAlert(err);
           }
         })
-        .catch(function () { raffleJoinBtn.disabled = false; });
+        .catch(function () {
+          raffleJoinBtn.disabled = false;
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети. Проверьте интернет и попробуйте снова.");
+        });
     });
   }
 
@@ -1953,7 +1967,7 @@ function initChat() {
         if (isChatViewActive && chatActiveTab === "general") {
           lastViewedGeneral = latest;
           window.chatGeneralUnread = false;
-        } else if (latest && (!lastViewedGeneral || latest > lastViewedGeneral)) {
+        } else if (latest && lastViewedGeneral !== null && latest > lastViewedGeneral) {
           window.chatGeneralUnread = true;
         } else {
           window.chatGeneralUnread = false;
@@ -2484,7 +2498,7 @@ function initChat() {
         if (isChatViewActive && chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) {
           lastViewedPersonal[chatWithUserId] = latest;
           window.chatPersonalUnread = false;
-        } else if (latest && chatWithUserId && (!lastViewedPersonal[chatWithUserId] || latest > lastViewedPersonal[chatWithUserId])) {
+        } else if (latest && chatWithUserId && lastViewedPersonal[chatWithUserId] && latest > lastViewedPersonal[chatWithUserId]) {
           window.chatPersonalUnread = true;
         }
         if (Array.isArray(messages) && !chatIsEditingMessage) {
