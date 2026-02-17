@@ -7,7 +7,7 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const NOTIFY_CHAT_ID = process.env.TELEGRAM_NOTIFY_CHAT_ID || "5053253480";
 const KEY = "poker_app:pikhanina_claimed_count";
-const MAX_PRIZES = Math.max(0, parseInt(process.env.PIKHANINA_MAX_PRIZES, 10) || 10);
+const MAX_PRIZES = Math.max(0, parseInt(process.env.PIKHANINA_MAX_PRIZES, 10) || 15);
 
 function validateTelegramWebAppData(initData, botToken) {
   if (!initData || !botToken) return null;

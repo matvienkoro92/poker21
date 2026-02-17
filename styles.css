@@ -1205,13 +1205,15 @@ img.chat-contact__avatar {
 }
 .chat-input {
   flex: 1;
-  padding: 8px 12px;
+  min-height: 72px;
+  padding: 16px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-subtle);
   background: var(--block-bg);
   color: var(--text);
   font-size: 14px;
   font-family: inherit;
+  box-sizing: border-box;
 }
 .chat-input::placeholder { color: var(--text-muted); }
 .chat-send-btn {
@@ -1644,7 +1646,61 @@ img.chat-contact__avatar {
   gap: 10px;
 }
 .feature--app {
-  cursor: default;
+  cursor: pointer;
+}
+.feature--app .feature__body {
+  flex: 1;
+  text-align: right;
+}
+.feature--app .feature__title {
+  text-align: right;
+}
+
+.randomizer-desc {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.randomizer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 320px;
+  margin-bottom: 20px;
+}
+.randomizer-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.randomizer-label__text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.randomizer-input {
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--block-bg);
+  color: var(--text);
+}
+.randomizer-btn {
+  align-self: flex-start;
+}
+.randomizer-result {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 0;
+  min-height: 24px;
+}
+.randomizer-result--ok {
+  color: var(--accent-2);
+}
+.randomizer-result--error {
+  color: var(--accent);
 }
 
 .updates-block {

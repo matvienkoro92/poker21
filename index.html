@@ -193,14 +193,26 @@
                   </div>
                 </div>
                 <div class="games-apps-col games-apps-col--apps">
-                  <h2 class="features-section-title features-section-title--end">Приложения:</h2>
+                  <h2 class="features-section-title features-section-title--end">Приложения</h2>
                   <div class="apps-block">
-                    <span class="feature feature--app">
-                      <span class="feature__icon feature__icon--purple">🎲</span>
+                    <a href="#" class="feature feature--link feature--app" data-view-target="randomizer">
                       <span class="feature__body">
                         <span class="feature__title">Рендомайзер</span>
                       </span>
-                    </span>
+                      <span class="feature__icon feature__icon--purple">🎲</span>
+                    </a>
+                    <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
+                      <span class="feature__body">
+                        <span class="feature__title">Розыгрыши</span>
+                      </span>
+                      <span class="feature__icon feature__icon--purple">🎁</span>
+                    </a>
+                    <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
+                      <span class="feature__body">
+                        <span class="feature__title">Задачи по покеру</span>
+                      </span>
+                      <span class="feature__icon feature__icon--purple">📋</span>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -526,13 +538,13 @@
           <div class="view" data-view="bonus-game">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Найди Пиханину</h1>
-            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду, а может и в пиковую. 5 призов по 200р. У вас 5 попыток, чтобы найти его и выбить 1 приз 200р. Промокод для получения приза напишите в чат игроков.</p>
+            <p class="bonus-game-desc">Пиханина опять выиграл переездом снизу и спрятался в бубновую колоду, а может и в пиковую. 15 призов по 200р. У вас 5 попыток, чтобы найти его и выбить 1 приз 200р. Промокод для получения приза напишите в чат игроков.</p>
             <p class="bonus-game-desc">Перед вами колода буби (13 карт от двойки до туза), колода пики (13 карт) и 27-я карта — джокер Пиханина.</p>
             <p class="bonus-game-desc">Выберите одну из карт.</p>
             <p class="bonus-game-no-attempts" id="bonusGameNoAttempts" style="display: none;">Вы проиграли и не смогли поймать Пиханину, он ускользнул от вас и счастливый пошел пушить K6s.</p>
             <p class="bonus-game-all-codes-done" id="bonusGameAllCodesDone" style="display: none;">Их Пиханины уже выбили сегодня все бонусы, но вы можете сыграть просто так</p>
             <p class="bonus-game-stats" id="bonusGameStats">
-              <strong>Осталось призов: <span id="bonusGamePromoCount">5</span></strong><br>
+              <strong>Осталось призов: <span id="bonusGamePromoCount">15</span></strong><br>
               <strong>Ваших попыток: <span id="bonusGameAttemptsCount">5</span></strong><br>
               <strong>Вы можете выбить 1 приз 200р.</strong>
             </p>
@@ -587,6 +599,39 @@
               <button type="button" class="primary-button" id="plastererSpinBtn" style="display: none;">Крути шарманку</button>
               <button type="button" class="primary-button" id="plastererPlayAgainBtn" style="display: none;">Играть заново</button>
             </div>
+          </div>
+
+          <!-- Рендомайзер -->
+          <div class="view" data-view="randomizer">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Рендомайзер</h1>
+            <p class="randomizer-desc">Введите число — из диапазона от 1 до этого числа будут выбираться победители. Укажите, сколько случайных чисел (победителей) выпасть.</p>
+            <div class="randomizer-form">
+              <label class="randomizer-label">
+                <span class="randomizer-label__text">Число (от 1 до N):</span>
+                <input type="number" id="randomizerMax" class="randomizer-input" min="1" max="999999" value="100" placeholder="100" inputmode="numeric" />
+              </label>
+              <label class="randomizer-label">
+                <span class="randomizer-label__text">Количество победителей:</span>
+                <input type="number" id="randomizerCount" class="randomizer-input" min="1" max="100" value="1" placeholder="1" inputmode="numeric" />
+              </label>
+              <button type="button" class="primary-button randomizer-btn" id="randomizerPickBtn">Выбрать</button>
+            </div>
+            <div class="randomizer-result" id="randomizerResult" aria-live="polite"></div>
+          </div>
+
+          <!-- Розыгрыши -->
+          <div class="view" data-view="raffles">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Розыгрыши</h1>
+            <p class="randomizer-desc">Скоро здесь появятся розыгрыши.</p>
+          </div>
+
+          <!-- Задачи по покеру -->
+          <div class="view" data-view="poker-tasks">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Задачи по покеру</h1>
+            <p class="randomizer-desc">Скоро здесь появятся задачи.</p>
           </div>
 
           <!-- Депозит / кэшаут -->

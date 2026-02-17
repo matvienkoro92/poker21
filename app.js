@@ -636,7 +636,7 @@ function updateBonusStats() {
   if (attemptsEl) attemptsEl.textContent = String(Math.max(0, BONUS_MAX_ATTEMPTS - getBonusAttempts()));
 }
 
-var PIKHANINA_DEFAULT_MAX = 5;
+var PIKHANINA_DEFAULT_MAX = 15;
 
 function updatePikhaninaStats() {
   const countEl = document.getElementById("bonusGamePromoCount");
@@ -651,13 +651,9 @@ function updatePikhaninaStats() {
   fetch(base + "/api/pikhanina", { method: "GET" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
-      if (data && typeof data.remaining === "number") {
-        countEl.textContent = String(data.remaining);
-        if (allDoneEl) allDoneEl.style.display = data.remaining === 0 ? "block" : "none";
-      } else {
-        countEl.textContent = String(PIKHANINA_DEFAULT_MAX);
-        if (allDoneEl) allDoneEl.style.display = "none";
-      }
+      var remaining = (data && typeof data.remaining === "number") ? Math.min(data.remaining, PIKHANINA_DEFAULT_MAX) : PIKHANINA_DEFAULT_MAX;
+      countEl.textContent = String(remaining);
+      if (allDoneEl) allDoneEl.style.display = remaining === 0 ? "block" : "none";
     })
     .catch(function () {
       countEl.textContent = String(PIKHANINA_DEFAULT_MAX);
@@ -1348,6 +1344,31 @@ document.getElementById("plastererSpinBtn")?.addEventListener("click", function 
 document.getElementById("plastererPlayAgainBtn")?.addEventListener("click", function () {
   initPlastererGame();
 });
+
+// Рендомайзер: из чисел 1..N выбрать K случайных
+(function initRandomizer() {
+  var maxInput = document.getElementById("randomizerMax");
+  var countInput = document.getElementById("randomizerCount");
+  var btn = document.getElementById("randomizerPickBtn");
+  var resultEl = document.getElementById("randomizerResult");
+  if (!btn || !maxInput || !countInput || !resultEl) return;
+  btn.addEventListener("click", function () {
+    var max = parseInt(maxInput.value, 10) || 0;
+    var count = parseInt(countInput.value, 10) || 0;
+    if (max < 1) { resultEl.textContent = "Введите число не меньше 1."; resultEl.className = "randomizer-result randomizer-result--error"; return; }
+    if (count < 1) { resultEl.textContent = "Количество победителей не меньше 1."; resultEl.className = "randomizer-result randomizer-result--error"; return; }
+    if (count > max) { resultEl.textContent = "Количество победителей не может быть больше " + max + "."; resultEl.className = "randomizer-result randomizer-result--error"; return; }
+    var pool = [];
+    for (var i = 1; i <= max; i++) pool.push(i);
+    for (var j = pool.length - 1; j > 0; j--) {
+      var r = Math.floor(Math.random() * (j + 1));
+      var t = pool[j]; pool[j] = pool[r]; pool[r] = t;
+    }
+    var winners = pool.slice(0, count).sort(function (a, b) { return a - b; });
+    resultEl.textContent = count === 1 ? "Победитель: " + winners[0] : "Победители: " + winners.join(", ");
+    resultEl.className = "randomizer-result randomizer-result--ok";
+  });
+})();
 
 // Счётчик уникальных и повторных посетителей
 function getVisitorId() {
