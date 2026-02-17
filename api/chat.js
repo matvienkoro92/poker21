@@ -439,8 +439,8 @@ module.exports = async function handler(req, res) {
   }
   let voice = body.voice;
   if (voice && typeof voice === "string") {
-    const v = voice.match(/^data:audio\/(ogg|webm|mpeg);base64,(.+)$/);
-    voice = v && v[2] && v[2].length < 800000 ? voice : null; // ~600KB base64 ≈ 1 мин
+    const v = voice.match(/^data:audio\/[^;]+;base64,([\s\S]+)$/);
+    voice = v && v[1] && v[1].length < 800000 ? voice : null; // ~600KB base64 ≈ 1 мин
   }
   const replyTo = body.replyTo && typeof body.replyTo === "object" ? {
     id: body.replyTo.id || null,
