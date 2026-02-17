@@ -26,9 +26,6 @@
 [data-theme="light"] html,
 [data-theme="light"] body,
 [data-theme="light"] .app {
-  background: #f1f5f9 !important;
-}
-[data-theme="light"] .app:has(.view--active[data-view="home"]) {
   background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%) !important;
 }
 [data-theme="light"] .bg-blur {

@@ -1,6 +1,6 @@
 // Темы: тёмная / светлая
 (function initTheme() {
-  var LIGHT_OUTER_BG = "#f1f5f9";
+  var LIGHT_OUTER_BG = "linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)";
   var DARK_BG = "radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%)";
   function applyBg() {
     var isLight = document.documentElement.getAttribute("data-theme") === "light";
@@ -15,7 +15,7 @@
   applyBg();
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg && tg.setBackgroundColor) {
-    tg.setBackgroundColor(theme === "light" ? "#f1f5f9" : "#0f172a");
+    tg.setBackgroundColor(theme === "light" ? "#ffedd5" : "#0f172a");
   }
   var btn = document.getElementById("themeToggle");
   if (btn) {
@@ -24,7 +24,7 @@
       document.documentElement.setAttribute("data-theme", theme);
       localStorage.setItem("poker_theme", theme);
       applyBg();
-      if (tg && tg.setBackgroundColor) tg.setBackgroundColor(theme === "light" ? "#f1f5f9" : "#0f172a");
+      if (tg && tg.setBackgroundColor) tg.setBackgroundColor(theme === "light" ? "#ffedd5" : "#0f172a");
     });
   }
 })();
@@ -340,7 +340,12 @@ function initProfileP21Id() {
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (feedback) {
-            feedback.textContent = data && data.ok ? "Сохранено" : (data && data.error) || "Ошибка";
+            var msg = data && data.ok ? "Сохранено" : (data && data.error) || "Ошибка";
+            if (msg !== "Сохранено") {
+              var m = String(msg).toLowerCase();
+              if (/telegram|телеграм|откройте/.test(m)) msg = "Ошибка";
+            }
+            feedback.textContent = msg;
             feedback.classList.add("profile-save-feedback--visible");
             setTimeout(function () {
               feedback.textContent = "";
@@ -1640,7 +1645,7 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStr = escapeHtml(m.fromName || "Игрок");
       var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
-      var nameWithP21 = nameStr + ' <span class="chat-msg__p21">' + p21Str + "</span>";
+      var nameWithP21 = nameStr + ' <span class="chat-msg__p21">P21_ID: ' + p21Str + "</span>";
       var nameEl = isOwn ? '<span class="chat-msg__name">' + nameWithP21 + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameWithP21 + '</button>';
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
       var reactionsHtml = "";
@@ -1737,9 +1742,11 @@ function initChat() {
     var ctxMenu = document.getElementById("chatContextMenu");
     var longPressTimer = null;
     var menuOpenedAt = 0;
+    var ctxOpenedForEl = null;
     function showMenu(el, msg) {
       chatCtxMsg = msg;
       chatCtxSource = source;
+      ctxOpenedForEl = el;
       if (!ctxMenu) return;
       var rect = el.getBoundingClientRect();
       ctxMenu.style.left = (rect.left + rect.width / 2 - 100) + "px";
@@ -1755,6 +1762,7 @@ function initChat() {
       }
       chatCtxMsg = null;
       chatCtxSource = null;
+      ctxOpenedForEl = null;
     }
     container.querySelectorAll(".chat-msg--other[data-msg-id]").forEach(function (el) {
       function onLongPress() {
@@ -1804,6 +1812,8 @@ function initChat() {
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
+        if (e.type === "touchend" && ctxOpenedForEl && (e.target === ctxOpenedForEl || ctxOpenedForEl.contains(e.target)))
+          return;
         if (Date.now() - menuOpenedAt < 300) return;
         hideMenu();
       }
@@ -1978,7 +1988,7 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStrP = escapeHtml(m.fromName || "Игрок");
       var p21StrP = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
-      var nameWithP21P = nameStrP + ' <span class="chat-msg__p21">' + p21StrP + "</span>";
+      var nameWithP21P = nameStrP + ' <span class="chat-msg__p21">P21_ID: ' + p21StrP + "</span>";
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
       var reactionsHtmlP = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
