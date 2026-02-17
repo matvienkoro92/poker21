@@ -662,6 +662,9 @@ body:has(.view--active[data-view="chat"]) {
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-muted);
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* Чат */
