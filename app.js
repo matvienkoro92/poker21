@@ -291,15 +291,15 @@ function updateProfileUserName() {
 function updateProfileDtId() {
   var el = document.getElementById("profileUserId");
   if (!el) return;
-  var cached = sessionStorage.getItem("poker_dt_id");
-  if (cached) {
-    el.textContent = cached;
-    return;
-  }
   var base = getApiBase();
   var initData = tg && tg.initData ? tg.initData : "";
+  var cached = sessionStorage.getItem("poker_dt_id") || (typeof localStorage !== "undefined" && localStorage.getItem("poker_dt_id"));
+  if (cached) {
+    el.textContent = cached;
+    if (!base || !initData) return;
+  }
   if (!base || !initData) {
-    el.textContent = "\u2014";
+    if (!cached) el.textContent = "\u2014";
     return;
   }
   el.textContent = "\u2026";
@@ -308,17 +308,22 @@ function updateProfileDtId() {
     .then(function (data) {
       if (data && data.ok && data.dtId) {
         sessionStorage.setItem("poker_dt_id", data.dtId);
+        if (typeof localStorage !== "undefined") localStorage.setItem("poker_dt_id", data.dtId);
         el.textContent = data.dtId;
       } else {
-        el.textContent = "\u2014";
+        el.textContent = cached || "\u2014";
       }
       if (data && data.ok && data.p21Id != null) {
-        sessionStorage.setItem("poker_p21_id", data.p21Id);
+        var p21Val = data.p21Id;
+        sessionStorage.setItem("poker_p21_id", p21Val);
+        if (typeof localStorage !== "undefined") localStorage.setItem("poker_p21_id", p21Val);
         var p21Input = document.getElementById("profileP21IdInput");
-        if (p21Input) p21Input.value = data.p21Id;
+        if (p21Input) p21Input.value = p21Val;
       }
     })
-    .catch(function () { el.textContent = "\u2014"; });
+    .catch(function () {
+      el.textContent = cached || "\u2014";
+    });
 }
 
 function initProfileP21Id() {
@@ -326,7 +331,16 @@ function initProfileP21Id() {
   var saveBtn = document.getElementById("profileSaveBtn");
   var feedback = document.getElementById("profileSaveFeedback");
   if (!input) return;
-  var saved = sessionStorage.getItem("poker_p21_id");
+  function getStoredP21() {
+    return (typeof localStorage !== "undefined" && localStorage.getItem("poker_p21_id")) || sessionStorage.getItem("poker_p21_id") || "";
+  }
+  function setStoredP21(val) {
+    if (typeof localStorage !== "undefined") {
+      if (val) localStorage.setItem("poker_p21_id", val); else localStorage.removeItem("poker_p21_id");
+    }
+    if (val) sessionStorage.setItem("poker_p21_id", val); else sessionStorage.removeItem("poker_p21_id");
+  }
+  var saved = getStoredP21();
   if (saved) input.value = saved.replace(/\D/g, "").slice(0, 6);
   else input.value = "";
   var base = getApiBase();
@@ -335,9 +349,19 @@ function initProfileP21Id() {
     fetch(base + "/api/users?initData=" + encodeURIComponent(initData))
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (data && data.ok && data.p21Id != null) {
-          sessionStorage.setItem("poker_p21_id", data.p21Id);
-          input.value = data.p21Id;
+        if (!data || !data.ok) return;
+        var serverP21 = data.p21Id != null ? String(data.p21Id).trim() : "";
+        var localP21 = getStoredP21().replace(/\D/g, "").slice(0, 6);
+        if (serverP21.length === 6) {
+          setStoredP21(serverP21);
+          input.value = serverP21;
+        } else if (localP21.length === 6) {
+          input.value = localP21;
+          fetch(base + "/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: initData, p21Id: localP21 }),
+          }).then(function (r) { return r.json(); }).catch(function () {});
         }
       })
       .catch(function () {});
@@ -356,18 +380,17 @@ function initProfileP21Id() {
       }
       return;
     }
-    if (val) sessionStorage.setItem("poker_p21_id", val);
-    else sessionStorage.removeItem("poker_p21_id");
+    setStoredP21(val);
     var base = getApiBase();
     var initData = tg && tg.initData ? tg.initData : "";
     if (!base || !initData) {
       if (feedback) {
-        feedback.textContent = "Откройте приложение в Telegram";
+        feedback.textContent = "Сохранено локально. Откройте в Telegram, чтобы привязать к аккаунту.";
         feedback.classList.add("profile-save-feedback--visible");
         setTimeout(function () {
           feedback.textContent = "";
           feedback.classList.remove("profile-save-feedback--visible");
-        }, 2500);
+        }, 4000);
       }
       return;
     }
@@ -1796,7 +1819,7 @@ function initRaffles() {
   loadRaffles();
 }
 
-// Счётчик уникальных и повторных посетителей
+// Счётчик уникальных и повторных посетителей (стабильный ID: Telegram → localStorage → sessionStorage)
 function getVisitorId() {
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg && tg.initData) {
@@ -1809,12 +1832,21 @@ function getVisitorId() {
       } catch (e) {}
     }
   }
-  let id = localStorage.getItem("poker_visitor_id");
-  if (!id) {
+  try {
+    let id = localStorage.getItem("poker_visitor_id");
+    if (id) return id;
+    id = sessionStorage.getItem("poker_visitor_id");
+    if (id) {
+      try { localStorage.setItem("poker_visitor_id", id); } catch (e) {}
+      return id;
+    }
     id = "w_" + Date.now() + "_" + Math.random().toString(36).slice(2, 12);
-    localStorage.setItem("poker_visitor_id", id);
+    try { localStorage.setItem("poker_visitor_id", id); } catch (e) {}
+    sessionStorage.setItem("poker_visitor_id", id);
+    return id;
+  } catch (e) {
+    return "w_" + Date.now() + "_" + Math.random().toString(36).slice(2, 12);
   }
-  return id;
 }
 
 // Чат: общий + личные сообщения
