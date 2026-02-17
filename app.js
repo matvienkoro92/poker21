@@ -327,50 +327,64 @@ function initProfileP21Id() {
   function saveP21Id() {
     var val = (input.value || "").replace(/\D/g, "").slice(0, 6);
     input.value = val;
+    if (val.length > 0 && val.length !== 6) {
+      if (feedback) {
+        feedback.textContent = "Введите 6 цифр или очистите поле";
+        feedback.classList.add("profile-save-feedback--visible");
+        setTimeout(function () {
+          feedback.textContent = "";
+          feedback.classList.remove("profile-save-feedback--visible");
+        }, 2500);
+      }
+      return;
+    }
     if (val) sessionStorage.setItem("poker_p21_id", val);
     else sessionStorage.removeItem("poker_p21_id");
     var base = getApiBase();
     var initData = tg && tg.initData ? tg.initData : "";
-    if (base && initData) {
-      fetch(base + "/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData, p21Id: val || "" }),
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (feedback) {
-            var msg = data && data.ok ? "Сохранено" : (data && data.error) || "Ошибка";
-            if (msg !== "Сохранено") {
-              var m = String(msg).toLowerCase();
-              if (/telegram|телеграм|откройте/.test(m)) msg = "Ошибка";
-            }
-            feedback.textContent = msg;
-            feedback.classList.add("profile-save-feedback--visible");
-            setTimeout(function () {
-              feedback.textContent = "";
-              feedback.classList.remove("profile-save-feedback--visible");
-            }, 2000);
-          }
-        })
-        .catch(function () {
-          if (feedback) {
-            feedback.textContent = "Ошибка сети";
-            feedback.classList.add("profile-save-feedback--visible");
-            setTimeout(function () {
-              feedback.textContent = "";
-              feedback.classList.remove("profile-save-feedback--visible");
-            }, 2000);
-          }
-        });
-    } else if (feedback) {
-      feedback.textContent = "Сохранено";
-      feedback.classList.add("profile-save-feedback--visible");
-      setTimeout(function () {
-        feedback.textContent = "";
-        feedback.classList.remove("profile-save-feedback--visible");
-      }, 2000);
+    if (!base || !initData) {
+      if (feedback) {
+        feedback.textContent = "Откройте приложение в Telegram";
+        feedback.classList.add("profile-save-feedback--visible");
+        setTimeout(function () {
+          feedback.textContent = "";
+          feedback.classList.remove("profile-save-feedback--visible");
+        }, 2500);
+      }
+      return;
     }
+    var url = base + "/api/users?initData=" + encodeURIComponent(initData);
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData, p21Id: val || "" }),
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return { ok: false, error: r.status === 401 ? "Откройте в Telegram" : "Ошибка " + r.status }; });
+      })
+      .then(function (data) {
+        if (feedback) {
+          var msg = data && data.ok ? "Сохранено" : (data && data.error) || "Ошибка";
+          var m = String(msg).toLowerCase();
+          if (/telegram|телеграм|откройте/.test(m)) msg = "Откройте приложение в Telegram";
+          feedback.textContent = msg;
+          feedback.classList.add("profile-save-feedback--visible");
+          setTimeout(function () {
+            feedback.textContent = "";
+            feedback.classList.remove("profile-save-feedback--visible");
+          }, 2500);
+        }
+      })
+      .catch(function () {
+        if (feedback) {
+          feedback.textContent = "Ошибка сети";
+          feedback.classList.add("profile-save-feedback--visible");
+          setTimeout(function () {
+            feedback.textContent = "";
+            feedback.classList.remove("profile-save-feedback--visible");
+          }, 2500);
+        }
+      });
   }
   input.addEventListener("input", function () {
     input.value = (input.value || "").replace(/\D/g, "").slice(0, 6);

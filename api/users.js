@@ -70,15 +70,16 @@ module.exports = async function handler(req, res) {
     } catch (e) {
       return res.status(400).json({ ok: false, error: "Invalid JSON" });
     }
-    const postInitData = body.initData || body.init_data;
+    const postInitData = body.initData || body.init_data || req.query.initData || req.query.init_data || "";
     const postUser = validateUser(postInitData);
     if (!postUser) return res.status(401).json({ ok: false, error: "Откройте в Telegram" });
     let p21Id = (body && body.p21Id != null ? String(body.p21Id) : "").trim().replace(/\D/g, "").slice(0, 6);
     if (p21Id.length !== 0 && p21Id.length !== 6) return res.status(400).json({ ok: false, error: "Введите 6 цифр или оставьте поле пустым" });
-    if (!REDIS_URL || !REDIS_TOKEN) return res.status(500).json({ ok: false, error: "Redis not configured" });
+    if (!REDIS_URL || !REDIS_TOKEN) return res.status(500).json({ ok: false, error: "Сервер не настроен" });
     const safeId = "tg_" + postUser.id;
-    if (p21Id.length === 6) await redisPipeline([["HSET", P21_IDS_KEY, safeId, p21Id]]);
-    else await redisPipeline([["HDEL", P21_IDS_KEY, safeId]]);
+    const cmd = p21Id.length === 6 ? [["HSET", P21_IDS_KEY, safeId, p21Id]] : [["HDEL", P21_IDS_KEY, safeId]];
+    const pipeResult = await redisPipeline(cmd);
+    if (!pipeResult) return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
     return res.status(200).json({ ok: true });
   }
 
