@@ -1851,6 +1851,19 @@ img.chat-contact__avatar {
 .raffle-prize { font-size: 13px; color: var(--text); margin-bottom: 4px; }
 .raffle-join-btn--hidden { display: none; }
 .raffle-join-btn { margin-bottom: 12px; }
+.raffle-leave-btn--hidden { display: none; }
+.raffle-leave-btn {
+  margin-left: 10px;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.raffle-leave-btn:hover { background: rgba(239, 68, 68, 0.15); color: var(--text); border-color: rgba(239, 68, 68, 0.4); }
 .raffle-joined-msg--hidden { display: none; }
 .raffle-joined-msg { margin: 0 0 12px; font-weight: 600; color: var(--accent-2); }
 .raffle-participants-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--text); }

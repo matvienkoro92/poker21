@@ -219,7 +219,6 @@ function setView(viewName) {
     if (viewName === "home") {
       footer.classList.remove("card__footer--hidden");
       fetchVisitorStatsOnly();
-      updateTournamentTimer();
       fetchRaffleBadge();
     } else {
       footer.classList.add("card__footer--hidden");
@@ -1438,6 +1437,7 @@ function initRaffles() {
   var raffleEnd = document.getElementById("raffleEnd");
   var rafflePrizes = document.getElementById("rafflePrizes");
   var raffleJoinBtn = document.getElementById("raffleJoinBtn");
+  var raffleLeaveBtn = document.getElementById("raffleLeaveBtn");
   var raffleJoinedMsg = document.getElementById("raffleJoinedMsg");
   var raffleParticipants = document.getElementById("raffleParticipants");
   var raffleWinnersWrap = document.getElementById("raffleWinnersWrap");
@@ -1525,6 +1525,10 @@ function initRaffles() {
       raffleJoinBtn.classList.toggle("raffle-join-btn--hidden", !!iAmIn || raffle.status !== "active");
       raffleJoinBtn.disabled = raffle.status !== "active" || (endDate && endDate <= new Date());
     }
+    if (raffleLeaveBtn) {
+      raffleLeaveBtn.classList.toggle("raffle-leave-btn--hidden", !iAmIn || raffle.status !== "active");
+      raffleLeaveBtn.disabled = raffle.status !== "active" || (endDate && endDate <= new Date());
+    }
     if (raffleJoinedMsg) raffleJoinedMsg.classList.toggle("raffle-joined-msg--hidden", !iAmIn);
     var parts = raffle.participants || [];
     raffleParticipants.innerHTML = parts.length === 0
@@ -1562,8 +1566,17 @@ function initRaffles() {
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
         var allRaffles = data.raffles || [];
-        var activeList = allRaffles.filter(function (r) { return r.status === "active"; });
-        var completed = allRaffles.filter(function (r) { return r.status !== "active"; });
+        var now = new Date();
+        var activeList = allRaffles.filter(function (r) {
+          if (r.status !== "active") return false;
+          var end = r.endDate ? new Date(r.endDate) : null;
+          return !end || end > now;
+        });
+        var completed = allRaffles.filter(function (r) {
+          if (r.status !== "active") return true;
+          var end = r.endDate ? new Date(r.endDate) : null;
+          return end && end <= now;
+        });
 
         // Вкладка «Активные»: только активные розыгрыши
         var activeCount = activeList.length;
@@ -1741,6 +1754,34 @@ function initRaffles() {
         .catch(function () {
           raffleJoinBtn.disabled = false;
           if (tg && tg.showAlert) tg.showAlert("Ошибка сети. Проверьте интернет и попробуйте снова.");
+        });
+    });
+  }
+
+  if (raffleLeaveBtn) {
+    raffleLeaveBtn.addEventListener("click", function () {
+      if (!currentRaffleId || !base || !initData) return;
+      raffleLeaveBtn.disabled = true;
+      fetch(base + "/api/raffles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, action: "leave", raffleId: currentRaffleId }),
+      })
+        .then(function (r) {
+          return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
+        })
+        .then(function (data) {
+          raffleLeaveBtn.disabled = false;
+          if (data && data.ok) {
+            if (data.raffle) renderRaffle(data.raffle);
+            if (tg && tg.showAlert) tg.showAlert(data.alreadyLeft ? "Вы не были в розыгрыше" : "Участие отменено");
+          } else {
+            if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
+          }
+        })
+        .catch(function () {
+          raffleLeaveBtn.disabled = false;
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
         });
     });
   }
@@ -3032,7 +3073,6 @@ function fetchVisitorStatsOnly() {
 }
 
 updateVisitorCounter();
-updateTournamentTimer();
 
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
@@ -3040,33 +3080,6 @@ function getMskHour() {
   const now = new Date();
   const msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
   return msk.getHours();
-}
-
-// Таймер до 18:00 МСК (МСК = UTC+3 → 18:00 МСК = 15:00 UTC)
-function updateTournamentTimer() {
-  var el = document.getElementById("tournamentDayTimer");
-  var block = document.getElementById("tournamentDayBlock");
-  if (!el && !block) return;
-  var now = new Date();
-  var utc = now.getTime();
-  var mskDate = new Date(utc + 3 * 3600 * 1000);
-  var y = mskDate.getUTCFullYear();
-  var mo = mskDate.getUTCMonth();
-  var d = mskDate.getUTCDate();
-  var target18msk = new Date(Date.UTC(y, mo, d, 15, 0, 0, 0));
-  if (now >= target18msk) {
-    if (block) block.style.display = "none";
-    if (el) el.textContent = "";
-    return;
-  }
-  if (block) block.style.display = "";
-  var diff = target18msk - now;
-  var h = Math.floor(diff / 3600000);
-  var m = Math.floor((diff % 3600000) / 60000);
-  var parts = [];
-  if (h > 0) parts.push(h + " ч");
-  parts.push(m + " мин");
-  if (el) el.textContent = "До старта: " + parts.join(" ");
 }
 
 function updateCashoutManager() {
@@ -3094,7 +3107,6 @@ function updateCashoutManager() {
 
 updateCashoutManager();
 setInterval(updateCashoutManager, 60000);
-setInterval(updateTournamentTimer, 10000);
 
 if (typeof initChat === "function") initChat();
 
