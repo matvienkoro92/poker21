@@ -55,16 +55,21 @@ function validateUser(initData) {
 async function redisPipeline(commands) {
   if (!REDIS_URL || !REDIS_TOKEN) return null;
   const base = String(REDIS_URL).replace(/\/$/, "");
-  const res = await fetch(base + "/pipeline", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${REDIS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(commands),
-  });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await fetch(base + "/pipeline", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${REDIS_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(commands),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data) ? data : data && Array.isArray(data.result) ? data.result : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function getDtIds(userIds) {
@@ -329,10 +334,18 @@ module.exports = async function handler(req, res) {
           ["ZCOUNT", CHAT_ONLINE_KEY, String(minScore), "+inf"],
         ]),
       ]);
-      if (!msgResults || !Array.isArray(msgResults) || msgResults[0]?.error) {
+      let listResp = msgResults;
+      if (msgResults && typeof msgResults === "object" && !Array.isArray(msgResults) && Array.isArray(msgResults.result)) {
+        listResp = msgResults.result;
+      }
+      if (!listResp || !Array.isArray(listResp)) {
         return res.status(500).json({ ok: false, error: "Ошибка загрузки сообщений" });
       }
-      const raw = Array.isArray(msgResults[0]?.result) ? msgResults[0].result : (typeof msgResults[0]?.result === "string" ? [msgResults[0].result] : []);
+      const first = listResp[0];
+      if (first && first.error) {
+        return res.status(500).json({ ok: false, error: "Ошибка загрузки сообщений" });
+      }
+      const raw = Array.isArray(first?.result) ? first.result : (typeof first?.result === "string" ? [first.result] : []);
       const blockedSet = new Set(Array.isArray(blockedResults?.[0]?.result) ? blockedResults[0].result : []);
       const onlineCount = (onlineResults && onlineResults[2] && typeof onlineResults[2].result === "number") ? onlineResults[2].result : 0;
       const messages = (Array.isArray(raw) ? raw : [])
