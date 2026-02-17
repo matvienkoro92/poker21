@@ -248,10 +248,13 @@ function setView(viewName) {
   if (headerGreeting) headerGreeting.classList.toggle("header-greeting--hidden", viewName === "chat");
   if (headerSwitcherWrap) headerSwitcherWrap.classList.toggle("header-chat-switcher--hidden", viewName !== "chat");
   if (viewName === "chat") {
+    document.documentElement.classList.add("app-view-chat");
     window.chatGeneralUnread = false;
     window.chatPersonalUnread = false;
     updateChatNavDot();
     initChat();
+  } else {
+    document.documentElement.classList.remove("app-view-chat");
   }
 }
 function updateChatNavDot() {
@@ -291,6 +294,11 @@ function updateProfileDtId() {
       } else {
         el.textContent = "\u2014";
       }
+      if (data && data.ok && data.p21Id != null) {
+        sessionStorage.setItem("poker_p21_id", data.p21Id);
+        var p21Input = document.getElementById("profileP21IdInput");
+        if (p21Input) p21Input.value = data.p21Id;
+      }
     })
     .catch(function () { el.textContent = "\u2014"; });
 }
@@ -303,12 +311,54 @@ function initProfileP21Id() {
   var saved = sessionStorage.getItem("poker_p21_id");
   if (saved) input.value = saved.replace(/\D/g, "").slice(0, 6);
   else input.value = "";
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (base && initData) {
+    fetch(base + "/api/users?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && data.p21Id != null) {
+          sessionStorage.setItem("poker_p21_id", data.p21Id);
+          input.value = data.p21Id;
+        }
+      })
+      .catch(function () {});
+  }
   function saveP21Id() {
     var val = (input.value || "").replace(/\D/g, "").slice(0, 6);
     input.value = val;
     if (val) sessionStorage.setItem("poker_p21_id", val);
     else sessionStorage.removeItem("poker_p21_id");
-    if (feedback) {
+    var base = getApiBase();
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (base && initData) {
+      fetch(base + "/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, p21Id: val || "" }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (feedback) {
+            feedback.textContent = data && data.ok ? "Сохранено" : (data && data.error) || "Ошибка";
+            feedback.classList.add("profile-save-feedback--visible");
+            setTimeout(function () {
+              feedback.textContent = "";
+              feedback.classList.remove("profile-save-feedback--visible");
+            }, 2000);
+          }
+        })
+        .catch(function () {
+          if (feedback) {
+            feedback.textContent = "Ошибка сети";
+            feedback.classList.add("profile-save-feedback--visible");
+            setTimeout(function () {
+              feedback.textContent = "";
+              feedback.classList.remove("profile-save-feedback--visible");
+            }, 2000);
+          }
+        });
+    } else if (feedback) {
       feedback.textContent = "Сохранено";
       feedback.classList.add("profile-save-feedback--visible");
       setTimeout(function () {
@@ -1585,13 +1635,13 @@ function initChat() {
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var blockBtn = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
-      var p21Id = isOwn ? ((typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) || "").replace(/\D/g, "").slice(0, 6) || null : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
-      var dtBadge = ' <span class="chat-msg__dt">P21 ID: ' + escapeHtml(p21Id || "—") + '</span>';
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
-      var nameStr = escapeHtml(m.fromName || "Игрок") + dtBadge;
-      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameStr + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameStr + '</button>';
+      var nameStr = escapeHtml(m.fromName || "Игрок");
+      var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
+      var nameWithP21 = nameStr + ' <span class="chat-msg__p21">' + p21Str + "</span>";
+      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameWithP21 + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameWithP21 + '</button>';
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -1923,12 +1973,12 @@ function initChat() {
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
       var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
-      var p21IdP = isOwn ? ((typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) || "").replace(/\D/g, "").slice(0, 6) || null : (m.fromDtId ? String(m.fromDtId).replace(/\D/g, "").slice(0, 6) : null);
-      var dtBadgeP = ' <span class="chat-msg__dt">P21 ID: ' + escapeHtml(p21IdP || "—") + '</span>';
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
-      var nameStrP = escapeHtml(m.fromName || "Игрок") + dtBadgeP;
+      var nameStrP = escapeHtml(m.fromName || "Игрок");
+      var p21StrP = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
+      var nameWithP21P = nameStrP + ' <span class="chat-msg__p21">' + p21StrP + "</span>";
       var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
       var reactionsHtmlP = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -1944,7 +1994,7 @@ function initChat() {
       }
       var reactBtnHtmlP = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="personal" data-with="' + escapeHtml(chatWithUserId || "") + '" title="Реакция">😊</button>' : "";
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span>' + reactBtnHtmlP + '</div>' : "";
-      var nameElP = isOwn ? '<span class="chat-msg__name">' + nameStrP + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<span class="chat-msg__name">' + nameStrP + '</span>';
+      var nameElP = isOwn ? '<span class="chat-msg__name">' + nameWithP21P + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<span class="chat-msg__name">' + nameWithP21P + '</span>';
       return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameElP + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;

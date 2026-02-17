@@ -17,6 +17,7 @@ const BLOCKED_KEY = "poker_app:chat_blocked";
 const CHAT_ONLINE_KEY = "poker_app:chat_online";
 const ONLINE_TTL_MS = 5 * 60 * 1000; // 5 минут
 const DT_IDS_KEY = "poker_app:visitor_dt_ids";
+const P21_IDS_KEY = "poker_app:visitor_p21_ids";
 const AVATAR_PREFIX = "poker_app:avatar:";
 const MAX_MESSAGES = 100;
 
@@ -89,6 +90,20 @@ async function getAvatars(userIds) {
     userIds.forEach((id, i) => {
       const v = res[i] && res[i].result;
       if (v && typeof v === "string" && v.startsWith("data:")) out[id] = v;
+    });
+  }
+  return out;
+}
+
+async function getP21Ids(userIds) {
+  if (!userIds || userIds.length === 0) return {};
+  const cmds = userIds.map((id) => ["HGET", P21_IDS_KEY, id]);
+  const res = await redisPipeline(cmds);
+  const out = {};
+  if (res && Array.isArray(res)) {
+    userIds.forEach((id, i) => {
+      const v = res[i] && res[i].result ? String(res[i].result).trim() : null;
+      if (v) out[id] = v;
     });
   }
   return out;
@@ -290,11 +305,12 @@ module.exports = async function handler(req, res) {
       let onlineCount = 0;
       if (fromIds.includes(myId) && myScore >= minScore) onlineCount++;
       if (fromIds.includes(otherId) && otherScore >= minScore) onlineCount++;
-      const [dtIdsMap, avatarsMap] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds)]);
+      const [dtIdsMap, avatarsMap, p21IdsMap] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds), getP21Ids(fromIds)]);
       deduped.forEach((m) => {
         if (m.from) {
           if (dtIdsMap[m.from]) m.fromDtId = dtIdsMap[m.from];
           if (avatarsMap[m.from]) m.fromAvatar = avatarsMap[m.from];
+          if (p21IdsMap[m.from]) m.fromP21Id = p21IdsMap[m.from];
           m.fromAdmin = isAdmin(m.from);
         }
       });
@@ -337,11 +353,12 @@ module.exports = async function handler(req, res) {
       const participantsSet = new Set(deduped.map((m) => m.from).filter(Boolean));
       const participantsCount = participantsSet.size;
       const fromIds = [...participantsSet];
-      const [dtIds, avatars] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds)]);
+      const [dtIds, avatars, p21Ids] = await Promise.all([getDtIds(fromIds), getAvatars(fromIds), getP21Ids(fromIds)]);
       deduped.forEach((m) => {
         if (m.from) {
           if (dtIds[m.from]) m.fromDtId = dtIds[m.from];
           if (avatars[m.from]) m.fromAvatar = avatars[m.from];
+          if (p21Ids[m.from]) m.fromP21Id = p21Ids[m.from];
           m.fromAdmin = isAdmin(m.from);
         }
       });

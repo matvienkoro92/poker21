@@ -8,6 +8,7 @@ const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN || "";
 const DT_IDS_KEY = "poker_app:visitor_dt_ids";
+const P21_IDS_KEY = "poker_app:visitor_p21_ids";
 const ID_TO_USER_KEY = "poker_app:id_to_user";
 const USERNAMES_KEY = "poker_app:visitor_usernames";
 
@@ -52,15 +53,38 @@ async function redisPipeline(commands) {
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "GET") return res.status(405).json({ ok: false, error: "GET only" });
 
   const initData = req.query.initData || req.query.init_data;
   const user = validateUser(initData);
   if (!user) return res.status(401).json({ ok: false, error: "Откройте в Telegram" });
+
+  // POST: сохранить P21 ID (6 цифр)
+  if (req.method === "POST") {
+    let body = req.body;
+    if (typeof body === "string") {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        return res.status(400).json({ ok: false, error: "Invalid JSON" });
+      }
+    }
+    const postInitData = body && (body.initData || body.init_data);
+    const postUser = validateUser(postInitData);
+    if (!postUser) return res.status(401).json({ ok: false, error: "Откройте в Telegram" });
+    let p21Id = (body && body.p21Id != null ? String(body.p21Id) : "").trim().replace(/\D/g, "").slice(0, 6);
+    if (p21Id.length !== 0 && p21Id.length !== 6) return res.status(400).json({ ok: false, error: "P21 ID — 0 или 6 цифр" });
+    if (!REDIS_URL || !REDIS_TOKEN) return res.status(500).json({ ok: false, error: "Redis not configured" });
+    const safeId = "tg_" + postUser.id;
+    if (p21Id.length === 6) await redisPipeline([["HSET", P21_IDS_KEY, safeId, p21Id]]);
+    else await redisPipeline([["HDEL", P21_IDS_KEY, safeId]]);
+    return res.status(200).json({ ok: true });
+  }
+
+  if (req.method !== "GET") return res.status(405).json({ ok: false, error: "GET only" });
 
   const searchId = (req.query.id || req.query.userId || req.query.dtId || "").trim().toUpperCase();
 
@@ -94,10 +118,15 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, userId, userName });
   }
 
-  // Мой dtId
+  // Мой dtId и p21Id
   const safeId = "tg_" + user.id;
-  const results = await redisPipeline([["HGET", DT_IDS_KEY, safeId]]);
+  const results = await redisPipeline([
+    ["HGET", DT_IDS_KEY, safeId],
+    ["HGET", P21_IDS_KEY, safeId],
+  ]);
   let dtId = results && results[0] && results[0].result ? String(results[0].result).trim() : null;
+  let p21Id = results && results[1] && results[1].result ? String(results[1].result).trim() : null;
+  if (p21Id === "") p21Id = null;
   const needsNewId = !dtId || /^DT#\d+$/.test(dtId);
   if (needsNewId) {
     for (let i = 0; i < 10; i++) {
@@ -114,5 +143,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ ok: true, dtId });
+  const payload = { ok: true, dtId };
+  if (p21Id) payload.p21Id = p21Id;
+  return res.status(200).json(payload);
 };
