@@ -8,20 +8,22 @@ const pathSegment = (req) => {
   return segment || null;
 };
 
+const path = require("path");
+const handlersDir = path.join(__dirname, "..", "lib", "api-handlers");
 const handlers = {
-  "auth-telegram": () => require("./handlers/auth-telegram.js"),
-  avatar: () => require("./handlers/avatar.js"),
-  chat: () => require("./handlers/chat.js"),
-  visit: () => require("./handlers/visit.js"),
-  users: () => require("./handlers/users.js"),
-  pikhanina: () => require("./handlers/pikhanina.js"),
-  "visitors-list": () => require("./handlers/visitors-list.js"),
-  "setup-qstash-reminder": () => require("./handlers/setup-qstash-reminder.js"),
-  "freeroll-reminder-send": () => require("./handlers/freeroll-reminder-send.js"),
-  "send-to-user": () => require("./handlers/send-to-user.js"),
-  "cron-reminder-10min": () => require("./handlers/cron-reminder-10min.js"),
-  "freeroll-reminder-subscribe": () => require("./handlers/freeroll-reminder-subscribe.js"),
-  raffles: () => require("./handlers/raffles.js"),
+  "auth-telegram": () => require(path.join(handlersDir, "auth-telegram.js")),
+  avatar: () => require(path.join(handlersDir, "avatar.js")),
+  chat: () => require(path.join(handlersDir, "chat.js")),
+  visit: () => require(path.join(handlersDir, "visit.js")),
+  users: () => require(path.join(handlersDir, "users.js")),
+  pikhanina: () => require(path.join(handlersDir, "pikhanina.js")),
+  "visitors-list": () => require(path.join(handlersDir, "visitors-list.js")),
+  "setup-qstash-reminder": () => require(path.join(handlersDir, "setup-qstash-reminder.js")),
+  "freeroll-reminder-send": () => require(path.join(handlersDir, "freeroll-reminder-send.js")),
+  "send-to-user": () => require(path.join(handlersDir, "send-to-user.js")),
+  "cron-reminder-10min": () => require(path.join(handlersDir, "cron-reminder-10min.js")),
+  "freeroll-reminder-subscribe": () => require(path.join(handlersDir, "freeroll-reminder-subscribe.js")),
+  raffles: () => require(path.join(handlersDir, "raffles.js")),
 };
 
 module.exports = async function handler(req, res) {
