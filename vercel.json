@@ -6,7 +6,7 @@
     }
   ],
   "functions": {
-    "api/freeroll-reminder-subscribe.js": { "maxDuration": 15 }
+    "api/[[...slug]].js": { "maxDuration": 15 }
   },
   "crons": [
     {
