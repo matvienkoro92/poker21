@@ -1433,8 +1433,42 @@ function initRaffles() {
   var raffleWinnersWrap = document.getElementById("raffleWinnersWrap");
   var raffleWinners = document.getElementById("raffleWinners");
   var currentRaffleId = null;
+  var currentRaffleEndDate = null;
+  var raffleTimerInterval = null;
   var rafflesIsAdmin = false;
   var myRaffleUserId = null;
+
+  function formatRaffleCountdown(endDate) {
+    if (!endDate) return "";
+    var now = new Date();
+    var ms = endDate.getTime() - now.getTime();
+    if (ms <= 0) return "Завершён";
+    var sec = Math.floor(ms / 1000) % 60;
+    var min = Math.floor(ms / 60000) % 60;
+    var hours = Math.floor(ms / 3600000) % 24;
+    var days = Math.floor(ms / 86400000);
+    var parts = [];
+    if (days > 0) parts.push(days + " д.");
+    if (hours > 0 || parts.length) parts.push(hours + " ч.");
+    parts.push(min + " мин.");
+    parts.push(sec + " сек.");
+    return parts.join(" ");
+  }
+
+  function updateRaffleEndText() {
+    if (!raffleEnd || !currentRaffleEndDate) return;
+    var text = formatRaffleCountdown(currentRaffleEndDate);
+    if (text === "Завершён") {
+      raffleEnd.textContent = "Завершён";
+      if (raffleTimerInterval) {
+        clearInterval(raffleTimerInterval);
+        raffleTimerInterval = null;
+      }
+      loadRaffles();
+      return;
+    }
+    raffleEnd.textContent = "Завершится через " + text;
+  }
 
   function escapeHtml(s) {
     if (s == null) return "";
@@ -1453,12 +1487,23 @@ function initRaffles() {
 
   function renderRaffle(raffle) {
     if (!raffle || !raffleCard) return;
+    if (raffleTimerInterval) {
+      clearInterval(raffleTimerInterval);
+      raffleTimerInterval = null;
+    }
     currentRaffleId = raffle.id;
     var total = raffle.totalWinners || 0;
     var groups = raffle.groups || [];
     var endDate = raffle.endDate ? new Date(raffle.endDate) : null;
+    var isActive = raffle.status === "active";
+    currentRaffleEndDate = isActive && endDate ? endDate : null;
     raffleMeta.textContent = "Победителей: " + total + (groups.length > 0 ? " · Групп призов: " + groups.length : "");
-    raffleEnd.textContent = endDate ? "Завершение: " + endDate.toLocaleString("ru-RU") : "";
+    if (currentRaffleEndDate) {
+      updateRaffleEndText();
+      raffleTimerInterval = setInterval(updateRaffleEndText, 1000);
+    } else {
+      raffleEnd.textContent = endDate ? "Завершение: " + endDate.toLocaleString("ru-RU") : (raffle.status === "drawn" ? "Завершён" : "");
+    }
     var prizesHtml = "";
     groups.forEach(function (g, i) {
       prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") + " (мест: " + (g.count || 0) + ")</div>";
@@ -1516,6 +1561,11 @@ function initRaffles() {
           if (raffleCurrent) raffleCurrent.classList.add("raffle-current--hidden");
           if (raffleEmpty) raffleEmpty.classList.remove("raffle-empty--hidden");
           currentRaffleId = null;
+          currentRaffleEndDate = null;
+          if (raffleTimerInterval) {
+            clearInterval(raffleTimerInterval);
+            raffleTimerInterval = null;
+          }
         }
         updateRaffleBadge(!!active);
       })
