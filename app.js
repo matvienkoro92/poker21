@@ -1423,6 +1423,8 @@ function initRaffles() {
   var createBtn = document.getElementById("raffleCreateBtn");
   var raffleCurrent = document.getElementById("raffleCurrent");
   var raffleEmpty = document.getElementById("raffleEmpty");
+  var rafflesCompletedWrap = document.getElementById("rafflesCompletedWrap");
+  var rafflesCompleted = document.getElementById("rafflesCompleted");
   var raffleCard = document.getElementById("raffleCard");
   var raffleMeta = document.getElementById("raffleMeta");
   var raffleEnd = document.getElementById("raffleEnd");
@@ -1568,6 +1570,39 @@ function initRaffles() {
           }
         }
         updateRaffleBadge(!!active);
+
+        var completed = (data.raffles || []).filter(function (r) { return r.status !== "active"; });
+        if (rafflesCompletedWrap && rafflesCompleted) {
+          if (completed.length > 0) {
+            rafflesCompletedWrap.classList.remove("raffles-completed-wrap--hidden");
+            rafflesCompleted.innerHTML = completed.map(function (raffle) {
+              var created = raffle.createdAt ? new Date(raffle.createdAt).toLocaleDateString("ru-RU") : "";
+              var end = raffle.endDate ? new Date(raffle.endDate).toLocaleString("ru-RU") : "";
+              var meta = "Розыгрыш" + (created ? " от " + created : "") + (end ? " · Завершён " + end : "");
+              var winners = raffle.winners || [];
+              var byGroup = {};
+              winners.forEach(function (w) {
+                var g = w.groupIndex >= 0 ? "Группа " + (w.groupIndex + 1) : "Без группы";
+                if (!byGroup[g]) byGroup[g] = [];
+                byGroup[g].push(w);
+              });
+              var winHtml = "";
+              Object.keys(byGroup).forEach(function (g) {
+                var prize = byGroup[g][0] && byGroup[g][0].prize ? byGroup[g][0].prize : "";
+                winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(prize) : "") + "</strong><ul>";
+                byGroup[g].forEach(function (w) {
+                  winHtml += "<li>" + escapeHtml(w.name) + " — " + escapeHtml(w.p21Id) + "</li>";
+                });
+                winHtml += "</ul></li>";
+              });
+              return "<div class=\"raffle-completed-card\"><p class=\"raffle-completed-card__meta\">" + escapeHtml(meta) + "</p>" +
+                (winHtml ? "<p class=\"raffle-completed-card__winners-title\">Победители</p><ul class=\"raffle-completed-card__winners\">" + winHtml + "</ul>" : "") + "</div>";
+            }).join("");
+          } else {
+            rafflesCompletedWrap.classList.add("raffles-completed-wrap--hidden");
+            rafflesCompleted.innerHTML = "";
+          }
+        }
       })
       .catch(function () {});
   }
