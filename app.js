@@ -1423,8 +1423,16 @@ function initRaffles() {
   var createBtn = document.getElementById("raffleCreateBtn");
   var raffleCurrent = document.getElementById("raffleCurrent");
   var raffleEmpty = document.getElementById("raffleEmpty");
-  var rafflesCompletedWrap = document.getElementById("rafflesCompletedWrap");
+  var rafflesTabActive = document.getElementById("rafflesTabActive");
+  var rafflesTabCompleted = document.getElementById("rafflesTabCompleted");
+  var rafflesPanelActive = document.getElementById("rafflesPanelActive");
+  var rafflesPanelCompleted = document.getElementById("rafflesPanelCompleted");
+  var rafflesTabActiveCount = document.getElementById("rafflesTabActiveCount");
+  var rafflesTabActiveSum = document.getElementById("rafflesTabActiveSum");
+  var rafflesTabCompletedCount = document.getElementById("rafflesTabCompletedCount");
+  var rafflesTabCompletedSum = document.getElementById("rafflesTabCompletedSum");
   var rafflesCompleted = document.getElementById("rafflesCompleted");
+  var rafflesCompletedEmpty = document.getElementById("rafflesCompletedEmpty");
   var raffleCard = document.getElementById("raffleCard");
   var raffleMeta = document.getElementById("raffleMeta");
   var raffleEnd = document.getElementById("raffleEnd");
@@ -1554,7 +1562,14 @@ function initRaffles() {
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
         // Текущий розыгрыш показываем всем участникам, не только админам
-        var active = data.activeRaffle || data.raffles && data.raffles[0];
+        var allRaffles = data.raffles || [];
+        var activeList = allRaffles.filter(function (r) { return r.status === "active"; });
+        var active = data.activeRaffle || activeList[0];
+        var activeCount = activeList.length;
+        var activeSum = activeList.reduce(function (s, r) { return s + (r.totalWinners || 0); }, 0);
+        if (rafflesTabActiveCount) rafflesTabActiveCount.textContent = String(activeCount);
+        if (rafflesTabActiveSum) rafflesTabActiveSum.textContent = String(activeSum);
+
         if (active) {
           if (raffleCurrent) raffleCurrent.classList.remove("raffle-current--hidden");
           if (raffleEmpty) raffleEmpty.classList.add("raffle-empty--hidden");
@@ -1571,10 +1586,15 @@ function initRaffles() {
         }
         updateRaffleBadge(!!active);
 
-        var completed = (data.raffles || []).filter(function (r) { return r.status !== "active"; });
-        if (rafflesCompletedWrap && rafflesCompleted) {
+        var completed = allRaffles.filter(function (r) { return r.status !== "active"; });
+        var completedCount = completed.length;
+        var completedSum = completed.reduce(function (s, r) { return s + ((r.winners && r.winners.length) || 0); }, 0);
+        if (rafflesTabCompletedCount) rafflesTabCompletedCount.textContent = String(completedCount);
+        if (rafflesTabCompletedSum) rafflesTabCompletedSum.textContent = String(completedSum);
+
+        if (rafflesCompleted) {
           if (completed.length > 0) {
-            rafflesCompletedWrap.classList.remove("raffles-completed-wrap--hidden");
+            if (rafflesCompletedEmpty) rafflesCompletedEmpty.classList.add("raffle-empty--hidden");
             rafflesCompleted.innerHTML = completed.map(function (raffle) {
               var created = raffle.createdAt ? new Date(raffle.createdAt).toLocaleDateString("ru-RU") : "";
               var end = raffle.endDate ? new Date(raffle.endDate).toLocaleString("ru-RU") : "";
@@ -1597,10 +1617,10 @@ function initRaffles() {
               });
               return "<div class=\"raffle-completed-card\"><p class=\"raffle-completed-card__meta\">" + escapeHtml(meta) + "</p>" +
                 (winHtml ? "<p class=\"raffle-completed-card__winners-title\">Победители</p><ul class=\"raffle-completed-card__winners\">" + winHtml + "</ul>" : "") + "</div>";
-            }).join("");
+              }).join("");
           } else {
-            rafflesCompletedWrap.classList.add("raffles-completed-wrap--hidden");
             rafflesCompleted.innerHTML = "";
+            if (rafflesCompletedEmpty) rafflesCompletedEmpty.classList.remove("raffle-empty--hidden");
           }
         }
       })
@@ -1618,6 +1638,18 @@ function initRaffles() {
       raffleGroupsEl.appendChild(div);
     }
   }
+
+  function setRafflesTab(tab) {
+    var isActive = tab === "active";
+    if (rafflesTabActive) rafflesTabActive.classList.toggle("raffles-tab--active", isActive);
+    if (rafflesTabCompleted) rafflesTabCompleted.classList.toggle("raffles-tab--active", !isActive);
+    if (rafflesPanelActive) rafflesPanelActive.classList.toggle("raffles-panel--active", isActive);
+    if (rafflesPanelActive) rafflesPanelActive.classList.toggle("raffles-panel--hidden", !isActive);
+    if (rafflesPanelCompleted) rafflesPanelCompleted.classList.toggle("raffles-panel--active", !isActive);
+    if (rafflesPanelCompleted) rafflesPanelCompleted.classList.toggle("raffles-panel--hidden", isActive);
+  }
+  if (rafflesTabActive) rafflesTabActive.addEventListener("click", function () { setRafflesTab("active"); });
+  if (rafflesTabCompleted) rafflesTabCompleted.addEventListener("click", function () { setRafflesTab("completed"); });
 
   if (createToggle && createForm) {
     createToggle.addEventListener("click", function () {

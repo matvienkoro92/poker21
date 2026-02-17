@@ -617,26 +617,33 @@
               </div>
             </div>
 
-            <div class="raffle-current raffle-current--hidden" id="raffleCurrent">
-              <div class="raffle-card" id="raffleCard">
-                <p class="raffle-meta" id="raffleMeta"></p>
-                <p class="raffle-end" id="raffleEnd"></p>
-                <div class="raffle-prizes" id="rafflePrizes"></div>
-                <button type="button" class="primary-button raffle-join-btn" id="raffleJoinBtn">Участвую</button>
-                <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
-                <h3 class="raffle-participants-title">Участники</h3>
-                <ul class="raffle-participants" id="raffleParticipants"></ul>
-                <div class="raffle-winners-wrap raffle-winners-wrap--hidden" id="raffleWinnersWrap">
-                  <h3 class="raffle-winners-title">Победители</h3>
-                  <ul class="raffle-winners" id="raffleWinners"></ul>
+            <div class="raffles-tabs" id="rafflesTabs">
+              <button type="button" class="raffles-tab raffles-tab--active" id="rafflesTabActive" data-raffle-tab="active" aria-selected="true">Активные (<span id="rafflesTabActiveCount">0</span>) — <span id="rafflesTabActiveSum">0</span></button>
+              <button type="button" class="raffles-tab" id="rafflesTabCompleted" data-raffle-tab="completed" aria-selected="false">Завершённые (<span id="rafflesTabCompletedCount">0</span>) — <span id="rafflesTabCompletedSum">0</span></button>
+            </div>
+
+            <div class="raffles-panel raffles-panel--active" id="rafflesPanelActive" data-raffle-panel="active">
+              <div class="raffle-current raffle-current--hidden" id="raffleCurrent">
+                <div class="raffle-card" id="raffleCard">
+                  <p class="raffle-meta" id="raffleMeta"></p>
+                  <p class="raffle-end" id="raffleEnd"></p>
+                  <div class="raffle-prizes" id="rafflePrizes"></div>
+                  <button type="button" class="primary-button raffle-join-btn" id="raffleJoinBtn">Участвую</button>
+                  <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
+                  <h3 class="raffle-participants-title">Участники</h3>
+                  <ul class="raffle-participants" id="raffleParticipants"></ul>
+                  <div class="raffle-winners-wrap raffle-winners-wrap--hidden" id="raffleWinnersWrap">
+                    <h3 class="raffle-winners-title">Победители</h3>
+                    <ul class="raffle-winners" id="raffleWinners"></ul>
+                  </div>
                 </div>
               </div>
+              <p class="raffle-empty raffle-empty--hidden" id="raffleEmpty">Нет активных розыгрышей.</p>
             </div>
-            <p class="raffle-empty raffle-empty--hidden" id="raffleEmpty">Нет активных розыгрышей.</p>
 
-            <div class="raffles-completed-wrap raffles-completed-wrap--hidden" id="rafflesCompletedWrap">
-              <h2 class="raffles-completed-title">Завершённые</h2>
+            <div class="raffles-panel raffles-panel--hidden" id="rafflesPanelCompleted" data-raffle-panel="completed">
               <div class="raffles-completed-list" id="rafflesCompleted"></div>
+              <p class="raffle-empty raffles-completed-empty" id="rafflesCompletedEmpty">Нет завершённых розыгрышей.</p>
             </div>
           </div>
 
