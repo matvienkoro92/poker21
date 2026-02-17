@@ -2456,35 +2456,31 @@ function getMskHour() {
   return msk.getHours();
 }
 
-var TOURNAMENT_WEEKDAY = 0; // 0=воскресенье, 1=пн, ..., 6=суббота
+// Таймер до 18:00 МСК (МСК = UTC+3 → 18:00 МСК = 15:00 UTC)
 function updateTournamentTimer() {
   var el = document.getElementById("tournamentDayTimer");
   var block = document.getElementById("tournamentDayBlock");
   if (!el && !block) return;
-  var msk = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
-  var todayWeekday = msk.getDay();
-  if (todayWeekday !== TOURNAMENT_WEEKDAY) {
-    if (block) block.style.display = "none";
-    if (el) el.textContent = "";
-    return;
-  }
-  var targetHour = 20;
-  var targetMin = 30;
-  var targetToday = new Date(msk);
-  targetToday.setHours(targetHour, targetMin, 0, 0);
-  if (msk >= targetToday) {
+  var now = new Date();
+  var utc = now.getTime();
+  var mskDate = new Date(utc + 3 * 3600 * 1000);
+  var y = mskDate.getUTCFullYear();
+  var mo = mskDate.getUTCMonth();
+  var d = mskDate.getUTCDate();
+  var target18msk = new Date(Date.UTC(y, mo, d, 15, 0, 0, 0));
+  if (now >= target18msk) {
     if (block) block.style.display = "none";
     if (el) el.textContent = "";
     return;
   }
   if (block) block.style.display = "";
-  var diff = targetToday - msk;
+  var diff = target18msk - now;
   var h = Math.floor(diff / 3600000);
   var m = Math.floor((diff % 3600000) / 60000);
   var parts = [];
   if (h > 0) parts.push(h + " ч");
   parts.push(m + " мин");
-  if (el) el.textContent = "До конца регистрации: " + parts.join(" ");
+  if (el) el.textContent = "До старта: " + parts.join(" ");
 }
 
 function updateCashoutManager() {
