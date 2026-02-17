@@ -329,7 +329,10 @@ module.exports = async function handler(req, res) {
           ["ZCOUNT", CHAT_ONLINE_KEY, String(minScore), "+inf"],
         ]),
       ]);
-      const raw = msgResults && msgResults[0] && msgResults[0].result !== undefined ? msgResults[0].result : [];
+      if (!msgResults || !Array.isArray(msgResults) || msgResults[0]?.error) {
+        return res.status(500).json({ ok: false, error: "Ошибка загрузки сообщений" });
+      }
+      const raw = Array.isArray(msgResults[0]?.result) ? msgResults[0].result : (typeof msgResults[0]?.result === "string" ? [msgResults[0].result] : []);
       const blockedSet = new Set(Array.isArray(blockedResults?.[0]?.result) ? blockedResults[0].result : []);
       const onlineCount = (onlineResults && onlineResults[2] && typeof onlineResults[2].result === "number") ? onlineResults[2].result : 0;
       const messages = (Array.isArray(raw) ? raw : [])

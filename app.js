@@ -1594,7 +1594,7 @@ function initChat() {
 
   function loadGeneral() {
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=general";
-    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+    fetch(url).then(function (r) { return r.json().catch(function () { return { ok: false, error: "Ошибка ответа" }; }); }).then(function (data) {
       if (data && data.ok) {
         chatIsAdmin = !!data.isAdmin;
         var messages = data.messages || [];
@@ -1620,8 +1620,10 @@ function initChat() {
           }
         }
         updateUnreadDots();
+      } else if (chatActiveTab === "general" && generalMessages) {
+        generalMessages.innerHTML = "<p class=\"chat-empty\">" + (data && data.error ? escapeHtml(data.error) : "Ошибка загрузки") + "</p>";
       }
-    }).catch(function () { if (chatActiveTab === "general") generalMessages.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
+    }).catch(function () { if (chatActiveTab === "general" && generalMessages) generalMessages.innerHTML = "<p class=\"chat-empty\">Ошибка сети</p>"; });
   }
 
   var generalReplyTo = null;
