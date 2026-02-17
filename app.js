@@ -236,7 +236,7 @@ function setView(viewName) {
     bonusPikhaninaInterval = setInterval(function () {
       updatePikhaninaStats();
       updateBonusStats();
-    }, 15000);
+    }, 60000);
   } else if (bonusPikhaninaInterval) {
     clearInterval(bonusPikhaninaInterval);
     bonusPikhaninaInterval = null;
@@ -666,12 +666,17 @@ function updatePikhaninaStats() {
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       var remaining = (data && typeof data.remaining === "number") ? Math.min(data.remaining, PIKHANINA_DEFAULT_MAX) : PIKHANINA_DEFAULT_MAX;
-      countEl.textContent = String(remaining);
-      if (allDoneEl) allDoneEl.style.display = remaining === 0 ? "block" : "none";
+      var s = String(remaining);
+      if (countEl.textContent !== s) countEl.textContent = s;
+      if (allDoneEl) {
+        var show = remaining === 0 ? "block" : "none";
+        if (allDoneEl.style.display !== show) allDoneEl.style.display = show;
+      }
     })
     .catch(function () {
-      countEl.textContent = String(PIKHANINA_DEFAULT_MAX);
-      if (allDoneEl) allDoneEl.style.display = "none";
+      var s = String(PIKHANINA_DEFAULT_MAX);
+      if (countEl.textContent !== s) countEl.textContent = s;
+      if (allDoneEl && allDoneEl.style.display !== "none") allDoneEl.style.display = "none";
     });
 }
 
@@ -1470,7 +1475,7 @@ function initChat() {
     else if (chatActiveTab === "admins") txt = "Админы";
     else if (chatWithUserId && convView && !convView.classList.contains("chat-conv-view--hidden")) txt = window.lastConvStats || "";
     else txt = window.lastListStats || "";
-    el.textContent = txt;
+    if (el.textContent !== txt) el.textContent = txt;
   }
   function closeSwitcherDropdown() {
     if (switcherDropdown) {
@@ -2335,7 +2340,7 @@ function initChat() {
     loadGeneral();
     if (chatWithUserId) loadMessages();
     else if (chatActiveTab === "personal") loadContacts();
-  }, 5000);
+  }, 60000);
 }
 
 function isLocalEnv() {
