@@ -171,60 +171,39 @@
                 </a>
               </div>
 
-              <div class="games-apps-row">
-                <div class="games-apps-col games-apps-col--games">
-                  <h2 class="features-section-title">Клубные игры</h2>
-                  <div class="bonus-games-grid">
-                    <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
-                      <div class="feature__icon feature__icon--purple">🃏</div>
-                      <div class="feature__body">
-                        <div class="feature__title">Найди Пиханину</div>
-                        <div class="feature__text">Пиханина спрятался в бубновой колоде.</div>
-                      </div>
-                    </a>
-                    <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
-                      <div class="feature__icon feature__icon--purple">🃏</div>
-                      <div class="feature__body">
-                        <div class="feature__title">Переедь Штукатура</div>
-                        <div class="feature__text">Побей два туза</div>
-                      </div>
-                    </a>
+              <h2 class="features-section-title">Игры и приложения</h2>
+              <div class="games-apps-grid">
+                <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
+                  <div class="feature__icon feature__icon--purple">🃏</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Найди Пиханину</div>
+                    <div class="feature__text">Пиханина спрятался в бубновой колоде.</div>
                   </div>
-                </div>
-                <div class="games-apps-col games-apps-col--apps">
-                  <h2 class="features-section-title features-section-title--end">Приложения</h2>
-                  <div class="apps-block">
-                    <a href="#" class="feature feature--link feature--app" data-view-target="randomizer">
-                      <span class="feature__body">
-                        <span class="feature__title">Рендомайзер</span>
-                      </span>
-                      <span class="feature__icon feature__icon--purple">🎲</span>
-                    </a>
-                    <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
-                      <span class="feature__body">
-                        <span class="feature__title">Розыгрыши</span>
-                      </span>
-                      <span class="feature__icon feature__icon--purple">🎁</span>
-                    </a>
-                    <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
-                      <span class="feature__body">
-                        <span class="feature__title">Задачи по покеру</span>
-                      </span>
-                      <span class="feature__icon feature__icon--purple">📋</span>
-                    </a>
+                </a>
+                <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
+                  <div class="feature__icon feature__icon--purple">🃏</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Переедь Штукатура</div>
+                    <div class="feature__text">Побей два туза</div>
                   </div>
-                </div>
+                </a>
+                <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
+                  <div class="feature__icon feature__icon--purple">🎁</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Розыгрыши</div>
+                    <div class="feature__text">Рендомайзер и розыгрыши</div>
+                  </div>
+                </a>
+                <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
+                  <div class="feature__icon feature__icon--purple">📋</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Задачи по покеру</div>
+                    <div class="feature__text">Скоро задачи</div>
+                  </div>
+                </a>
               </div>
             </div>
 
-            <div class="updates-block" id="updatesBlock">
-              <h3 class="updates-block__title">Последние обновления</h3>
-              <ul class="updates-block__list" id="updatesList" aria-live="polite"></ul>
-              <div class="updates-block__footer" id="updatesFooter">
-                <span class="updates-block__ellipsis" id="updatesEllipsis">…</span>
-                <button type="button" class="updates-block__toggle" id="updatesToggle">Показать все</button>
-              </div>
-            </div>
           </div>
 
           <!-- Чат: общий + личные + админы -->
@@ -242,9 +221,14 @@
                   <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
                 </div>
                 <div class="chat-image-preview" id="chatGeneralImagePreview"></div>
+                <div class="chat-voice-preview chat-voice-preview--hidden" id="chatGeneralVoicePreview">
+                  <span class="chat-voice-preview__label">Голосовое сообщение</span>
+                  <button type="button" class="chat-voice-preview__remove" id="chatGeneralVoiceRemove">Убрать</button>
+                </div>
                 <div class="chat-input-wrap">
                   <input type="file" class="chat-input-file" id="chatGeneralFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
                   <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить картинку">📷</button>
+                  <button type="button" class="chat-voice-btn" id="chatGeneralVoiceBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
                   <input type="text" class="chat-input" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" autocomplete="off" />
                   <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
                 </div>
@@ -281,9 +265,14 @@
                       <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
                     </div>
                     <div class="chat-image-preview" id="chatPersonalImagePreview"></div>
+                    <div class="chat-voice-preview chat-voice-preview--hidden" id="chatPersonalVoicePreview">
+                      <span class="chat-voice-preview__label">Голосовое сообщение</span>
+                      <button type="button" class="chat-voice-preview__remove" id="chatPersonalVoiceRemove">Убрать</button>
+                    </div>
                     <div class="chat-input-wrap">
                       <input type="file" class="chat-input-file" id="chatPersonalFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
                       <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить картинку">📷</button>
+                      <button type="button" class="chat-voice-btn" id="chatPersonalVoiceBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
                       <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." maxlength="500" autocomplete="off" />
                       <button type="button" class="chat-send-btn" id="chatSendBtn">Отправить</button>
                     </div>
@@ -600,10 +589,10 @@
             </div>
           </div>
 
-          <!-- Рендомайзер -->
-          <div class="view" data-view="randomizer">
+          <!-- Розыгрыши (пока с рендомайзером) -->
+          <div class="view" data-view="raffles">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
-            <h1 class="title">Рендомайзер</h1>
+            <h1 class="title">Розыгрыши</h1>
             <p class="randomizer-desc">Введите число — из диапазона от 1 до этого числа будут выбираться победители. Укажите, сколько случайных чисел (победителей) выпасть.</p>
             <div class="randomizer-form">
               <label class="randomizer-label">
@@ -617,13 +606,6 @@
               <button type="button" class="primary-button randomizer-btn" id="randomizerPickBtn">Выбрать</button>
             </div>
             <div class="randomizer-result" id="randomizerResult" aria-live="polite"></div>
-          </div>
-
-          <!-- Розыгрыши -->
-          <div class="view" data-view="raffles">
-            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
-            <h1 class="title">Розыгрыши</h1>
-            <p class="randomizer-desc">Скоро здесь появятся розыгрыши.</p>
           </div>
 
           <!-- Задачи по покеру -->

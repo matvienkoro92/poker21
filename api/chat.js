@@ -437,6 +437,11 @@ module.exports = async function handler(req, res) {
     const m = image.match(/^data:image\/(jpeg|jpg|png|gif|webp);base64,(.+)$/);
     image = m && m[2] && m[2].length < 250000 ? image : null;
   }
+  let voice = body.voice;
+  if (voice && typeof voice === "string") {
+    const v = voice.match(/^data:audio\/(ogg|webm|mpeg);base64,(.+)$/);
+    voice = v && v[2] && v[2].length < 800000 ? voice : null; // ~600KB base64 ≈ 1 мин
+  }
   const replyTo = body.replyTo && typeof body.replyTo === "object" ? {
     id: body.replyTo.id || null,
     text: String(body.replyTo.text || "").slice(0, 500),
@@ -444,8 +449,8 @@ module.exports = async function handler(req, res) {
     fromName: String(body.replyTo.fromName || "Игрок").slice(0, 100),
   } : null;
 
-  if ((!text || text.length > 500) && !image) {
-    return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов или картинка" });
+  if ((!text || text.length > 500) && !image && !voice) {
+    return res.status(400).json({ ok: false, error: "Текст от 1 до 500 символов, картинка или голосовое" });
   }
   if (text && text.length > 500) {
     return res.status(400).json({ ok: false, error: "Текст до 500 символов" });
@@ -466,6 +471,7 @@ module.exports = async function handler(req, res) {
       text: text || "",
       time: new Date().toISOString(),
       ...(image ? { image } : {}),
+      ...(voice ? { voice } : {}),
       ...(replyTo && replyTo.text ? { replyTo } : {}),
     };
 
@@ -504,6 +510,7 @@ module.exports = async function handler(req, res) {
     text: text || "",
     time: new Date().toISOString(),
     ...(image ? { image } : {}),
+    ...(voice ? { voice } : {}),
     ...(replyTo && replyTo.text ? { replyTo } : {}),
   };
 

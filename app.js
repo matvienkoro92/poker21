@@ -1635,6 +1635,8 @@ function initChat() {
   var personalReplyTo = null;
   var generalImage = null;
   var personalImage = null;
+  var generalVoice = null;
+  var personalVoice = null;
   var chatCtxMsg = null;
   var chatCtxSource = null;
 
@@ -1678,8 +1680,9 @@ function initChat() {
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
+      var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
-      var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
+      var editBtn = isOwn && m.id && !m.image && !m.voice ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var blockBtn = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
@@ -1689,7 +1692,7 @@ function initChat() {
       var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
       var nameWithP21 = nameStr + ' <span class="chat-msg__p21">P21_ID: ' + p21Str + "</span>";
       var nameEl = isOwn ? '<span class="chat-msg__name">' + nameWithP21 + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameWithP21 + '</button>';
-      var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
+      var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
         var pills = [];
@@ -1933,12 +1936,13 @@ function initChat() {
   var sendingGeneral = false;
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
-    if ((!text && !generalImage) || !initData || sendingGeneral) return;
+    if ((!text && !generalImage && !generalVoice) || !initData || sendingGeneral) return;
     if (!initData) { if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram."); return; }
     sendingGeneral = true;
     if (generalSendBtn) generalSendBtn.disabled = true;
     var body = { initData: initData, text: text };
     if (generalImage) body.image = generalImage;
+    if (generalVoice) body.voice = generalVoice;
     if (generalReplyTo) body.replyTo = generalReplyTo;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -1950,10 +1954,13 @@ function initChat() {
       if (generalInput) generalInput.value = "";
       generalReplyTo = null;
       generalImage = null;
+      generalVoice = null;
       var prevEl = document.getElementById("chatGeneralReplyPreview");
       if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
       var imgPrev = document.getElementById("chatGeneralImagePreview");
       if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
+      var voicePrev = document.getElementById("chatGeneralVoicePreview");
+      if (voicePrev) voicePrev.classList.add("chat-voice-preview--hidden");
       if (data && data.ok) loadGeneral();
       else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
     }).catch(function () { sendingGeneral = false; if (generalSendBtn) generalSendBtn.disabled = false; });
@@ -1972,10 +1979,13 @@ function initChat() {
     chatWithUserName = userName || userId;
     personalReplyTo = null;
     personalImage = null;
+    personalVoice = null;
     var prevP = document.getElementById("chatPersonalReplyPreview");
     if (prevP) { prevP.classList.remove("chat-reply-preview--visible"); prevP.querySelector(".chat-reply-preview__text").textContent = ""; }
     var imgP = document.getElementById("chatPersonalImagePreview");
     if (imgP) { imgP.classList.remove("chat-image-preview--visible"); imgP.innerHTML = ""; }
+    var voicePrevP = document.getElementById("chatPersonalVoicePreview");
+    if (voicePrevP) voicePrevP.classList.remove("chat-voice-preview--visible");
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     if (convTitle) convTitle.textContent = userName || userId;
@@ -2022,8 +2032,9 @@ function initChat() {
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
+      var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
       var delBtn = chatIsAdmin && m.id && isOwn ? ' <button type="button" class="chat-msg__delete" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
-      var editBtn = isOwn && m.id && !m.image ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
+      var editBtn = isOwn && m.id && !m.image && !m.voice ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
@@ -2031,7 +2042,7 @@ function initChat() {
       var nameStrP = escapeHtml(m.fromName || "Игрок");
       var p21StrP = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
       var nameWithP21P = nameStrP + ' <span class="chat-msg__p21">P21_ID: ' + p21StrP + "</span>";
-      var textBlock = (text || imgBlock) ? '<div class="chat-msg__text">' + imgBlock + text + '</div>' : "";
+      var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
       var reactionsHtmlP = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
         var pillsP = [];
@@ -2150,11 +2161,12 @@ function initChat() {
   var sendingPrivate = false;
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
-    if ((!text && !personalImage) || !chatWithUserId || !initData || sendingPrivate) return;
+    if ((!text && !personalImage && !personalVoice) || !chatWithUserId || !initData || sendingPrivate) return;
     sendingPrivate = true;
     if (sendBtn) sendBtn.disabled = true;
     var body = { initData: initData, with: chatWithUserId, text: text };
     if (personalImage) body.image = personalImage;
+    if (personalVoice) body.voice = personalVoice;
     if (personalReplyTo) body.replyTo = personalReplyTo;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -2166,10 +2178,13 @@ function initChat() {
       if (inputEl) inputEl.value = "";
       personalReplyTo = null;
       personalImage = null;
+      personalVoice = null;
       var prevEl = document.getElementById("chatPersonalReplyPreview");
       if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
       var imgPrev = document.getElementById("chatPersonalImagePreview");
       if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
+      var voicePrevP = document.getElementById("chatPersonalVoicePreview");
+      if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
       if (data && data.ok) loadMessages();
       else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
     }).catch(function () { sendingPrivate = false; if (sendBtn) sendBtn.disabled = false; });
@@ -2287,6 +2302,122 @@ function initChat() {
         generalFileInput.value = "";
       });
     }
+    var generalVoiceBtn = document.getElementById("chatGeneralVoiceBtn");
+    var generalVoiceRemove = document.getElementById("chatGeneralVoiceRemove");
+    var generalVoicePreviewEl = document.getElementById("chatGeneralVoicePreview");
+    (function initVoiceRecording() {
+      var voiceTarget = null;
+      var voiceStream = null;
+      var voiceChunks = [];
+      var voiceRecorder = null;
+      function stopAndDiscard() {
+        voiceTarget = null;
+        if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
+        voiceRecorder = null;
+        if (voiceStream) {
+          voiceStream.getTracks().forEach(function (t) { t.stop(); });
+          voiceStream = null;
+        }
+        voiceChunks = [];
+      }
+      function startRecording(target) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          if (tg && tg.showAlert) tg.showAlert("Микрофон не поддерживается");
+          return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          voiceStream = stream;
+          voiceChunks = [];
+          voiceTarget = target;
+          var opts = { audioBitsPerSecond: 64000 };
+          try {
+            voiceRecorder = new MediaRecorder(stream, opts);
+          } catch (e) {
+            voiceRecorder = new MediaRecorder(stream);
+          }
+          voiceRecorder.ondataavailable = function (e) { if (e.data && e.data.size > 0) voiceChunks.push(e.data); };
+          voiceRecorder.onstop = function () {
+            var mime = (voiceRecorder && voiceRecorder.mimeType) ? voiceRecorder.mimeType : "audio/webm";
+            voiceRecorder = null;
+            if (voiceStream) {
+              voiceStream.getTracks().forEach(function (t) { t.stop(); });
+              voiceStream = null;
+            }
+            if (voiceChunks.length === 0) return;
+            var blob = new Blob(voiceChunks, { type: mime });
+            voiceChunks = [];
+            var reader = new FileReader();
+            reader.onloadend = function () {
+              var dataUrl = reader.result;
+              if (voiceTarget === "general") {
+                generalVoice = dataUrl;
+                if (generalVoicePreviewEl) generalVoicePreviewEl.classList.remove("chat-voice-preview--hidden");
+              } else if (voiceTarget === "personal") {
+                personalVoice = dataUrl;
+                var pv = document.getElementById("chatPersonalVoicePreview");
+                if (pv) pv.classList.remove("chat-voice-preview--hidden");
+              }
+              voiceTarget = null;
+            };
+            reader.readAsDataURL(blob);
+          };
+          voiceRecorder.start(200);
+          if (generalVoiceBtn && target === "general") { generalVoiceBtn.classList.add("chat-voice-btn--recording"); generalVoiceBtn.title = "Остановить запись"; }
+          if (target === "personal") {
+            var pvb = document.getElementById("chatPersonalVoiceBtn");
+            if (pvb) { pvb.classList.add("chat-voice-btn--recording"); pvb.title = "Остановить запись"; }
+          }
+        }).catch(function () {
+          if (tg && tg.showAlert) tg.showAlert("Нет доступа к микрофону");
+        });
+      }
+      if (generalVoiceBtn) {
+        generalVoiceBtn.addEventListener("click", function () {
+          if (voiceTarget === "general") {
+            if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
+            generalVoiceBtn.classList.remove("chat-voice-btn--recording");
+            generalVoiceBtn.title = "Голосовое сообщение";
+          } else if (voiceTarget) {
+            stopAndDiscard();
+            var pvbEl = document.getElementById("chatPersonalVoiceBtn");
+            if (pvbEl) pvbEl.classList.remove("chat-voice-btn--recording");
+            startRecording("general");
+          } else {
+            startRecording("general");
+          }
+        });
+      }
+      if (generalVoiceRemove && generalVoicePreviewEl) {
+        generalVoiceRemove.addEventListener("click", function () {
+          generalVoice = null;
+          generalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+        });
+      }
+      var personalVoiceBtn = document.getElementById("chatPersonalVoiceBtn");
+      var personalVoiceRemove = document.getElementById("chatPersonalVoiceRemove");
+      var personalVoicePreviewEl = document.getElementById("chatPersonalVoicePreview");
+      if (personalVoiceBtn) {
+        personalVoiceBtn.addEventListener("click", function () {
+          if (voiceTarget === "personal") {
+            if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
+            personalVoiceBtn.classList.remove("chat-voice-btn--recording");
+            personalVoiceBtn.title = "Голосовое сообщение";
+          } else if (voiceTarget) {
+            stopAndDiscard();
+            if (generalVoiceBtn) generalVoiceBtn.classList.remove("chat-voice-btn--recording");
+            startRecording("personal");
+          } else {
+            startRecording("personal");
+          }
+        });
+      }
+      if (personalVoiceRemove && personalVoicePreviewEl) {
+        personalVoiceRemove.addEventListener("click", function () {
+          personalVoice = null;
+          personalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+        });
+      }
+    })();
     if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
     if (generalInput) generalInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendGeneral(); }
