@@ -1179,6 +1179,20 @@ body:has(.view--active[data-view="chat"]) {
 .chat-voice-preview--hidden {
   display: none;
 }
+.chat-voice-preview__recording {
+  color: var(--accent);
+  font-weight: 600;
+}
+.chat-voice-preview__recording--hidden {
+  display: none;
+}
+.chat-voice-preview--recording .chat-voice-preview__recording {
+  display: inline !important;
+}
+.chat-voice-preview--recording .chat-voice-preview__label--recorded,
+.chat-voice-preview--recording .chat-voice-preview__remove {
+  display: none;
+}
 .chat-voice-preview__label {
   color: var(--text-muted);
 }
@@ -1300,7 +1314,7 @@ img.chat-contact__avatar {
 }
 .chat-input::placeholder { color: var(--text-muted); }
 .chat-input--textarea {
-  min-height: 44px;
+  min-height: 56px;
   max-height: 140px;
   resize: none;
   overflow-y: auto;
@@ -1323,6 +1337,17 @@ img.chat-contact__avatar {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+}
+.chat-send-btn--icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 10px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .chat-send-btn:hover { opacity: 0.9; }
 .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }

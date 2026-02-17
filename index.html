@@ -222,15 +222,16 @@
                 </div>
                 <div class="chat-image-preview" id="chatGeneralImagePreview"></div>
                 <div class="chat-voice-preview chat-voice-preview--hidden" id="chatGeneralVoicePreview">
-                  <span class="chat-voice-preview__label">Голосовое сообщение</span>
+                  <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatGeneralVoiceRecording">🔴 Идёт запись... Нажмите 🎤 ещё раз чтобы остановить</span>
+                  <span class="chat-voice-preview__label chat-voice-preview__label--recorded">Голосовое сообщение</span>
                   <button type="button" class="chat-voice-preview__remove" id="chatGeneralVoiceRemove">Убрать</button>
                 </div>
                 <div class="chat-input-wrap">
                   <input type="file" class="chat-input-file" id="chatGeneralFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
                   <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить картинку">📷</button>
                   <button type="button" class="chat-voice-btn" id="chatGeneralVoiceBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
-                  <textarea class="chat-input chat-input--textarea" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" rows="1" autocomplete="off"></textarea>
-                  <button type="button" class="chat-send-btn" id="chatGeneralSendBtn">Отправить</button>
+                  <textarea class="chat-input chat-input--textarea" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" rows="2" autocomplete="off"></textarea>
+                  <button type="button" class="chat-send-btn chat-send-btn--icon" id="chatGeneralSendBtn" aria-label="Отправить">↑</button>
                 </div>
               </div>
             </div>
@@ -266,15 +267,16 @@
                     </div>
                     <div class="chat-image-preview" id="chatPersonalImagePreview"></div>
                     <div class="chat-voice-preview chat-voice-preview--hidden" id="chatPersonalVoicePreview">
-                      <span class="chat-voice-preview__label">Голосовое сообщение</span>
+                      <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatPersonalVoiceRecording">🔴 Идёт запись... Нажмите 🎤 ещё раз чтобы остановить</span>
+                      <span class="chat-voice-preview__label chat-voice-preview__label--recorded">Голосовое сообщение</span>
                       <button type="button" class="chat-voice-preview__remove" id="chatPersonalVoiceRemove">Убрать</button>
                     </div>
                     <div class="chat-input-wrap">
                       <input type="file" class="chat-input-file" id="chatPersonalFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
                       <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить картинку">📷</button>
                       <button type="button" class="chat-voice-btn" id="chatPersonalVoiceBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
-                      <textarea class="chat-input chat-input--textarea" id="chatInput" placeholder="Сообщение..." maxlength="500" rows="1" autocomplete="off"></textarea>
-                      <button type="button" class="chat-send-btn" id="chatSendBtn">Отправить</button>
+                      <textarea class="chat-input chat-input--textarea" id="chatInput" placeholder="Сообщение..." maxlength="500" rows="2" autocomplete="off"></textarea>
+                      <button type="button" class="chat-send-btn chat-send-btn--icon" id="chatSendBtn" aria-label="Отправить">↑</button>
                     </div>
                   </div>
                 </div>

@@ -2329,10 +2329,19 @@ function initChat() {
         if (target === "general" && generalVoiceBtn) {
           generalVoiceBtn.classList.add("chat-voice-btn--recording");
           generalVoiceBtn.title = "Остановить запись";
+          if (generalVoicePreviewEl) {
+            generalVoicePreviewEl.classList.remove("chat-voice-preview--hidden");
+            generalVoicePreviewEl.classList.add("chat-voice-preview--recording");
+          }
         }
         if (target === "personal") {
           var pvb = document.getElementById("chatPersonalVoiceBtn");
           if (pvb) { pvb.classList.add("chat-voice-btn--recording"); pvb.title = "Остановить запись"; }
+          var pvPrev = document.getElementById("chatPersonalVoicePreview");
+          if (pvPrev) {
+            pvPrev.classList.remove("chat-voice-preview--hidden");
+            pvPrev.classList.add("chat-voice-preview--recording");
+          }
         }
         navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
           if (voiceTarget !== target) {
@@ -2347,6 +2356,7 @@ function initChat() {
           } catch (e) {
             voiceRecorder = new MediaRecorder(stream);
           }
+          var savedTarget = target;
           voiceRecorder.ondataavailable = function (e) { if (e.data && e.data.size > 0) voiceChunks.push(e.data); };
           voiceRecorder.onstop = function () {
             var mime = (voiceRecorder && voiceRecorder.mimeType) ? voiceRecorder.mimeType : "audio/webm";
@@ -2355,42 +2365,66 @@ function initChat() {
               voiceStream.getTracks().forEach(function (t) { t.stop(); });
               voiceStream = null;
             }
-            if (voiceChunks.length === 0) return;
+            if (voiceChunks.length === 0) {
+              if (savedTarget === "general" && generalVoicePreviewEl) {
+                generalVoicePreviewEl.classList.remove("chat-voice-preview--recording");
+                generalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+              }
+              if (savedTarget === "personal") {
+                var pvH = document.getElementById("chatPersonalVoicePreview");
+                if (pvH) { pvH.classList.remove("chat-voice-preview--recording"); pvH.classList.add("chat-voice-preview--hidden"); }
+              }
+              voiceTarget = null;
+              return;
+            }
             var blob = new Blob(voiceChunks, { type: mime });
             voiceChunks = [];
             var reader = new FileReader();
             reader.onloadend = function () {
               var dataUrl = reader.result;
-              if (voiceTarget === "general") {
+              if (savedTarget === "general") {
                 generalVoice = dataUrl;
-                if (generalVoicePreviewEl) generalVoicePreviewEl.classList.remove("chat-voice-preview--hidden");
-              } else if (voiceTarget === "personal") {
+                if (generalVoicePreviewEl) {
+                  generalVoicePreviewEl.classList.remove("chat-voice-preview--recording");
+                  generalVoicePreviewEl.classList.remove("chat-voice-preview--hidden");
+                }
+              } else if (savedTarget === "personal") {
                 personalVoice = dataUrl;
                 var pv = document.getElementById("chatPersonalVoicePreview");
-                if (pv) pv.classList.remove("chat-voice-preview--hidden");
+                if (pv) {
+                  pv.classList.remove("chat-voice-preview--recording");
+                  pv.classList.remove("chat-voice-preview--hidden");
+                }
               }
               voiceTarget = null;
             };
             reader.readAsDataURL(blob);
           };
-          voiceRecorder.start(200);
+          voiceRecorder.start(1000);
         }).catch(function () {
           voiceTarget = null;
-          if (generalVoiceBtn && target === "general") { generalVoiceBtn.classList.remove("chat-voice-btn--recording"); generalVoiceBtn.title = "Голосовое сообщение"; }
+          if (generalVoiceBtn && target === "general") { generalVoiceBtn.classList.remove("chat-voice-btn--recording"); generalVoiceBtn.title = "Голосовое сообщение"; if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); } }
           if (target === "personal") {
             var pvb = document.getElementById("chatPersonalVoiceBtn");
             if (pvb) { pvb.classList.remove("chat-voice-btn--recording"); pvb.title = "Голосовое сообщение"; }
+            var pvErr = document.getElementById("chatPersonalVoicePreview");
+            if (pvErr) { pvErr.classList.remove("chat-voice-preview--recording"); pvErr.classList.add("chat-voice-preview--hidden"); }
           }
           if (tg && tg.showAlert) tg.showAlert("Нет доступа к микрофону");
         });
       }
       if (generalVoiceBtn) {
-        generalVoiceBtn.addEventListener("click", function () {
+        generalVoiceBtn.addEventListener("click", function (e) {
+          e.preventDefault();
           if (voiceTarget === "general") {
-            if (voiceRecorder && voiceRecorder.state !== "inactive") {
-              voiceRecorder.stop();
+            if (voiceRecorder) {
+              try {
+                if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
+                voiceRecorder.stop();
+              } catch (err) {}
             } else {
               voiceTarget = null;
+              if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
             }
             generalVoiceBtn.classList.remove("chat-voice-btn--recording");
             generalVoiceBtn.title = "Голосовое сообщение";
@@ -2398,6 +2432,8 @@ function initChat() {
             stopAndDiscard();
             var pvbEl = document.getElementById("chatPersonalVoiceBtn");
             if (pvbEl) pvbEl.classList.remove("chat-voice-btn--recording");
+            var pvPrev = document.getElementById("chatPersonalVoicePreview");
+            if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
             startRecording("general");
           } else {
             startRecording("general");
@@ -2414,18 +2450,25 @@ function initChat() {
       var personalVoiceRemove = document.getElementById("chatPersonalVoiceRemove");
       var personalVoicePreviewEl = document.getElementById("chatPersonalVoicePreview");
       if (personalVoiceBtn) {
-        personalVoiceBtn.addEventListener("click", function () {
+        personalVoiceBtn.addEventListener("click", function (e) {
+          e.preventDefault();
           if (voiceTarget === "personal") {
-            if (voiceRecorder && voiceRecorder.state !== "inactive") {
-              voiceRecorder.stop();
+            if (voiceRecorder) {
+              try {
+                if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
+                voiceRecorder.stop();
+              } catch (err) {}
             } else {
               voiceTarget = null;
+              var pvPrev = document.getElementById("chatPersonalVoicePreview");
+              if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
             }
             personalVoiceBtn.classList.remove("chat-voice-btn--recording");
             personalVoiceBtn.title = "Голосовое сообщение";
           } else if (voiceTarget === "general") {
             stopAndDiscard();
             if (generalVoiceBtn) generalVoiceBtn.classList.remove("chat-voice-btn--recording");
+            if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
             startRecording("personal");
           } else {
             startRecording("personal");
