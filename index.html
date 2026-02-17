@@ -591,23 +591,47 @@
             </div>
           </div>
 
-          <!-- Розыгрыши (пока с рендомайзером) -->
+          <!-- Розыгрыши -->
           <div class="view" data-view="raffles">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Розыгрыши</h1>
-            <p class="randomizer-desc">Введите число — из диапазона от 1 до этого числа будут выбираться победители. Укажите, сколько случайных чисел (победителей) выпасть.</p>
-            <div class="randomizer-form">
-              <label class="randomizer-label">
-                <span class="randomizer-label__text">Число (от 1 до N):</span>
-                <input type="number" id="randomizerMax" class="randomizer-input" min="1" max="999999" value="100" placeholder="100" inputmode="numeric" />
-              </label>
-              <label class="randomizer-label">
-                <span class="randomizer-label__text">Количество победителей:</span>
-                <input type="number" id="randomizerCount" class="randomizer-input" min="1" max="100" value="1" placeholder="1" inputmode="numeric" />
-              </label>
-              <button type="button" class="primary-button randomizer-btn" id="randomizerPickBtn">Выбрать</button>
+
+            <div class="raffles-admin-wrap raffles-admin-wrap--hidden" id="rafflesAdminWrap">
+              <button type="button" class="raffles-create-toggle" id="rafflesCreateToggle">Создать розыгрыш</button>
+              <div class="raffle-create-form raffle-create-form--hidden" id="raffleCreateForm">
+                <label class="randomizer-label">
+                  <span class="randomizer-label__text">Всего победителей:</span>
+                  <input type="number" id="raffleTotalWinners" class="randomizer-input" min="1" max="100" value="3" />
+                </label>
+                <label class="randomizer-label">
+                  <span class="randomizer-label__text">Количество групп призов:</span>
+                  <input type="number" id="raffleGroupCount" class="randomizer-input" min="1" max="10" value="1" />
+                </label>
+                <div class="raffle-groups" id="raffleGroups"></div>
+                <label class="randomizer-label">
+                  <span class="randomizer-label__text">Дата и время завершения (МСК):</span>
+                  <input type="datetime-local" id="raffleEndDate" class="randomizer-input" />
+                </label>
+                <button type="button" class="primary-button" id="raffleCreateBtn">Создать</button>
+              </div>
             </div>
-            <div class="randomizer-result" id="randomizerResult" aria-live="polite"></div>
+
+            <div class="raffle-current raffle-current--hidden" id="raffleCurrent">
+              <div class="raffle-card" id="raffleCard">
+                <p class="raffle-meta" id="raffleMeta"></p>
+                <p class="raffle-end" id="raffleEnd"></p>
+                <div class="raffle-prizes" id="rafflePrizes"></div>
+                <button type="button" class="primary-button raffle-join-btn" id="raffleJoinBtn">Участвую</button>
+                <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
+                <h3 class="raffle-participants-title">Участники</h3>
+                <ul class="raffle-participants" id="raffleParticipants"></ul>
+                <div class="raffle-winners-wrap raffle-winners-wrap--hidden" id="raffleWinnersWrap">
+                  <h3 class="raffle-winners-title">Победители</h3>
+                  <ul class="raffle-winners" id="raffleWinners"></ul>
+                </div>
+              </div>
+            </div>
+            <p class="raffle-empty raffle-empty--hidden" id="raffleEmpty">Нет активных розыгрышей.</p>
           </div>
 
           <!-- Задачи по покеру -->
@@ -692,6 +716,22 @@
               <button type="button" class="profile-save-btn" id="profileSaveBtn">Сохранить</button>
               <span class="profile-save-feedback" id="profileSaveFeedback" aria-live="polite"></span>
             </p>
+            <div class="profile-randomizer">
+              <h2 class="profile-randomizer-title">Рендомайзер</h2>
+              <p class="randomizer-desc">Введите число — из диапазона от 1 до этого числа будут выбираться победители. Укажите, сколько случайных чисел (победителей) выпасть.</p>
+              <div class="randomizer-form">
+                <label class="randomizer-label">
+                  <span class="randomizer-label__text">Число (от 1 до N):</span>
+                  <input type="number" id="randomizerMax" class="randomizer-input" min="1" max="999999" value="100" placeholder="100" inputmode="numeric" />
+                </label>
+                <label class="randomizer-label">
+                  <span class="randomizer-label__text">Количество победителей:</span>
+                  <input type="number" id="randomizerCount" class="randomizer-input" min="1" max="100" value="1" placeholder="1" inputmode="numeric" />
+                </label>
+                <button type="button" class="primary-button randomizer-btn" id="randomizerPickBtn">Выбрать</button>
+              </div>
+              <div class="randomizer-result" id="randomizerResult" aria-live="polite"></div>
+            </div>
             <p class="profile-concept">
               Концепция ещё в разработке, но мы делаем всё очень быстро и я уверен, будет бомба!
             </p>

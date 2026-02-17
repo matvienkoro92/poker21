@@ -243,6 +243,7 @@ function setView(viewName) {
   }
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
+  if (viewName === "raffles") initRaffles();
   var headerGreeting = document.getElementById("headerGreeting");
   var headerSwitcherWrap = document.getElementById("headerChatSwitcherWrap");
   if (headerGreeting) headerGreeting.classList.toggle("header-greeting--hidden", viewName === "chat");
@@ -1388,6 +1389,211 @@ document.getElementById("plastererPlayAgainBtn")?.addEventListener("click", func
     resultEl.className = "randomizer-result randomizer-result--ok";
   });
 })();
+
+// Розыгрыши: список, создание (админ), участие, жеребьёвка
+function initRaffles() {
+  var base = getApiBase();
+  var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var adminWrap = document.getElementById("rafflesAdminWrap");
+  var createToggle = document.getElementById("rafflesCreateToggle");
+  var createForm = document.getElementById("raffleCreateForm");
+  var groupCountInput = document.getElementById("raffleGroupCount");
+  var raffleGroupsEl = document.getElementById("raffleGroups");
+  var totalWinnersInput = document.getElementById("raffleTotalWinners");
+  var endDateInput = document.getElementById("raffleEndDate");
+  var createBtn = document.getElementById("raffleCreateBtn");
+  var raffleCurrent = document.getElementById("raffleCurrent");
+  var raffleEmpty = document.getElementById("raffleEmpty");
+  var raffleCard = document.getElementById("raffleCard");
+  var raffleMeta = document.getElementById("raffleMeta");
+  var raffleEnd = document.getElementById("raffleEnd");
+  var rafflePrizes = document.getElementById("rafflePrizes");
+  var raffleJoinBtn = document.getElementById("raffleJoinBtn");
+  var raffleJoinedMsg = document.getElementById("raffleJoinedMsg");
+  var raffleParticipants = document.getElementById("raffleParticipants");
+  var raffleWinnersWrap = document.getElementById("raffleWinnersWrap");
+  var raffleWinners = document.getElementById("raffleWinners");
+  var currentRaffleId = null;
+  var rafflesIsAdmin = false;
+  var myRaffleUserId = null;
+
+  function escapeHtml(s) {
+    if (s == null) return "";
+    var str = String(s);
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function getMyUserId() {
+    if (myRaffleUserId) return myRaffleUserId;
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+      myRaffleUserId = "tg_" + tg.initDataUnsafe.user.id;
+      return myRaffleUserId;
+    }
+    return null;
+  }
+
+  function renderRaffle(raffle) {
+    if (!raffle || !raffleCard) return;
+    currentRaffleId = raffle.id;
+    var total = raffle.totalWinners || 0;
+    var groups = raffle.groups || [];
+    var endDate = raffle.endDate ? new Date(raffle.endDate) : null;
+    raffleMeta.textContent = "Победителей: " + total + (groups.length > 0 ? " · Групп призов: " + groups.length : "");
+    raffleEnd.textContent = endDate ? "Завершение: " + endDate.toLocaleString("ru-RU") : "";
+    var prizesHtml = "";
+    groups.forEach(function (g, i) {
+      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") + " (мест: " + (g.count || 0) + ")</div>";
+    });
+    rafflePrizes.innerHTML = prizesHtml || "<p class=\"raffle-no-prizes\">Призы не указаны</p>";
+    var me = getMyUserId();
+    var iAmIn = me && raffle.participants && raffle.participants.some(function (p) { return p.userId === me; });
+    if (raffleJoinBtn) {
+      raffleJoinBtn.classList.toggle("raffle-join-btn--hidden", !!iAmIn || raffle.status !== "active");
+      raffleJoinBtn.disabled = raffle.status !== "active" || (endDate && endDate <= new Date());
+    }
+    if (raffleJoinedMsg) raffleJoinedMsg.classList.toggle("raffle-joined-msg--hidden", !iAmIn);
+    var parts = raffle.participants || [];
+    raffleParticipants.innerHTML = parts.length === 0
+      ? "<li class=\"raffle-participants-empty\">Пока никого</li>"
+      : parts.map(function (p) { return "<li>" + escapeHtml(p.name) + " — " + escapeHtml(p.p21Id) + "</li>"; }).join("");
+    if (raffle.status === "drawn" && raffle.winners && raffle.winners.length > 0) {
+      raffleWinnersWrap.classList.remove("raffle-winners-wrap--hidden");
+      var byGroup = {};
+      raffle.winners.forEach(function (w) {
+        var g = w.groupIndex >= 0 ? "Группа " + (w.groupIndex + 1) : "Без группы";
+        if (!byGroup[g]) byGroup[g] = [];
+        byGroup[g].push(w);
+      });
+      var winHtml = "";
+      Object.keys(byGroup).forEach(function (g) {
+        var prize = byGroup[g][0] && byGroup[g][0].prize ? byGroup[g][0].prize : "";
+        winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(prize) : "") + "</strong><ul>";
+        byGroup[g].forEach(function (w) {
+          winHtml += "<li>" + escapeHtml(w.name) + " — " + escapeHtml(w.p21Id) + "</li>";
+        });
+        winHtml += "</ul></li>";
+      });
+      raffleWinners.innerHTML = winHtml;
+    } else {
+      raffleWinnersWrap.classList.add("raffle-winners-wrap--hidden");
+    }
+  }
+
+  function loadRaffles() {
+    if (!base || !initData) return;
+    fetch(base + "/api/raffles?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.ok) return;
+        rafflesIsAdmin = !!data.isAdmin;
+        if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
+        var active = data.activeRaffle || data.raffles && data.raffles[0];
+        if (active) {
+          if (raffleCurrent) raffleCurrent.classList.remove("raffle-current--hidden");
+          if (raffleEmpty) raffleEmpty.classList.add("raffle-empty--hidden");
+          renderRaffle(active);
+        } else {
+          if (raffleCurrent) raffleCurrent.classList.add("raffle-current--hidden");
+          if (raffleEmpty) raffleEmpty.classList.remove("raffle-empty--hidden");
+          currentRaffleId = null;
+        }
+      })
+      .catch(function () {});
+  }
+
+  function buildGroupInputs() {
+    var n = Math.max(1, Math.min(10, parseInt(groupCountInput.value, 10) || 1));
+    raffleGroupsEl.innerHTML = "";
+    for (var i = 0; i < n; i++) {
+      var div = document.createElement("div");
+      div.className = "raffle-group-row";
+      div.innerHTML = "<label class=\"randomizer-label\"><span class=\"randomizer-label__text\">Группа " + (i + 1) + " — мест:</span><input type=\"number\" class=\"raffle-group-count randomizer-input\" min=\"0\" max=\"100\" value=\"1\" data-group-index=\"" + i + "\" /></label>" +
+        "<label class=\"randomizer-label\"><span class=\"randomizer-label__text\">Приз:</span><input type=\"text\" class=\"raffle-group-prize randomizer-input\" placeholder=\"Название приза\" data-group-index=\"" + i + "\" /></label>";
+      raffleGroupsEl.appendChild(div);
+    }
+  }
+
+  if (createToggle && createForm) {
+    createToggle.addEventListener("click", function () {
+      createForm.classList.toggle("raffle-create-form--hidden");
+      if (!createForm.classList.contains("raffle-create-form--hidden")) buildGroupInputs();
+    });
+  }
+  if (groupCountInput && raffleGroupsEl) {
+    groupCountInput.addEventListener("change", buildGroupInputs);
+  }
+  if (createBtn && totalWinnersInput && endDateInput) {
+    createBtn.addEventListener("click", function () {
+      var total = Math.max(1, Math.min(100, parseInt(totalWinnersInput.value, 10) || 1));
+      var groupInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-count") : [];
+      var prizeInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-prize") : [];
+      var groups = [];
+      for (var i = 0; i < groupInputs.length; i++) {
+        var count = Math.max(0, parseInt(groupInputs[i].value, 10) || 0);
+        var prize = prizeInputs[i] ? prizeInputs[i].value.trim().slice(0, 200) : "";
+        groups.push({ count: count, prize: prize });
+      }
+      if (groups.length === 0) groups = [{ count: total, prize: "Приз" }];
+      var endVal = endDateInput.value;
+      if (!endVal) {
+        if (tg && tg.showAlert) tg.showAlert("Укажите дату и время завершения");
+        return;
+      }
+      var endDate = new Date(endVal);
+      if (isNaN(endDate.getTime())) {
+        if (tg && tg.showAlert) tg.showAlert("Некорректная дата");
+        return;
+      }
+      createBtn.disabled = true;
+      fetch(base + "/api/raffles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, action: "create", totalWinners: total, groups: groups, endDate: endDate.toISOString() }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          createBtn.disabled = false;
+          if (data && data.ok && data.raffle) {
+            createForm.classList.add("raffle-create-form--hidden");
+            loadRaffles();
+            if (tg && tg.showAlert) tg.showAlert("Розыгрыш создан");
+          } else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
+        })
+        .catch(function () { createBtn.disabled = false; });
+    });
+  }
+
+  if (raffleJoinBtn) {
+    raffleJoinBtn.addEventListener("click", function () {
+      if (!currentRaffleId || !base || !initData) return;
+      raffleJoinBtn.disabled = true;
+      fetch(base + "/api/raffles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, action: "join", raffleId: currentRaffleId }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          raffleJoinBtn.disabled = false;
+          if (data && data.ok) {
+            if (data.raffle) renderRaffle(data.raffle);
+            if (data.alreadyJoined && tg && tg.showAlert) tg.showAlert("Вы уже участвуете");
+            else if (!data.alreadyJoined && tg && tg.showAlert) tg.showAlert("Вы добавлены в розыгрыш");
+          } else {
+            var err = (data && data.error) || "Ошибка";
+            if (data && data.code === "P21_REQUIRED") {
+              if (tg && tg.showAlert) tg.showAlert("Заполните P21_ID в профиле");
+              setView("profile");
+            } else if (tg && tg.showAlert) tg.showAlert(err);
+          }
+        })
+        .catch(function () { raffleJoinBtn.disabled = false; });
+    });
+  }
+
+  loadRaffles();
+}
 
 // Счётчик уникальных и повторных посетителей
 function getVisitorId() {

@@ -1809,6 +1809,61 @@ img.chat-contact__avatar {
   color: var(--accent);
 }
 
+/* Розыгрыши */
+.raffles-admin-wrap--hidden { display: none; }
+.raffles-create-toggle {
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.raffle-create-form--hidden { display: none; }
+.raffle-create-form {
+  margin-bottom: 20px;
+  padding: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.raffle-groups { display: flex; flex-direction: column; gap: 8px; }
+.raffle-group-row { display: flex; flex-direction: column; gap: 4px; }
+.raffle-current--hidden { display: none; }
+.raffle-empty--hidden { display: none; }
+.raffle-empty { color: var(--text-muted); margin: 12px 0; }
+.raffle-card {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+}
+.raffle-meta { margin: 0 0 4px; font-size: 14px; color: var(--text-muted); }
+.raffle-end { margin: 0 0 12px; font-size: 13px; color: var(--text); }
+.raffle-prizes { margin-bottom: 14px; }
+.raffle-prize { font-size: 13px; color: var(--text); margin-bottom: 4px; }
+.raffle-join-btn--hidden { display: none; }
+.raffle-join-btn { margin-bottom: 12px; }
+.raffle-joined-msg--hidden { display: none; }
+.raffle-joined-msg { margin: 0 0 12px; font-weight: 600; color: var(--accent-2); }
+.raffle-participants-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--text); }
+.raffle-participants { margin: 0 0 12px; padding-left: 20px; font-size: 13px; color: var(--text); }
+.raffle-participants-empty { color: var(--text-muted); list-style: none; margin-left: -20px; }
+.raffle-winners-wrap--hidden { display: none; }
+.raffle-winners-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--accent-2); }
+.raffle-winners { margin: 0; padding-left: 20px; font-size: 13px; }
+.raffle-winner-group { margin-bottom: 8px; }
+.raffle-winner-group ul { margin: 4px 0 0; padding-left: 18px; }
+.raffles-randomizer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle); }
+.raffles-randomizer-title { margin: 0 0 10px; font-size: 16px; font-weight: 600; color: var(--text); }
+
 .updates-block {
   margin-top: 24px;
   padding: 14px 16px;
@@ -3762,6 +3817,17 @@ img.plasterer-card {
 }
 .profile-save-feedback--visible {
   opacity: 1;
+}
+.profile-randomizer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+.profile-randomizer-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
 }
 .profile-concept {
   margin: 12px 0 0;
