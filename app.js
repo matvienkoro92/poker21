@@ -1565,7 +1565,14 @@ function initRaffles() {
         if (!data || !data.ok) return;
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
-        var allRaffles = data.raffles || [];
+        var raw = data.raffles || [];
+        var seen = {};
+        var allRaffles = raw.filter(function (r) {
+          var id = r && r.id;
+          if (!id || seen[id]) return false;
+          seen[id] = true;
+          return true;
+        });
         var now = new Date();
         var activeList = allRaffles.filter(function (r) {
           if (r.status !== "active") return false;
@@ -1746,7 +1753,7 @@ function initRaffles() {
           } else {
             var err = (data && data.error) || "Ошибка";
             if (data && data.code === "P21_REQUIRED") {
-              if (tg && tg.showAlert) tg.showAlert("Заполните P21_ID в профиле");
+              if (tg && tg.showAlert) tg.showAlert("Заполните свой ID в профиле. На него будет начисляться выигрыш!");
               if (typeof setView === "function") setView("profile");
             } else if (tg && tg.showAlert) tg.showAlert(err);
           }
@@ -3107,7 +3114,7 @@ function updateCashoutManager() {
 
 updateCashoutManager();
 setInterval(updateCashoutManager, 60000);
-
+числ
 if (typeof initChat === "function") initChat();
 
 (function initUpdatesBlock() {

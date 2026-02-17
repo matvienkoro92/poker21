@@ -1916,6 +1916,14 @@ img.chat-contact__avatar {
 .raffle-completed-card__winners { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text); }
 .raffle-completed-card__winners-title { margin: 8px 0 4px; font-size: 13px; font-weight: 600; color: var(--accent-2); }
 
+[data-theme="light"] .raffle-create-form,
+[data-theme="light"] .raffle-card,
+[data-theme="light"] .raffles-tabs,
+[data-theme="light"] .raffle-completed-card {
+  background: linear-gradient(135deg, rgba(255, 251, 247, 0.95), rgba(255, 243, 230, 0.95));
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
 .updates-block {
   margin-top: 24px;
   padding: 14px 16px;
