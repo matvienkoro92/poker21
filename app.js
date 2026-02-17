@@ -1488,6 +1488,7 @@ function initRaffles() {
         if (!data || !data.ok) return;
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
+        // Текущий розыгрыш показываем всем участникам, не только админам
         var active = data.activeRaffle || data.raffles && data.raffles[0];
         if (active) {
           if (raffleCurrent) raffleCurrent.classList.remove("raffle-current--hidden");
