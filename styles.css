@@ -1706,6 +1706,49 @@ img.chat-contact__avatar {
   color: var(--text-muted);
 }
 
+.break-music-block {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.2), rgba(88, 28, 135, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 14px;
+}
+.break-music-block__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.break-music-block__icon { font-size: 18px; }
+.break-music-block__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.break-music-block__desc {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.break-music-block__btn {
+  min-width: 140px;
+}
+.break-music-block__btn--on {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+.break-music-block__btn--on:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+[data-theme="light"] .break-music-block {
+  background: linear-gradient(135deg, rgba(224, 231, 255, 0.8), rgba(233, 213, 255, 0.6));
+  border-color: rgba(99, 102, 241, 0.35);
+}
+[data-theme="light"] .break-music-block__btn--on {
+  background: rgba(185, 28, 28, 0.2);
+  color: #b91c1c;
+}
+
 .features {
   margin-top: 20px;
   display: flex;

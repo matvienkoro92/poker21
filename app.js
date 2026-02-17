@@ -1390,6 +1390,90 @@ document.getElementById("plastererPlayAgainBtn")?.addEventListener("click", func
   });
 })();
 
+// Музыка для перерыва: мягкий фоновый звук (Web Audio API)
+(function initBreakMusic() {
+  var btn = document.getElementById("breakMusicBtn");
+  var btnText = document.getElementById("breakMusicBtnText");
+  if (!btn || !btnText) return;
+  var ctx = null;
+  var gainNode = null;
+  var chordInterval = null;
+  var oscillators = [];
+
+  function freq(note) {
+    return 440 * Math.pow(2, (note - 69) / 12);
+  }
+  function playChord(notes, durationMs) {
+    if (!ctx || !gainNode) return;
+    oscillators.forEach(function (o) {
+      try { o.stop(); } catch (e) {}
+    });
+    oscillators = [];
+    var now = ctx.currentTime;
+    var end = now + durationMs / 1000;
+    notes.forEach(function (note) {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq(note);
+      osc.connect(g);
+      g.connect(gainNode);
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.08, now + 0.8);
+      g.gain.setValueAtTime(0.08, end - 0.5);
+      g.gain.linearRampToValueAtTime(0, end);
+      osc.start(now);
+      osc.stop(end);
+      oscillators.push(osc);
+    });
+  }
+  var chords = [
+    [57, 60, 64, 67],
+    [62, 65, 69, 72],
+    [59, 62, 66, 69],
+    [64, 67, 71, 74],
+    [57, 60, 64, 67],
+    [55, 59, 62, 67],
+  ];
+  var chordIndex = 0;
+  function nextChord() {
+    playChord(chords[chordIndex], 5200);
+    chordIndex = (chordIndex + 1) % chords.length;
+  }
+  function start() {
+    if (ctx && ctx.state === "running") return;
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      gainNode = ctx.createGain();
+      gainNode.gain.value = 0.35;
+      gainNode.connect(ctx.destination);
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    nextChord();
+    chordInterval = setInterval(nextChord, 5000);
+    btn.setAttribute("aria-pressed", "true");
+    btnText.textContent = "■ Остановить";
+    btn.classList.add("break-music-block__btn--on");
+  }
+  function stop() {
+    if (chordInterval) {
+      clearInterval(chordInterval);
+      chordInterval = null;
+    }
+    oscillators.forEach(function (o) {
+      try { o.stop(); } catch (e) {}
+    });
+    oscillators = [];
+    btn.setAttribute("aria-pressed", "false");
+    btnText.textContent = "▶ Включить";
+    btn.classList.remove("break-music-block__btn--on");
+  }
+  btn.addEventListener("click", function () {
+    if (btn.getAttribute("aria-pressed") === "true") stop();
+    else start();
+  });
+})();
+
 // Розыгрыши: список, создание (админ), участие, жеребьёвка
 function initRaffles() {
   var base = getApiBase();
