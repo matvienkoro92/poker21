@@ -337,14 +337,14 @@ module.exports = async function handler(req, res) {
       if (msgResults && typeof msgResults === "object" && !Array.isArray(msgResults) && Array.isArray(msgResults.result)) {
         listResp = msgResults.result;
       }
-      if (!listResp || !Array.isArray(listResp)) {
-        return res.status(500).json({ ok: false, error: "Ошибка загрузки сообщений" });
+      let raw = [];
+      if (listResp && Array.isArray(listResp)) {
+        const first = listResp[0];
+        if (first && first.error) {
+          return res.status(500).json({ ok: false, error: "Ошибка загрузки сообщений" });
+        }
+        raw = Array.isArray(first?.result) ? first.result : (typeof first?.result === "string" ? [first.result] : []);
       }
-      const first = listResp[0];
-      if (first && first.error) {
-        return res.status(500).json({ ok: false, error: "Ошибка загрузки сообщений" });
-      }
-      const raw = Array.isArray(first?.result) ? first.result : (typeof first?.result === "string" ? [first.result] : []);
       const blockedSet = new Set(Array.isArray(blockedResults?.[0]?.result) ? blockedResults[0].result : []);
       const onlineCount = (onlineResults && onlineResults[2] && typeof onlineResults[2].result === "number") ? onlineResults[2].result : 0;
       const messages = (Array.isArray(raw) ? raw : [])
@@ -478,7 +478,7 @@ module.exports = async function handler(req, res) {
       ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
     ]);
 
-    if (!results || results.some((r) => r && r.error)) {
+    if (!results || !Array.isArray(results) || results.some((r) => r && r.error)) {
       return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
     }
 
@@ -514,7 +514,7 @@ module.exports = async function handler(req, res) {
     ["ZADD", CHAT_ONLINE_KEY, String(now), myId],
   ]);
 
-  if (!results || results.some((r) => r && r.error)) {
+  if (!results || !Array.isArray(results) || results.some((r) => r && r.error)) {
     return res.status(500).json({ ok: false, error: "Ошибка сохранения" });
   }
   return res.status(200).json({ ok: true, message: msg });
