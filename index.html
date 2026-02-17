@@ -108,10 +108,13 @@
                   <span class="home-mini-icon" aria-hidden="true">🎁</span>
                   <span class="home-mini-icon__label">Акции</span>
                 </span>
+                <div class="home-mini-icon-wrap">
                 <span class="home-mini-icon-item" title="Партнёрка">
                   <span class="home-mini-icon" aria-hidden="true">🤝</span>
                   <span class="home-mini-icon__label">Партнёрка</span>
                 </span>
+                <span class="home-mini-icon-hint">↑ кнопки пока не работают</span>
+              </div>
               </div>
             </div>
 
@@ -142,66 +145,65 @@
             </div>
 
             <div class="features">
-              <a
-                class="feature feature--link"
-                href="https://t.me/+snBngKmXYa1mYjky"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div class="feature__icon feature__icon--green">💬</div>
-                <div class="feature__body">
-                  <div class="feature__title">Чат игроков в Telegram</div>
-                  <div class="feature__text">
-                    Чат в Telegram — официальный чат клуба «Два туза».
+              <div class="features-row features-row--half">
+                <a
+                  class="feature feature--link"
+                  href="https://t.me/+snBngKmXYa1mYjky"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div class="feature__icon feature__icon--green">💬</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Чат клуба</div>
+                    <div class="feature__text">Чат игроков в Телеграмме</div>
                   </div>
-                </div>
-              </a>
+                </a>
+                <a
+                  class="feature feature--link"
+                  href="https://t.me/+UjuRSQoCpBk4YzVi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div class="feature__icon feature__icon--orange">📢</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Канал клуба</div>
+                    <div class="feature__text">Розыгрыши и анонсы турниров</div>
+                  </div>
+                </a>
+              </div>
 
-              <a
-                class="feature feature--link"
-                href="https://t.me/+UjuRSQoCpBk4YzVi"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div class="feature__icon feature__icon--orange">📢</div>
-                <div class="feature__body">
-                  <div class="feature__title">Канал клуба</div>
-                  <div class="feature__text">
-                    Розыгрыши билетов на турниры каждый день.
+              <div class="games-apps-row">
+                <div class="games-apps-col games-apps-col--games">
+                  <h2 class="features-section-title">Клубные игры</h2>
+                  <div class="bonus-games-grid">
+                    <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
+                      <div class="feature__icon feature__icon--purple">🃏</div>
+                      <div class="feature__body">
+                        <div class="feature__title">Найди Пиханину</div>
+                        <div class="feature__text">Пиханина спрятался в бубновой колоде.</div>
+                      </div>
+                    </a>
+                    <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
+                      <div class="feature__icon feature__icon--purple">🃏</div>
+                      <div class="feature__body">
+                        <div class="feature__title">Переедь Штукатура</div>
+                        <div class="feature__text">Побей два туза</div>
+                      </div>
+                    </a>
                   </div>
                 </div>
-              </a>
-
-              <h2 class="features-section-title">Клубные игры с бонусами</h2>
-              <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
-                <div class="feature__icon feature__icon--purple">🃏</div>
-                <div class="feature__body">
-                  <div class="feature__title">Найди Пиханину</div>
-                  <div class="feature__text">
-                    колода буби, колода пики и джокер Пиханина (27 карт). Найди его — получи бонус.
+                <div class="games-apps-col games-apps-col--apps">
+                  <h2 class="features-section-title features-section-title--end">Приложения:</h2>
+                  <div class="apps-block">
+                    <span class="feature feature--app">
+                      <span class="feature__icon feature__icon--purple">🎲</span>
+                      <span class="feature__body">
+                        <span class="feature__title">Рендомайзер</span>
+                      </span>
+                    </span>
                   </div>
                 </div>
-              </a>
-
-              <a href="#" class="feature feature--link feature--cooler-game is-hidden" data-view-target="cooler-game" aria-label="Слезы Кулера">
-                <div class="feature__icon feature__icon--orange">😢</div>
-                <div class="feature__body">
-                  <div class="feature__title">Слезы Кулера</div>
-                  <div class="feature__text">
-                    Кулер ревет — найдите платок и получите билет на турнир.
-                  </div>
-                </div>
-              </a>
-
-              <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
-                <div class="feature__icon feature__icon--purple">🃏</div>
-                <div class="feature__body">
-                  <div class="feature__title">Переедь Штукатура</div>
-                  <div class="feature__text">
-                    Играем в покер против Штукатура. У него два туза — побейте его комбинацию.
-                  </div>
-                </div>
-              </a>
+              </div>
             </div>
 
             <div class="updates-block" id="updatesBlock">
@@ -725,7 +727,7 @@
         </button>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>
-          <span class="bottom-nav__label">Скачать</span>
+          <span class="bottom-nav__label">Приложения</span>
         </button>
         <button type="button" class="bottom-nav__item" data-view-target="cashout">
           <span class="bottom-nav__icon">💳</span>

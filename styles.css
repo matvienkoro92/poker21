@@ -1589,11 +1589,62 @@ img.chat-contact__avatar {
   gap: 10px;
 }
 
+.features-row--half {
+  display: flex;
+  gap: 10px;
+}
+.features-row--half .feature {
+  flex: 1;
+  min-width: 0;
+}
+
 .features-section-title {
   margin: 18px 0 6px;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-muted);
+}
+.features-section-title:first-child {
+  margin-top: 0;
+}
+.features-section-title--end {
+  text-align: right;
+}
+
+.games-apps-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: -10px;
+}
+.games-apps-col {
+  flex: 1;
+  min-width: 0;
+}
+.games-apps-col--games {
+  max-width: 50%;
+}
+.games-apps-col--apps {
+  flex: 1;
+}
+
+.bonus-games-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 0;
+}
+.bonus-games-grid .feature {
+  min-width: 0;
+}
+
+.apps-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.feature--app {
+  cursor: default;
 }
 
 .updates-block {
@@ -1694,6 +1745,23 @@ img.chat-contact__avatar {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.home-mini-icon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 54px;
+  flex-shrink: 0;
+}
+.home-mini-icon-hint {
+  font-size: 8px;
+  line-height: 1.2;
+  color: var(--text-muted);
+  text-align: center;
+  width: 54px;
+  box-sizing: border-box;
 }
 
 .download-layout {

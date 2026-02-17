@@ -7,7 +7,7 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const NOTIFY_CHAT_ID = process.env.TELEGRAM_NOTIFY_CHAT_ID || "5053253480";
 const KEY = "poker_app:pikhanina_claimed_count";
-const MAX_PRIZES = Math.max(0, parseInt(process.env.PIKHANINA_MAX_PRIZES, 10) || 5);
+const MAX_PRIZES = Math.max(0, parseInt(process.env.PIKHANINA_MAX_PRIZES, 10) || 10);
 
 function validateTelegramWebAppData(initData, botToken) {
   if (!initData || !botToken) return null;
@@ -58,6 +58,22 @@ async function redisIncr(key) {
   return Array.isArray(data) && data[0] && data[0].result !== undefined ? data[0].result : null;
 }
 
+async function redisSet(key, value) {
+  if (!REDIS_URL || !REDIS_TOKEN) return null;
+  const url = REDIS_URL.replace(/\/$/, "") + "/pipeline";
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${REDIS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify([["SET", key, String(value)]]),
+  });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null);
+  return Array.isArray(data) && data[0] && data[0].result === "OK";
+}
+
 async function sendTelegram(botToken, chatId, text) {
   if (!botToken || !chatId) return false;
   const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -75,7 +91,15 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  // GET — остаток призов
+  // Сброс счётчика: GET или POST ?reset=1&secret=СЕКРЕТ (в Vercel задайте PIKHANINA_RESET_SECRET или CRON_SECRET)
+  const resetSecret = process.env.PIKHANINA_RESET_SECRET || process.env.CRON_SECRET;
+  if ((req.query.reset === "1" || req.query.reset === "true") && resetSecret && req.query.secret === resetSecret) {
+    const ok = await redisSet(KEY, 0);
+    if (ok) return res.status(200).json({ ok: true, reset: true, message: "Счётчик обнулён, призов снова " + MAX_PRIZES });
+    return res.status(500).json({ ok: false, error: "Не удалось обнулить счётчик" });
+  }
+
+  // GET — остаток призов (всего 10, когда выбьют все — остаток 0)
   if (req.method === "GET") {
     const raw = await redisGet(KEY);
     const claimed = Math.max(0, parseInt(raw, 10) || 0);
