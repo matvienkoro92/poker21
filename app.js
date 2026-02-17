@@ -220,6 +220,7 @@ function setView(viewName) {
       footer.classList.remove("card__footer--hidden");
       fetchVisitorStatsOnly();
       updateTournamentTimer();
+      fetchRaffleBadge();
     } else {
       footer.classList.add("card__footer--hidden");
     }
@@ -262,6 +263,23 @@ function updateChatNavDot() {
   var hasUnread = !!(window.chatGeneralUnread || window.chatPersonalUnread);
   var dot = document.getElementById("chatNavDot");
   if (dot) dot.classList.toggle("bottom-nav__dot--on", hasUnread);
+}
+
+function updateRaffleBadge(hasActive) {
+  var badge = document.getElementById("raffleActiveBadge");
+  if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
+}
+
+function fetchRaffleBadge() {
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+  if (!base || !initData) return;
+  fetch(base + "/api/raffles?initData=" + encodeURIComponent(initData))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.ok) updateRaffleBadge(!!(data.activeRaffle));
+    })
+    .catch(function () {});
 }
 
 function updateProfileUserName() {
@@ -1499,6 +1517,7 @@ function initRaffles() {
           if (raffleEmpty) raffleEmpty.classList.remove("raffle-empty--hidden");
           currentRaffleId = null;
         }
+        updateRaffleBadge(!!active);
       })
       .catch(function () {});
   }

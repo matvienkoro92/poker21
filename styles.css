@@ -2440,6 +2440,7 @@ img.chat-contact__avatar {
 }
 
 .feature {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -2447,6 +2448,20 @@ img.chat-contact__avatar {
   border-radius: 14px;
   background: linear-gradient(135deg, #1e293b, #0f172a);
   border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.feature__badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px var(--card-bg, #0f172a);
+}
+.feature__badge--hidden {
+  display: none;
 }
 
 .feature--link {
