@@ -434,9 +434,10 @@ function winterRatingPlaceCell(place) {
 }
 function renderWinterRatingTable(rows) {
   if (!rows || !rows.length) return "";
-  var sorted = rows.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
+  var filtered = rows.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
+  var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
   var place = 0;
-  return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Награда</th></tr></thead><tbody>" +
+  return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Призовые</th></tr></thead><tbody>" +
     sorted.map(function (r) {
       place++;
       var trClass = winterRatingRowClass(place);
@@ -450,12 +451,78 @@ function escapeHtmlRating(s) {
   return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
 }
 
+function getWinterRatingPlayerSummary(nick) {
+  var dates = ["01.02.2026", "02.02.2026", "03.02.2026"];
+  var out = [];
+  dates.forEach(function (dateStr) {
+    var list = WINTER_RATING_BY_DATE[dateStr];
+    if (!list || !list.length) return;
+    var filtered = list.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
+    var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
+    var idx = sorted.findIndex(function (r) { return r.nick === nick; });
+    if (idx === -1) return;
+    var row = sorted[idx];
+    out.push({
+      date: dateStr,
+      place: idx + 1,
+      points: row.points,
+      reward: row.reward != null ? row.reward : 0,
+    });
+  });
+  return out;
+}
+
+function openWinterRatingPlayerModal(nick) {
+  var modal = document.getElementById("winterRatingPlayerModal");
+  var titleEl = modal && modal.querySelector(".winter-rating-player-modal__title");
+  var tableWrap = modal && modal.querySelector(".winter-rating-player-modal__table-wrap");
+  if (!modal || !titleEl || !tableWrap) return;
+  var summary = getWinterRatingPlayerSummary(nick);
+  titleEl.textContent = nick;
+  if (summary.length) {
+    tableWrap.innerHTML = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr><th>Дата</th><th>Место</th><th>Баллы</th><th>Призовые</th></tr></thead><tbody>" +
+      summary.map(function (s) {
+        var placeStr = winterRatingPlaceCell(s.place);
+        var rewardStr = s.reward ? Number(s.reward).toLocaleString("ru-RU") : "0";
+        return "<tr><td>" + s.date + "</td><td>" + placeStr + "</td><td>" + s.points + "</td><td>" + rewardStr + "</td></tr>";
+      }).join("") + "</tbody></table>";
+  } else {
+    tableWrap.innerHTML = "<p class=\"winter-rating-player-modal__empty\">Нет данных по датам</p>";
+  }
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeWinterRatingPlayerModal() {
+  var modal = document.getElementById("winterRatingPlayerModal");
+  if (modal) {
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+}
+
+function initWinterRatingPlayerModal() {
+  var modal = document.getElementById("winterRatingPlayerModal");
+  if (!modal || modal.getAttribute("data-inited") === "1") return;
+  modal.setAttribute("data-inited", "1");
+  var closeBtn = modal.querySelector(".winter-rating-player-modal__close");
+  if (closeBtn) closeBtn.addEventListener("click", closeWinterRatingPlayerModal);
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeWinterRatingPlayerModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") closeWinterRatingPlayerModal();
+  });
+}
+
 function initWinterRating() {
   initWinterRatingLightbox();
+  initWinterRatingPlayerModal();
   var updatedEl = document.getElementById("winterRatingUpdated");
   var tbody = document.getElementById("winterRatingTableBody");
   if (updatedEl) updatedEl.textContent = "Обновлено: " + WINTER_RATING_UPDATED;
-  var rows = WINTER_RATING_OVERALL.map(function (r, i) {
+  var allRows = WINTER_RATING_OVERALL.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
+  var rows = allRows.map(function (r, i) {
     var rewardStr = r.reward ? r.reward.toLocaleString("ru-RU") : "0";
     return { place: i + 1, nick: r.nick, points: r.points, reward: rewardStr };
   });
@@ -463,8 +530,33 @@ function initWinterRating() {
     tbody.innerHTML = rows.map(function (r) {
       var trClass = winterRatingRowClass(r.place);
       var placeCell = winterRatingPlaceCell(r.place);
-      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + escapeHtmlRating(r.nick) + "</td><td>" + r.points + "</td><td>" + r.reward + "</td></tr>";
+      var nickEsc = escapeHtmlRating(r.nick);
+      var nickAttr = String(r.nick).replace(/"/g, "&quot;").replace(/</g, "&lt;");
+      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + r.points + "</td><td>" + r.reward + "</td></tr>";
     }).join("");
+    tbody.addEventListener("click", function (e) {
+      var btn = e.target && e.target.closest(".winter-rating__nick-btn");
+      if (btn && btn.dataset.nick) openWinterRatingPlayerModal(btn.dataset.nick);
+    });
+    var tableWrap = document.getElementById("winterRatingTableWrap");
+    var showAllWrap = document.getElementById("winterRatingShowAllWrap");
+    var showAllBtn = document.getElementById("winterRatingShowAllBtn");
+    if (rows.length > 20 && tableWrap && showAllWrap && showAllBtn) {
+      tableWrap.classList.add("winter-rating__table-wrap--collapsed");
+      showAllWrap.style.display = "";
+      showAllBtn.textContent = "Показать всех";
+      showAllBtn.onclick = function () {
+        if (tableWrap.classList.contains("winter-rating__table-wrap--collapsed")) {
+          tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
+          showAllBtn.textContent = "Скрыть";
+        } else {
+          tableWrap.classList.add("winter-rating__table-wrap--collapsed");
+          showAllBtn.textContent = "Показать всех";
+        }
+      };
+    } else if (showAllWrap) {
+      showAllWrap.style.display = "none";
+    }
   }
   var datesContainer = document.getElementById("winterRatingDates");
   if (!datesContainer) return;

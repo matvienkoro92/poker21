@@ -201,19 +201,22 @@
               </h2>
               <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
               <h3 class="winter-rating__table-caption">Итоговая таблица</h3>
-              <div class="winter-rating__table-wrap">
+              <div class="winter-rating__table-wrap" id="winterRatingTableWrap">
                 <table class="winter-rating__table" id="winterRatingTableOverall">
                   <thead>
                     <tr>
                       <th>Место</th>
                       <th>Ник</th>
                       <th>Баллы</th>
-                      <th>Награда</th>
+                      <th>Призовые</th>
                     </tr>
                   </thead>
                   <tbody id="winterRatingTableBody"></tbody>
                 </table>
               </div>
+              <p class="winter-rating__show-all-wrap" id="winterRatingShowAllWrap">
+                <button type="button" class="winter-rating__show-all-btn" id="winterRatingShowAllBtn">Показать всех</button>
+              </p>
               <h3 class="winter-rating__dates-caption">Таблица по датам</h3>
               <p class="winter-rating__dates-hint">Скрин и данные на выбранную дату</p>
               <div class="winter-rating__dates" id="winterRatingDates">
@@ -851,6 +854,13 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./updates-data.js"></script>
     <script src="./app.js?v=13"></script>
+  <div class="winter-rating-player-modal" id="winterRatingPlayerModal" aria-hidden="true" role="dialog" aria-labelledby="winterRatingPlayerModalTitle" aria-label="Сводка по игроку">
+    <div class="winter-rating-player-modal__inner">
+      <button type="button" class="winter-rating-player-modal__close" aria-label="Закрыть">×</button>
+      <h3 class="winter-rating-player-modal__title" id="winterRatingPlayerModalTitle"></h3>
+      <div class="winter-rating-player-modal__table-wrap"></div>
+    </div>
+  </div>
   <div class="winter-rating-lightbox" id="winterRatingLightbox" aria-hidden="true" role="dialog" aria-label="Увеличенный скрин">
     <button type="button" class="winter-rating-lightbox__close" aria-label="Закрыть">×</button>
     <button type="button" class="winter-rating-lightbox__prev" aria-label="Предыдущий скрин">‹</button>
