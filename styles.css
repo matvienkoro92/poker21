@@ -2090,6 +2090,34 @@ img.chat-contact__avatar {
   box-sizing: border-box;
 }
 
+/* Зал славы — кнопка над магазином с блеском */
+a.home-mini-icon-item {
+  text-decoration: none;
+  color: inherit;
+}
+.home-mini-icon-item--hall {
+  position: relative;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.45), 0 0 28px rgba(250, 204, 21, 0.2);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(234, 179, 8, 0.15));
+  border-color: rgba(250, 204, 21, 0.55);
+  overflow: hidden;
+}
+.home-mini-icon-item--hall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.25) 45%, transparent 55%);
+  pointer-events: none;
+  animation: hall-shine 2.5s ease-in-out infinite;
+}
+@keyframes hall-shine {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(100%); }
+}
+.home-mini-icon-item--hall:hover {
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.55), 0 0 32px rgba(250, 204, 21, 0.25);
+}
+
 .download-layout {
   margin-top: 14px;
   display: flex;
@@ -2627,6 +2655,14 @@ img.chat-contact__avatar {
   background: linear-gradient(135deg, #fed7aa, #fdba74);
   border-color: rgba(249, 115, 22, 0.6);
   box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+[data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--hall {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-color: rgba(234, 179, 8, 0.6);
+  box-shadow: 0 0 14px rgba(234, 179, 8, 0.5), 0 0 28px rgba(234, 179, 8, 0.25);
+}
+[data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--hall:hover {
+  box-shadow: 0 0 18px rgba(234, 179, 8, 0.6), 0 0 32px rgba(234, 179, 8, 0.3);
 }
 
 /* Рейтинг Турнирщиков зимы на 250 000₽ — на всю строчку */
@@ -3799,6 +3835,44 @@ img.chat-contact__avatar {
 
 .bonus-game-back:hover {
   color: var(--text);
+}
+
+/* Зал славы — экран */
+.hall-of-fame__main-title {
+  margin: 4px 0 16px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.hall-of-fame__block {
+  margin-bottom: 24px;
+}
+.hall-of-fame__block--bigwin {
+  margin-bottom: 28px;
+}
+.hall-of-fame__section-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+.hall-of-fame__bigwin-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hall-of-fame__bigwin-line {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.hall-of-fame__placeholder {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.45;
 }
 
 [data-view="bonus-game"] .bonus-game-desc:first-of-type {
