@@ -119,6 +119,15 @@
             </div>
 
             <div class="features">
+              <div class="features-row features-row--full">
+                <a href="#" class="feature feature--link feature--rating-promo" data-view-target="winter-rating" aria-label="Рейтинг Турнирщиков зимы">
+                  <div class="feature__icon feature__icon--gold">🏆</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Рейтинг турнирщиков зимы<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
+                    <div class="feature__text">Лучшие турнирные игроки клуба за зиму 2025</div>
+                  </div>
+                </a>
+              </div>
               <div class="features-row features-row--half">
                 <a
                   class="feature feature--link"
@@ -180,6 +189,57 @@
               </div>
             </div>
 
+          </div>
+
+          <!-- Рейтинг Турнирщиков зимы: даты и итоговая таблица внутри -->
+          <div class="view" data-view="winter-rating">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <section class="winter-rating" id="winterRatingSection" aria-labelledby="winterRatingTitle">
+              <h2 class="winter-rating__title" id="winterRatingTitle">
+                <span class="winter-rating__cup" aria-hidden="true">🏆</span>
+                Рейтинг Турнирщиков зимы на 250 000₽
+              </h2>
+              <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
+              <h3 class="winter-rating__table-caption">Итоговая таблица</h3>
+              <div class="winter-rating__table-wrap">
+                <table class="winter-rating__table" id="winterRatingTableOverall">
+                  <thead>
+                    <tr>
+                      <th>Место</th>
+                      <th>Ник</th>
+                      <th>Баллы</th>
+                      <th>Награда</th>
+                    </tr>
+                  </thead>
+                  <tbody id="winterRatingTableBody"></tbody>
+                </table>
+              </div>
+              <h3 class="winter-rating__dates-caption">Таблица по датам</h3>
+              <p class="winter-rating__dates-hint">Скрин и данные на выбранную дату</p>
+              <div class="winter-rating__dates" id="winterRatingDates">
+                <div class="winter-rating__date-item" data-rating-date="03.02.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel03">03.02.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel03" role="region" aria-label="Рейтинг на 03.02.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="03.02.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable03"></div>
+                  </div>
+                </div>
+                <div class="winter-rating__date-item" data-rating-date="02.02.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel02">02.02.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel02" role="region" aria-label="Рейтинг на 02.02.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="02.02.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable02"></div>
+                  </div>
+                </div>
+                <div class="winter-rating__date-item" data-rating-date="01.02.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel01">01.02.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel01" role="region" aria-label="Рейтинг на 01.02.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="01.02.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable01"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
 
           <!-- Чат: общий + личные + админы -->
@@ -608,6 +668,7 @@
                   <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
                   <h3 class="raffle-participants-title">Участники</h3>
                   <ul class="raffle-participants" id="raffleParticipants"></ul>
+                  <p class="raffle-participants-note">Проверьте ваш ID в Poker21 — на него будет начисляться выигрыш после всех проверок.</p>
                   <div class="raffle-winners-wrap raffle-winners-wrap--hidden" id="raffleWinnersWrap">
                     <h3 class="raffle-winners-title">Победители</h3>
                     <ul class="raffle-winners" id="raffleWinners"></ul>

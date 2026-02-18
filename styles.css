@@ -1722,6 +1722,55 @@ img.chat-contact__avatar {
   min-width: 0;
 }
 
+.features-row--full {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.features-row--full .feature {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.feature--rating-promo {
+  padding: 14px 16px !important;
+  border-width: 1.5px !important;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25) !important;
+}
+.feature--rating-promo .feature__icon {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+}
+.feature--rating-promo .feature__title {
+  font-size: clamp(15px, 3.6vw, 18px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.feature--rating-promo .feature__title-line2 {
+  display: block;
+  margin-top: 0.05em;
+}
+.feature--rating-promo .feature__title-accent {
+  color: var(--accent);
+  font-weight: 800;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: var(--accent-soft);
+}
+.feature--rating-promo .feature__text {
+  font-size: 12px;
+}
+[data-theme="light"] .view--active[data-view="home"] .feature--rating-promo {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35) !important;
+}
+[data-theme="light"] .view--active[data-view="home"] .feature--rating-promo .feature__title-accent {
+  color: #c2410c;
+  background: rgba(249, 115, 22, 0.2);
+}
+
 .features-section-title {
   margin: 18px 0 6px;
   font-size: 15px;
@@ -2580,6 +2629,157 @@ img.chat-contact__avatar {
   box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
+/* Рейтинг Турнирщиков зимы на 250 000₽ — на всю строчку */
+.winter-rating {
+  width: 100%;
+  margin: 20px 0 24px;
+  padding: 16px 0;
+  border-radius: var(--radius-lg);
+  background: var(--block-bg);
+  border: 1px solid var(--border-subtle);
+}
+.winter-rating__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+.winter-rating__cup {
+  font-size: 28px;
+  line-height: 1;
+}
+.winter-rating__updated {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.winter-rating__table-caption {
+  margin: 0 12px 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.winter-rating__table-wrap {
+  overflow-x: auto;
+  margin: 0 12px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.winter-rating__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.winter-rating__table th,
+.winter-rating__table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.winter-rating__table th {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.winter-rating__table td {
+  color: var(--text);
+}
+.winter-rating__table tbody tr:last-child td {
+  border-bottom: none;
+}
+.winter-rating__dates-caption {
+  margin: 24px 12px 8px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.winter-rating__dates-hint {
+  margin: 0 12px 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.winter-rating__dates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 12px;
+}
+.winter-rating__date-item {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.3);
+}
+[data-theme="light"] .winter-rating__date-item {
+  background: rgba(255, 251, 247, 0.6);
+}
+.winter-rating__date-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.winter-rating__date-btn:hover {
+  background: rgba(148, 163, 184, 0.12);
+}
+.winter-rating__date-btn[aria-expanded="true"] {
+  background: rgba(168, 85, 247, 0.15);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.winter-rating__date-panel {
+  padding: 14px;
+  border-top: none;
+}
+.winter-rating__date-panel--hidden {
+  display: none;
+}
+.winter-rating__screenshots {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.winter-rating__screenshot {
+  margin-bottom: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.winter-rating__screenshots .winter-rating__screenshot:last-child {
+  margin-bottom: 0;
+}
+
+.winter-rating__screenshot img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+.winter-rating__screenshot img[src=""],
+.winter-rating__screenshot img:not([src]) {
+  min-height: 120px;
+  background: var(--border-subtle);
+}
+.winter-rating__date-table-wrap {
+  overflow-x: auto;
+}
+.winter-rating__date-table-wrap .winter-rating__table {
+  margin: 0;
+}
+
 /* Обёртка «Турнир дня» для всплывающей подсказки */
 .feature-tooltip-wrap {
   position: relative;
@@ -2810,6 +3010,11 @@ img.chat-contact__avatar {
 .feature__icon--orange {
   background: radial-gradient(circle at 30% 20%, #fb923c, #f97316);
   box-shadow: 0 10px 18px rgba(249, 115, 22, 0.45);
+}
+
+.feature__icon--gold {
+  background: radial-gradient(circle at 30% 20%, #fbbf24, #f59e0b);
+  box-shadow: 0 10px 18px rgba(245, 158, 11, 0.45);
 }
 
 .feature__body {

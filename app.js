@@ -197,7 +197,7 @@ if (startButton) {
 
 // Простая навигация по разделам (вкладки внизу)
 const views = document.querySelectorAll("[data-view]");
-const navItems = document.querySelectorAll("[data-view-target]");
+const navItems = document.querySelectorAll("[data-view-target]:not(.bonus-game-back)");
 const footer = document.querySelector(".card__footer");
 
 function setView(viewName) {
@@ -224,6 +224,7 @@ function setView(viewName) {
       footer.classList.add("card__footer--hidden");
     }
   }
+  if (viewName === "winter-rating") initWinterRating();
   if (viewName === "profile") {
     updateProfileUserName();
     updateProfileDtId();
@@ -267,6 +268,112 @@ function updateChatNavDot() {
 function updateRaffleBadge(hasActive) {
   var badge = document.getElementById("raffleActiveBadge");
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
+}
+
+// Рейтинг Турнирщиков зимы на 250 000₽ — по скринам 01.02 (02/01)
+var WINTER_RATING_UPDATED = "02.02.2026";
+// Баллы за место: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50, 7+ = 0. По трём турнирам 01.02 суммировал.
+var WINTER_RATING_OVERALL = [
+  { nick: "ПокерМанки", points: 180, reward: 42800 },
+  { nick: "DimassikFiskk", points: 135, reward: 25900 },
+  { nick: "Prushnik", points: 110, reward: 17500 },
+  { nick: "MTTwnik", points: 90, reward: 10500 },
+  { nick: "DIVGO", points: 70, reward: 6920 },
+  { nick: "WiNifly", points: 60, reward: 7700 },
+  { nick: "KOL1103", points: 50, reward: 0 },
+  { nick: "aRbyZ", points: 50, reward: 0 },
+  { nick: "Waaar", points: 0, reward: 16800 },
+  { nick: "m014yH", points: 0, reward: 0 },
+  { nick: "Nuts", points: 0, reward: 0 },
+  { nick: "Rifa", points: 0, reward: 0 },
+];
+var WINTER_RATING_BY_DATE = {
+  "01.02.2026": [
+    { nick: "ПокерМанки", points: 180, reward: 42800 },
+    { nick: "DimassikFiskk", points: 135, reward: 25900 },
+    { nick: "Prushnik", points: 110, reward: 17500 },
+    { nick: "MTTwnik", points: 90, reward: 10500 },
+    { nick: "DIVGO", points: 70, reward: 6920 },
+    { nick: "WiNifly", points: 60, reward: 7700 },
+    { nick: "KOL1103", points: 50, reward: 0 },
+    { nick: "aRbyZ", points: 50, reward: 0 },
+    { nick: "Waaar", points: 0, reward: 16800 },
+    { nick: "m014yH", points: 0, reward: 0 },
+    { nick: "Nuts", points: 0, reward: 0 },
+    { nick: "Rifa", points: 0, reward: 0 },
+  ],
+  "02.02.2026": [],
+  "03.02.2026": [],
+};
+var WINTER_RATING_IMAGES = {
+  "01.02.2026": ["rating-01-02-2026.png", "rating-01-02-2026-2.png", "rating-01-02-2026-3.png"],
+  "02.02.2026": [],
+  "03.02.2026": [],
+};
+
+function renderWinterRatingTable(rows) {
+  if (!rows || !rows.length) return "";
+  var sorted = rows.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
+  var place = 0;
+  return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Награда</th></tr></thead><tbody>" +
+    sorted.map(function (r) {
+      place++;
+      return "<tr><td>" + place + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? r.reward.toLocaleString("ru-RU") : "0") + "</td></tr>";
+    }).join("") + "</tbody></table>";
+}
+
+function escapeHtmlRating(s) {
+  if (s == null) return "";
+  return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+}
+
+function initWinterRating() {
+  var updatedEl = document.getElementById("winterRatingUpdated");
+  var tbody = document.getElementById("winterRatingTableBody");
+  if (updatedEl) updatedEl.textContent = "Обновлено: " + WINTER_RATING_UPDATED;
+  var rows = WINTER_RATING_OVERALL.map(function (r, i) {
+    var rewardStr = r.reward ? r.reward.toLocaleString("ru-RU") : "0";
+    return { place: i + 1, nick: r.nick, points: r.points, reward: rewardStr };
+  });
+  if (tbody) {
+    tbody.innerHTML = rows.map(function (r) {
+      return "<tr><td>" + r.place + "</td><td>" + escapeHtmlRating(r.nick) + "</td><td>" + r.points + "</td><td>" + r.reward + "</td></tr>";
+    }).join("");
+  }
+  var datesContainer = document.getElementById("winterRatingDates");
+  if (!datesContainer) return;
+  if (datesContainer.getAttribute("data-rating-inited") === "1") return;
+  datesContainer.setAttribute("data-rating-inited", "1");
+  var dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
+  dateItems.forEach(function (item) {
+    var dateStr = item.getAttribute("data-rating-date");
+    var btn = item.querySelector(".winter-rating__date-btn");
+    var panel = item.querySelector(".winter-rating__date-panel");
+    var tableWrap = item.querySelector(".winter-rating__date-table-wrap");
+    var screensContainer = item.querySelector(".winter-rating__screenshots");
+    if (!btn || !panel || !tableWrap) return;
+    var data = WINTER_RATING_BY_DATE[dateStr];
+    if (data && tableWrap && !tableWrap.innerHTML) {
+      tableWrap.innerHTML = renderWinterRatingTable(data);
+    }
+    if (screensContainer) {
+      var files = WINTER_RATING_IMAGES[dateStr];
+      if (files && files.length) {
+        screensContainer.innerHTML = files.map(function (f, i) {
+          return "<div class=\"winter-rating__screenshot\"><img src=\"./assets/" + f + "\" alt=\"Скрин рейтинга " + dateStr + " (" + (i + 1) + ")\" /></div>";
+        }).join("");
+      }
+    }
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var scrollY = window.scrollY || window.pageYOffset;
+      panel.classList.toggle("winter-rating__date-panel--hidden");
+      var open = !panel.classList.contains("winter-rating__date-panel--hidden");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      requestAnimationFrame(function () { window.scrollTo(0, scrollY); });
+    });
+  });
 }
 
 function fetchRaffleBadge() {
@@ -588,6 +695,14 @@ navItems.forEach(function (item) {
 });
 
 document.addEventListener("click", function (e) {
+  var backBtn = e.target.closest(".bonus-game-back[data-view-target]");
+  if (backBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    var target = backBtn.getAttribute("data-view-target");
+    if (target) setView(target);
+    return;
+  }
   var link = e.target.closest("a[data-view-target]");
   if (!link || link.getAttribute("data-download-page")) return;
   e.preventDefault();
