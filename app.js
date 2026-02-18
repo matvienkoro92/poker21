@@ -270,33 +270,24 @@ function updateRaffleBadge(hasActive) {
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
 }
 
-// Рейтинг Турнирщиков зимы — 01.02, 02.02, 03.02 по скринам. Баллы: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50.
-var WINTER_RATING_UPDATED = "03.02.2026";
+// Рейтинг Турнирщиков зимы — 01.02–08.02. Баллы за места 1–6 только при ненулевой награде (1=135, 2=110, 3=90, 4=70, 5=60, 6=50).
+var WINTER_RATING_UPDATED = "08.02.2026";
 var WINTER_RATING_OVERALL = [
-  { nick: "ПокерМанки", points: 385, reward: 77500 },
+  { nick: "Waaar", points: 485, reward: 85240 },
+  { nick: "ПокерМанки", points: 475, reward: 100000 },
+  { nick: "MTTwnik", points: 260, reward: 39200 },
+  { nick: "WiNifly", points: 290, reward: 53600 },
+  { nick: "Coo1er91", points: 230, reward: 34000 },
   { nick: "Prushnik", points: 200, reward: 28000 },
   { nick: "FishKopcheny", points: 195, reward: 44200 },
-  { nick: "Waaar", points: 180, reward: 33840 },
-  { nick: "Coo1er91", points: 160, reward: 16000 },
-  { nick: "MTTwnik", points: 140, reward: 10500 },
+  { nick: "king00001", points: 170, reward: 16700 },
   { nick: "DimassikFiskk", points: 135, reward: 25900 },
-  { nick: "WiNifly", points: 120, reward: 15400 },
-  { nick: "king00001", points: 110, reward: 9000 },
+  { nick: "Sarmat1305", points: 90, reward: 10500 },
+  { nick: "Borsoi", points: 90, reward: 6000 },
   { nick: "prozharka", points: 70, reward: 18500 },
   { nick: "DIVGO", points: 70, reward: 6920 },
-  { nick: "Salamandr", points: 60, reward: 0 },
-  { nick: "Rom4ik", points: 50, reward: 0 },
-  { nick: "KOL1103", points: 50, reward: 0 },
-  { nick: "aRbyZ", points: 50, reward: 0 },
-  { nick: "RS888", points: 0, reward: 0 },
-  { nick: "Prokopenya", points: 0, reward: 0 },
-  { nick: "MiracleDivice", points: 0, reward: 0 },
-  { nick: "m014yH", points: 0, reward: 0 },
-  { nick: "Nuts", points: 0, reward: 0 },
-  { nick: "Rifa", points: 0, reward: 0 },
-  { nick: "MilkyWay77", points: 0, reward: 0 },
-  { nick: "mr.Fox", points: 0, reward: 0 },
-  { nick: "Рамиль01", points: 0, reward: 0 },
+  { nick: "MilkyWay77", points: 70, reward: 8400 },
+  { nick: "vnukshtukatura", points: 0, reward: 15500 },
 ];
 var WINTER_RATING_BY_DATE = {
   "01.02.2026": [
@@ -306,8 +297,8 @@ var WINTER_RATING_BY_DATE = {
     { nick: "MTTwnik", points: 90, reward: 10500 },
     { nick: "DIVGO", points: 70, reward: 6920 },
     { nick: "WiNifly", points: 60, reward: 7700 },
-    { nick: "KOL1103", points: 50, reward: 0 },
-    { nick: "aRbyZ", points: 50, reward: 0 },
+    { nick: "KOL1103", points: 0, reward: 0 },
+    { nick: "aRbyZ", points: 0, reward: 0 },
     { nick: "Waaar", points: 0, reward: 16800 },
     { nick: "m014yH", points: 0, reward: 0 },
     { nick: "Nuts", points: 0, reward: 0 },
@@ -319,9 +310,9 @@ var WINTER_RATING_BY_DATE = {
     { nick: "king00001", points: 110, reward: 9000 },
     { nick: "prozharka", points: 70, reward: 18500 },
     { nick: "ПокерМанки", points: 70, reward: 8800 },
-    { nick: "Salamandr", points: 60, reward: 0 },
-    { nick: "MTTwnik", points: 50, reward: 0 },
-    { nick: "Rom4ik", points: 50, reward: 0 },
+    { nick: "Salamandr", points: 0, reward: 0 },
+    { nick: "MTTwnik", points: 0, reward: 0 },
+    { nick: "Rom4ik", points: 0, reward: 0 },
     { nick: "RS888", points: 0, reward: 0 },
     { nick: "Prokopenya", points: 0, reward: 0 },
     { nick: "MiracleDivice", points: 0, reward: 0 },
@@ -337,11 +328,81 @@ var WINTER_RATING_BY_DATE = {
     { nick: "Waaar", points: 0, reward: 0 },
     { nick: "Рамиль01", points: 0, reward: 0 },
   ],
+  "04.02.2026": [
+    { nick: "Sarmat1305", points: 90, reward: 10500 },
+    { nick: "MilkyWay77", points: 70, reward: 8400 },
+    { nick: "MTTwnik", points: 60, reward: 7700 },
+    { nick: "WiNifly", points: 0, reward: 0 },
+    { nick: "RS888", points: 0, reward: 0 },
+  ],
+  "05.02.2026": [
+    { nick: "Waaar", points: 195, reward: 42400 },
+    { nick: "WiNifly", points: 110, reward: 17500 },
+    { nick: "ПокерМанки", points: 90, reward: 22500 },
+    { nick: "Coo1er91", points: 70, reward: 18000 },
+    { nick: "king00001", points: 60, reward: 7700 },
+    { nick: "MTTwnik", points: 0, reward: 0 },
+    { nick: "MilkyWay77", points: 0, reward: 0 },
+    { nick: "MORPEH", points: 0, reward: 0 },
+  ],
+  "06.02.2026": [
+    { nick: "MTTwnik", points: 110, reward: 21000 },
+    { nick: "Waaar", points: 110, reward: 9000 },
+    { nick: "Borsoi", points: 90, reward: 6000 },
+    { nick: "WiNifly", points: 0, reward: 0 },
+    { nick: "ПокерМанки", points: 0, reward: 0 },
+    { nick: "king00001", points: 0, reward: 0 },
+    { nick: "Coo1er91", points: 0, reward: 0 },
+    { nick: "Smile", points: 0, reward: 0 },
+    { nick: "Smorodina", points: 0, reward: 0 },
+  ],
+  "08.02.2026": [
+    { nick: "WiNifly", points: 60, reward: 20700 },
+    { nick: "vnukshtukatura", points: 0, reward: 15500 },
+    { nick: "Аспирин", points: 0, reward: 0 },
+    { nick: "ПокерМанки", points: 0, reward: 0 },
+    { nick: "king00001", points: 0, reward: 0 },
+  ],
 };
 var WINTER_RATING_IMAGES = {
   "01.02.2026": ["rating-01-02-2026.png", "rating-01-02-2026-2.png", "rating-01-02-2026-3.png"],
   "02.02.2026": ["rating-02-02-2026.png", "rating-02-02-2026-2.png", "rating-02-02-2026-3.png"],
   "03.02.2026": ["rating-03-02-2026.png", "rating-03-02-2026-2.png"],
+  "04.02.2026": ["rating-04-02-2026.png"],
+  "05.02.2026": ["rating-05-02-2026.png", "rating-05-02-2026-2.png"],
+  "06.02.2026": ["rating-06-02-2026.png", "rating-06-02-2026-2.png"],
+  "08.02.2026": ["rating-08-02-2026.png"],
+};
+// По дате — массив турниров (время + игроки). Для модалки «все турниры дня» по игроку.
+var WINTER_RATING_TOURNAMENTS_BY_DATE = {
+  "01.02.2026": [
+    { time: "18:00", players: [{ nick: "ПокерМанки", place: 3, points: 90, reward: 34000 }, { nick: "Waaar", place: 7, points: 0, reward: 16800 }, { nick: "Rifa", place: 15, points: 0, reward: 0 }, { nick: "KOL1103", place: 25, points: 0, reward: 0 }, { nick: "m014yH", place: 22, points: 0, reward: 0 }] },
+    { time: "17:00", players: [{ nick: "DimassikFiskk", place: 1, points: 135, reward: 25900 }, { nick: "Prushnik", place: 2, points: 110, reward: 17500 }, { nick: "MTTwnik", place: 3, points: 90, reward: 10500 }, { nick: "WiNifly", place: 5, points: 60, reward: 7700 }, { nick: "aRbyZ", place: 6, points: 50, reward: 0 }] },
+    { time: "12:00", players: [{ nick: "ПокерМанки", place: 3, points: 90, reward: 8800 }, { nick: "DIVGO", place: 4, points: 70, reward: 6920 }, { nick: "KOL1103", place: 6, points: 0, reward: 0 }, { nick: "m014yH", place: 7, points: 0, reward: 0 }, { nick: "Nuts", place: 8, points: 0, reward: 0 }] },
+  ],
+  "02.02.2026": [
+    { time: "18:00", players: [{ nick: "prozharka", place: 4, points: 70, reward: 18500 }, { nick: "FishKopcheny", place: 5, points: 60, reward: 17000 }, { nick: "Waaar", place: 8, points: 0, reward: 0 }, { nick: "RS888", place: 10, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 11, points: 0, reward: 0 }] },
+    { time: "17:00", players: [{ nick: "FishKopcheny", place: 1, points: 135, reward: 27200 }, { nick: "Waaar", place: 3, points: 90, reward: 11040 }, { nick: "ПокерМанки", place: 4, points: 70, reward: 8800 }, { nick: "MTTwnik", place: 6, points: 50, reward: 0 }, { nick: "Prokopenya", place: 10, points: 0, reward: 0 }] },
+    { time: "12:00", players: [{ nick: "king00001", place: 2, points: 110, reward: 9000 }, { nick: "Waaar", place: 3, points: 90, reward: 6000 }, { nick: "Salamandr", place: 5, points: 0, reward: 0 }, { nick: "Rom4ik", place: 6, points: 0, reward: 0 }, { nick: "MiracleDivice", place: 7, points: 0, reward: 0 }] },
+  ],
+  "03.02.2026": [
+    { time: "17:00", players: [{ nick: "Coo1er91", place: 1, points: 135, reward: 10000 }, { nick: "ПокерМанки", place: 2, points: 110, reward: 15000 }, { nick: "Prushnik", place: 3, points: 90, reward: 10500 }, { nick: "WiNifly", place: 5, points: 60, reward: 7700 }, { nick: "MTTwnik", place: 6, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 7, points: 0, reward: 0 }, { nick: "mr.Fox", place: 8, points: 0, reward: 0 }, { nick: "Waaar", place: 9, points: 0, reward: 0 }, { nick: "Рамиль01", place: 10, points: 0, reward: 0 }] },
+    { time: "12:00", players: [{ nick: "Coo1er91", place: 2, points: 110, reward: 6000 }, { nick: "ПокерМанки", place: 1, points: 135, reward: 10900 }] },
+  ],
+  "04.02.2026": [
+    { time: "17:00", players: [{ nick: "Sarmat1305", place: 1, points: 90, reward: 10500 }, { nick: "MilkyWay77", place: 2, points: 70, reward: 8400 }, { nick: "MTTwnik", place: 3, points: 60, reward: 7700 }, { nick: "WiNifly", place: 4, points: 0, reward: 0 }, { nick: "RS888", place: 5, points: 0, reward: 0 }] },
+  ],
+  "05.02.2026": [
+    { time: "17:00", players: [{ nick: "Waaar", place: 1, points: 135, reward: 25900 }, { nick: "WiNifly", place: 2, points: 110, reward: 17500 }, { nick: "ПокерМанки", place: 3, points: 90, reward: 22500 }, { nick: "Coo1er91", place: 4, points: 70, reward: 18000 }, { nick: "king00001", place: 5, points: 60, reward: 7700 }, { nick: "MTTwnik", place: 6, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 7, points: 0, reward: 0 }, { nick: "MORPEH", place: 8, points: 0, reward: 0 }] },
+    { time: "18:00", players: [{ nick: "Waaar", place: 2, points: 110, reward: 16500 }] },
+  ],
+  "06.02.2026": [
+    { time: "17:00", players: [{ nick: "MTTwnik", place: 1, points: 135, reward: 21000 }, { nick: "Waaar", place: 2, points: 110, reward: 9000 }, { nick: "Borsoi", place: 3, points: 90, reward: 6000 }] },
+    { time: "12:00", players: [{ nick: "WiNifly", place: 0, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 0, points: 0, reward: 0 }, { nick: "king00001", place: 0, points: 0, reward: 0 }, { nick: "Coo1er91", place: 0, points: 0, reward: 0 }, { nick: "Smile", place: 0, points: 0, reward: 0 }, { nick: "Smorodina", place: 0, points: 0, reward: 0 }] },
+  ],
+  "08.02.2026": [
+    { time: "18:00", players: [{ nick: "WiNifly", place: 1, points: 60, reward: 20700 }, { nick: "vnukshtukatura", place: 2, points: 0, reward: 15500 }, { nick: "Аспирин", place: 0, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 0, points: 0, reward: 0 }, { nick: "king00001", place: 0, points: 0, reward: 0 }] },
+  ],
 };
 
 function openWinterRatingLightbox(dateStr, index) {
@@ -452,9 +513,25 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["01.02.2026", "02.02.2026", "03.02.2026"];
+  var dates = ["01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026"];
   var out = [];
   dates.forEach(function (dateStr) {
+    var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
+    if (tournaments && tournaments.length) {
+      tournaments.forEach(function (t) {
+        var p = t.players && t.players.find(function (r) { return r.nick === nick; });
+        if (p) {
+          out.push({
+            date: dateStr,
+            time: t.time || "",
+            place: p.place,
+            points: p.points != null ? p.points : 0,
+            reward: p.reward != null ? p.reward : 0,
+          });
+        }
+      });
+      return;
+    }
     var list = WINTER_RATING_BY_DATE[dateStr];
     if (!list || !list.length) return;
     var filtered = list.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
@@ -464,6 +541,7 @@ function getWinterRatingPlayerSummary(nick) {
     var row = sorted[idx];
     out.push({
       date: dateStr,
+      time: "",
       place: idx + 1,
       points: row.points,
       reward: row.reward != null ? row.reward : 0,
@@ -480,11 +558,14 @@ function openWinterRatingPlayerModal(nick) {
   var summary = getWinterRatingPlayerSummary(nick);
   titleEl.textContent = nick;
   if (summary.length) {
-    tableWrap.innerHTML = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr><th>Дата</th><th>Место</th><th>Баллы</th><th>Призовые</th></tr></thead><tbody>" +
-      summary.map(function (s) {
+    tableWrap.innerHTML = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr><th>Дата</th><th>Время</th><th>Место</th><th>Баллы</th><th>Призовые</th></tr></thead><tbody>" +
+      summary.map(function (s, i) {
         var placeStr = winterRatingPlaceCell(s.place);
         var rewardStr = s.reward ? Number(s.reward).toLocaleString("ru-RU") : "0";
-        return "<tr><td>" + s.date + "</td><td>" + placeStr + "</td><td>" + s.points + "</td><td>" + rewardStr + "</td></tr>";
+        var showDate = (i === 0 || summary[i - 1].date !== s.date);
+        var dateCell = showDate ? escapeHtmlRating(s.date) : "";
+        var timeCell = s.time ? escapeHtmlRating(s.time) : "—";
+        return "<tr><td>" + dateCell + "</td><td>" + timeCell + "</td><td>" + placeStr + "</td><td>" + s.points + "</td><td>" + rewardStr + "</td></tr>";
       }).join("") + "</tbody></table>";
   } else {
     tableWrap.innerHTML = "<p class=\"winter-rating-player-modal__empty\">Нет данных по датам</p>";
