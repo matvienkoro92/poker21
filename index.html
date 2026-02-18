@@ -197,7 +197,7 @@
             <section class="winter-rating" id="winterRatingSection" aria-labelledby="winterRatingTitle">
               <h2 class="winter-rating__title" id="winterRatingTitle">
                 <span class="winter-rating__cup" aria-hidden="true">🏆</span>
-                Рейтинг Турнирщиков зимы на 250 000₽
+                <span class="winter-rating__title-text">Рейтинг Турнирщиков зимы<br /><span class="winter-rating__title-accent">на 250 000₽</span></span>
               </h2>
               <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
               <h3 class="winter-rating__table-caption">Итоговая таблица</h3>
@@ -851,6 +851,13 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./updates-data.js"></script>
     <script src="./app.js?v=13"></script>
+  <div class="winter-rating-lightbox" id="winterRatingLightbox" aria-hidden="true" role="dialog" aria-label="Увеличенный скрин">
+    <button type="button" class="winter-rating-lightbox__close" aria-label="Закрыть">×</button>
+    <button type="button" class="winter-rating-lightbox__prev" aria-label="Предыдущий скрин">‹</button>
+    <button type="button" class="winter-rating-lightbox__next" aria-label="Следующий скрин">›</button>
+    <img class="winter-rating-lightbox__img" src="" alt="" />
+    <span class="winter-rating-lightbox__counter" aria-live="polite"></span>
+  </div>
   </body>
 </html>
 

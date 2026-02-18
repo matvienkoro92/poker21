@@ -270,22 +270,33 @@ function updateRaffleBadge(hasActive) {
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
 }
 
-// Рейтинг Турнирщиков зимы на 250 000₽ — по скринам 01.02 (02/01)
-var WINTER_RATING_UPDATED = "02.02.2026";
-// Баллы за место: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50, 7+ = 0. По трём турнирам 01.02 суммировал.
+// Рейтинг Турнирщиков зимы — 01.02, 02.02, 03.02 по скринам. Баллы: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50.
+var WINTER_RATING_UPDATED = "03.02.2026";
 var WINTER_RATING_OVERALL = [
-  { nick: "ПокерМанки", points: 180, reward: 42800 },
+  { nick: "ПокерМанки", points: 385, reward: 77500 },
+  { nick: "Prushnik", points: 200, reward: 28000 },
+  { nick: "FishKopcheny", points: 195, reward: 44200 },
+  { nick: "Waaar", points: 180, reward: 33840 },
+  { nick: "Coo1er91", points: 160, reward: 16000 },
+  { nick: "MTTwnik", points: 140, reward: 10500 },
   { nick: "DimassikFiskk", points: 135, reward: 25900 },
-  { nick: "Prushnik", points: 110, reward: 17500 },
-  { nick: "MTTwnik", points: 90, reward: 10500 },
+  { nick: "WiNifly", points: 120, reward: 15400 },
+  { nick: "king00001", points: 110, reward: 9000 },
+  { nick: "prozharka", points: 70, reward: 18500 },
   { nick: "DIVGO", points: 70, reward: 6920 },
-  { nick: "WiNifly", points: 60, reward: 7700 },
+  { nick: "Salamandr", points: 60, reward: 0 },
+  { nick: "Rom4ik", points: 50, reward: 0 },
   { nick: "KOL1103", points: 50, reward: 0 },
   { nick: "aRbyZ", points: 50, reward: 0 },
-  { nick: "Waaar", points: 0, reward: 16800 },
+  { nick: "RS888", points: 0, reward: 0 },
+  { nick: "Prokopenya", points: 0, reward: 0 },
+  { nick: "MiracleDivice", points: 0, reward: 0 },
   { nick: "m014yH", points: 0, reward: 0 },
   { nick: "Nuts", points: 0, reward: 0 },
   { nick: "Rifa", points: 0, reward: 0 },
+  { nick: "MilkyWay77", points: 0, reward: 0 },
+  { nick: "mr.Fox", points: 0, reward: 0 },
+  { nick: "Рамиль01", points: 0, reward: 0 },
 ];
 var WINTER_RATING_BY_DATE = {
   "01.02.2026": [
@@ -302,15 +313,125 @@ var WINTER_RATING_BY_DATE = {
     { nick: "Nuts", points: 0, reward: 0 },
     { nick: "Rifa", points: 0, reward: 0 },
   ],
-  "02.02.2026": [],
-  "03.02.2026": [],
+  "02.02.2026": [
+    { nick: "FishKopcheny", points: 195, reward: 44200 },
+    { nick: "Waaar", points: 180, reward: 17040 },
+    { nick: "king00001", points: 110, reward: 9000 },
+    { nick: "prozharka", points: 70, reward: 18500 },
+    { nick: "ПокерМанки", points: 70, reward: 8800 },
+    { nick: "Salamandr", points: 60, reward: 0 },
+    { nick: "MTTwnik", points: 50, reward: 0 },
+    { nick: "Rom4ik", points: 50, reward: 0 },
+    { nick: "RS888", points: 0, reward: 0 },
+    { nick: "Prokopenya", points: 0, reward: 0 },
+    { nick: "MiracleDivice", points: 0, reward: 0 },
+  ],
+  "03.02.2026": [
+    { nick: "Coo1er91", points: 160, reward: 16000 },
+    { nick: "ПокерМанки", points: 135, reward: 25900 },
+    { nick: "Prushnik", points: 90, reward: 10500 },
+    { nick: "WiNifly", points: 60, reward: 7700 },
+    { nick: "MTTwnik", points: 0, reward: 0 },
+    { nick: "MilkyWay77", points: 0, reward: 0 },
+    { nick: "mr.Fox", points: 0, reward: 0 },
+    { nick: "Waaar", points: 0, reward: 0 },
+    { nick: "Рамиль01", points: 0, reward: 0 },
+  ],
 };
 var WINTER_RATING_IMAGES = {
   "01.02.2026": ["rating-01-02-2026.png", "rating-01-02-2026-2.png", "rating-01-02-2026-3.png"],
-  "02.02.2026": [],
-  "03.02.2026": [],
+  "02.02.2026": ["rating-02-02-2026.png", "rating-02-02-2026-2.png", "rating-02-02-2026-3.png"],
+  "03.02.2026": ["rating-03-02-2026.png", "rating-03-02-2026-2.png"],
 };
 
+function openWinterRatingLightbox(dateStr, index) {
+  var box = document.getElementById("winterRatingLightbox");
+  var img = box && box.querySelector(".winter-rating-lightbox__img");
+  var files = dateStr && WINTER_RATING_IMAGES[dateStr];
+  if (!box || !img || !files || !files.length || index < 0 || index >= files.length) return;
+  box.dataset.lightboxDate = dateStr;
+  box.dataset.lightboxIndex = String(index);
+  img.src = "./assets/" + files[index];
+  img.alt = "Скрин рейтинга " + dateStr + " (" + (index + 1) + ")";
+  box.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  updateWinterRatingLightboxArrows();
+}
+
+function updateWinterRatingLightboxArrows() {
+  var box = document.getElementById("winterRatingLightbox");
+  if (!box || box.getAttribute("aria-hidden") === "true") return;
+  var dateStr = box.dataset.lightboxDate;
+  var index = parseInt(box.dataset.lightboxIndex, 10) || 0;
+  var files = dateStr && WINTER_RATING_IMAGES[dateStr];
+  var prevBtn = box.querySelector(".winter-rating-lightbox__prev");
+  var nextBtn = box.querySelector(".winter-rating-lightbox__next");
+  var counter = box.querySelector(".winter-rating-lightbox__counter");
+  if (prevBtn) prevBtn.style.display = files && index > 0 ? "" : "none";
+  if (nextBtn) nextBtn.style.display = files && index < files.length - 1 ? "" : "none";
+  if (counter && files) counter.textContent = (index + 1) + " / " + files.length;
+}
+
+function closeWinterRatingLightbox() {
+  var box = document.getElementById("winterRatingLightbox");
+  if (box) {
+    box.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+}
+
+function initWinterRatingLightbox() {
+  var box = document.getElementById("winterRatingLightbox");
+  if (!box || box.getAttribute("data-inited") === "1") return;
+  box.setAttribute("data-inited", "1");
+  var closeBtn = box.querySelector(".winter-rating-lightbox__close");
+  var prevBtn = box.querySelector(".winter-rating-lightbox__prev");
+  var nextBtn = box.querySelector(".winter-rating-lightbox__next");
+  if (closeBtn) closeBtn.addEventListener("click", closeWinterRatingLightbox);
+  if (prevBtn) prevBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var dateStr = box.dataset.lightboxDate;
+    var index = parseInt(box.dataset.lightboxIndex, 10) || 0;
+    if (index > 0) openWinterRatingLightbox(dateStr, index - 1);
+  });
+  if (nextBtn) nextBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var dateStr = box.dataset.lightboxDate;
+    var index = parseInt(box.dataset.lightboxIndex, 10) || 0;
+    var files = WINTER_RATING_IMAGES[dateStr];
+    if (files && index < files.length - 1) openWinterRatingLightbox(dateStr, index + 1);
+  });
+  box.addEventListener("click", function (e) {
+    if (e.target === box) closeWinterRatingLightbox();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (box.getAttribute("aria-hidden") !== "false") return;
+    if (e.key === "Escape") closeWinterRatingLightbox();
+    else if (e.key === "ArrowLeft") {
+      var dateStr = box.dataset.lightboxDate;
+      var idx = parseInt(box.dataset.lightboxIndex, 10) || 0;
+      if (idx > 0) openWinterRatingLightbox(dateStr, idx - 1);
+    } else if (e.key === "ArrowRight") {
+      var dateStr = box.dataset.lightboxDate;
+      var idx = parseInt(box.dataset.lightboxIndex, 10) || 0;
+      var files = WINTER_RATING_IMAGES[dateStr];
+      if (files && idx < files.length - 1) openWinterRatingLightbox(dateStr, idx + 1);
+    }
+  });
+}
+
+function winterRatingRowClass(place) {
+  if (place === 1) return "winter-rating__row--gold";
+  if (place === 2) return "winter-rating__row--silver";
+  if (place === 3) return "winter-rating__row--bronze";
+  return "";
+}
+function winterRatingPlaceCell(place) {
+  if (place === 1) return "🥇 1";
+  if (place === 2) return "🥈 2";
+  if (place === 3) return "🥉 3";
+  return String(place);
+}
 function renderWinterRatingTable(rows) {
   if (!rows || !rows.length) return "";
   var sorted = rows.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
@@ -318,7 +439,9 @@ function renderWinterRatingTable(rows) {
   return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Награда</th></tr></thead><tbody>" +
     sorted.map(function (r) {
       place++;
-      return "<tr><td>" + place + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? r.reward.toLocaleString("ru-RU") : "0") + "</td></tr>";
+      var trClass = winterRatingRowClass(place);
+      var placeCell = winterRatingPlaceCell(place);
+      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? r.reward.toLocaleString("ru-RU") : "0") + "</td></tr>";
     }).join("") + "</tbody></table>";
 }
 
@@ -328,6 +451,7 @@ function escapeHtmlRating(s) {
 }
 
 function initWinterRating() {
+  initWinterRatingLightbox();
   var updatedEl = document.getElementById("winterRatingUpdated");
   var tbody = document.getElementById("winterRatingTableBody");
   if (updatedEl) updatedEl.textContent = "Обновлено: " + WINTER_RATING_UPDATED;
@@ -337,7 +461,9 @@ function initWinterRating() {
   });
   if (tbody) {
     tbody.innerHTML = rows.map(function (r) {
-      return "<tr><td>" + r.place + "</td><td>" + escapeHtmlRating(r.nick) + "</td><td>" + r.points + "</td><td>" + r.reward + "</td></tr>";
+      var trClass = winterRatingRowClass(r.place);
+      var placeCell = winterRatingPlaceCell(r.place);
+      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + escapeHtmlRating(r.nick) + "</td><td>" + r.points + "</td><td>" + r.reward + "</td></tr>";
     }).join("");
   }
   var datesContainer = document.getElementById("winterRatingDates");
@@ -360,8 +486,14 @@ function initWinterRating() {
       var files = WINTER_RATING_IMAGES[dateStr];
       if (files && files.length) {
         screensContainer.innerHTML = files.map(function (f, i) {
-          return "<div class=\"winter-rating__screenshot\"><img src=\"./assets/" + f + "\" alt=\"Скрин рейтинга " + dateStr + " (" + (i + 1) + ")\" /></div>";
+          return "<div class=\"winter-rating__screenshot\" role=\"button\" tabindex=\"0\"><img src=\"./assets/" + f + "\" alt=\"Скрин рейтинга " + dateStr + " (" + (i + 1) + ")\" /></div>";
         }).join("");
+        screensContainer.querySelectorAll(".winter-rating__screenshot").forEach(function (cell, idx) {
+          var img = cell.querySelector("img");
+          if (img && img.src) {
+            cell.addEventListener("click", function () { openWinterRatingLightbox(dateStr, idx); });
+          }
+        });
       }
     }
     btn.addEventListener("click", function (e) {
