@@ -2852,6 +2852,14 @@ a.home-mini-icon-item {
   border-collapse: collapse;
   font-size: 13px;
 }
+/* Итоговая таблица — крупный шрифт */
+#winterRatingTableWrap .winter-rating__table {
+  font-size: 16px;
+}
+#winterRatingTableWrap .winter-rating__table th,
+#winterRatingTableWrap .winter-rating__table td {
+  padding: 10px 12px;
+}
 .winter-rating__table th,
 .winter-rating__table td {
   padding: 8px 10px;
@@ -2984,14 +2992,27 @@ a.home-mini-icon-item {
 .view--active[data-view="winter-rating"] .winter-rating__table {
   font-size: 11px;
 }
+/* Итоговая таблица в экране рейтинга — оставляем крупный шрифт */
+.view--active[data-view="winter-rating"] #winterRatingTableWrap .winter-rating__table {
+  font-size: 15px;
+}
 .view--active[data-view="winter-rating"] .winter-rating__table th,
 .view--active[data-view="winter-rating"] .winter-rating__table td {
   padding: 4px 6px;
+}
+.view--active[data-view="winter-rating"] #winterRatingTableWrap .winter-rating__table th,
+.view--active[data-view="winter-rating"] #winterRatingTableWrap .winter-rating__table td {
+  padding: 8px 10px;
 }
 .view--active[data-view="winter-rating"] #winterRatingTableOverall th:last-child,
 .view--active[data-view="winter-rating"] #winterRatingTableOverall td:last-child {
   padding-left: 4px;
   padding-right: 6px;
+}
+.view--active[data-view="winter-rating"] #winterRatingTableWrap .winter-rating__table th:last-child,
+.view--active[data-view="winter-rating"] #winterRatingTableWrap .winter-rating__table td:last-child {
+  padding-left: 8px;
+  padding-right: 10px;
 }
 .view--active[data-view="winter-rating"] .winter-rating__show-all-wrap {
   margin: 0 12px 4px;
@@ -3009,23 +3030,9 @@ a.home-mini-icon-item {
   font-size: 11px;
 }
 .view--active[data-view="winter-rating"] .winter-rating__dates {
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 6px;
-  margin: 0 12px 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  flex-shrink: 0;
-}
-.view--active[data-view="winter-rating"] .winter-rating__date-item {
-  flex-shrink: 0;
-  border-radius: 8px;
-  min-width: fit-content;
-}
-.view--active[data-view="winter-rating"] .winter-rating__date-btn {
-  padding: 6px 10px;
-  font-size: 12px;
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 12px;
 }
 .view--active[data-view="winter-rating"] .bonus-game-back {
   margin: 0 0 4px;
