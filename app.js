@@ -320,6 +320,25 @@ var WINTER_RATING_OVERALL = [
   { nick: "vnukshtukatura", points: 0, reward: 15500 },
 ];
 var WINTER_RATING_BY_DATE = {
+  "20.12.2025": [
+    { nick: "Waaar", points: 110, reward: 9500 },
+    { nick: "ПокерМанки", points: 90, reward: 10500 },
+    { nick: "Em13!!", points: 70, reward: 20620 },
+    { nick: "electrocomvpk", points: 70, reward: 16807 },
+    { nick: "MOJO", points: 70, reward: 8400 },
+    { nick: "pryanik2la", points: 60, reward: 147101 },
+    { nick: "Amaliya", points: 0, reward: 0 },
+    { nick: "mamalena", points: 0, reward: 0 },
+    { nick: "Waaarr", points: 0, reward: 0 },
+    { nick: "vnukshtukatura", points: 0, reward: 4212 },
+    { nick: "baldand", points: 0, reward: 0 },
+    { nick: "Kvits010", points: 0, reward: 0 },
+    { nick: "Фокс", points: 0, reward: 0 },
+    { nick: "kabanchik", points: 0, reward: 0 },
+    { nick: "Марико", points: 0, reward: 0 },
+    { nick: "ШЛЯПАУСАТ", points: 0, reward: 0 },
+    { nick: "JinDaniels", points: 0, reward: 0 },
+  ],
   "19.12.2025": [
     { nick: "Coo1er91", points: 135, reward: 15000 },
     { nick: "COBRA", points: 110, reward: 9000 },
@@ -600,6 +619,7 @@ var WINTER_RATING_BY_DATE = {
   ],
 };
 var WINTER_RATING_IMAGES = {
+  "20.12.2025": ["rating-20-12-2025.png", "rating-20-12-2025-2.png", "rating-20-12-2025-3.png", "rating-20-12-2025-4.png", "rating-20-12-2025-5.png"],
   "19.12.2025": ["rating-19-12-2025.png", "rating-19-12-2025-2.png", "rating-19-12-2025-3.png", "rating-19-12-2025-4.png"],
   "18.12.2025": ["rating-18-12-2025.png", "rating-18-12-2025-2.png", "rating-18-12-2025-3.png", "rating-18-12-2025-4.png"],
   "17.12.2025": ["rating-17-12-2025.png", "rating-17-12-2025-2.png", "rating-17-12-2025-3.png", "rating-17-12-2025-4.png", "rating-17-12-2025-5.png"],
@@ -623,6 +643,13 @@ var WINTER_RATING_IMAGES = {
 };
 // По дате — массив турниров (время + игроки). Для модалки «все турниры дня» по игроку. Синий скрин: призовые = выигрыш × 100.
 var WINTER_RATING_TOURNAMENTS_BY_DATE = {
+  "20.12.2025": [
+    { time: "00:00", players: [{ nick: "electrocomvpk", place: 4, points: 70, reward: 16807 }, { nick: "vnukshtukatura", place: 13, points: 0, reward: 4212 }, { nick: "Em13!!", place: 14, points: 0, reward: 0 }, { nick: "baldand", place: 0, points: 0, reward: 0 }, { nick: "Kvits010", place: 29, points: 0, reward: 0 }] },
+    { time: "12:00", players: [{ nick: "Waaar", place: 2, points: 110, reward: 9500 }, { nick: "Amaliya", place: 5, points: 0, reward: 0 }, { nick: "MOJO", place: 6, points: 0, reward: 0 }, { nick: "ШЛЯПАУСАТ", place: 8, points: 0, reward: 0 }, { nick: "JinDaniels", place: 9, points: 0, reward: 0 }] },
+    { time: "17:00", players: [{ nick: "ПокерМанки", place: 3, points: 90, reward: 10500 }, { nick: "MOJO", place: 4, points: 70, reward: 8400 }, { nick: "Amaliya", place: 10, points: 0, reward: 0 }, { nick: "mamalena", place: 11, points: 0, reward: 0 }, { nick: "Waaar", place: 14, points: 0, reward: 0 }] },
+    { time: "20:00", players: [{ nick: "pryanik2la", place: 5, points: 60, reward: 147101 }, { nick: "Waaarr", place: 12, points: 0, reward: 0 }] },
+    { time: "23:00", players: [{ nick: "Em13!!", place: 4, points: 70, reward: 20620 }, { nick: "electrocomvpk", place: 23, points: 0, reward: 0 }, { nick: "kabanchik", place: 66, points: 0, reward: 0 }, { nick: "Фокс", place: 18, points: 0, reward: 0 }, { nick: "Марико", place: 0, points: 0, reward: 0 }] },
+  ],
   "19.12.2025": [
     { time: "00:00", players: [{ nick: "FrankL", place: 2, points: 110, reward: 33327 }, { nick: "baldand", place: 13, points: 0, reward: 3742 }, { nick: "Бабник", place: 0, points: 0, reward: 0 }, { nick: "Em13!!", place: 0, points: 0, reward: 0 }] },
     { time: "12:00", players: [{ nick: "Coo1er91", place: 1, points: 135, reward: 15000 }, { nick: "COBRA", place: 2, points: 110, reward: 9000 }, { nick: "Waaar", place: 3, points: 90, reward: 6000 }, { nick: "king00001", place: 5, points: 0, reward: 0 }, { nick: "DIVGO", place: 6, points: 0, reward: 0 }] },
@@ -851,7 +878,7 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026"].filter(function (d) { return d.indexOf(".02.2026") === -1; });
+  var dates = ["20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026"].filter(function (d) { return d.indexOf(".02.2026") === -1; });
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
@@ -936,6 +963,7 @@ function initWinterRatingPlayerModal() {
 }
 
 // Итоговая таблица без февраля (пока февраль скрыт): считаем только по датам не из февраля.
+// Бонусы к итогу: Coo1er91 +55, Waaar +325 (ручные доп. очки).
 function getWinterRatingOverallNoFebruary() {
   var byNick = {};
   var dateStrs = Object.keys(WINTER_RATING_BY_DATE || {});
@@ -950,6 +978,8 @@ function getWinterRatingOverallNoFebruary() {
       byNick[n].reward += r.reward || 0;
     });
   });
+  if (byNick["Coo1er91"]) byNick["Coo1er91"].points += 55; else byNick["Coo1er91"] = { nick: "Coo1er91", points: 55, reward: 0 };
+  if (byNick["Waaar"]) byNick["Waaar"].points += 325; else byNick["Waaar"] = { nick: "Waaar", points: 325, reward: 0 };
   var arr = Object.keys(byNick).map(function (n) { return byNick[n]; });
   return arr.filter(function (r) { return r.points !== 0 || r.reward !== 0; }).sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
 }
