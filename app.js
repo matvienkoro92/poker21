@@ -320,6 +320,22 @@ var WINTER_RATING_OVERALL = [
   { nick: "vnukshtukatura", points: 0, reward: 15500 },
 ];
 var WINTER_RATING_BY_DATE = {
+  "21.12.2025": [
+    { nick: "hhohoo", points: 135, reward: 334518 },
+    { nick: "FrankL", points: 110, reward: 12100 },
+    { nick: "AliPetuhov", points: 110, reward: 20826 },
+    { nick: "Waaar", points: 90, reward: 12225 },
+    { nick: "vnukshtukatura", points: 0, reward: 4887 },
+    { nick: "VICTORINOX", points: 0, reward: 5819 },
+    { nick: "MilkyWay77", points: 0, reward: 1575 },
+    { nick: "TiltlProof", points: 0, reward: 0 },
+    { nick: "king00001", points: 0, reward: 0 },
+    { nick: "Player", points: 0, reward: 0 },
+    { nick: "bymep7", points: 0, reward: 0 },
+    { nick: "Baruum", points: 0, reward: 0 },
+    { nick: "baldand", points: 0, reward: 0 },
+    { nick: "siropchik", points: 0, reward: 0 },
+  ],
   "20.12.2025": [
     { nick: "Waaar", points: 110, reward: 9500 },
     { nick: "ПокерМанки", points: 90, reward: 10500 },
@@ -619,6 +635,7 @@ var WINTER_RATING_BY_DATE = {
   ],
 };
 var WINTER_RATING_IMAGES = {
+  "21.12.2025": ["rating-21-12-2025.png", "rating-21-12-2025-2.png", "rating-21-12-2025-3.png"],
   "20.12.2025": ["rating-20-12-2025.png", "rating-20-12-2025-2.png", "rating-20-12-2025-3.png", "rating-20-12-2025-4.png", "rating-20-12-2025-5.png"],
   "19.12.2025": ["rating-19-12-2025.png", "rating-19-12-2025-2.png", "rating-19-12-2025-3.png", "rating-19-12-2025-4.png"],
   "18.12.2025": ["rating-18-12-2025.png", "rating-18-12-2025-2.png", "rating-18-12-2025-3.png", "rating-18-12-2025-4.png"],
@@ -643,6 +660,11 @@ var WINTER_RATING_IMAGES = {
 };
 // По дате — массив турниров (время + игроки). Для модалки «все турниры дня» по игроку. Синий скрин: призовые = выигрыш × 100.
 var WINTER_RATING_TOURNAMENTS_BY_DATE = {
+  "21.12.2025": [
+    { time: "12:00", players: [{ nick: "FrankL", place: 2, points: 110, reward: 12100 }, { nick: "TiltlProof", place: 5, points: 0, reward: 0 }, { nick: "Waaar", place: 10, points: 0, reward: 0 }, { nick: "king00001", place: 11, points: 0, reward: 0 }, { nick: "Player", place: 13, points: 0, reward: 0 }] },
+    { time: "18:00", players: [{ nick: "hhohoo", place: 1, points: 135, reward: 334518 }, { nick: "bymep7", place: 94, points: 0, reward: 0 }, { nick: "Baruum", place: 308, points: 0, reward: 0 }, { nick: "baldand", place: 0, points: 0, reward: 0 }, { nick: "siropchik", place: 0, points: 0, reward: 0 }] },
+    { time: "20:00", players: [{ nick: "AliPetuhov", place: 2, points: 110, reward: 20826 }, { nick: "Waaar", place: 3, points: 90, reward: 12225 }, { nick: "vnukshtukatura", place: 7, points: 0, reward: 4887 }, { nick: "VICTORINOX", place: 8, points: 0, reward: 5819 }, { nick: "MilkyWay77", place: 9, points: 0, reward: 1575 }] },
+  ],
   "20.12.2025": [
     { time: "00:00", players: [{ nick: "electrocomvpk", place: 4, points: 70, reward: 16807 }, { nick: "vnukshtukatura", place: 13, points: 0, reward: 4212 }, { nick: "Em13!!", place: 14, points: 0, reward: 0 }, { nick: "baldand", place: 0, points: 0, reward: 0 }, { nick: "Kvits010", place: 29, points: 0, reward: 0 }] },
     { time: "12:00", players: [{ nick: "Waaar", place: 2, points: 110, reward: 9500 }, { nick: "Amaliya", place: 5, points: 0, reward: 0 }, { nick: "MOJO", place: 6, points: 0, reward: 0 }, { nick: "ШЛЯПАУСАТ", place: 8, points: 0, reward: 0 }, { nick: "JinDaniels", place: 9, points: 0, reward: 0 }] },
@@ -841,6 +863,12 @@ function winterRatingRowClass(place) {
   if (place === 3) return "winter-rating__row--bronze";
   return "";
 }
+function winterRatingPrizeByPlace(place) {
+  var prizes = { 1: 110000, 2: 60000, 3: 30000, 4: 20000, 5: 10000, 6: 10000, 7: 10000 };
+  var amount = prizes[place];
+  return amount != null ? amount.toLocaleString("ru-RU") + " ₽" : "<span class=\"winter-rating__prize-respect\">уважение</span>";
+}
+
 function winterRatingPlaceCell(place) {
   if (place === 1) return "🥇 1";
   if (place === 2) return "🥈 2";
@@ -863,7 +891,7 @@ function renderWinterRatingTable(rows) {
   var filtered = rows.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
   var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
   var place = 0;
-  return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Призовые</th></tr></thead><tbody>" +
+  return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Выигрыш в турнирах</th></tr></thead><tbody>" +
     sorted.map(function (r) {
       place++;
       var trClass = winterRatingRowClass(place);
@@ -878,7 +906,7 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026"].filter(function (d) { return d.indexOf(".02.2026") === -1; });
+  var dates = ["21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026"].filter(function (d) { return d.indexOf(".02.2026") === -1; });
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
@@ -924,7 +952,7 @@ function openWinterRatingPlayerModal(nick) {
   var summary = getWinterRatingPlayerSummary(nick);
   titleEl.textContent = nick;
   if (summary.length) {
-    tableWrap.innerHTML = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr><th>Дата</th><th>Время</th><th>Место</th><th>Баллы</th><th>Призовые</th></tr></thead><tbody>" +
+    tableWrap.innerHTML = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr><th>Дата</th><th>Время</th><th>Место</th><th>Баллы</th><th>Выигрыш в турнирах</th></tr></thead><tbody>" +
       summary.map(function (s, i) {
         var placeStr = winterRatingPlaceCell(s.place);
         var rewardStr = s.reward ? Number(s.reward).toLocaleString("ru-RU") : "0";
@@ -1006,7 +1034,8 @@ function initWinterRating() {
       var placeCell = winterRatingPlaceCell(r.place);
       var nickEsc = escapeHtmlRating(r.nick);
       var nickAttr = String(r.nick).replace(/"/g, "&quot;").replace(/</g, "&lt;");
-      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + r.points + "</td><td>" + r.reward + "</td></tr>";
+      var prizeStr = winterRatingPrizeByPlace(r.place);
+      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + r.points + "</td><td>" + r.reward + "</td><td>" + prizeStr + "</td></tr>";
     }).join("");
     tbody.addEventListener("click", function (e) {
       var btn = e.target && e.target.closest(".winter-rating__nick-btn");
@@ -1015,7 +1044,7 @@ function initWinterRating() {
     var tableWrap = document.getElementById("winterRatingTableWrap");
     var showAllWrap = document.getElementById("winterRatingShowAllWrap");
     var showAllBtn = document.getElementById("winterRatingShowAllBtn");
-    if (rows.length > 20 && tableWrap && showAllWrap && showAllBtn) {
+    if (rows.length > 10 && tableWrap && showAllWrap && showAllBtn) {
       tableWrap.classList.add("winter-rating__table-wrap--collapsed");
       showAllWrap.style.display = "";
       showAllBtn.textContent = "Показать всех";
@@ -1984,6 +2013,18 @@ function plastererCardToFilename(card) {
   return "common_" + suit + "_" + rank + ".png";
 }
 
+function plastererPreloadCardImages() {
+  var ranks = "2 3 4 5 6 7 8 9 10 j q k a".split(" ");
+  var suits = ["s", "h", "d", "c"];
+  var base = PLASTERER_CARD_IMAGES_BASE + "/";
+  for (var s = 0; s < suits.length; s++) {
+    for (var r = 0; r < ranks.length; r++) {
+      var img = new Image();
+      img.src = base + "common_" + suits[s] + "_" + ranks[r] + ".png";
+    }
+  }
+}
+
 function renderPlastererCard(card) {
   if (!card) return "";
   var suit = card.length >= 2 ? card.charAt(1) : "";
@@ -2008,6 +2049,7 @@ function renderPlastererCards(containerId, cards) {
 }
 
 function initPlastererGame() {
+  plastererPreloadCardImages();
   var nameEl = document.getElementById("plastererPlayerName");
   if (nameEl) {
     var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;

@@ -199,10 +199,12 @@
                 <span class="winter-rating__cup" aria-hidden="true">🏆</span>
                 <span class="winter-rating__title-text">Рейтинг Турнирщиков зимы<br /><span class="winter-rating__title-accent">на 250 000₽</span></span>
               </h2>
-              <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
               <div class="winter-rating__table-caption-row">
                 <h3 class="winter-rating__table-caption">Итоговая таблица</h3>
-                <div class="winter-rating__counters" id="winterRatingCounters" aria-live="polite">Рейтинг до 28 февраля. Загрузка…</div>
+                <div class="winter-rating__counters-block">
+                  <div class="winter-rating__counters" id="winterRatingCounters" aria-live="polite">Рейтинг до 28 февраля. Загрузка…</div>
+                  <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
+                </div>
               </div>
               <div class="winter-rating__table-wrap" id="winterRatingTableWrap">
                 <table class="winter-rating__table" id="winterRatingTableOverall">
@@ -211,7 +213,8 @@
                       <th>Место</th>
                       <th>Ник</th>
                       <th>Баллы</th>
-                      <th>Призовые</th>
+                      <th>Выигрыш в турнирах</th>
+                      <th title="Приз за рейтинг">Приз</th>
                     </tr>
                   </thead>
                   <tbody id="winterRatingTableBody"></tbody>
@@ -223,6 +226,13 @@
               <h3 class="winter-rating__dates-caption">Таблица по датам</h3>
               <p class="winter-rating__dates-hint">Скрин и данные на выбранную дату</p>
               <div class="winter-rating__dates" id="winterRatingDates">
+                <div class="winter-rating__date-item" data-rating-date="21.12.2025">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2112">21.12.2025</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2112" role="region" aria-label="Рейтинг на 21.12.2025">
+                    <div class="winter-rating__screenshots" data-rating-date="21.12.2025"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable2112"></div>
+                  </div>
+                </div>
                 <div class="winter-rating__date-item" data-rating-date="20.12.2025">
                   <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2012">20.12.2025</button>
                   <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2012" role="region" aria-label="Рейтинг на 20.12.2025">
