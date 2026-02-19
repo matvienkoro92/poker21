@@ -2696,17 +2696,36 @@ a.home-mini-icon-item {
   font-size: 28px;
   line-height: 1;
 }
+.winter-rating__table-caption-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 12px 10px;
+}
+.winter-rating__table-caption {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.winter-rating__counters {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+.winter-rating__counters strong {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 .winter-rating__updated {
   margin: 0 0 14px;
   font-size: 13px;
   color: var(--text-muted);
   text-align: center;
-}
-.winter-rating__table-caption {
-  margin: 0 12px 10px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
 }
 .winter-rating__table-wrap {
   overflow-x: auto;
@@ -2886,6 +2905,11 @@ a.home-mini-icon-item {
   gap: 8px;
   margin: 0 12px;
 }
+/* Пока скрыты данные за февраль */
+.winter-rating__date-item[data-rating-date$=".02.2026"] {
+  display: none;
+}
+
 .winter-rating__date-item {
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
