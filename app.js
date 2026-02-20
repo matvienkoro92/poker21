@@ -4357,8 +4357,12 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStr = escapeHtml(m.fromName || "Игрок");
       var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
-      var nameWithP21 = nameStr + ' <span class="chat-msg__p21">P21_ID: ' + p21Str + "</span>";
-      var nameEl = isOwn ? '<span class="chat-msg__name">' + nameWithP21 + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + nameWithP21 + '</button>';
+      var rankVal = m.fromStatus != null ? String(m.fromStatus) : "\u2014";
+      var rankRow = '<div class="chat-msg__rank-line">Ранг: ' + escapeHtml(rankVal) + ' <span class="chat-msg__status-icon">🐟</span></div>';
+      var p21Row = '<div class="chat-msg__p21-line">P21_ID: ' + p21Str + "</div>";
+      var nameRow = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStr + "</span>" + (isOwn ? '<span class="chat-msg__msg-actions">' + editBtn + delBtn + "</span>" : "") + "</div>";
+      var metaBlock = nameRow + p21Row + rankRow;
+      var nameEl = isOwn ? metaBlock : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + metaBlock + "</button>";
       var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -4668,7 +4672,8 @@ function initChat() {
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"));
-    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(myChatName) + ' <span class="chat-msg__p21">P21_ID: —</span></span></div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: — <span class="chat-msg__status-icon">🐟</span></div>';
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
     generalMessages.appendChild(wrap.firstElementChild);
@@ -4797,7 +4802,12 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStrP = escapeHtml(m.fromName || "Игрок");
       var p21StrP = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
-      var nameWithP21P = nameStrP + ' <span class="chat-msg__p21">P21_ID: ' + p21StrP + "</span>";
+      var rankValP = m.fromStatus != null ? String(m.fromStatus) : "\u2014";
+      var rankRowP = '<div class="chat-msg__rank-line">Ранг: ' + escapeHtml(rankValP) + ' <span class="chat-msg__status-icon">🐟</span></div>';
+      var p21RowP = '<div class="chat-msg__p21-line">P21_ID: ' + p21StrP + "</div>";
+      var nameRowP = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStrP + "</span>" + (isOwn ? '<span class="chat-msg__msg-actions">' + editBtn + delBtn + "</span>" : "") + "</div>";
+      var metaBlockP = nameRowP + p21RowP + rankRowP;
+      var nameElP = isOwn ? metaBlockP : '<span class="chat-msg__name-block">' + metaBlockP + "</span>";
       var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
       var reactionsHtmlP = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -4813,7 +4823,6 @@ function initChat() {
       }
       var reactBtnHtmlP = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="personal" data-with="' + escapeHtml(chatWithUserId || "") + '" title="Реакция">😊</button>' : "";
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span>' + reactBtnHtmlP + '</div>' : "";
-      var nameElP = isOwn ? '<span class="chat-msg__name">' + nameWithP21P + '</span><span class="chat-msg__msg-actions">' + editBtn + delBtn + '</span>' : '<span class="chat-msg__name">' + nameWithP21P + '</span>';
       return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameElP + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;
@@ -4925,7 +4934,8 @@ function initChat() {
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"));
-    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(myChatName) + ' <span class="chat-msg__p21">P21_ID: —</span></span></div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: — <span class="chat-msg__status-icon">🐟</span></div>';
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
     messagesEl.appendChild(wrap.firstElementChild);
