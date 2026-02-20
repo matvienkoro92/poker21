@@ -24,6 +24,7 @@ const handlers = {
   "cron-reminder-10min": () => require(path.join(handlersDir, "cron-reminder-10min.js")),
   "freeroll-reminder-subscribe": () => require(path.join(handlersDir, "freeroll-reminder-subscribe.js")),
   raffles: () => require(path.join(handlersDir, "raffles.js")),
+  respect: () => require(path.join(handlersDir, "respect.js")),
 };
 
 module.exports = async function handler(req, res) {

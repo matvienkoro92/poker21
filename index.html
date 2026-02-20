@@ -108,13 +108,10 @@
                   <span class="home-mini-icon" aria-hidden="true">🎁</span>
                   <span class="home-mini-icon__label">Акции</span>
                 </span>
-                <div class="home-mini-icon-wrap">
                 <span class="home-mini-icon-item" title="Партнёрка">
                   <span class="home-mini-icon" aria-hidden="true">🤝</span>
                   <span class="home-mini-icon__label">Партнёрка</span>
                 </span>
-                <span class="home-mini-icon-hint">↑ кнопки пока не работают</span>
-              </div>
               </div>
             </div>
 
@@ -328,6 +325,13 @@
                   <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel1701" role="region" aria-label="Рейтинг на 17.01.2026">
                     <div class="winter-rating__screenshots" data-rating-date="17.01.2026"></div>
                     <div class="winter-rating__date-table-wrap" id="winterRatingDateTable1701"></div>
+                  </div>
+                </div>
+                <div class="winter-rating__date-item" data-rating-date="16.01.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel1601">16.01.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel1601" role="region" aria-label="Рейтинг на 16.01.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="16.01.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable1601"></div>
                   </div>
                 </div>
                 <div class="winter-rating__date-item" data-rating-date="15.01.2026">
@@ -1192,51 +1196,49 @@
           <div class="view" data-view="profile">
             <h1 class="title">Профиль</h1>
             <p class="profile-greeting">
-              Привет, <span id="profileUserName">имя</span>, здесь будет твой профиль со всеми твоими победами!
+              Привет, <span id="profileUserName">имя</span>, здесь все твои достижения в клубе Два туза.
             </p>
-            <p class="profile-user-id">Ваш ID: <span id="profileUserId" aria-label="Ваш ID">—</span></p>
-            <p class="profile-p21-id">
-              <label for="profileP21IdInput">P21_ID:</label>
-              <input type="text" id="profileP21IdInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="—" aria-label="P21_ID (6 цифр)" autocomplete="off" />
-              <button type="button" class="profile-save-btn" id="profileSaveBtn">Сохранить</button>
-              <span class="profile-save-feedback" id="profileSaveFeedback" aria-live="polite"></span>
-            </p>
-            <p class="profile-concept">
-              Концепция ещё в разработке, но мы делаем всё очень быстро и я уверен, будет бомба!
-            </p>
-            <div class="profile-avatar-section">
-              <div class="profile-avatar-wrap">
-                <img
-                  id="profileAvatar"
-                  src="./assets/profile-pokerist.png"
-                  alt="Ваш аватар"
-                  class="profile-avatar"
-                />
-                <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
-                <button type="button" class="profile-avatar-btn" id="profileAvatarBtn">
-                  Загрузить аватар
-                </button>
+            <div class="profile-visible-to-others">
+              <p class="profile-visible-to-others__intro">Эта информация видна другим пользователям</p>
+              <div class="profile-visible-to-others__p21-row">
+                <input type="text" id="profileP21IdInput" class="profile-visible-to-others__p21-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="P21_ID" aria-label="P21_ID (6 цифр)" autocomplete="off" />
+                <button type="button" class="profile-visible-to-others__p21-save" id="profileSaveBtn">Сохранить</button>
+                <span class="profile-visible-to-others__p21-feedback" id="profileSaveFeedback" aria-live="polite"></span>
               </div>
-            </div>
-            <div class="profile-hall-section">
-              <h2 class="profile-hall-title">Зал славы</h2>
-              <p class="profile-hall-subtitle">Лучшие игроки клуба «Два туза» и самые громкие победы.</p>
-              <div class="features">
-                <div class="feature">
-                  <div class="feature__icon feature__icon--purple">🏆</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Рекорды клуба</div>
-                    <div class="feature__text">Крупнейшие выигрыши, легендарные серии и топ‑достижения.</div>
+              <div class="profile-visible-to-others__level">
+                <img src="./assets/profile-pokerist.png" alt="Покерист" class="profile-visible-to-others__level-img" />
+                <p class="profile-visible-to-others__level-text">Ваш уровень 1 из 55</p>
+                <p class="profile-visible-to-others__respect">Уважение в чате <span id="profileRespectValue" class="profile-visible-to-others__respect-val">—</span></p>
+              </div>
+              <section class="profile-status">
+                <h2 class="profile-status__title">Статус</h2>
+                <div class="profile-status__scale-wrap">
+                  <div class="profile-status__labels profile-status__labels--cards">
+                    <span class="profile-status__card">2♣</span>
+                    <div class="profile-status__scale-visual" id="profileStatusVisual" style="--status-value: 0;">
+                      <input type="range" id="profileStatusInput" class="profile-status__scale-input" min="0" max="100" value="0" step="1" aria-label="Статус" readonly tabindex="-1" aria-hidden="true" />
+                      <div class="profile-status__track">
+                        <div class="profile-status__fill"></div>
+                        <span class="profile-status__fish" aria-hidden="true">🐟</span>
+                      </div>
+                    </div>
+                    <span class="profile-status__card">3♣</span>
                   </div>
                 </div>
-                <div class="feature">
-                  <div class="feature__icon feature__icon--orange">⭐</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Игроки месяца</div>
-                    <div class="feature__text">Имена и ники тех, кто показал лучшую игру. (сюда позже можно вывести реальные данные)</div>
-                  </div>
+              </section>
+              <section class="profile-section profile-tournaments">
+                <h2 class="profile-section__title">Турниры</h2>
+              </section>
+              <section class="profile-section profile-cash">
+                <h2 class="profile-section__title">Кеш</h2>
+              </section>
+              <section class="profile-personal">
+                <textarea id="profilePersonalInput" class="profile-personal__textarea" rows="4" maxlength="500" placeholder="Нотс про себя" aria-label="Нотс про себя"></textarea>
+                <div class="profile-personal__actions">
+                  <button type="button" class="profile-personal__save-btn" id="profilePersonalSaveBtn">Сохранить</button>
+                  <span class="profile-personal__feedback" id="profilePersonalFeedback" aria-live="polite"></span>
                 </div>
-              </div>
+              </section>
             </div>
           </div>
         </section>
@@ -1285,8 +1287,22 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./updates-data.js"></script>
-    <script src="./winter-rating-data.js?v=18"></script>
-    <script src="./app.js?v=18"></script>
+    <script src="./winter-rating-data.js?v=27"></script>
+    <script src="./app.js?v=27"></script>
+  <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
+    <div class="chat-user-modal__backdrop"></div>
+    <div class="chat-user-modal__inner">
+      <button type="button" class="chat-user-modal__close" aria-label="Закрыть">×</button>
+      <h3 class="chat-user-modal__title" id="chatUserModalTitle"></h3>
+      <div class="chat-user-modal__p21" id="chatUserModalP21"></div>
+      <div class="chat-user-modal__personal" id="chatUserModalPersonal"></div>
+      <div class="chat-user-modal__respect-actions">
+        <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectUp">Поднять уважение</button>
+        <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectDown">Уменьшить уважение</button>
+      </div>
+      <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
+    </div>
+  </div>
   <div class="winter-rating-player-modal" id="winterRatingPlayerModal" aria-hidden="true" role="dialog" aria-labelledby="winterRatingPlayerModalTitle" aria-label="Сводка по игроку">
     <div class="winter-rating-player-modal__inner">
       <button type="button" class="winter-rating-player-modal__close" aria-label="Закрыть">×</button>
