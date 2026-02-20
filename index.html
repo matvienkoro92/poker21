@@ -158,14 +158,12 @@
                   <div class="feature__icon feature__icon--purple">🃏</div>
                   <div class="feature__body">
                     <div class="feature__title">Найди Пиханину</div>
-                    <div class="feature__text">Пиханина спрятался в бубновой колоде.</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
                   <div class="feature__icon feature__icon--purple">🃏</div>
                   <div class="feature__body">
                     <div class="feature__title">Переедь Штукатура</div>
-                    <div class="feature__text">Побей два туза</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
@@ -173,14 +171,12 @@
                   <div class="feature__icon feature__icon--purple">🎁</div>
                   <div class="feature__body">
                     <div class="feature__title">Розыгрыши</div>
-                    <div class="feature__text">Рендомайзер и розыгрыши</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
                   <div class="feature__icon feature__icon--purple">📋</div>
                   <div class="feature__body">
                     <div class="feature__title">Задачи по покеру</div>
-                    <div class="feature__text">Скоро задачи</div>
                   </div>
                 </a>
               </div>
@@ -1283,40 +1279,40 @@
         <img class="image-lightbox__img" src="" alt="" />
         <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
       </div>
+      <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
+        <div class="chat-user-modal__backdrop"></div>
+        <div class="chat-user-modal__inner">
+          <button type="button" class="chat-user-modal__close" aria-label="Закрыть">×</button>
+          <h3 class="chat-user-modal__title" id="chatUserModalTitle"></h3>
+          <div class="chat-user-modal__p21" id="chatUserModalP21"></div>
+          <div class="chat-user-modal__personal" id="chatUserModalPersonal"></div>
+          <div class="chat-user-modal__respect-actions">
+            <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectUp">Поднять уважение</button>
+            <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectDown">Уменьшить уважение</button>
+          </div>
+          <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
+        </div>
+      </div>
+      <div class="winter-rating-player-modal" id="winterRatingPlayerModal" aria-hidden="true" role="dialog" aria-labelledby="winterRatingPlayerModalTitle" aria-label="Сводка по игроку">
+        <div class="winter-rating-player-modal__inner">
+          <button type="button" class="winter-rating-player-modal__close" aria-label="Закрыть">×</button>
+          <h3 class="winter-rating-player-modal__title" id="winterRatingPlayerModalTitle"></h3>
+          <div class="winter-rating-player-modal__table-wrap"></div>
+        </div>
+      </div>
+      <div class="winter-rating-lightbox" id="winterRatingLightbox" aria-hidden="true" role="dialog" aria-label="Увеличенный скрин">
+        <button type="button" class="winter-rating-lightbox__close" aria-label="Закрыть">×</button>
+        <button type="button" class="winter-rating-lightbox__prev" aria-label="Предыдущий скрин">‹</button>
+        <button type="button" class="winter-rating-lightbox__next" aria-label="Следующий скрин">›</button>
+        <img class="winter-rating-lightbox__img" src="" alt="" />
+        <span class="winter-rating-lightbox__counter" aria-live="polite"></span>
+      </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./updates-data.js"></script>
     <script src="./winter-rating-data.js?v=27"></script>
     <script src="./app.js?v=27"></script>
-  <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
-    <div class="chat-user-modal__backdrop"></div>
-    <div class="chat-user-modal__inner">
-      <button type="button" class="chat-user-modal__close" aria-label="Закрыть">×</button>
-      <h3 class="chat-user-modal__title" id="chatUserModalTitle"></h3>
-      <div class="chat-user-modal__p21" id="chatUserModalP21"></div>
-      <div class="chat-user-modal__personal" id="chatUserModalPersonal"></div>
-      <div class="chat-user-modal__respect-actions">
-        <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectUp">Поднять уважение</button>
-        <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectDown">Уменьшить уважение</button>
-      </div>
-      <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
-    </div>
-  </div>
-  <div class="winter-rating-player-modal" id="winterRatingPlayerModal" aria-hidden="true" role="dialog" aria-labelledby="winterRatingPlayerModalTitle" aria-label="Сводка по игроку">
-    <div class="winter-rating-player-modal__inner">
-      <button type="button" class="winter-rating-player-modal__close" aria-label="Закрыть">×</button>
-      <h3 class="winter-rating-player-modal__title" id="winterRatingPlayerModalTitle"></h3>
-      <div class="winter-rating-player-modal__table-wrap"></div>
-    </div>
-  </div>
-  <div class="winter-rating-lightbox" id="winterRatingLightbox" aria-hidden="true" role="dialog" aria-label="Увеличенный скрин">
-    <button type="button" class="winter-rating-lightbox__close" aria-label="Закрыть">×</button>
-    <button type="button" class="winter-rating-lightbox__prev" aria-label="Предыдущий скрин">‹</button>
-    <button type="button" class="winter-rating-lightbox__next" aria-label="Следующий скрин">›</button>
-    <img class="winter-rating-lightbox__img" src="" alt="" />
-    <span class="winter-rating-lightbox__counter" aria-live="polite"></span>
-  </div>
   </body>
 </html>
 

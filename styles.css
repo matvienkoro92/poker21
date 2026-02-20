@@ -1787,18 +1787,24 @@ img.chat-contact__avatar {
 .games-apps-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 0;
 }
 .games-apps-grid .feature {
   min-width: 0;
-  min-height: 88px;
+  min-height: 52px;
+  padding: 6px 8px;
+  gap: 8px;
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
 }
 .games-apps-grid .feature__icon {
   flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  border-radius: 10px;
 }
 .games-apps-grid .feature__body {
   flex: 1;
@@ -1806,6 +1812,10 @@ img.chat-contact__avatar {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.games-apps-grid .feature__title {
+  font-size: 12px;
+  font-weight: 600;
 }
 .feature--app {
   cursor: pointer;
