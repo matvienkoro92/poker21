@@ -1010,11 +1010,18 @@ body:has(.view--active[data-view="chat"]) {
   font-size: 11px;
   color: var(--text-muted);
 }
+.chat-msg__respect-row {
+  margin-top: 2px;
+  text-align: right;
+}
+.chat-msg__respect {
+  font-size: 11px;
+  color: var(--text-muted);
+}
 .chat-msg__edited {
   font-size: 10px;
   color: var(--text-muted);
   font-style: italic;
-  margin-left: auto;
 }
 .chat-msg__edit {
   padding: 4px 8px;

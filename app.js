@@ -4217,7 +4217,9 @@ function initChat() {
       }
       var reactBtnHtml = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="general" title="Реакция">😊</button>' : "";
       var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span>' + reactBtnHtml + '</div>' : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
+      var respectVal = m.fromRespect !== undefined && m.fromRespect !== null ? (m.fromRespect === 0 ? "\u2014" : String(m.fromRespect)) : "\u2014";
+      var respectHtml = '<div class="chat-msg__respect-row"><span class="chat-msg__respect" title="Уважение в чате">Уважение: ' + escapeHtml(respectVal) + '</span></div>';
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + respectHtml + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
