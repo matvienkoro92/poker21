@@ -3954,7 +3954,7 @@ function initChat() {
     var modalLevelText = document.getElementById("chatUserModalLevelText");
     var modalRespectVal = document.getElementById("chatUserModalRespectVal");
     var modalStatusScale = document.getElementById("chatUserModalStatusScale");
-    var modalFriendsBtn = document.getElementById("chatUserModalFriendsBtn");
+    var modalPersonalBlock = document.getElementById("chatUserModalPersonalBlock");
     var modalWriteBtn = document.getElementById("chatUserModalWriteBtn");
     var modalRespectUp = document.getElementById("chatUserModalRespectUp");
     var modalRespectDown = document.getElementById("chatUserModalRespectDown");
@@ -4007,11 +4007,17 @@ function initChat() {
       if (typeof updateChatUserModalFriendState === "function") updateChatUserModalFriendState(false, null);
       chatUserModalEl.setAttribute("aria-hidden", "false");
       chatUserModalEl.classList.add("chat-user-modal--open");
+      if (modalPersonalBlock) modalPersonalBlock.classList.add("chat-user-modal__personal-block--hidden");
       fetch(base + "/api/users?userId=" + encodeURIComponent(id))
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (modalP21) modalP21.textContent = (data && data.p21Id) ? "P21 ID: " + data.p21Id : "";
-          if (modalPersonal) modalPersonal.textContent = (data && data.personalInfo) ? data.personalInfo : (data && data.personalInfo === "") ? "" : "—";
+          var personalText = (data && data.personalInfo != null) ? String(data.personalInfo).trim() : "";
+          if (modalPersonal) modalPersonal.textContent = personalText || "—";
+          if (modalPersonalBlock) {
+            if (personalText) modalPersonalBlock.classList.remove("chat-user-modal__personal-block--hidden");
+            else modalPersonalBlock.classList.add("chat-user-modal__personal-block--hidden");
+          }
           if (modalLevelText && data && data.level != null) modalLevelText.textContent = "Уровень " + data.level + " из 55";
           if (modalStatusScale && data && data.statusValue != null) modalStatusScale.style.setProperty("--status-value", String(data.statusValue));
           if (data && data.ok && typeof updateChatUserModalFriendState === "function") updateChatUserModalFriendState(!!data.isFriend, userName);
@@ -4032,13 +4038,6 @@ function initChat() {
     window.openChatUserModalById = openChatUserModalById;
     if (modalBackdrop) modalBackdrop.addEventListener("click", closeChatUserModal);
     if (modalClose) modalClose.addEventListener("click", closeChatUserModal);
-    if (modalFriendsBtn) {
-      modalFriendsBtn.addEventListener("click", function () {
-        closeChatUserModal();
-        var profileFriendsBtn = document.getElementById("profileFriendsBtn");
-        if (profileFriendsBtn) profileFriendsBtn.click();
-      });
-    }
     if (modalWriteBtn) {
       modalWriteBtn.addEventListener("click", function () {
         if (chatUserModalUserId) {
