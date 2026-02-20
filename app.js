@@ -3951,6 +3951,10 @@ function initChat() {
     var modalTitle = document.getElementById("chatUserModalTitle");
     var modalP21 = document.getElementById("chatUserModalP21");
     var modalPersonal = document.getElementById("chatUserModalPersonal");
+    var modalLevelText = document.getElementById("chatUserModalLevelText");
+    var modalRespectVal = document.getElementById("chatUserModalRespectVal");
+    var modalStatusScale = document.getElementById("chatUserModalStatusScale");
+    var modalFriendsBtn = document.getElementById("chatUserModalFriendsBtn");
     var modalWriteBtn = document.getElementById("chatUserModalWriteBtn");
     var modalRespectUp = document.getElementById("chatUserModalRespectUp");
     var modalRespectDown = document.getElementById("chatUserModalRespectDown");
@@ -3993,6 +3997,9 @@ function initChat() {
       if (modalTitle) modalTitle.textContent = userName;
       if (modalP21) modalP21.textContent = "";
       if (modalPersonal) modalPersonal.textContent = "Загрузка…";
+      if (modalLevelText) modalLevelText.textContent = "Уровень — из 55";
+      if (modalRespectVal) modalRespectVal.textContent = "—";
+      if (modalStatusScale) modalStatusScale.style.setProperty("--status-value", "0");
       if (typeof updateChatUserModalRespectButtons === "function") {
         if (modalRespectUp) modalRespectUp.disabled = true;
         if (modalRespectDown) modalRespectDown.disabled = true;
@@ -4005,6 +4012,8 @@ function initChat() {
         .then(function (data) {
           if (modalP21) modalP21.textContent = (data && data.p21Id) ? "P21 ID: " + data.p21Id : "";
           if (modalPersonal) modalPersonal.textContent = (data && data.personalInfo) ? data.personalInfo : (data && data.personalInfo === "") ? "" : "—";
+          if (modalLevelText && data && data.level != null) modalLevelText.textContent = "Уровень " + data.level + " из 55";
+          if (modalStatusScale && data && data.statusValue != null) modalStatusScale.style.setProperty("--status-value", String(data.statusValue));
           if (data && data.ok && typeof updateChatUserModalFriendState === "function") updateChatUserModalFriendState(!!data.isFriend, userName);
         })
         .catch(function () {
@@ -4014,6 +4023,7 @@ function initChat() {
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data && data.ok && typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(data.myVote || null);
+          if (modalRespectVal) modalRespectVal.textContent = (data && data.score !== undefined && data.score !== null) ? String(data.score) : "—";
         })
         .catch(function () {
           if (typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(null);
@@ -4022,6 +4032,13 @@ function initChat() {
     window.openChatUserModalById = openChatUserModalById;
     if (modalBackdrop) modalBackdrop.addEventListener("click", closeChatUserModal);
     if (modalClose) modalClose.addEventListener("click", closeChatUserModal);
+    if (modalFriendsBtn) {
+      modalFriendsBtn.addEventListener("click", function () {
+        closeChatUserModal();
+        var profileFriendsBtn = document.getElementById("profileFriendsBtn");
+        if (profileFriendsBtn) profileFriendsBtn.click();
+      });
+    }
     if (modalWriteBtn) {
       modalWriteBtn.addEventListener("click", function () {
         if (chatUserModalUserId) {
@@ -4041,8 +4058,13 @@ function initChat() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData: initData, targetUserId: chatUserModalUserId, action: "up" }),
         }).then(function (r) { return r.json(); }).then(function (d) {
-          if (d && d.ok) updateChatUserModalRespectButtons("up");
-          else {
+          if (d && d.ok) {
+            updateChatUserModalRespectButtons("up");
+            if (modalRespectVal) {
+              var n = parseInt(modalRespectVal.textContent, 10);
+              modalRespectVal.textContent = (isNaN(n) ? 0 : n) + 1;
+            }
+          } else {
             modalRespectUp.disabled = false;
             if (tg && tg.showAlert) tg.showAlert(d && d.error === "already_raised" ? "Уже поднимали" : (d && d.error) || "Ошибка");
           }
@@ -4059,8 +4081,13 @@ function initChat() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ initData: initData, targetUserId: chatUserModalUserId, action: "down" }),
         }).then(function (r) { return r.json(); }).then(function (d) {
-          if (d && d.ok) updateChatUserModalRespectButtons("down");
-          else {
+          if (d && d.ok) {
+            updateChatUserModalRespectButtons("down");
+            if (modalRespectVal) {
+              var n = parseInt(modalRespectVal.textContent, 10);
+              modalRespectVal.textContent = (isNaN(n) ? 0 : n) - 1;
+            }
+          } else {
             modalRespectDown.disabled = false;
             if (tg && tg.showAlert) tg.showAlert(d && d.error === "already_lowered" ? "Уже уменьшали" : (d && d.error) || "Ошибка");
           }

@@ -1197,6 +1197,11 @@
             <p class="profile-greeting">
               Привет, <span id="profileUserName">имя</span>, здесь все твои достижения в клубе Два туза.
             </p>
+            <div class="profile-avatar-block">
+              <img id="profileAvatar" class="profile-avatar-block__img" src="./assets/profile-pokerist.png" alt="Аватар" />
+              <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" style="display:none" aria-hidden="true" />
+              <button type="button" class="profile-avatar-block__btn" id="profileAvatarBtn">Загрузить аватар</button>
+            </div>
             <div class="profile-visible-to-others">
               <p class="profile-visible-to-others__intro">Эта информация видна другим пользователям</p>
               <div class="profile-visible-to-others__p21-row">
@@ -1290,9 +1295,37 @@
         <div class="chat-user-modal__inner">
           <button type="button" class="chat-user-modal__close" aria-label="Закрыть">×</button>
           <h3 class="chat-user-modal__title" id="chatUserModalTitle"></h3>
+          <p class="chat-user-modal__intro">Эта информация видна другим пользователям</p>
           <div class="chat-user-modal__p21" id="chatUserModalP21"></div>
-          <div class="chat-user-modal__personal-and-respect">
+          <div class="chat-user-modal__level">
+            <img src="./assets/profile-pokerist.png" alt="" class="chat-user-modal__level-img" />
+            <p class="chat-user-modal__level-text" id="chatUserModalLevelText">Уровень — из 55</p>
+            <p class="chat-user-modal__respect">Уважение в чате <span id="chatUserModalRespectVal" class="chat-user-modal__respect-val">—</span></p>
+          </div>
+          <section class="chat-user-modal__status" aria-labelledby="chatUserModalStatusTitle">
+            <h4 class="chat-user-modal__status-title" id="chatUserModalStatusTitle">Статус</h4>
+            <div class="chat-user-modal__status-scale" id="chatUserModalStatusScale" style="--status-value: 0;">
+              <span class="chat-user-modal__status-card">2♣</span>
+              <div class="chat-user-modal__status-track"><div class="chat-user-modal__status-fill"></div><span class="chat-user-modal__status-fish" aria-hidden="true">🐟</span></div>
+              <span class="chat-user-modal__status-card">3♣</span>
+            </div>
+          </section>
+          <section class="chat-user-modal__section">
+            <h4 class="chat-user-modal__section-title">Турниры</h4>
+            <p class="chat-user-modal__placeholder" id="chatUserModalTournaments">—</p>
+          </section>
+          <section class="chat-user-modal__section">
+            <h4 class="chat-user-modal__section-title">Кеш</h4>
+            <p class="chat-user-modal__placeholder" id="chatUserModalCash">—</p>
+          </section>
+          <section class="chat-user-modal__personal-block">
+            <h4 class="chat-user-modal__section-title">Нотс про себя</h4>
             <div class="chat-user-modal__personal" id="chatUserModalPersonal"></div>
+          </section>
+          <div class="chat-user-modal__friends-row">
+            <button type="button" class="chat-user-modal__friends-btn" id="chatUserModalFriendsBtn">Друзья</button>
+          </div>
+          <div class="chat-user-modal__actions">
             <div class="chat-user-modal__respect-actions">
               <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectUp">Поднять уважение</button>
               <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectDown">Уменьшить уважение</button>
@@ -1301,8 +1334,8 @@
               <button type="button" class="chat-user-modal__friend-btn" id="chatUserModalAddFriend">Добавить в друзья</button>
               <span class="chat-user-modal__friend-msg" id="chatUserModalFriendMsg" aria-live="polite"></span>
             </div>
+            <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
           </div>
-          <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
         </div>
       </div>
       <div class="friends-list-modal" id="friendsListModal" aria-hidden="true" role="dialog" aria-label="Список друзей">
