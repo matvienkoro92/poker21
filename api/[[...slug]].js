@@ -25,6 +25,7 @@ const handlers = {
   "freeroll-reminder-subscribe": () => require(path.join(handlersDir, "freeroll-reminder-subscribe.js")),
   raffles: () => require(path.join(handlersDir, "raffles.js")),
   respect: () => require(path.join(handlersDir, "respect.js")),
+  friends: () => require(path.join(handlersDir, "friends.js")),
 };
 
 module.exports = async function handler(req, res) {

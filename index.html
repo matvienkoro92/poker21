@@ -1236,6 +1236,9 @@
                 </div>
               </section>
             </div>
+            <section class="profile-friends">
+              <button type="button" class="profile-friends__btn" id="profileFriendsBtn">Друзья</button>
+            </section>
           </div>
         </section>
 
@@ -1291,8 +1294,20 @@
               <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectUp">Поднять уважение</button>
               <button type="button" class="chat-user-modal__respect-btn" id="chatUserModalRespectDown">Уменьшить уважение</button>
             </div>
+            <div class="chat-user-modal__friend-row">
+              <button type="button" class="chat-user-modal__friend-btn" id="chatUserModalAddFriend">Добавить в друзья</button>
+              <span class="chat-user-modal__friend-msg" id="chatUserModalFriendMsg" aria-live="polite"></span>
+            </div>
           </div>
           <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
+        </div>
+      </div>
+      <div class="friends-list-modal" id="friendsListModal" aria-hidden="true" role="dialog" aria-label="Список друзей">
+        <div class="friends-list-modal__backdrop"></div>
+        <div class="friends-list-modal__inner">
+          <button type="button" class="friends-list-modal__close" aria-label="Закрыть">×</button>
+          <h3 class="friends-list-modal__title">Друзья</h3>
+          <div class="friends-list-modal__list" id="friendsListModalList"></div>
         </div>
       </div>
       <div class="winter-rating-player-modal" id="winterRatingPlayerModal" aria-hidden="true" role="dialog" aria-labelledby="winterRatingPlayerModalTitle" aria-label="Сводка по игроку">

@@ -2983,6 +2983,36 @@ a.home-mini-icon-item {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.chat-user-modal__friend-row {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chat-user-modal__friend-btn {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--block-bg-solid);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.chat-user-modal__friend-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+.chat-user-modal__friend-btn:disabled,
+.chat-user-modal__friend-btn--added {
+  opacity: 0.6;
+  cursor: default;
+}
+.chat-user-modal__friend-msg {
+  font-size: 13px;
+  color: var(--accent-2);
+  display: none;
+}
 .chat-user-modal__write-btn {
   width: 100%;
   padding: 10px 16px;
@@ -4969,6 +4999,113 @@ img.plasterer-card {
 }
 .profile-section__feedback--visible {
   opacity: 1;
+}
+
+.profile-friends {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+.profile-friends__btn {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--block-bg-solid);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.profile-friends__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.friends-list-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+.friends-list-modal.friends-list-modal--open {
+  opacity: 1;
+  visibility: visible;
+}
+.friends-list-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+.friends-list-modal__inner {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--block-bg);
+  border-radius: 12px;
+  padding: 20px 16px 16px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.friends-list-modal__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.friends-list-modal__close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.friends-list-modal__title {
+  margin: 0 0 16px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+.friends-list-modal__list {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+.friends-list-modal__loading,
+.friends-list-modal__empty {
+  margin: 0;
+  padding: 12px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.friends-list-modal__item {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text);
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+.friends-list-modal__item:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .profile-personal {

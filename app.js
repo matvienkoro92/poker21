@@ -233,6 +233,7 @@ function setView(viewName) {
     initProfileAvatar();
     syncProfileStatusVisual();
     loadProfileRespect();
+    initProfileFriends();
   }
   if (viewName === "bonus-game") {
     initBonusGame();
@@ -2399,6 +2400,61 @@ function loadProfileRespect() {
     .catch(function () { el.textContent = "\u2014"; });
 }
 
+function initProfileFriends() {
+  var btn = document.getElementById("profileFriendsBtn");
+  var modal = document.getElementById("friendsListModal");
+  var listEl = document.getElementById("friendsListModalList");
+  if (!btn || !modal || !listEl) return;
+  if (btn.dataset.friendsBound) return;
+  btn.dataset.friendsBound = "1";
+  function closeFriendsModal() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("friends-list-modal--open");
+  }
+  var backdrop = modal.querySelector(".friends-list-modal__backdrop");
+  var closeBtn = modal.querySelector(".friends-list-modal__close");
+  if (backdrop) backdrop.addEventListener("click", closeFriendsModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeFriendsModal);
+  btn.addEventListener("click", function () {
+    var base = getApiBase();
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) return;
+    listEl.innerHTML = "<p class=\"friends-list-modal__loading\">Загрузка…</p>";
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("friends-list-modal--open");
+    fetch(base + "/api/friends?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.ok || !Array.isArray(data.friends)) {
+          listEl.innerHTML = "<p class=\"friends-list-modal__empty\">Ошибка загрузки</p>";
+          return;
+        }
+        if (data.friends.length === 0) {
+          listEl.innerHTML = "<p class=\"friends-list-modal__empty\">Пока нет друзей</p>";
+          return;
+        }
+        listEl.innerHTML = data.friends.map(function (f) {
+          var name = (f.userName || f.userId || "Игрок").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+          return "<div class=\"friends-list-modal__item\" data-user-id=\"" + (f.userId || "").replace(/"/g, "&quot;") + "\" data-user-name=\"" + name + "\">" + name + "</div>";
+        }).join("");
+        listEl.querySelectorAll(".friends-list-modal__item").forEach(function (item) {
+          item.style.cursor = "pointer";
+          item.addEventListener("click", function () {
+            var id = item.dataset.userId;
+            var name = item.dataset.userName;
+            if (id && typeof window.openChatUserModalById === "function") {
+              closeFriendsModal();
+              window.openChatUserModalById(id, name);
+            }
+          });
+        });
+      })
+      .catch(function () {
+        listEl.innerHTML = "<p class=\"friends-list-modal__empty\">Ошибка сети</p>";
+      });
+  });
+}
+
 function loadHeaderAvatar() {
   var avatarEl = document.getElementById("authUserAvatar");
   if (!avatarEl) return;
@@ -3883,6 +3939,9 @@ function initChat() {
   var switcherOptions = document.querySelectorAll(".chat-switcher-option");
   if (!generalView || !personalView || !generalMessages) return;
 
+  var base = getApiBase();
+  var initData = tg && tg.initData ? tg.initData : "";
+
   var chatUserModalEl = document.getElementById("chatUserModal");
   var chatUserModalUserId = null;
   var chatUserModalUserName = null;
@@ -3895,16 +3954,72 @@ function initChat() {
     var modalWriteBtn = document.getElementById("chatUserModalWriteBtn");
     var modalRespectUp = document.getElementById("chatUserModalRespectUp");
     var modalRespectDown = document.getElementById("chatUserModalRespectDown");
+    var modalAddFriend = document.getElementById("chatUserModalAddFriend");
+    var modalFriendMsg = document.getElementById("chatUserModalFriendMsg");
     var modalBackdrop = chatUserModalEl.querySelector(".chat-user-modal__backdrop");
     var modalClose = chatUserModalEl.querySelector(".chat-user-modal__close");
     function closeChatUserModal() {
       chatUserModalEl.setAttribute("aria-hidden", "true");
       chatUserModalEl.classList.remove("chat-user-modal--open");
     }
+    function updateChatUserModalFriendState(isFriend, userName) {
+      if (modalAddFriend) {
+        modalAddFriend.style.display = isFriend ? "none" : "";
+        modalAddFriend.disabled = !!isFriend;
+        modalAddFriend.classList.toggle("chat-user-modal__friend-btn--added", !!isFriend);
+      }
+      if (modalFriendMsg) {
+        if (isFriend) {
+          modalFriendMsg.textContent = "Теперь " + (userName || "Игрок") + " ваш друг";
+          modalFriendMsg.style.display = "";
+        } else {
+          modalFriendMsg.textContent = "";
+          modalFriendMsg.style.display = "none";
+        }
+      }
+    }
     function updateChatUserModalRespectButtons(myVote) {
       if (modalRespectUp) modalRespectUp.disabled = myVote === "up";
       if (modalRespectDown) modalRespectDown.disabled = myVote === "down";
     }
+    function openChatUserModalById(id, name) {
+      var userName = name || "Игрок";
+      if (!id || !chatUserModalEl) {
+        if (id) { setTab("personal"); showConv(id, userName); }
+        return;
+      }
+      chatUserModalUserId = id;
+      chatUserModalUserName = userName;
+      if (modalTitle) modalTitle.textContent = userName;
+      if (modalP21) modalP21.textContent = "";
+      if (modalPersonal) modalPersonal.textContent = "Загрузка…";
+      if (typeof updateChatUserModalRespectButtons === "function") {
+        if (modalRespectUp) modalRespectUp.disabled = true;
+        if (modalRespectDown) modalRespectDown.disabled = true;
+      }
+      if (typeof updateChatUserModalFriendState === "function") updateChatUserModalFriendState(false, null);
+      chatUserModalEl.setAttribute("aria-hidden", "false");
+      chatUserModalEl.classList.add("chat-user-modal--open");
+      fetch(base + "/api/users?userId=" + encodeURIComponent(id))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (modalP21) modalP21.textContent = (data && data.p21Id) ? "P21 ID: " + data.p21Id : "";
+          if (modalPersonal) modalPersonal.textContent = (data && data.personalInfo) ? data.personalInfo : (data && data.personalInfo === "") ? "" : "—";
+          if (data && data.ok && typeof updateChatUserModalFriendState === "function") updateChatUserModalFriendState(!!data.isFriend, userName);
+        })
+        .catch(function () {
+          if (modalPersonal) modalPersonal.textContent = "—";
+        });
+      fetch(base + "/api/respect?userId=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.ok && typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(data.myVote || null);
+        })
+        .catch(function () {
+          if (typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(null);
+        });
+    }
+    window.openChatUserModalById = openChatUserModalById;
     if (modalBackdrop) modalBackdrop.addEventListener("click", closeChatUserModal);
     if (modalClose) modalClose.addEventListener("click", closeChatUserModal);
     if (modalWriteBtn) {
@@ -3952,10 +4067,25 @@ function initChat() {
         }).catch(function () { modalRespectDown.disabled = false; });
       });
     }
+    if (modalAddFriend) {
+      modalAddFriend.addEventListener("click", function () {
+        if (!chatUserModalUserId || !base || !initData || modalAddFriend.disabled) return;
+        modalAddFriend.disabled = true;
+        fetch(base + "/api/friends", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, targetUserId: chatUserModalUserId }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.ok) updateChatUserModalFriendState(true, chatUserModalUserName);
+          else {
+            modalAddFriend.disabled = false;
+            if (tg && tg.showAlert) tg.showAlert((d && d.error) || "Ошибка");
+          }
+        }).catch(function () { modalAddFriend.disabled = false; });
+      });
+    }
   }
 
-  var base = getApiBase();
-  var initData = tg && tg.initData ? tg.initData : "";
   if (!base) {
     generalMessages.innerHTML = "<p class=\"chat-empty\">Не задан адрес API.</p>";
     return;
@@ -4239,41 +4369,6 @@ function initChat() {
     }
     restoreScroll();
     requestAnimationFrame(function () { requestAnimationFrame(restoreScroll); });
-    function openChatUserModalById(id, name) {
-      var userName = name || "Игрок";
-      if (!id || !chatUserModalEl) {
-        if (id) { setTab("personal"); showConv(id, userName); }
-        return;
-      }
-      chatUserModalUserId = id;
-      chatUserModalUserName = userName;
-      if (modalTitle) modalTitle.textContent = userName;
-      if (modalP21) modalP21.textContent = "";
-      if (modalPersonal) modalPersonal.textContent = "Загрузка…";
-      if (typeof updateChatUserModalRespectButtons === "function") {
-        if (modalRespectUp) modalRespectUp.disabled = true;
-        if (modalRespectDown) modalRespectDown.disabled = true;
-      }
-      chatUserModalEl.setAttribute("aria-hidden", "false");
-      chatUserModalEl.classList.add("chat-user-modal--open");
-      fetch(base + "/api/users?userId=" + encodeURIComponent(id))
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (modalP21) modalP21.textContent = (data && data.p21Id) ? "P21 ID: " + data.p21Id : "";
-          if (modalPersonal) modalPersonal.textContent = (data && data.personalInfo) ? data.personalInfo : (data && data.personalInfo === "") ? "" : "—";
-        })
-        .catch(function () {
-          if (modalPersonal) modalPersonal.textContent = "—";
-        });
-      fetch(base + "/api/respect?userId=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data && data.ok && typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(data.myVote || null);
-        })
-        .catch(function () {
-          if (typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(null);
-        });
-    }
     generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
       function openUserModal() {
         openChatUserModalById(btn.dataset.pmId, btn.dataset.pmName);
