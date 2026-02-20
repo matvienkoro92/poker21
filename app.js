@@ -4218,7 +4218,11 @@ function initChat() {
       var reactBtnHtml = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="general" title="Реакция">😊</button>' : "";
       var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span>' + reactBtnHtml + '</div>' : "";
       var respectVal = m.fromRespect !== undefined && m.fromRespect !== null ? (m.fromRespect === 0 ? "\u2014" : String(m.fromRespect)) : "\u2014";
-      var respectHtml = '<div class="chat-msg__respect-row"><span class="chat-msg__respect" title="Уважение в чате">Уважение: ' + escapeHtml(respectVal) + '</span></div>';
+      var respectClass = "chat-msg__respect";
+      if (m.fromRespect > 0) respectClass += " chat-msg__respect--positive";
+      else if (m.fromRespect < 0) respectClass += " chat-msg__respect--negative";
+      var respectDataAttrs = !isOwn && m.from ? ' data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
+      var respectHtml = '<div class="chat-msg__respect-row"' + respectDataAttrs + '><span class="' + respectClass + '" title="Уважение в чате">Уважение: ' + escapeHtml(respectVal) + '</span></div>';
       return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + respectHtml + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
@@ -4235,42 +4239,44 @@ function initChat() {
     }
     restoreScroll();
     requestAnimationFrame(function () { requestAnimationFrame(restoreScroll); });
+    function openChatUserModalById(id, name) {
+      var userName = name || "Игрок";
+      if (!id || !chatUserModalEl) {
+        if (id) { setTab("personal"); showConv(id, userName); }
+        return;
+      }
+      chatUserModalUserId = id;
+      chatUserModalUserName = userName;
+      if (modalTitle) modalTitle.textContent = userName;
+      if (modalP21) modalP21.textContent = "";
+      if (modalPersonal) modalPersonal.textContent = "Загрузка…";
+      if (typeof updateChatUserModalRespectButtons === "function") {
+        if (modalRespectUp) modalRespectUp.disabled = true;
+        if (modalRespectDown) modalRespectDown.disabled = true;
+      }
+      chatUserModalEl.setAttribute("aria-hidden", "false");
+      chatUserModalEl.classList.add("chat-user-modal--open");
+      fetch(base + "/api/users?userId=" + encodeURIComponent(id))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (modalP21) modalP21.textContent = (data && data.p21Id) ? "P21 ID: " + data.p21Id : "";
+          if (modalPersonal) modalPersonal.textContent = (data && data.personalInfo) ? data.personalInfo : (data && data.personalInfo === "") ? "" : "—";
+        })
+        .catch(function () {
+          if (modalPersonal) modalPersonal.textContent = "—";
+        });
+      fetch(base + "/api/respect?userId=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.ok && typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(data.myVote || null);
+        })
+        .catch(function () {
+          if (typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(null);
+        });
+    }
     generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
       function openUserModal() {
-        var id = btn.dataset.pmId;
-        var name = btn.dataset.pmName || "Игрок";
-        if (!id || !chatUserModalEl) {
-          if (id) { setTab("personal"); showConv(id, name); }
-          return;
-        }
-        chatUserModalUserId = id;
-        chatUserModalUserName = name;
-        if (modalTitle) modalTitle.textContent = name;
-        if (modalP21) modalP21.textContent = "";
-        if (modalPersonal) modalPersonal.textContent = "Загрузка…";
-        if (typeof updateChatUserModalRespectButtons === "function") {
-          if (modalRespectUp) modalRespectUp.disabled = true;
-          if (modalRespectDown) modalRespectDown.disabled = true;
-        }
-        chatUserModalEl.setAttribute("aria-hidden", "false");
-        chatUserModalEl.classList.add("chat-user-modal--open");
-        fetch(base + "/api/users?userId=" + encodeURIComponent(id))
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (modalP21) modalP21.textContent = (data && data.p21Id) ? "P21 ID: " + data.p21Id : "";
-            if (modalPersonal) modalPersonal.textContent = (data && data.personalInfo) ? data.personalInfo : (data && data.personalInfo === "") ? "" : "—";
-          })
-          .catch(function () {
-            if (modalPersonal) modalPersonal.textContent = "—";
-          });
-        fetch(base + "/api/respect?userId=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (data && data.ok && typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(data.myVote || null);
-          })
-          .catch(function () {
-            if (typeof updateChatUserModalRespectButtons === "function") updateChatUserModalRespectButtons(null);
-          });
+        openChatUserModalById(btn.dataset.pmId, btn.dataset.pmName);
       }
       btn.addEventListener("click", function () {
         if (chatNameBtnLongPressHandled) {
@@ -4320,6 +4326,13 @@ function initChat() {
           clearTimeout(chatNameBtnLongPressTimer);
           chatNameBtnLongPressTimer = null;
         }
+      });
+    });
+    generalMessages.querySelectorAll(".chat-msg__respect-row[data-user-id]").forEach(function (row) {
+      row.addEventListener("click", function () {
+        var id = row.dataset.userId;
+        var name = row.dataset.userName;
+        if (id) openChatUserModalById(id, name);
       });
     });
     generalMessages.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
