@@ -666,6 +666,11 @@ body:has(.view--active[data-view="chat"]) {
 .view--active[data-view="chat"] .chat-container {
   border: none;
 }
+.view--active[data-view="chat"] .chat-input-area {
+  padding-left: 0;
+  padding-bottom: 5mm;
+  padding-bottom: calc(5mm + env(safe-area-inset-bottom, 0px));
+}
 .chat-switcher-row {
   display: flex;
   justify-content: center;
@@ -1158,15 +1163,18 @@ body:has(.view--active[data-view="chat"]) {
 .chat-input-wrap {
   display: flex;
   gap: 6px;
-  align-items: flex-end;
+  align-items: center;
   min-width: 0;
   width: 100%;
+  padding-left: 0;
 }
 .chat-attach-btn {
   flex-shrink: 0;
   width: 36px;
   height: 36px;
   padding: 0;
+  margin-left: 0;
+  margin-right: 0;
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
   background: rgba(168, 85, 247, 0.15);
@@ -1355,14 +1363,14 @@ img.chat-contact__avatar {
 }
 .chat-input::placeholder { color: var(--text-muted); }
 .chat-input--textarea {
-  min-height: 56px;
+  min-height: 44px;
   max-height: 140px;
   resize: none;
   overflow-y: auto;
   vertical-align: top;
   line-height: 1.4;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 22px;
 }
 .chat-input-wrap:not(.chat-input-wrap--single) .chat-input--textarea {
   display: block;
@@ -1383,12 +1391,13 @@ img.chat-contact__avatar {
   width: 36px;
   height: 36px;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 50%;
   font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  align-self: center;
 }
 .chat-send-btn:hover { opacity: 0.9; }
 .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -1517,7 +1526,8 @@ img.chat-contact__avatar {
 }
 .chat-general-view .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 5mm;
+  padding-bottom: calc(5mm + env(safe-area-inset-bottom, 0px));
 }
 .chat-personal-view {
   display: flex;
@@ -1591,7 +1601,8 @@ img.chat-contact__avatar {
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 5mm;
+  padding-bottom: calc(5mm + env(safe-area-inset-bottom, 0px));
 }
 .chat-msg__delete {
   padding: 4px 8px;

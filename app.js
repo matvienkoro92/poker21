@@ -4092,6 +4092,7 @@ function initChat() {
   }
 
   var myId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? "tg_" + tg.initDataUnsafe.user.id : null;
+  var myChatName = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && (tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username || "Вы")) || "Вы";
 
   function escapeHtml(s) {
     if (!s) return "";
@@ -4631,6 +4632,22 @@ function initChat() {
   }
 
   var sendingGeneral = false;
+  function appendOptimisticGeneralMessage(text, image, voice, replyTo) {
+    if (!generalMessages) return;
+    var emptyEl = generalMessages.querySelector(".chat-empty");
+    if (emptyEl) generalMessages.innerHTML = "";
+    var time = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    var replyBlock = replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(replyTo.fromName || "Игрок") + ":</strong> " + escapeHtml(String(replyTo.text || "").slice(0, 80)) + (String(replyTo.text || "").length > 80 ? "…" : "") + "</div>" : "";
+    var textContent = "";
+    if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
+    else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
+    else if (text) textContent = linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"));
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(myChatName) + ' <span class="chat-msg__p21">P21_ID: —</span></span></div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var wrap = document.createElement("div");
+    wrap.innerHTML = html;
+    generalMessages.appendChild(wrap.firstElementChild);
+    generalMessages.scrollTop = generalMessages.scrollHeight;
+  }
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
     if ((!text && !generalImage && !generalVoice) || !initData || sendingGeneral) return;
@@ -4641,26 +4658,42 @@ function initChat() {
     if (generalImage) body.image = generalImage;
     if (generalVoice) body.voice = generalVoice;
     if (generalReplyTo) body.replyTo = generalReplyTo;
+    var optText = text;
+    var optImage = generalImage || null;
+    var optVoice = generalVoice || null;
+    var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
+    if (generalInput) generalInput.value = "";
+    generalReplyTo = null;
+    generalImage = null;
+    generalVoice = null;
+    var prevEl = document.getElementById("chatGeneralReplyPreview");
+    if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
+    var imgPrev = document.getElementById("chatGeneralImagePreview");
+    if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
+    var voicePrev = document.getElementById("chatGeneralVoicePreview");
+    if (voicePrev) voicePrev.classList.add("chat-voice-preview--hidden");
+    appendOptimisticGeneralMessage(optText, optImage, optVoice, optReply);
+    if (generalSendBtn) generalSendBtn.disabled = false;
     fetch(base + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }).then(function (r) { return r.json(); }).then(function (data) {
       sendingGeneral = false;
-      if (generalSendBtn) generalSendBtn.disabled = false;
-      if (generalInput) generalInput.value = "";
-      generalReplyTo = null;
-      generalImage = null;
-      generalVoice = null;
-      var prevEl = document.getElementById("chatGeneralReplyPreview");
-      if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
-      var imgPrev = document.getElementById("chatGeneralImagePreview");
-      if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
-      var voicePrev = document.getElementById("chatGeneralVoicePreview");
-      if (voicePrev) voicePrev.classList.add("chat-voice-preview--hidden");
-      if (data && data.ok) loadGeneral();
-      else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
-    }).catch(function () { sendingGeneral = false; if (generalSendBtn) generalSendBtn.disabled = false; });
+      if (data && data.ok) {
+        lastGeneralMessagesSig = null;
+        loadGeneral();
+      } else {
+        var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
+        if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+        if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
+      }
+    }).catch(function () {
+      sendingGeneral = false;
+      var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
+      if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+    });
   }
 
   function showList() {
@@ -4856,6 +4889,22 @@ function initChat() {
   }
 
   var sendingPrivate = false;
+  function appendOptimisticPersonalMessage(text, image, voice, replyTo) {
+    if (!messagesEl) return;
+    var emptyEl = messagesEl.querySelector(".chat-empty");
+    if (emptyEl) messagesEl.innerHTML = "";
+    var time = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    var replyBlock = replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(replyTo.fromName || "Игрок") + ":</strong> " + escapeHtml(String(replyTo.text || "").slice(0, 80)) + (String(replyTo.text || "").length > 80 ? "…" : "") + "</div>" : "";
+    var textContent = "";
+    if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
+    else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
+    else if (text) textContent = linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"));
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta"><span class="chat-msg__name">' + escapeHtml(myChatName) + ' <span class="chat-msg__p21">P21_ID: —</span></span></div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var wrap = document.createElement("div");
+    wrap.innerHTML = html;
+    messagesEl.appendChild(wrap.firstElementChild);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
     if ((!text && !personalImage && !personalVoice) || !chatWithUserId || !initData || sendingPrivate) return;
@@ -4865,26 +4914,42 @@ function initChat() {
     if (personalImage) body.image = personalImage;
     if (personalVoice) body.voice = personalVoice;
     if (personalReplyTo) body.replyTo = personalReplyTo;
+    var optText = text;
+    var optImage = personalImage || null;
+    var optVoice = personalVoice || null;
+    var optReply = personalReplyTo ? { fromName: personalReplyTo.fromName || "Игрок", text: personalReplyTo.text || "" } : null;
+    if (inputEl) inputEl.value = "";
+    personalReplyTo = null;
+    personalImage = null;
+    personalVoice = null;
+    var prevEl = document.getElementById("chatPersonalReplyPreview");
+    if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
+    var imgPrev = document.getElementById("chatPersonalImagePreview");
+    if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
+    var voicePrevP = document.getElementById("chatPersonalVoicePreview");
+    if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
+    appendOptimisticPersonalMessage(optText, optImage, optVoice, optReply);
+    if (sendBtn) sendBtn.disabled = false;
     fetch(base + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }).then(function (r) { return r.json(); }).then(function (data) {
       sendingPrivate = false;
-      if (sendBtn) sendBtn.disabled = false;
-      if (inputEl) inputEl.value = "";
-      personalReplyTo = null;
-      personalImage = null;
-      personalVoice = null;
-      var prevEl = document.getElementById("chatPersonalReplyPreview");
-      if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
-      var imgPrev = document.getElementById("chatPersonalImagePreview");
-      if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
-      var voicePrevP = document.getElementById("chatPersonalVoicePreview");
-      if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
-      if (data && data.ok) loadMessages();
-      else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
-    }).catch(function () { sendingPrivate = false; if (sendBtn) sendBtn.disabled = false; });
+      if (data && data.ok) {
+        lastPersonalMessagesSig = null;
+        loadMessages();
+      } else {
+        var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
+        if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+        if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
+      }
+    }).catch(function () {
+      sendingPrivate = false;
+      var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
+      if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+    });
   }
 
   if (!chatListenersAttached) {
@@ -5243,7 +5308,7 @@ function initChat() {
     loadGeneral();
     if (chatWithUserId) loadMessages();
     else if (chatActiveTab === "personal") loadContacts();
-  }, 60000);
+  }, 10000);
 }
 
 function isLocalEnv() {
