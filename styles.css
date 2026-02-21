@@ -652,78 +652,6 @@ body:has(.view--active[data-view="chat"]) {
   overflow: hidden;
   width: 100%;
 }
-.chat-layout {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  width: 100%;
-}
-.chat-layout__content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-.chat-switcher-side {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  width: 44px;
-  padding: 8px 4px;
-  border-left: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.25));
-  background: var(--chat-switcher-side-bg, rgba(15, 23, 42, 0.5));
-}
-.chat-switcher-side__btn {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  width: 36px;
-  min-height: 32px;
-  padding: 6px 4px;
-  font-size: 12px;
-  line-height: 1.2;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.chat-switcher-side__btn:hover {
-  color: var(--text);
-  background: rgba(168, 85, 247, 0.15);
-}
-.chat-switcher-side__btn.chat-switcher-side__btn--active {
-  color: var(--accent);
-  background: rgba(168, 85, 247, 0.25);
-  border-color: rgba(168, 85, 247, 0.4);
-}
-.chat-switcher-side__dot {
-  margin-bottom: 2px;
-}
-.chat-switcher-side .chat-switcher-btn__dot--on {
-  display: block;
-}
-.chat-layout__content > .chat-general-view,
-.chat-layout__content > .chat-admins-view,
-.chat-layout__content > .chat-personal-view {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.chat-layout__content > .chat-personal-view.chat-personal-view--hidden,
-.chat-layout__content > .chat-admins-view.chat-admins-view--hidden {
-  display: none;
-}
 
 .view--active[data-view="chat"] .chat-messages {
   max-height: none;
@@ -754,7 +682,12 @@ body:has(.view--active[data-view="chat"]) {
   max-width: 200px;
   flex: 0 1 auto;
 }
-
+.view--active[data-view="chat"] .chat-switcher-row .chat-switcher-dropdown {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
 
 .title {
   margin: 4px 0 0;
