@@ -651,18 +651,6 @@
                 <p class="chat-empty">Загрузка...</p>
               </div>
               <div class="chat-input-area">
-                <div class="chat-switcher-row chat-switcher-row--above-input chat-switcher-wrap" id="headerChatSwitcherWrap">
-                  <button type="button" class="chat-switcher-btn" id="chatSwitcherBtn" aria-expanded="false" aria-haspopup="true" aria-label="Выбрать чат">
-                    <span class="chat-switcher-btn__label" id="chatSwitcherLabel">Чат клуба</span>
-                    <span class="chat-switcher-btn__dot" id="chatSwitcherDot" aria-hidden="true"></span>
-                    <span class="chat-switcher-btn__arrow">▾</span>
-                  </button>
-                  <div class="chat-switcher-dropdown chat-switcher-dropdown--hidden" id="chatSwitcherDropdown" role="menu" aria-hidden="true">
-                    <button type="button" class="chat-switcher-option" data-chat-tab="general">Чат клуба</button>
-                    <button type="button" class="chat-switcher-option" data-chat-tab="personal">ЛС</button>
-                    <button type="button" class="chat-switcher-option" data-chat-tab="admins">Чат с админами</button>
-                  </div>
-                </div>
                 <div class="chat-reply-preview" id="chatGeneralReplyPreview">
                   <div class="chat-reply-preview__text"></div>
                   <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
@@ -708,18 +696,6 @@
                     <p class="chat-empty">Загрузка...</p>
                   </div>
                   <div class="chat-input-area">
-                    <div class="chat-switcher-row chat-switcher-row--above-input chat-switcher-wrap chat-switcher-wrap--secondary">
-                      <button type="button" class="chat-switcher-btn" aria-expanded="false" aria-haspopup="true" aria-label="Выбрать чат">
-                        <span class="chat-switcher-btn__label">Чат клуба</span>
-                        <span class="chat-switcher-btn__dot chat-switcher-dot-secondary" aria-hidden="true"></span>
-                        <span class="chat-switcher-btn__arrow">▾</span>
-                      </button>
-                      <div class="chat-switcher-dropdown chat-switcher-dropdown--hidden" role="menu" aria-hidden="true">
-                        <button type="button" class="chat-switcher-option" data-chat-tab="general">Чат клуба</button>
-                        <button type="button" class="chat-switcher-option" data-chat-tab="personal">ЛС</button>
-                        <button type="button" class="chat-switcher-option" data-chat-tab="admins">Чат с админами</button>
-                      </div>
-                    </div>
                     <div class="chat-reply-preview" id="chatPersonalReplyPreview">
                       <div class="chat-reply-preview__text"></div>
                       <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
@@ -1276,10 +1252,18 @@
           <span class="bottom-nav__icon">🏠</span>
           <span class="bottom-nav__label">Главная</span>
         </button>
-        <button type="button" class="bottom-nav__item" data-view-target="chat">
-          <span class="bottom-nav__icon-wrap"><span class="bottom-nav__icon">💬</span><span class="bottom-nav__dot" id="chatNavDot" aria-hidden="true"></span></span>
-          <span class="bottom-nav__label">Чат</span>
-        </button>
+        <div class="bottom-nav__chat-wrap">
+          <button type="button" class="bottom-nav__item" data-view-target="chat" id="chatNavBtn" aria-expanded="false" aria-haspopup="true">
+            <span class="bottom-nav__icon-wrap"><span class="bottom-nav__icon">💬</span><span class="bottom-nav__dot" id="chatNavDot" aria-hidden="true"></span></span>
+            <span class="bottom-nav__label" id="chatNavLabel">Чат</span>
+            <span class="bottom-nav__arrow">▾</span>
+          </button>
+          <div class="bottom-nav__chat-dropdown bottom-nav__chat-dropdown--hidden" id="chatNavDropdown" role="menu" aria-hidden="true">
+            <button type="button" class="bottom-nav__chat-option" data-chat-tab="general">Чат клуба</button>
+            <button type="button" class="bottom-nav__chat-option" data-chat-tab="personal">ЛС</button>
+            <button type="button" class="bottom-nav__chat-option" data-chat-tab="admins">Чат с админами</button>
+          </div>
+        </div>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>
           <span class="bottom-nav__label">Скачать</span>

@@ -2636,6 +2636,35 @@ document.addEventListener("click", function (e) {
   if (page) setDownloadPage(page);
 });
 
+(function initChatNavDropdown() {
+  var btn = document.getElementById("chatNavBtn");
+  var dd = document.getElementById("chatNavDropdown");
+  if (!btn || !dd) return;
+  btn.addEventListener("click", function (e) {
+    dd.classList.toggle("bottom-nav__chat-dropdown--hidden");
+    var isOpen = !dd.classList.contains("bottom-nav__chat-dropdown--hidden");
+    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    dd.setAttribute("aria-hidden", isOpen ? "false" : "true");
+  });
+  document.querySelectorAll(".bottom-nav__chat-option").forEach(function (opt) {
+    opt.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var tab = opt.dataset.chatTab;
+      if (window.chatSetTab && tab) window.chatSetTab(tab);
+      dd.classList.add("bottom-nav__chat-dropdown--hidden");
+      btn.setAttribute("aria-expanded", "false");
+      dd.setAttribute("aria-hidden", "true");
+    });
+  });
+  document.addEventListener("click", function (e) {
+    if (dd.classList.contains("bottom-nav__chat-dropdown--hidden")) return;
+    if (dd.contains(e.target) || btn.contains(e.target)) return;
+    dd.classList.add("bottom-nav__chat-dropdown--hidden");
+    btn.setAttribute("aria-expanded", "false");
+    dd.setAttribute("aria-hidden", "true");
+  });
+})();
+
 // Подстраницы раздела «Скачать»
 const downloadPages = document.querySelectorAll("[data-download-page]");
 const downloadAppButtons = document.querySelectorAll("[data-download-app]");
@@ -4147,20 +4176,19 @@ function initChat() {
     if (el.textContent !== txt) el.textContent = txt;
   }
   function closeSwitcherDropdown() {
-    document.querySelectorAll(".chat-switcher-dropdown").forEach(function (dd) {
-      dd.classList.add("chat-switcher-dropdown--hidden");
+    var dd = document.getElementById("chatNavDropdown");
+    if (dd) {
+      dd.classList.add("bottom-nav__chat-dropdown--hidden");
       dd.setAttribute("aria-hidden", "true");
-    });
-    document.querySelectorAll(".chat-switcher-wrap .chat-switcher-btn").forEach(function (btn) {
-      btn.setAttribute("aria-expanded", "false");
-    });
+    }
+    var btn = document.getElementById("chatNavBtn");
+    if (btn) btn.setAttribute("aria-expanded", "false");
   }
   function setTab(tab) {
     chatActiveTab = tab;
     var labelText = tab === "general" ? "Чат клуба" : tab === "personal" ? "ЛС" : "Чат с админами";
-    document.querySelectorAll(".chat-switcher-btn__label").forEach(function (el) {
-      el.textContent = labelText;
-    });
+    var navLabel = document.getElementById("chatNavLabel");
+    if (navLabel) navLabel.textContent = labelText;
     closeSwitcherDropdown();
     generalView.style.display = tab === "general" ? "" : "none";
     personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
@@ -4174,6 +4202,9 @@ function initChat() {
     updateChatHeaderStats();
     updateUnreadDots();
   }
+  window.chatSetTab = setTab;
+  var navLabel = document.getElementById("chatNavLabel");
+  if (navLabel) navLabel.textContent = chatActiveTab === "general" ? "Чат клуба" : chatActiveTab === "personal" ? "ЛС" : "Чат с админами";
 
   var lastViewedGeneral = null;
   var lastViewedPersonal = {};
@@ -4189,10 +4220,6 @@ function initChat() {
     return messages.length + "-" + (last.id || "") + "-" + (last.time || "") + "-" + reactionsPart;
   }
   function updateUnreadDots() {
-    var on = !!(window.chatGeneralUnread || window.chatPersonalUnread);
-    document.querySelectorAll(".chat-switcher-btn__dot").forEach(function (dot) {
-      dot.classList.toggle("chat-switcher-btn__dot--on", on);
-    });
     updateChatNavDot();
   }
   window.chatGeneralUnread = false;
@@ -4472,6 +4499,7 @@ function initChat() {
       btn.addEventListener("click", function () {
         var id = btn.dataset.msgId;
         if (!id) return;
+        if (!confirm("Удалить сообщение?")) return;
         fetch(base + "/api/chat", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -4497,6 +4525,9 @@ function initChat() {
         var saveBtn = textEl.querySelector(".chat-msg__edit-save");
         var cancelBtn = textEl.querySelector(".chat-msg__edit-cancel");
         if (inputEl) inputEl.focus();
+        requestAnimationFrame(function () {
+          if (msgEl && msgEl.scrollIntoView) msgEl.scrollIntoView({ block: "center", behavior: "auto" });
+        });
         function closeEdit() { textEl.innerHTML = origHtml; chatIsEditingMessage = false; }
         saveBtn.addEventListener("click", function () {
           var newText = (inputEl.value || "").trim();
@@ -4605,6 +4636,7 @@ function initChat() {
         hideMenu();
         if (!msg) return;
         if (action === "delete") {
+            if (!confirm("Удалить сообщение?")) return;
             var delBody = { initData: initData, messageId: msg.id };
             if (src === "personal" && chatWithUserId) delBody.with = chatWithUserId;
             fetch(base + "/api/chat", {
@@ -4850,6 +4882,7 @@ function initChat() {
       btn.addEventListener("click", function () {
         var id = btn.dataset.msgId;
         if (!id) return;
+        if (!confirm("Удалить сообщение?")) return;
         fetch(base + "/api/chat", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -4875,6 +4908,9 @@ function initChat() {
         var saveBtn = textEl.querySelector(".chat-msg__edit-save");
         var cancelBtn = textEl.querySelector(".chat-msg__edit-cancel");
         if (inputEl) inputEl.focus();
+        requestAnimationFrame(function () {
+          if (msgEl && msgEl.scrollIntoView) msgEl.scrollIntoView({ block: "center", behavior: "auto" });
+        });
         function closeEdit() { textEl.innerHTML = origHtml; chatIsEditingMessage = false; }
         saveBtn.addEventListener("click", function () {
           var newText = (inputEl.value || "").trim();
@@ -4997,30 +5033,6 @@ function initChat() {
 
   if (!chatListenersAttached) {
     chatListenersAttached = true;
-    document.querySelectorAll(".chat-switcher-wrap").forEach(function (wrap) {
-      var btn = wrap.querySelector(".chat-switcher-btn");
-      var dd = wrap.querySelector(".chat-switcher-dropdown");
-      if (btn && dd) {
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          dd.classList.toggle("chat-switcher-dropdown--hidden");
-          var isOpen = !dd.classList.contains("chat-switcher-dropdown--hidden");
-          btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          dd.setAttribute("aria-hidden", isOpen ? "false" : "true");
-        });
-      }
-    });
-    document.addEventListener("click", function (e) {
-      if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
-      closeSwitcherDropdown();
-    });
-    document.addEventListener("touchend", function (e) {
-      if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
-      closeSwitcherDropdown();
-    }, { passive: true });
-    switcherOptions.forEach(function (opt) {
-      opt.addEventListener("click", function () { setTab(opt.dataset.chatTab); });
-    });
     document.querySelectorAll(".chat-manager-btn--tg").forEach(function (link) {
       link.addEventListener("click", function (e) {
         var href = link.getAttribute("href");
