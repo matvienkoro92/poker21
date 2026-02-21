@@ -3010,7 +3010,7 @@ a.home-mini-icon-item {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.82);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
@@ -3024,7 +3024,7 @@ a.home-mini-icon-item {
   max-width: 100%;
   max-height: 85vh;
   overflow: auto;
-  background: var(--block-bg, #1a1a1a);
+  background: rgba(15, 23, 42, 0.96);
   border-radius: 12px;
   padding: 20px 16px 16px;
   border: 1px solid var(--border-subtle);
@@ -3067,6 +3067,9 @@ a.home-mini-icon-item {
   margin: 0;
   font-size: 14px;
   color: var(--text-muted);
+}
+[data-theme="light"] .winter-rating-player-modal__inner {
+  background: rgba(255, 248, 240, 0.98);
 }
 
 /* Модалка карточки пользователя в чате */
