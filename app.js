@@ -4147,17 +4147,20 @@ function initChat() {
     if (el.textContent !== txt) el.textContent = txt;
   }
   function closeSwitcherDropdown() {
-    if (switcherDropdown) {
-      switcherDropdown.classList.add("chat-switcher-dropdown--hidden");
-      switcherDropdown.setAttribute("aria-hidden", "true");
-    }
-    if (switcherBtn) switcherBtn.setAttribute("aria-expanded", "false");
+    document.querySelectorAll(".chat-switcher-dropdown").forEach(function (dd) {
+      dd.classList.add("chat-switcher-dropdown--hidden");
+      dd.setAttribute("aria-hidden", "true");
+    });
+    document.querySelectorAll(".chat-switcher-wrap .chat-switcher-btn").forEach(function (btn) {
+      btn.setAttribute("aria-expanded", "false");
+    });
   }
   function setTab(tab) {
     chatActiveTab = tab;
-    if (switcherLabel) {
-      switcherLabel.textContent = tab === "general" ? "Чат клуба" : tab === "personal" ? "ЛС" : "Чат с админами";
-    }
+    var labelText = tab === "general" ? "Чат клуба" : tab === "personal" ? "ЛС" : "Чат с админами";
+    document.querySelectorAll(".chat-switcher-btn__label").forEach(function (el) {
+      el.textContent = labelText;
+    });
     closeSwitcherDropdown();
     generalView.style.display = tab === "general" ? "" : "none";
     personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
@@ -4186,8 +4189,10 @@ function initChat() {
     return messages.length + "-" + (last.id || "") + "-" + (last.time || "") + "-" + reactionsPart;
   }
   function updateUnreadDots() {
-    var dot = document.getElementById("chatSwitcherDot");
-    if (dot) dot.classList.toggle("chat-switcher-btn__dot--on", !!(window.chatGeneralUnread || window.chatPersonalUnread));
+    var on = !!(window.chatGeneralUnread || window.chatPersonalUnread);
+    document.querySelectorAll(".chat-switcher-btn__dot").forEach(function (dot) {
+      dot.classList.toggle("chat-switcher-btn__dot--on", on);
+    });
     updateChatNavDot();
   }
   window.chatGeneralUnread = false;
@@ -4992,23 +4997,27 @@ function initChat() {
 
   if (!chatListenersAttached) {
     chatListenersAttached = true;
-    if (switcherBtn && switcherDropdown) {
-      switcherBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        switcherDropdown.classList.toggle("chat-switcher-dropdown--hidden");
-        var isOpen = !switcherDropdown.classList.contains("chat-switcher-dropdown--hidden");
-        switcherBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-        switcherDropdown.setAttribute("aria-hidden", isOpen ? "false" : "true");
-      });
-      document.addEventListener("click", function (e) {
-        if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
-        closeSwitcherDropdown();
-      });
-      document.addEventListener("touchend", function (e) {
-        if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
-        closeSwitcherDropdown();
-      }, { passive: true });
-    }
+    document.querySelectorAll(".chat-switcher-wrap").forEach(function (wrap) {
+      var btn = wrap.querySelector(".chat-switcher-btn");
+      var dd = wrap.querySelector(".chat-switcher-dropdown");
+      if (btn && dd) {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          dd.classList.toggle("chat-switcher-dropdown--hidden");
+          var isOpen = !dd.classList.contains("chat-switcher-dropdown--hidden");
+          btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          dd.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        });
+      }
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
+      closeSwitcherDropdown();
+    });
+    document.addEventListener("touchend", function (e) {
+      if (e.target && e.target.closest && e.target.closest(".chat-switcher-wrap")) return;
+      closeSwitcherDropdown();
+    }, { passive: true });
     switcherOptions.forEach(function (opt) {
       opt.addEventListener("click", function () { setTab(opt.dataset.chatTab); });
     });

@@ -652,7 +652,6 @@ body:has(.view--active[data-view="chat"]) {
   overflow: hidden;
   width: 100%;
 }
-
 .view--active[data-view="chat"] .chat-messages {
   max-height: none;
   min-height: 0;
@@ -678,11 +677,28 @@ body:has(.view--active[data-view="chat"]) {
   padding: 4px 0;
   flex-shrink: 0;
 }
+.chat-switcher-row--above-input {
+  margin-top: 0;
+  margin-bottom: 4px;
+  padding: 4px 0;
+}
+.chat-switcher-row--above-input.chat-switcher-wrap {
+  position: relative;
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: 0;
+}
 .chat-switcher-row .chat-switcher-wrap {
   max-width: 200px;
   flex: 0 1 auto;
 }
-.view--active[data-view="chat"] .chat-switcher-row .chat-switcher-dropdown {
+.view--active[data-view="chat"] .chat-switcher-row--above-input .chat-switcher-dropdown {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+.view--active[data-view="chat"] .chat-switcher-row:not(.chat-switcher-row--above-input) .chat-switcher-dropdown {
   top: auto;
   bottom: 100%;
   margin-top: 0;
