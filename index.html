@@ -727,10 +727,20 @@
             </div>
             <div class="chat-ctx-backdrop" id="chatContextBackdrop" aria-hidden="true"></div>
             <div class="chat-ctx-menu" id="chatContextMenu" role="menu" aria-hidden="true">
-              <button type="button" class="chat-ctx-menu__item" data-action="reply"><span class="chat-ctx-menu__icon" aria-hidden="true">↩</span>Ответить</button>
-              <button type="button" class="chat-ctx-menu__item" data-action="copy"><span class="chat-ctx-menu__icon" aria-hidden="true">📋</span>Копировать</button>
-              <button type="button" class="chat-ctx-menu__item" data-action="edit"><span class="chat-ctx-menu__icon" aria-hidden="true">✎</span>Изменить</button>
-              <button type="button" class="chat-ctx-menu__item" data-action="delete"><span class="chat-ctx-menu__icon" aria-hidden="true">🗑</span>Удалить</button>
+              <div class="chat-ctx-menu__reactions" aria-label="Реакции">
+                <button type="button" class="chat-ctx-menu__reaction-emoji" data-action="react" data-emoji="👍" title="👍">👍</button>
+                <button type="button" class="chat-ctx-menu__reaction-emoji" data-action="react" data-emoji="❤️" title="❤️">❤️</button>
+                <button type="button" class="chat-ctx-menu__reaction-emoji" data-action="react" data-emoji="😂" title="😂">😂</button>
+                <button type="button" class="chat-ctx-menu__reaction-emoji" data-action="react" data-emoji="😮" title="😮">😮</button>
+                <button type="button" class="chat-ctx-menu__reaction-emoji" data-action="react" data-emoji="😢" title="😢">😢</button>
+                <button type="button" class="chat-ctx-menu__reaction-emoji" data-action="react" data-emoji="🙏" title="🙏">🙏</button>
+              </div>
+              <div class="chat-ctx-menu__items-wrap">
+                <button type="button" class="chat-ctx-menu__item" data-action="reply"><span class="chat-ctx-menu__icon" aria-hidden="true">↩</span>Ответить</button>
+                <button type="button" class="chat-ctx-menu__item" data-action="copy"><span class="chat-ctx-menu__icon" aria-hidden="true">📋</span>Копировать</button>
+                <button type="button" class="chat-ctx-menu__item" data-action="edit"><span class="chat-ctx-menu__icon" aria-hidden="true">✎</span>Изменить</button>
+                <button type="button" class="chat-ctx-menu__item" data-action="delete"><span class="chat-ctx-menu__icon" aria-hidden="true">🗑</span>Удалить</button>
+              </div>
             </div>
           </div>
 

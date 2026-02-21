@@ -4482,8 +4482,7 @@ function initChat() {
         }
         reactionsHtml = pills.join("");
       }
-      var reactBtnHtml = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="general" title="Реакция">😊</button>' : "";
-      var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span>' + reactBtnHtml + '</div>' : "";
+      var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span></div>' : "";
       var respectVal = m.fromRespect !== undefined && m.fromRespect !== null ? (m.fromRespect === 0 ? "\u2014" : String(m.fromRespect)) : "\u2014";
       var respectClass = "chat-msg__respect";
       if (m.fromRespect > 0) respectClass += " chat-msg__respect--positive";
@@ -4676,9 +4675,40 @@ function initChat() {
       }
       el.classList.add("chat-msg--ctx-highlight");
       if (el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "auto" });
+      var GAP = 10;
+      var menuWidth = 280;
+      var bottomNavHeight = 96;
+      var maxBottom = window.innerHeight - bottomNavHeight;
+      ctxMenu.style.width = menuWidth + "px";
+      ctxMenu.style.maxWidth = (window.innerWidth - 24) + "px";
+      ctxMenu.style.top = "-9999px";
+      ctxMenu.style.left = "12px";
       ctxMenu.classList.add("chat-ctx-menu--visible");
       ctxMenu.setAttribute("aria-hidden", "false");
       menuOpenedAt = Date.now();
+      requestAnimationFrame(function () {
+        var menuHeight = ctxMenu.offsetHeight;
+        var rect = el.getBoundingClientRect();
+        var menuTop = rect.bottom + GAP;
+        if (menuTop + menuHeight > maxBottom) menuTop = rect.top - GAP - menuHeight;
+        if (menuTop < 12 && el.scrollIntoView) {
+          el.scrollIntoView({ block: "center", behavior: "auto" });
+          requestAnimationFrame(function () {
+            var r2 = el.getBoundingClientRect();
+            var top2 = r2.bottom + GAP;
+            if (top2 + menuHeight > maxBottom) top2 = r2.top - GAP - menuHeight;
+            top2 = Math.max(12, Math.min(top2, maxBottom - menuHeight));
+            var left2 = Math.max(12, Math.min(Math.round(r2.left + r2.width / 2 - menuWidth / 2), window.innerWidth - menuWidth - 12));
+            ctxMenu.style.top = top2 + "px";
+            ctxMenu.style.left = left2 + "px";
+          });
+        } else {
+          menuTop = Math.max(12, Math.min(menuTop, maxBottom - menuHeight));
+          var menuLeft = Math.max(12, Math.min(Math.round(rect.left + rect.width / 2 - menuWidth / 2), window.innerWidth - menuWidth - 12));
+          ctxMenu.style.top = menuTop + "px";
+          ctxMenu.style.left = menuLeft + "px";
+        }
+      });
     }
     function hideMenu() {
       if (ctxOpenedForEl) {
@@ -4754,12 +4784,16 @@ function initChat() {
       }
       document.addEventListener("click", closeIfOutside);
       document.addEventListener("touchend", closeIfOutside, { passive: true });
-      function runAction(action) {
+      function runAction(action, activeEl) {
         var msg = chatCtxMsg;
         var src = chatCtxSource;
         var el = ctxOpenedForEl;
         hideMenu();
         if (!msg) return;
+        if (action === "react" && activeEl && activeEl.dataset.emoji) {
+          sendReaction(msg.id, activeEl.dataset.emoji, src, src === "personal" ? chatWithUserId : "");
+          return;
+        }
         if (action === "reply") {
           generalReplyTo = personalReplyTo = null;
           var quotePreviewText = (msg.text && msg.text.slice(0, 60)) || (msg.hasImage ? "[Фото]" : msg.hasVoice ? "[Голосовое сообщение]" : "");
@@ -4846,17 +4880,17 @@ function initChat() {
       function onMenuPointerMove(e) {
         if (!menuPointerDown || !ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         var under = document.elementFromPoint(e.clientX, e.clientY);
-        var item = under && under.closest ? under.closest(".chat-ctx-menu__item") : null;
+        var item = under && under.closest ? (under.closest(".chat-ctx-menu__item") || under.closest(".chat-ctx-menu__reaction-emoji")) : null;
         if (item && ctxMenu.contains(item)) setActiveItem(item);
         else setActiveItem(null);
       }
       function onMenuPointerUp(e) {
         if (!menuPointerDown) return;
         menuPointerDown = false;
-        if (currentActiveItem && currentActiveItem.dataset.action) runAction(currentActiveItem.dataset.action);
+        if (currentActiveItem && currentActiveItem.dataset.action) runAction(currentActiveItem.dataset.action, currentActiveItem);
         setActiveItem(null);
       }
-      ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(function (btn) {
+      function bindMenuButton(btn) {
         btn.addEventListener("pointerdown", function (e) {
           e.preventDefault();
           e.stopPropagation();
@@ -4867,7 +4901,9 @@ function initChat() {
           e.preventDefault();
           e.stopPropagation();
         });
-      });
+      }
+      ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(bindMenuButton);
+      ctxMenu.querySelectorAll(".chat-ctx-menu__reaction-emoji").forEach(bindMenuButton);
       document.addEventListener("pointermove", onMenuPointerMove);
       document.addEventListener("pointerup", onMenuPointerUp);
       document.addEventListener("pointercancel", onMenuPointerUp);
@@ -5043,8 +5079,7 @@ function initChat() {
         }
         reactionsHtmlP = pillsP.join("");
       }
-      var reactBtnHtmlP = m.id ? '<button type="button" class="chat-msg__react-btn" data-msg-id="' + escapeHtml(m.id) + '" data-source="personal" data-with="' + escapeHtml(chatWithUserId || "") + '" title="Реакция">😊</button>' : "";
-      var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span>' + reactBtnHtmlP + '</div>' : "";
+      var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span></div>' : "";
       return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtnP + '<div class="chat-msg__meta">' + nameElP + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;
