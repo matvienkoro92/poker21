@@ -2641,6 +2641,8 @@ document.addEventListener("click", function (e) {
   var dd = document.getElementById("chatNavDropdown");
   if (!btn || !dd) return;
   btn.addEventListener("click", function (e) {
+    var alreadyOnChat = btn.classList.contains("bottom-nav__item--active");
+    if (!alreadyOnChat) return;
     dd.classList.toggle("bottom-nav__chat-dropdown--hidden");
     var isOpen = !dd.classList.contains("bottom-nav__chat-dropdown--hidden");
     btn.setAttribute("aria-expanded", isOpen ? "true" : "false");

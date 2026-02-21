@@ -5673,11 +5673,29 @@ img.plasterer-card {
 }
 .bottom-nav__chat-wrap .bottom-nav__item {
   max-width: 100%;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
 }
-.bottom-nav__arrow {
-  font-size: 10px;
-  opacity: 0.8;
-  margin-left: 2px;
+.bottom-nav__chat-wrap .bottom-nav__item .bottom-nav__label {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+.bottom-nav__arrow-up {
+  font-size: 9px;
+  margin-left: auto;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+.bottom-nav__chat-wrap .bottom-nav__item.bottom-nav__item--active .bottom-nav__arrow-up {
+  animation: bottom-nav-arrow-blink 1s ease-in-out infinite;
+}
+@keyframes bottom-nav-arrow-blink {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.2; }
 }
 .bottom-nav__chat-dropdown {
   position: absolute;
