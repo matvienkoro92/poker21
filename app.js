@@ -2639,15 +2639,27 @@ document.addEventListener("click", function (e) {
 (function initChatNavDropdown() {
   var btn = document.getElementById("chatNavBtn");
   var dd = document.getElementById("chatNavDropdown");
+  var arrow = document.getElementById("chatNavArrow");
   if (!btn || !dd) return;
+  function setArrow(isOpen) {
+    if (arrow) arrow.textContent = isOpen ? "\u25BC" : "\u25B2";
+  }
   btn.addEventListener("click", function (e) {
     var alreadyOnChat = btn.classList.contains("bottom-nav__item--active");
     if (!alreadyOnChat) return;
-    dd.classList.toggle("bottom-nav__chat-dropdown--hidden");
-    var isOpen = !dd.classList.contains("bottom-nav__chat-dropdown--hidden");
-    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    dd.setAttribute("aria-hidden", isOpen ? "false" : "true");
-  });
+    var wasHidden = dd.classList.contains("bottom-nav__chat-dropdown--hidden");
+    if (wasHidden) {
+      dd.classList.remove("bottom-nav__chat-dropdown--hidden");
+      btn.setAttribute("aria-expanded", "true");
+      dd.setAttribute("aria-hidden", "false");
+      setArrow(true);
+    } else {
+      dd.classList.add("bottom-nav__chat-dropdown--hidden");
+      btn.setAttribute("aria-expanded", "false");
+      dd.setAttribute("aria-hidden", "true");
+      setArrow(false);
+    }
+  }, true);
   document.querySelectorAll(".bottom-nav__chat-option").forEach(function (opt) {
     opt.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -2656,6 +2668,7 @@ document.addEventListener("click", function (e) {
       dd.classList.add("bottom-nav__chat-dropdown--hidden");
       btn.setAttribute("aria-expanded", "false");
       dd.setAttribute("aria-hidden", "true");
+      setArrow(false);
     });
   });
   document.addEventListener("click", function (e) {
@@ -2664,6 +2677,7 @@ document.addEventListener("click", function (e) {
     dd.classList.add("bottom-nav__chat-dropdown--hidden");
     btn.setAttribute("aria-expanded", "false");
     dd.setAttribute("aria-hidden", "true");
+    setArrow(false);
   });
 })();
 
@@ -4185,6 +4199,8 @@ function initChat() {
     }
     var btn = document.getElementById("chatNavBtn");
     if (btn) btn.setAttribute("aria-expanded", "false");
+    var arrow = document.getElementById("chatNavArrow");
+    if (arrow) arrow.textContent = "\u25B2";
   }
   function setTab(tab) {
     chatActiveTab = tab;

@@ -667,8 +667,7 @@ body:has(.view--active[data-view="chat"]) {
 }
 .view--active[data-view="chat"] .chat-input-area {
   padding-left: 0;
-  padding-bottom: 11mm;
-  padding-bottom: calc(11mm + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 .chat-switcher-row {
   display: flex;
@@ -1580,8 +1579,7 @@ img.chat-contact__avatar {
 }
 .chat-general-view .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: 11mm;
-  padding-bottom: calc(11mm + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 .chat-personal-view {
   display: flex;
@@ -1655,8 +1653,7 @@ img.chat-contact__avatar {
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: 11mm;
-  padding-bottom: calc(11mm + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 .chat-msg__delete {
   padding: 4px 8px;
