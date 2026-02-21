@@ -4412,6 +4412,7 @@ function initChat() {
     });
   }
 
+  // Уровень 1 из 55 = двойка треф (2♣), уровень 2 = тройка треф (3♣), и т.д. параллельно по колоде (трефы 1–13, бубны 14–26, черви 27–39, пики 40–52, джокеры 53–54, 55 = Бог покера).
   function levelToStatusText(level) {
     var n = parseInt(level, 10);
     if (isNaN(n) || n < 1) return null;
@@ -4453,8 +4454,8 @@ function initChat() {
       var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
-      var cornerDelBtn = isOwn && m.id ? '<button type="button" class="chat-msg__delete chat-msg__delete--corner" data-msg-id="' + escapeHtml(m.id) + '" title="Удалить">✕</button>' : "";
-      var editBtn = isOwn && m.id && !m.image && !m.voice ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
+      var cornerDelBtn = "";
+      var editBtn = "";
       var blockBtn = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
@@ -4465,7 +4466,7 @@ function initChat() {
       var rankCard = m.fromStatus != null ? (levelToStatusCard(m.fromStatus) || String(m.fromStatus)) : "2\u2663";
       var rankRow = '<div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">' + escapeHtml(rankCard) + '</span></div>';
       var p21Row = '<div class="chat-msg__p21-line">P21_ID: ' + p21Str + "</div>";
-      var nameRow = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStr + "</span>" + (isOwn ? '<span class="chat-msg__msg-actions">' + editBtn + "</span>" : "") + "</div>";
+      var nameRow = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStr + "</span></div>";
       var metaBlock = nameRow + p21Row + rankRow;
       var nameEl = isOwn ? metaBlock : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + metaBlock + "</button>";
       var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
@@ -4777,14 +4778,13 @@ function initChat() {
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
       if (ctxBackdrop) ctxBackdrop.addEventListener("click", hideMenu);
-      if (ctxBackdrop) ctxBackdrop.addEventListener("touchend", hideMenu, { passive: true });
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
         if (ctxBackdrop && ctxBackdrop.contains(e.target)) return;
         if (e.type === "touchend" && ctxOpenedForEl && (e.target === ctxOpenedForEl || ctxOpenedForEl.contains(e.target)))
           return;
-        if (Date.now() - menuOpenedAt < 300) return;
+        if (Date.now() - menuOpenedAt < 600) return;
         hideMenu();
       }
       document.addEventListener("click", closeIfOutside);
@@ -5027,8 +5027,8 @@ function initChat() {
       var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
-      var cornerDelBtnP = isOwn && m.id ? '<button type="button" class="chat-msg__delete chat-msg__delete--corner" data-msg-id="' + escapeHtml(m.id) + '" data-with="' + escapeHtml(chatWithUserId || "") + '" title="Удалить">✕</button>' : "";
-      var editBtn = isOwn && m.id && !m.image && !m.voice ? ' <button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '" title="Редактировать">✎</button>' : "";
+      var cornerDelBtnP = "";
+      var editBtnP = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
@@ -5038,7 +5038,7 @@ function initChat() {
       var rankCardP = m.fromStatus != null ? (levelToStatusCard(m.fromStatus) || String(m.fromStatus)) : "2\u2663";
       var rankRowP = '<div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">' + escapeHtml(rankCardP) + '</span></div>';
       var p21RowP = '<div class="chat-msg__p21-line">P21_ID: ' + p21StrP + "</div>";
-      var nameRowP = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStrP + "</span>" + (isOwn ? '<span class="chat-msg__msg-actions">' + editBtn + "</span>" : "") + "</div>";
+      var nameRowP = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStrP + "</span></div>";
       var metaBlockP = nameRowP + p21RowP + rankRowP;
       var nameElP = isOwn ? metaBlockP : '<span class="chat-msg__name-block">' + metaBlockP + "</span>";
       var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
