@@ -4387,6 +4387,17 @@ function initChat() {
     });
   }
 
+  function levelToStatusText(level) {
+    var n = parseInt(level, 10);
+    if (isNaN(n) || n < 1) return null;
+    if (n === 53) return "джокер обычный";
+    if (n === 54) return "джокер сияющий";
+    if (n >= 55) return "Бог покера";
+    var value = ((n - 1) % 13) + 2;
+    var cardName = value <= 10 ? String(value) : value === 11 ? "валет" : value === 12 ? "дама" : value === 13 ? "король" : "туз";
+    var suit = n <= 13 ? "треф" : n <= 26 ? "бубны" : n <= 39 ? "черви" : "пики";
+    return cardName + " " + suit;
+  }
   function renderGeneralMessages(messages) {
     if (!messages || messages.length === 0) {
       generalMessages.innerHTML = '<p class="chat-empty">Нет сообщений. Напишите первым!</p>';
@@ -4409,8 +4420,8 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStr = escapeHtml(m.fromName || "Игрок");
       var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
-      var rankVal = m.fromStatus != null ? String(m.fromStatus) : "\u2014";
-      var rankRow = '<div class="chat-msg__rank-line">Ранг: ' + escapeHtml(rankVal) + ' <span class="chat-msg__status-icon">🐟</span></div>';
+      var rankVal = m.fromStatus != null ? (levelToStatusText(m.fromStatus) || String(m.fromStatus)) : "\u2014";
+      var rankRow = '<div class="chat-msg__rank-line">Ранг: ' + escapeHtml(rankVal) + '</div>';
       var p21Row = '<div class="chat-msg__p21-line">P21_ID: ' + p21Str + "</div>";
       var nameRow = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStr + "</span>" + (isOwn ? '<span class="chat-msg__msg-actions">' + editBtn + "</span>" : "") + "</div>";
       var metaBlock = nameRow + p21Row + rankRow;
@@ -4597,11 +4608,15 @@ function initChat() {
       function onLongPress() {
         var textEl = el.querySelector(".chat-msg__text");
         var text = textEl ? (textEl.textContent || "").trim() : "";
+        var hasImage = !!el.querySelector(".chat-msg__image");
+        var hasVoice = !!el.querySelector(".chat-msg__voice");
         showMenu(el, {
           id: el.dataset.msgId,
           from: el.dataset.msgFrom,
           fromName: (el.dataset.msgFromName || "Игрок").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"),
           text: text,
+          hasImage: hasImage,
+          hasVoice: hasVoice,
         });
       }
       function startTimer(e) {
@@ -4628,11 +4643,15 @@ function initChat() {
         e.preventDefault();
         var textEl = el.querySelector(".chat-msg__text");
         var text = textEl ? (textEl.textContent || "").trim() : "";
+        var hasImage = !!el.querySelector(".chat-msg__image");
+        var hasVoice = !!el.querySelector(".chat-msg__voice");
         showMenu(el, {
           id: el.dataset.msgId,
           from: el.dataset.msgFrom,
           fromName: (el.dataset.msgFromName || "Игрок").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"),
           text: text,
+          hasImage: hasImage,
+          hasVoice: hasVoice,
         });
       });
     });
@@ -4685,11 +4704,13 @@ function initChat() {
             }
           } else if (action === "reply") {
             generalReplyTo = personalReplyTo = null;
+            var quotePreviewText = (msg.text && msg.text.slice(0, 60)) || (msg.hasImage ? "[Фото]" : msg.hasVoice ? "[Голосовое сообщение]" : "");
+            if (msg.text && msg.text.length > 60) quotePreviewText += "…";
             if (src === "general") {
               generalReplyTo = msg;
               var prev = document.getElementById("chatGeneralReplyPreview");
               if (prev) {
-                prev.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + (msg.text || "").slice(0, 60) + (msg.text && msg.text.length > 60 ? "…" : "");
+                prev.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + quotePreviewText;
                 prev.classList.add("chat-reply-preview--visible");
               }
               if (generalInput) generalInput.focus();
@@ -4697,7 +4718,7 @@ function initChat() {
               personalReplyTo = msg;
               var prevP = document.getElementById("chatPersonalReplyPreview");
               if (prevP) {
-                prevP.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + (msg.text || "").slice(0, 60) + (msg.text && msg.text.length > 60 ? "…" : "");
+                prevP.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + quotePreviewText;
                 prevP.classList.add("chat-reply-preview--visible");
               }
               if (inputEl) inputEl.focus();
@@ -4729,7 +4750,7 @@ function initChat() {
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"));
-    var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: — <span class="chat-msg__status-icon">🐟</span></div>';
+    var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: —</div>';
     var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
@@ -4745,7 +4766,10 @@ function initChat() {
     var body = { initData: initData, text: text };
     if (generalImage) body.image = generalImage;
     if (generalVoice) body.voice = generalVoice;
-    if (generalReplyTo) body.replyTo = generalReplyTo;
+    if (generalReplyTo) {
+      var replyText = (generalReplyTo.text && String(generalReplyTo.text).trim()) || (generalReplyTo.hasImage ? "[Фото]" : generalReplyTo.hasVoice ? "[Голосовое сообщение]" : "\u2014");
+      body.replyTo = { id: generalReplyTo.id, from: generalReplyTo.from, fromName: generalReplyTo.fromName || "Игрок", text: replyText };
+    }
     var optText = text;
     var optImage = generalImage || null;
     var optVoice = generalVoice || null;
@@ -4859,8 +4883,8 @@ function initChat() {
       var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
       var nameStrP = escapeHtml(m.fromName || "Игрок");
       var p21StrP = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
-      var rankValP = m.fromStatus != null ? String(m.fromStatus) : "\u2014";
-      var rankRowP = '<div class="chat-msg__rank-line">Ранг: ' + escapeHtml(rankValP) + ' <span class="chat-msg__status-icon">🐟</span></div>';
+      var rankValP = m.fromStatus != null ? (levelToStatusText(m.fromStatus) || String(m.fromStatus)) : "\u2014";
+      var rankRowP = '<div class="chat-msg__rank-line">Ранг: ' + escapeHtml(rankValP) + '</div>';
       var p21RowP = '<div class="chat-msg__p21-line">P21_ID: ' + p21StrP + "</div>";
       var nameRowP = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStrP + "</span>" + (isOwn ? '<span class="chat-msg__msg-actions">' + editBtn + "</span>" : "") + "</div>";
       var metaBlockP = nameRowP + p21RowP + rankRowP;
@@ -4995,7 +5019,7 @@ function initChat() {
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"));
-    var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: — <span class="chat-msg__status-icon">🐟</span></div>';
+    var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: —</div>';
     var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
@@ -5010,7 +5034,10 @@ function initChat() {
     var body = { initData: initData, with: chatWithUserId, text: text };
     if (personalImage) body.image = personalImage;
     if (personalVoice) body.voice = personalVoice;
-    if (personalReplyTo) body.replyTo = personalReplyTo;
+    if (personalReplyTo) {
+      var replyTextP = (personalReplyTo.text && String(personalReplyTo.text).trim()) || (personalReplyTo.hasImage ? "[Фото]" : personalReplyTo.hasVoice ? "[Голосовое сообщение]" : "\u2014");
+      body.replyTo = { id: personalReplyTo.id, from: personalReplyTo.from, fromName: personalReplyTo.fromName || "Игрок", text: replyTextP };
+    }
     var optText = text;
     var optImage = personalImage || null;
     var optVoice = personalVoice || null;
