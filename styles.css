@@ -1225,21 +1225,33 @@ body:has(.view--active[data-view="chat"]) {
 .chat-ctx-menu {
   position: fixed;
   z-index: 1000;
-  display: none;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  top: auto;
+  display: flex;
   flex-direction: column;
-  min-width: 220px;
-  padding: 8px 0;
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0));
   background: var(--bg-card, #1e293b);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease-out, opacity 0.2s ease;
 }
-.chat-ctx-menu.chat-ctx-menu--visible { display: flex; }
+.chat-ctx-menu.chat-ctx-menu--visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
 .chat-ctx-menu__item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 18px;
+  padding: 14px 20px;
   text-align: left;
   border: none;
   background: transparent;
@@ -1248,10 +1260,13 @@ body:has(.view--active[data-view="chat"]) {
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 .chat-ctx-menu__item:hover { background: rgba(168, 85, 247, 0.18); }
-.chat-ctx-menu__item:active { background: rgba(168, 85, 247, 0.25); }
+.chat-ctx-menu__item.chat-ctx-menu__item--active {
+  background: rgba(168, 85, 247, 0.28);
+  transform: scale(1.02);
+}
 .chat-ctx-menu__icon {
   flex-shrink: 0;
   width: 22px;

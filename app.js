@@ -4657,8 +4657,6 @@ function initChat() {
     var longPressTimer = null;
     var menuOpenedAt = 0;
     var ctxOpenedForEl = null;
-    var MENU_GAP = 10;
-    var MENU_MIN_HEIGHT = 180;
     function showMenu(el, msg) {
       chatCtxMsg = msg;
       chatCtxSource = source;
@@ -4678,39 +4676,6 @@ function initChat() {
       }
       el.classList.add("chat-msg--ctx-highlight");
       if (el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "auto" });
-      requestAnimationFrame(function () {
-        var rect = el.getBoundingClientRect();
-        var menuW = 220;
-        var menuH = ctxMenu.offsetHeight || MENU_MIN_HEIGHT;
-        var left = rect.left + rect.width / 2 - menuW / 2;
-        var right = left + menuW;
-        var winW = window.innerWidth || document.documentElement.clientWidth;
-        if (left < 12) left = 12;
-        if (right > winW - 12) left = winW - menuW - 12;
-        var topAbove = rect.top - menuH - MENU_GAP;
-        var topBelow = rect.bottom + MENU_GAP;
-        var top;
-        if (topAbove >= 12) {
-          top = topAbove;
-        } else {
-          top = topBelow;
-          if (top + menuH > (window.innerHeight || document.documentElement.clientHeight) - 12 && el.scrollIntoView) {
-            el.scrollIntoView({ block: "center", behavior: "auto" });
-            requestAnimationFrame(function () {
-              var r2 = el.getBoundingClientRect();
-              var t2 = r2.bottom + MENU_GAP;
-              if (t2 + menuH > (window.innerHeight || document.documentElement.clientHeight) - 12) t2 = r2.top - menuH - MENU_GAP;
-              var left2 = r2.left + r2.width / 2 - menuW / 2;
-              if (left2 < 12) left2 = 12;
-              if (left2 + menuW > winW - 12) left2 = winW - menuW - 12;
-              ctxMenu.style.left = left2 + "px";
-              ctxMenu.style.top = Math.max(12, t2) + "px";
-            });
-          }
-        }
-        ctxMenu.style.left = left + "px";
-        ctxMenu.style.top = Math.max(12, top) + "px";
-      });
       ctxMenu.classList.add("chat-ctx-menu--visible");
       ctxMenu.setAttribute("aria-hidden", "false");
       menuOpenedAt = Date.now();
@@ -4871,17 +4836,41 @@ function initChat() {
           });
         }
       }
+      var menuPointerDown = false;
+      var currentActiveItem = null;
+      function setActiveItem(item) {
+        ctxMenu.querySelectorAll(".chat-ctx-menu__item--active").forEach(function (b) { b.classList.remove("chat-ctx-menu__item--active"); });
+        currentActiveItem = item;
+        if (item) item.classList.add("chat-ctx-menu__item--active");
+      }
+      function onMenuPointerMove(e) {
+        if (!menuPointerDown || !ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
+        var under = document.elementFromPoint(e.clientX, e.clientY);
+        var item = under && under.closest ? under.closest(".chat-ctx-menu__item") : null;
+        if (item && ctxMenu.contains(item)) setActiveItem(item);
+        else setActiveItem(null);
+      }
+      function onMenuPointerUp(e) {
+        if (!menuPointerDown) return;
+        menuPointerDown = false;
+        if (currentActiveItem && currentActiveItem.dataset.action) runAction(currentActiveItem.dataset.action);
+        setActiveItem(null);
+      }
       ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(function (btn) {
         btn.addEventListener("pointerdown", function (e) {
           e.preventDefault();
           e.stopPropagation();
-          runAction(btn.dataset.action);
+          menuPointerDown = true;
+          setActiveItem(btn);
         });
         btn.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
         });
       });
+      document.addEventListener("pointermove", onMenuPointerMove);
+      document.addEventListener("pointerup", onMenuPointerUp);
+      document.addEventListener("pointercancel", onMenuPointerUp);
     }
   }
 
