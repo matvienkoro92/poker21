@@ -4725,6 +4725,8 @@ function initChat() {
       }
       chatCtxMsg = null;
       chatCtxSource = null;
+      if (typeof menuPointerDown !== "undefined") menuPointerDown = false;
+      if (typeof currentActiveItem !== "undefined") currentActiveItem = null;
     }
     function attachToEl(el) {
       function onLongPress() {
@@ -4777,13 +4779,10 @@ function initChat() {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
         if (ctxBackdrop && ctxBackdrop.contains(e.target)) return;
-        if (e.type === "touchend" && ctxOpenedForEl && (e.target === ctxOpenedForEl || ctxOpenedForEl.contains(e.target)))
-          return;
-        if (Date.now() - menuOpenedAt < 600) return;
+        if (ctxOpenedForEl && (e.target === ctxOpenedForEl || ctxOpenedForEl.contains(e.target))) return;
         hideMenu();
       }
       document.addEventListener("click", closeIfOutside);
-      document.addEventListener("touchend", closeIfOutside, { passive: true });
       function runAction(action, activeEl) {
         var msg = chatCtxMsg;
         var src = chatCtxSource;
