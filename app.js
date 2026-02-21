@@ -4442,7 +4442,13 @@ function initChat() {
     var html = messages.map(function (m) {
       var isOwn = myId && m.from === myId;
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
-      var dataAttrs = chatIsAdmin && !isOwn && m.id ? ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
+      var dataAttrs = "";
+      if (isOwn && m.id) {
+        dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-own="true"';
+        if (!m.image && !m.voice && (m.text != null)) dataAttrs += ' data-msg-text="' + escapeHtml(String(m.text || "")) + '"';
+      } else if (!isOwn && m.id) {
+        dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"';
+      }
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
@@ -4645,45 +4651,101 @@ function initChat() {
   }
 
   function attachContextMenuForOthers(container, source) {
-    if (!chatIsAdmin) return;
     var ctxMenu = document.getElementById("chatContextMenu");
+    var ctxBackdrop = document.getElementById("chatContextBackdrop");
     var longPressTimer = null;
     var menuOpenedAt = 0;
     var ctxOpenedForEl = null;
+    var MENU_GAP = 10;
+    var MENU_MIN_HEIGHT = 180;
     function showMenu(el, msg) {
       chatCtxMsg = msg;
       chatCtxSource = source;
       ctxOpenedForEl = el;
       if (!ctxMenu) return;
-      var rect = el.getBoundingClientRect();
-      ctxMenu.style.left = (rect.left + rect.width / 2 - 100) + "px";
-      ctxMenu.style.top = Math.max(12, rect.top - 4) + "px";
+      var isOwn = !!msg.own;
+      var canEdit = isOwn && !msg.hasImage && !msg.hasVoice;
+      ctxMenu.querySelectorAll("[data-action=\"delete\"]").forEach(function (item) {
+        item.style.display = isOwn ? "" : "none";
+      });
+      ctxMenu.querySelectorAll("[data-action=\"edit\"]").forEach(function (item) {
+        item.style.display = canEdit ? "" : "none";
+      });
+      if (ctxBackdrop) {
+        ctxBackdrop.classList.add("chat-ctx-backdrop--visible");
+        ctxBackdrop.setAttribute("aria-hidden", "false");
+      }
+      el.classList.add("chat-msg--ctx-highlight");
+      if (el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "auto" });
+      requestAnimationFrame(function () {
+        var rect = el.getBoundingClientRect();
+        var menuW = 220;
+        var menuH = ctxMenu.offsetHeight || MENU_MIN_HEIGHT;
+        var left = rect.left + rect.width / 2 - menuW / 2;
+        var right = left + menuW;
+        var winW = window.innerWidth || document.documentElement.clientWidth;
+        if (left < 12) left = 12;
+        if (right > winW - 12) left = winW - menuW - 12;
+        var topAbove = rect.top - menuH - MENU_GAP;
+        var topBelow = rect.bottom + MENU_GAP;
+        var top;
+        if (topAbove >= 12) {
+          top = topAbove;
+        } else {
+          top = topBelow;
+          if (top + menuH > (window.innerHeight || document.documentElement.clientHeight) - 12 && el.scrollIntoView) {
+            el.scrollIntoView({ block: "center", behavior: "auto" });
+            requestAnimationFrame(function () {
+              var r2 = el.getBoundingClientRect();
+              var t2 = r2.bottom + MENU_GAP;
+              if (t2 + menuH > (window.innerHeight || document.documentElement.clientHeight) - 12) t2 = r2.top - menuH - MENU_GAP;
+              var left2 = r2.left + r2.width / 2 - menuW / 2;
+              if (left2 < 12) left2 = 12;
+              if (left2 + menuW > winW - 12) left2 = winW - menuW - 12;
+              ctxMenu.style.left = left2 + "px";
+              ctxMenu.style.top = Math.max(12, t2) + "px";
+            });
+          }
+        }
+        ctxMenu.style.left = left + "px";
+        ctxMenu.style.top = Math.max(12, top) + "px";
+      });
       ctxMenu.classList.add("chat-ctx-menu--visible");
       ctxMenu.setAttribute("aria-hidden", "false");
       menuOpenedAt = Date.now();
     }
     function hideMenu() {
+      if (ctxOpenedForEl) {
+        ctxOpenedForEl.classList.remove("chat-msg--ctx-highlight");
+        ctxOpenedForEl = null;
+      }
+      if (ctxBackdrop) {
+        ctxBackdrop.classList.remove("chat-ctx-backdrop--visible");
+        ctxBackdrop.setAttribute("aria-hidden", "true");
+      }
       if (ctxMenu) {
         ctxMenu.classList.remove("chat-ctx-menu--visible");
         ctxMenu.setAttribute("aria-hidden", "true");
       }
       chatCtxMsg = null;
       chatCtxSource = null;
-      ctxOpenedForEl = null;
     }
-    container.querySelectorAll(".chat-msg--other[data-msg-id]").forEach(function (el) {
+    function attachToEl(el) {
       function onLongPress() {
         var textEl = el.querySelector(".chat-msg__text");
         var text = textEl ? (textEl.textContent || "").trim() : "";
         var hasImage = !!el.querySelector(".chat-msg__image");
         var hasVoice = !!el.querySelector(".chat-msg__voice");
+        var isOwn = el.classList.contains("chat-msg--own");
         showMenu(el, {
           id: el.dataset.msgId,
-          from: el.dataset.msgFrom,
+          from: el.dataset.msgFrom || "",
           fromName: (el.dataset.msgFromName || "Игрок").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"),
           text: text,
           hasImage: hasImage,
           hasVoice: hasVoice,
+          own: isOwn,
+          msgText: isOwn ? (el.dataset.msgText || "").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') : "",
         });
       }
       function startTimer(e) {
@@ -4708,25 +4770,18 @@ function initChat() {
       el.addEventListener("mouseleave", clearTimer);
       el.addEventListener("contextmenu", function (e) {
         e.preventDefault();
-        var textEl = el.querySelector(".chat-msg__text");
-        var text = textEl ? (textEl.textContent || "").trim() : "";
-        var hasImage = !!el.querySelector(".chat-msg__image");
-        var hasVoice = !!el.querySelector(".chat-msg__voice");
-        showMenu(el, {
-          id: el.dataset.msgId,
-          from: el.dataset.msgFrom,
-          fromName: (el.dataset.msgFromName || "Игрок").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"),
-          text: text,
-          hasImage: hasImage,
-          hasVoice: hasVoice,
-        });
+        onLongPress();
       });
-    });
+    }
+    container.querySelectorAll(".chat-msg[data-msg-id]").forEach(attachToEl);
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
+      if (ctxBackdrop) ctxBackdrop.addEventListener("click", hideMenu);
+      if (ctxBackdrop) ctxBackdrop.addEventListener("touchend", hideMenu, { passive: true });
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
+        if (ctxBackdrop && ctxBackdrop.contains(e.target)) return;
         if (e.type === "touchend" && ctxOpenedForEl && (e.target === ctxOpenedForEl || ctxOpenedForEl.contains(e.target)))
           return;
         if (Date.now() - menuOpenedAt < 300) return;
@@ -4737,61 +4792,85 @@ function initChat() {
       function runAction(action) {
         var msg = chatCtxMsg;
         var src = chatCtxSource;
+        var el = ctxOpenedForEl;
         hideMenu();
         if (!msg) return;
-        if (action === "delete") {
-            if (!confirm("Удалить сообщение?")) return;
-            var delBody = { initData: initData, messageId: msg.id };
-            if (src === "personal" && chatWithUserId) delBody.with = chatWithUserId;
-            fetch(base + "/api/chat", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(delBody),
-            }).then(function (r) { return r.json(); }).then(function (d) {
-              if (d && d.ok) {
-                if (src === "general") loadGeneral();
-                else loadMessages();
-              }
+        if (action === "reply") {
+          generalReplyTo = personalReplyTo = null;
+          var quotePreviewText = (msg.text && msg.text.slice(0, 60)) || (msg.hasImage ? "[Фото]" : msg.hasVoice ? "[Голосовое сообщение]" : "");
+          if (msg.text && msg.text.length > 60) quotePreviewText += "…";
+          if (src === "general") {
+            generalReplyTo = msg;
+            var prev = document.getElementById("chatGeneralReplyPreview");
+            if (prev) {
+              prev.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + quotePreviewText;
+              prev.classList.add("chat-reply-preview--visible");
+            }
+            if (generalInput) generalInput.focus();
+          } else {
+            personalReplyTo = msg;
+            var prevP = document.getElementById("chatPersonalReplyPreview");
+            if (prevP) {
+              prevP.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + quotePreviewText;
+              prevP.classList.add("chat-reply-preview--visible");
+            }
+            if (inputEl) inputEl.focus();
+          }
+        } else if (action === "copy") {
+          if (msg.text && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(msg.text).then(function () {
+              if (tg && tg.showAlert) tg.showAlert("Скопировано");
             });
-          } else if (action === "block") {
-            if (!msg.from) return;
-            if (!confirm("Заблокировать " + (msg.fromName || "пользователя") + " в чате?")) return;
+          }
+        } else if (action === "edit" && msg.own && el) {
+          var msgId = msg.id;
+          var oldText = msg.msgText != null ? msg.msgText : (msg.text || "");
+          var msgEl = el;
+          var textEl = msgEl && msgEl.querySelector(".chat-msg__text");
+          if (!textEl || !msgId) return;
+          chatIsEditingMessage = true;
+          var origHtml = textEl.innerHTML;
+          textEl.innerHTML = '<div class="chat-msg__edit-form"><input type="text" class="chat-input chat-msg__edit-input" value="' + escapeHtml(oldText) + '" maxlength="500" /><div class="chat-msg__edit-actions"><button type="button" class="chat-msg__edit-save">Сохранить</button><button type="button" class="chat-msg__edit-cancel">Отмена</button></div></div>';
+          var inputElEdit = textEl.querySelector(".chat-msg__edit-input");
+          var saveBtn = textEl.querySelector(".chat-msg__edit-save");
+          var cancelBtn = textEl.querySelector(".chat-msg__edit-cancel");
+          if (inputElEdit) inputElEdit.focus();
+          requestAnimationFrame(function () {
+            if (msgEl && msgEl.scrollIntoView) msgEl.scrollIntoView({ block: "center", behavior: "auto" });
+          });
+          function closeEdit() { textEl.innerHTML = origHtml; chatIsEditingMessage = false; }
+          saveBtn.addEventListener("click", function () {
+            var newText = (inputElEdit.value || "").trim();
+            if (!newText) return;
             fetch(base + "/api/chat", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ initData: initData, action: "block", userId: msg.from }),
+              body: JSON.stringify({ initData: initData, action: "edit", messageId: msgId, text: newText }),
             }).then(function (r) { return r.json(); }).then(function (d) {
-              if (d && d.ok) loadGeneral();
-            });
-          } else if (action === "copy") {
-            if (msg.text && navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(msg.text).then(function () {
-                if (tg && tg.showAlert) tg.showAlert("Скопировано");
-              });
+              chatIsEditingMessage = false;
+              if (d && d.ok) {
+                if (src === "general") loadGeneral();
+                else loadMessages();
+              } else if (tg && tg.showAlert) tg.showAlert((d && d.error) || "Ошибка");
+            }).catch(function () { chatIsEditingMessage = false; });
+          });
+          cancelBtn.addEventListener("click", closeEdit);
+        } else if (action === "delete" && msg.own) {
+          if (!confirm("Удалить сообщение?")) return;
+          var delBody = { initData: initData, messageId: msg.id };
+          if (src === "personal" && chatWithUserId) delBody.with = chatWithUserId;
+          fetch(base + "/api/chat", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(delBody),
+          }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.ok) {
+              if (src === "general") loadGeneral();
+              else loadMessages();
             }
-          } else if (action === "reply") {
-            generalReplyTo = personalReplyTo = null;
-            var quotePreviewText = (msg.text && msg.text.slice(0, 60)) || (msg.hasImage ? "[Фото]" : msg.hasVoice ? "[Голосовое сообщение]" : "");
-            if (msg.text && msg.text.length > 60) quotePreviewText += "…";
-            if (src === "general") {
-              generalReplyTo = msg;
-              var prev = document.getElementById("chatGeneralReplyPreview");
-              if (prev) {
-                prev.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + quotePreviewText;
-                prev.classList.add("chat-reply-preview--visible");
-              }
-              if (generalInput) generalInput.focus();
-            } else {
-              personalReplyTo = msg;
-              var prevP = document.getElementById("chatPersonalReplyPreview");
-              if (prevP) {
-                prevP.querySelector(".chat-reply-preview__text").textContent = "Ответ на " + (msg.fromName || "Игрок") + ": " + quotePreviewText;
-                prevP.classList.add("chat-reply-preview--visible");
-              }
-              if (inputEl) inputEl.focus();
-            }
-          }
+          });
         }
+      }
       ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(function (btn) {
         btn.addEventListener("pointerdown", function (e) {
           e.preventDefault();
@@ -4937,7 +5016,13 @@ function initChat() {
     var html = messages.map(function (m) {
       var isOwn = myId && m.from === myId;
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
-      var dataAttrs = chatIsAdmin && !isOwn && m.id ? ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
+      var dataAttrs = "";
+      if (isOwn && m.id) {
+        dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-own="true"';
+        if (!m.image && !m.voice && (m.text != null)) dataAttrs += ' data-msg-text="' + escapeHtml(String(m.text || "")) + '"';
+      } else if (!isOwn && m.id) {
+        dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"';
+      }
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
       var text = linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
