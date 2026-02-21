@@ -4887,7 +4887,6 @@ function initChat() {
       function onMenuPointerUp(e) {
         if (!menuPointerDown) return;
         menuPointerDown = false;
-        if (currentActiveItem && currentActiveItem.dataset.action) runAction(currentActiveItem.dataset.action, currentActiveItem);
         setActiveItem(null);
       }
       function bindMenuButton(btn) {
@@ -4900,6 +4899,7 @@ function initChat() {
         btn.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
+          if (btn.dataset.action) runAction(btn.dataset.action, btn);
         });
       }
       ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(bindMenuButton);
