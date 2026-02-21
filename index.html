@@ -1294,7 +1294,7 @@
         <div class="bottom-nav__chat-wrap">
           <button type="button" class="bottom-nav__item" data-view-target="chat" id="chatNavBtn" aria-expanded="false" aria-haspopup="true">
             <span class="bottom-nav__icon">💬</span>
-            <span class="bottom-nav__label" id="chatNavLabel">Чат</span>
+            <span class="bottom-nav__label" id="chatNavLabel">Чаты</span>
             <span class="bottom-nav__arrow-up" id="chatNavArrow" aria-hidden="true">▲</span>
           </button>
           <div class="bottom-nav__chat-dropdown bottom-nav__chat-dropdown--hidden" id="chatNavDropdown" role="menu" aria-hidden="true">
@@ -1319,14 +1319,22 @@
 
       <div class="image-lightbox" id="imageLightbox" role="dialog" aria-modal="true" aria-label="Увеличить изображение" aria-hidden="true">
         <button type="button" class="image-lightbox__backdrop" aria-label="Закрыть"></button>
-        <img class="image-lightbox__img" src="" alt="" />
-        <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
+        <div class="image-lightbox__content">
+          <img class="image-lightbox__img" src="" alt="" />
+          <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
+        </div>
       </div>
       <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
         <div class="chat-user-modal__backdrop"></div>
         <div class="chat-user-modal__inner">
           <button type="button" class="chat-user-modal__close" aria-label="Закрыть">×</button>
-          <h3 class="chat-user-modal__title" id="chatUserModalTitle"></h3>
+          <div class="chat-user-modal__header">
+            <div class="chat-user-modal__avatar-wrap">
+              <img id="chatUserModalAvatar" class="chat-user-modal__avatar" alt="" style="display: none;" />
+              <span id="chatUserModalAvatarPlaceholder" class="chat-user-modal__avatar chat-user-modal__avatar--placeholder" aria-hidden="true"></span>
+            </div>
+            <h3 class="chat-user-modal__title" id="chatUserModalTitle"></h3>
+          </div>
           <p class="chat-user-modal__intro">Эта информация видна другим пользователям</p>
           <div class="chat-user-modal__p21" id="chatUserModalP21"></div>
           <div class="chat-user-modal__level">

@@ -4009,6 +4009,8 @@ function initChat() {
   var chatNameBtnLongPressTimer = null;
   if (chatUserModalEl) {
     var modalTitle = document.getElementById("chatUserModalTitle");
+    var modalAvatar = document.getElementById("chatUserModalAvatar");
+    var modalAvatarPlaceholder = document.getElementById("chatUserModalAvatarPlaceholder");
     var modalP21 = document.getElementById("chatUserModalP21");
     var modalPersonal = document.getElementById("chatUserModalPersonal");
     var modalLevelText = document.getElementById("chatUserModalLevelText");
@@ -4046,7 +4048,7 @@ function initChat() {
       if (modalRespectUp) modalRespectUp.disabled = myVote === "up";
       if (modalRespectDown) modalRespectDown.disabled = myVote === "down";
     }
-    function openChatUserModalById(id, name) {
+    function openChatUserModalById(id, name, avatarUrl) {
       var userName = name || "Игрок";
       if (!id || !chatUserModalEl) {
         if (id) { setTab("personal"); showConv(id, userName); }
@@ -4055,6 +4057,19 @@ function initChat() {
       chatUserModalUserId = id;
       chatUserModalUserName = userName;
       if (modalTitle) modalTitle.textContent = userName;
+      if (modalAvatar && modalAvatarPlaceholder) {
+        if (avatarUrl) {
+          modalAvatar.src = avatarUrl;
+          modalAvatar.alt = userName;
+          modalAvatar.style.display = "";
+          modalAvatarPlaceholder.style.display = "none";
+        } else {
+          modalAvatar.removeAttribute("src");
+          modalAvatar.style.display = "none";
+          modalAvatarPlaceholder.textContent = (userName || "И")[0];
+          modalAvatarPlaceholder.style.display = "";
+        }
+      }
       if (modalP21) modalP21.textContent = "";
       if (modalPersonal) modalPersonal.textContent = "Загрузка…";
       if (modalLevelText) modalLevelText.textContent = "Уровень — из 55";
@@ -4229,9 +4244,6 @@ function initChat() {
   }
   function setTab(tab) {
     chatActiveTab = tab;
-    var labelText = tab === "general" ? "Чат клуба" : tab === "personal" ? "ЛС" : "Чат с админами";
-    var navLabel = document.getElementById("chatNavLabel");
-    if (navLabel) navLabel.textContent = labelText;
     closeSwitcherDropdown();
     generalView.style.display = tab === "general" ? "" : "none";
     personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
@@ -4246,8 +4258,6 @@ function initChat() {
     updateUnreadDots();
   }
   window.chatSetTab = setTab;
-  var navLabel = document.getElementById("chatNavLabel");
-  if (navLabel) navLabel.textContent = chatActiveTab === "general" ? "Чат клуба" : chatActiveTab === "personal" ? "ЛС" : "Чат с админами";
 
   var lastViewedGeneral = null;
   var lastViewedPersonal = {};
@@ -4468,7 +4478,8 @@ function initChat() {
       var p21Row = '<div class="chat-msg__p21-line">P21_ID: ' + p21Str + "</div>";
       var nameRow = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStr + "</span></div>";
       var metaBlock = nameRow + p21Row + rankRow;
-      var nameEl = isOwn ? metaBlock : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '">' + metaBlock + "</button>";
+      var pmAvatarAttr = !isOwn && m.fromAvatar ? ' data-pm-avatar="' + escapeHtml(m.fromAvatar) + '"' : "";
+      var nameEl = isOwn ? metaBlock : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' + pmAvatarAttr + '>' + metaBlock + "</button>";
       var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -4490,7 +4501,8 @@ function initChat() {
       var respectDataAttrs = !isOwn && m.from ? ' data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
       var respectHtml = '<div class="chat-msg__respect-row"' + respectDataAttrs + '><span class="' + respectClass + '" title="Уважение в чате">Уважение: ' + escapeHtml(respectVal) + '</span></div>';
       if (!isOwn && m.from) {
-        respectHtml += '<div class="chat-msg__profile-row" data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"><span class="chat-msg__profile-link">Посмотреть профиль</span></div>';
+        var profileAvatarAttr = m.fromAvatar ? ' data-user-avatar="' + escapeHtml(m.fromAvatar) + '"' : "";
+        respectHtml += '<div class="chat-msg__profile-row" data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' + profileAvatarAttr + '><span class="chat-msg__profile-link">Посмотреть профиль</span></div>';
       }
       return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtn + '<div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + respectHtml + reactionsRow + '</div></div></div>';
     }).join("");
@@ -4509,8 +4521,9 @@ function initChat() {
     restoreScroll();
     requestAnimationFrame(function () { requestAnimationFrame(restoreScroll); });
     generalMessages.querySelectorAll(".chat-msg__name-btn").forEach(function (btn) {
+      var avatar = btn.dataset.pmAvatar || "";
       function openUserModal() {
-        openChatUserModalById(btn.dataset.pmId, btn.dataset.pmName);
+        openChatUserModalById(btn.dataset.pmId, btn.dataset.pmName, avatar);
       }
       btn.addEventListener("click", function () {
         if (chatNameBtnLongPressHandled) {
@@ -4594,7 +4607,8 @@ function initChat() {
       row.addEventListener("click", function () {
         var id = row.dataset.userId;
         var name = row.dataset.userName;
-        if (id) openChatUserModalById(id, name);
+        var avatar = row.dataset.userAvatar || "";
+        if (id) openChatUserModalById(id, name, avatar);
       });
     });
     generalMessages.querySelectorAll(".chat-msg__delete").forEach(function (btn) {
