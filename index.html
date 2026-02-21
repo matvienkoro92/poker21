@@ -646,6 +646,20 @@
 
           <!-- Чат: общий + личные + админы -->
           <div class="view" data-view="chat">
+            <div class="chat-switcher-row chat-switcher-row--top">
+              <div class="chat-switcher-wrap" id="headerChatSwitcherWrap">
+                <button type="button" class="chat-switcher-btn" id="chatSwitcherBtn" aria-expanded="false" aria-haspopup="true" aria-label="Выбрать чат">
+                  <span class="chat-switcher-btn__label" id="chatSwitcherLabel">Чат клуба</span>
+                  <span class="chat-switcher-btn__dot" id="chatSwitcherDot" aria-hidden="true"></span>
+                  <span class="chat-switcher-btn__arrow">▾</span>
+                </button>
+                <div class="chat-switcher-dropdown chat-switcher-dropdown--hidden" id="chatSwitcherDropdown" role="menu" aria-hidden="true">
+                  <button type="button" class="chat-switcher-option" data-chat-tab="general">Чат клуба</button>
+                  <button type="button" class="chat-switcher-option" data-chat-tab="personal">ЛС</button>
+                  <button type="button" class="chat-switcher-option" data-chat-tab="admins">Чат с админами</button>
+                </div>
+              </div>
+            </div>
             <div class="chat-general-view" id="chatGeneralView">
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
@@ -714,20 +728,6 @@
                       <button type="button" class="chat-send-btn chat-send-btn--icon" id="chatSendBtn" aria-label="Отправить">↑</button>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="chat-switcher-row">
-              <div class="chat-switcher-wrap" id="headerChatSwitcherWrap">
-                <button type="button" class="chat-switcher-btn" id="chatSwitcherBtn" aria-expanded="false" aria-haspopup="true" aria-label="Выбрать чат">
-                  <span class="chat-switcher-btn__label" id="chatSwitcherLabel">Чат клуба</span>
-                  <span class="chat-switcher-btn__dot" id="chatSwitcherDot" aria-hidden="true"></span>
-                  <span class="chat-switcher-btn__arrow">▾</span>
-                </button>
-                <div class="chat-switcher-dropdown chat-switcher-dropdown--hidden" id="chatSwitcherDropdown" role="menu" aria-hidden="true">
-                  <button type="button" class="chat-switcher-option" data-chat-tab="general">Чат клуба</button>
-                  <button type="button" class="chat-switcher-option" data-chat-tab="personal">ЛС</button>
-                  <button type="button" class="chat-switcher-option" data-chat-tab="admins">Чат с админами</button>
                 </div>
               </div>
             </div>
