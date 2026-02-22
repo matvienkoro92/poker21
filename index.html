@@ -17,6 +17,10 @@
     />
   </head>
   <body>
+    <!-- Chill-радио: включается при входе на главную (после первого касания из-за правил браузера) -->
+    <audio id="chillRadio" preload="metadata" loop crossorigin="anonymous" aria-hidden="true">
+      <source src="https://ice2.somafm.com/groovesalad-128-mp3" type="audio/mpeg" />
+    </audio>
     <div id="app" class="app" data-telegram-app-url="" data-api-base="https://poker-app-ebon.vercel.app">
       <div class="bg-gradient"></div>
       <div class="bg-blur"></div>
@@ -49,6 +53,10 @@
           </a>
           <div class="header-actions">
             <span class="header-greeting" id="headerGreeting">Привет, Роман</span>
+            <button type="button" class="radio-toggle theme-toggle" id="radioToggle" title="Включить радио" aria-label="Включить радио">
+              <span class="radio-toggle__icon radio-toggle__icon--off" aria-hidden="true">🎵</span>
+              <span class="radio-toggle__icon radio-toggle__icon--on" aria-hidden="true">🔊</span>
+            </button>
             <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
               <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
               <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
@@ -861,8 +869,8 @@
                   </div>
 
                   <div class="download-grid">
-                    <button class="download-app download-app--xpoker" data-download-app="xpoker">Xpoker</button>
                     <button class="download-app download-app--poker21" data-download-app="poker21">Poker21</button>
+                    <button class="download-app download-app--xpoker" data-download-app="xpoker">Xpoker</button>
                     <button class="download-app download-app--pppoker" data-download-app="pppoker">PPPoker</button>
                     <button class="download-app download-app--supremapoker" data-download-app="supremapoker">Supremapoker</button>
                   </div>

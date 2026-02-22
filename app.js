@@ -29,6 +29,39 @@
   }
 })();
 
+(function initRadioToggle() {
+  var radio = document.getElementById("chillRadio");
+  var btn = document.getElementById("radioToggle");
+  if (!radio || !btn) return;
+  function isOn() {
+    return localStorage.getItem("chill_radio_on") === "1";
+  }
+  function setOn(on) {
+    localStorage.setItem("chill_radio_on", on ? "1" : "0");
+    btn.classList.toggle("radio-toggle--on", on);
+    btn.title = on ? "Выключить радио" : "Включить радио";
+    btn.setAttribute("aria-label", on ? "Выключить радио" : "Включить радио");
+  }
+  function updateFromStorage() {
+    setOn(isOn());
+  }
+  updateFromStorage();
+  if (isOn()) {
+    var p = radio.play();
+    if (p && typeof p.then === "function") p.catch(function () { setOn(false); });
+  }
+  btn.addEventListener("click", function () {
+    var next = !isOn();
+    setOn(next);
+    if (next) {
+      var p = radio.play();
+      if (p && typeof p.then === "function") p.catch(function () { setOn(false); });
+    } else {
+      radio.pause();
+    }
+  });
+})();
+
 function getAssetUrl(relativePath) {
   try {
     var base = typeof document !== "undefined" && document.baseURI ? document.baseURI : (typeof location !== "undefined" && location.href) || "";
@@ -211,6 +244,14 @@ const views = document.querySelectorAll("[data-view]");
 const navItems = document.querySelectorAll("[data-view-target]:not(.bonus-game-back)");
 const footer = document.querySelector(".card__footer");
 
+function tryChillRadioPlay() {
+  if (localStorage.getItem("chill_radio_on") !== "1") return;
+  var radio = document.getElementById("chillRadio");
+  if (!radio) return;
+  var p = radio.play();
+  if (p && typeof p.then === "function") p.catch(function () {});
+}
+
 function setView(viewName) {
   views.forEach(function (view) {
     if (view.dataset.view === viewName) {
@@ -231,6 +272,7 @@ function setView(viewName) {
       footer.classList.remove("card__footer--hidden");
       fetchVisitorStatsOnly();
       fetchRaffleBadge();
+      tryChillRadioPlay();
     } else {
       footer.classList.add("card__footer--hidden");
     }
@@ -1319,12 +1361,23 @@ var WINTER_RATING_BY_DATE = {
     { nick: "Waaar", points: 110, reward: 14400 },
     { nick: "MilkyWay77", points: 90, reward: 8500 },
     { nick: "WiNifly", points: 160, reward: 14400 },
+    { nick: "pryanik2la", points: 60, reward: 10519 },
     { nick: "Borsoi", points: 70, reward: 6800 },
     { nick: "Amaliya", points: 70, reward: 4300 },
     { nick: "Prushnik", points: 50, reward: 6300 },
     { nick: "Coo1er91", points: 0, reward: 0 },
     { nick: "king00001", points: 0, reward: 0 },
     { nick: "Rifa", points: 0, reward: 0 },
+    { nick: "Бабник", points: 0, reward: 0 },
+    { nick: "comotd", points: 0, reward: 0 },
+    { nick: "cap888881", points: 0, reward: 0 },
+    { nick: "Em13!!", points: 0, reward: 0 },
+  ],
+  "18.02.2026": [
+    { nick: "Em13!!", points: 135, reward: 59536 },
+    { nick: "shockin", points: 0, reward: 0 },
+    { nick: "Рыбнадзор", points: 0, reward: 0 },
+    { nick: "Бабник", points: 0, reward: 0 },
   ],
   "19.02.2026": [
     { nick: "ПокерМанки", points: 245, reward: 53000 },
@@ -1348,11 +1401,14 @@ var WINTER_RATING_BY_DATE = {
     { nick: "BOTEZGAMBIT", points: 0, reward: 0 },
   ],
   "21.02.2026": [
+    { nick: "Бабник", points: 135, reward: 33543 },
     { nick: "|---777---|", points: 90, reward: 12000 },
+    { nick: "pryanik2la", points: 60, reward: 3935 },
     { nick: "Waaar", points: 0, reward: 0 },
     { nick: "Rifa", points: 0, reward: 0 },
     { nick: "Borsoi", points: 0, reward: 0 },
     { nick: "petroochoo", points: 0, reward: 0 },
+    { nick: "Em13!!", points: 0, reward: 0 },
   ],
   "15.02.2026": [
     { nick: "Waaar", points: 185, reward: 25000 },
@@ -1523,10 +1579,11 @@ var WINTER_RATING_BY_DATE = {
   ],
 };
 var WINTER_RATING_IMAGES = {
-  "17.02.2026": ["rating-17-02-2026.png", "rating-17-02-2026-2.png", "rating-17-02-2026-3.png"],
+  "17.02.2026": ["rating-17-02-2026.png", "rating-17-02-2026-2.png", "rating-17-02-2026-3.png", "rating-17-02-2026-4.png"],
+  "18.02.2026": ["rating-18-02-2026.png"],
   "19.02.2026": ["rating-19-02-2026.png", "rating-19-02-2026-2.png"],
   "20.02.2026": ["rating-20-02-2026.png", "rating-20-02-2026-2.png"],
-  "21.02.2026": ["rating-21-02-2026.png"],
+  "21.02.2026": ["rating-21-02-2026.png", "rating-21-02-2026-2.png"],
   "15.02.2026": ["rating-15-02-2026.png", "rating-15-02-2026-2.png", "rating-15-02-2026-3.png", "rating-15-02-2026-4.png"],
   "16.02.2026": ["rating-16-02-2026.png", "rating-16-02-2026-2.png", "rating-16-02-2026-3.png"],
   "13.02.2026": ["rating-13-02-2026.png", "rating-13-02-2026-2.png", "rating-13-02-2026-3.png"],
@@ -1953,6 +2010,10 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
     { time: "12:00", players: [{ nick: "MilkyWay77", place: 3, points: 90, reward: 8500 }, { nick: "Borsoi", place: 4, points: 70, reward: 6800 }, { nick: "Coo1er91", place: 7, points: 0, reward: 0 }, { nick: "Waaar", place: 8, points: 0, reward: 0 }, { nick: "king00001", place: 9, points: 0, reward: 0 }] },
     { time: "17:00", players: [{ nick: "BOTEZGAMBIT", place: 1, points: 135, reward: 27800 }, { nick: "WiNifly", place: 4, points: 70, reward: 8700 }, { nick: "Prushnik", place: 6, points: 50, reward: 6300 }, { nick: "Waaar", place: 7, points: 0, reward: 0 }, { nick: "Borsoi", place: 8, points: 0, reward: 0 }] },
     { time: "20:00", players: [{ nick: "ПокерМанки", place: 1, points: 135, reward: 33200 }, { nick: "Waaar", place: 2, points: 110, reward: 14400 }, { nick: "WiNifly", place: 3, points: 90, reward: 5700 }, { nick: "Amaliya", place: 4, points: 70, reward: 4300 }, { nick: "Rifa", place: 6, points: 0, reward: 0 }] },
+    { time: "21:00", players: [{ nick: "pryanik2la", place: 5, points: 60, reward: 10519 }, { nick: "Бабник", place: 0, points: 0, reward: 0 }, { nick: "comotd", place: 45, points: 0, reward: 0 }, { nick: "cap888881", place: 61, points: 0, reward: 0 }, { nick: "Em13!!", place: 0, points: 0, reward: 0 }] },
+  ],
+  "18.02.2026": [
+    { time: "00:00", players: [{ nick: "Em13!!", place: 1, points: 135, reward: 59536 }, { nick: "shockin", place: 13, points: 0, reward: 0 }, { nick: "Рыбнадзор", place: 24, points: 0, reward: 0 }, { nick: "Бабник", place: 0, points: 0, reward: 0 }] },
   ],
   "19.02.2026": [
     { time: "17:00", players: [{ nick: "ПокерМанки", place: 2, points: 110, reward: 15000 }, { nick: "king00001", place: 5, points: 60, reward: 6600 }, { nick: "WiNifly", place: 9, points: 0, reward: 0 }, { nick: "Rifa", place: 12, points: 0, reward: 0 }, { nick: "Waaar", place: 14, points: 0, reward: 0 }] },
@@ -1963,6 +2024,7 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
     { time: "17:00", players: [{ nick: "Waaar", place: 2, points: 110, reward: 15000 }, { nick: "ПокерМанки", place: 3, points: 90, reward: 9000 }, { nick: "Smile", place: 4, points: 70, reward: 7200 }, { nick: "WiNifly", place: 5, points: 60, reward: 6600 }, { nick: "BOTEZGAMBIT", place: 7, points: 0, reward: 0 }] },
   ],
   "21.02.2026": [
+    { time: "15:00", players: [{ nick: "Бабник", place: 1, points: 135, reward: 33543 }, { nick: "pryanik2la", place: 5, points: 60, reward: 3935 }, { nick: "Em13!!", place: 8, points: 0, reward: 0 }] },
     { time: "17:00", players: [{ nick: "|---777---|", place: 3, points: 90, reward: 12000 }, { nick: "Waaar", place: 4, points: 0, reward: 0 }, { nick: "Rifa", place: 5, points: 0, reward: 0 }, { nick: "Borsoi", place: 9, points: 0, reward: 0 }, { nick: "petroochoo", place: 13, points: 0, reward: 0 }] },
   ],
   "15.02.2026": [
@@ -2152,7 +2214,7 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "19.02.2026", "20.02.2026", "21.02.2026"];
+  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026"];
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
@@ -2979,6 +3041,17 @@ document.addEventListener("click", function (e) {
   if (view) setView(view);
   if (page) setDownloadPage(page);
 });
+
+(function initChillRadio() {
+  var radio = document.getElementById("chillRadio");
+  if (!radio) return;
+  function tryPlay() {
+    tryChillRadioPlay();
+  }
+  document.addEventListener("click", tryPlay, { once: true, passive: true });
+  document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
+  tryChillRadioPlay();
+})();
 
 (function initChatNavDropdown() {
   var btn = document.getElementById("chatNavBtn");
