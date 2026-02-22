@@ -8,7 +8,7 @@
       name="description"
       content="Приветственная страница покерного клуба «Два туза» в Telegram Mini App."
     />
-    <link rel="stylesheet" href="./styles.css?v=13" />
+    <link rel="stylesheet" href="./styles.css?v=15" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -104,45 +104,44 @@
             </div>
 
             <div class="features">
-              <div class="features-row features-row--half">
+              <div class="features-row features-row--full">
+                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" id="springRatingInfoBtn" aria-label="Рейтинг Турнирщиков весны 2026">
+                  <div class="feature__icon feature__icon--gold">🏆</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Рейтинг Турнирщиков весны 2026<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
+                    <div class="feature__text">Стартуем 1го марта</div>
+                  </div>
+                </a>
+              </div>
+              <div class="features-row features-row--three">
+                <a href="#" class="feature feature--link feature--rating-promo feature--rating-three" data-view-target="winter-rating" aria-label="Рейтинг Турнирщиков зимы">
+                  <div class="feature__icon feature__icon--gold">🏆</div>
+                  <div class="feature__body">
+                    <div class="feature__title">Турнирщики зимы<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
+                  </div>
+                </a>
                 <a
-                  class="feature feature--link"
+                  class="feature feature--link feature--highlight"
                   href="https://t.me/+snBngKmXYa1mYjky"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <div class="feature__icon feature__icon--green">💬</div>
                   <div class="feature__body">
-                    <div class="feature__title">Чат клуба</div>
-                    <div class="feature__text">Чат игроков в Телеграмме</div>
+                    <div class="feature__title">Чат</div>
+                    <div class="feature__text">Чат игроков</div>
                   </div>
                 </a>
                 <a
-                  class="feature feature--link"
+                  class="feature feature--link feature--highlight"
                   href="https://t.me/+UjuRSQoCpBk4YzVi"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <div class="feature__icon feature__icon--orange">📢</div>
                   <div class="feature__body">
-                    <div class="feature__title">Канал клуба</div>
-                    <div class="feature__text">Розыгрыши и анонсы турниров</div>
-                  </div>
-                </a>
-              </div>
-              <div class="features-row features-row--half">
-                <a href="#" class="feature feature--link feature--rating-promo" data-view-target="winter-rating" aria-label="Рейтинг Турнирщиков зимы">
-                  <div class="feature__icon feature__icon--gold">🏆</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Рейтинг турнирщиков зимы<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
-                    <div class="feature__text">Лучшие турнирные игроки клуба за зиму 2025</div>
-                  </div>
-                </a>
-                <a href="#" class="feature feature--link feature--rating-promo" aria-label="Рейтинг Турнирщиков весны 2026">
-                  <div class="feature__icon feature__icon--gold">🏆</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Рейтинг Турнирщиков весны 2026<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
-                    <div class="feature__text">Стартуем 2 лиги 1го марта</div>
+                    <div class="feature__title">Канал</div>
+                    <div class="feature__text">Розыгрыши и анонсы</div>
                   </div>
                 </a>
               </div>
@@ -1495,6 +1494,34 @@
           <button type="button" class="winter-rating-player-modal__close" aria-label="Закрыть">×</button>
           <h3 class="winter-rating-player-modal__title" id="winterRatingPlayerModalTitle"></h3>
           <div class="winter-rating-player-modal__table-wrap"></div>
+        </div>
+      </div>
+      <div class="spring-rating-info-modal" id="springRatingInfoModal" aria-hidden="true" role="dialog" aria-labelledby="springRatingInfoModalTitle" aria-label="Рейтинг турнирщиков весны">
+        <div class="spring-rating-info-modal__backdrop"></div>
+        <div class="spring-rating-info-modal__inner">
+          <button type="button" class="spring-rating-info-modal__close" aria-label="Закрыть">×</button>
+          <h3 class="spring-rating-info-modal__title" id="springRatingInfoModalTitle">Рейтинг турнирщиков весны</h3>
+          <p class="spring-rating-info-modal__subtitle">Стартуем 1го марта</p>
+          <div class="spring-rating-info-modal__leagues">
+            <p class="spring-rating-info-modal__league"><strong>Лига 1</strong> Призы 190 000₽<br />турниры от 500₽ и выше</p>
+            <p class="spring-rating-info-modal__league"><strong>Лига 2</strong> Призы 60 000₽<br />турниры до 499₽</p>
+          </div>
+          <p class="spring-rating-info-modal__intro">Попадайте в ИТМ в турнирах и получайте очки</p>
+          <ul class="spring-rating-info-modal__points">
+            <li>1 место — 135 очков</li>
+            <li>2 место — 110 очков</li>
+            <li>3 место — 90</li>
+            <li>4 место — 70</li>
+            <li>5 место — 60</li>
+            <li>6 место — 50</li>
+          </ul>
+          <p class="spring-rating-info-modal__note"><em>*Только если это место ИТМ с призами. Если в турнире было например 20 человек и за 6е место 0 призовых, то и баллы вы не получаете.</em></p>
+          <p class="spring-rating-info-modal__coef">Количество баллов умножается в зависимости от того сколько людей играло в турнир</p>
+          <ul class="spring-rating-info-modal__coef-list">
+            <li>99 человек и меньше — коэф. ×1</li>
+            <li>100–199 — коэф. ×1.25</li>
+            <li>200–500 — коэф. ×1.5</li>
+          </ul>
         </div>
       </div>
       <div class="winter-rating-lightbox" id="winterRatingLightbox" aria-hidden="true" role="dialog" aria-label="Увеличенный скрин">

@@ -2131,6 +2131,36 @@ function closeWinterRatingPlayerModal() {
   }
 }
 
+function openSpringRatingInfoModal() {
+  var modal = document.getElementById("springRatingInfoModal");
+  if (!modal) return;
+  initSpringRatingInfoModal();
+  modal.setAttribute("aria-hidden", "false");
+  modal.classList.add("spring-rating-info-modal--open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeSpringRatingInfoModal() {
+  var modal = document.getElementById("springRatingInfoModal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "true");
+  modal.classList.remove("spring-rating-info-modal--open");
+  document.body.style.overflow = "";
+}
+
+function initSpringRatingInfoModal() {
+  var modal = document.getElementById("springRatingInfoModal");
+  if (!modal || modal.getAttribute("data-inited") === "1") return;
+  modal.setAttribute("data-inited", "1");
+  var closeBtn = modal.querySelector(".spring-rating-info-modal__close");
+  var backdrop = modal.querySelector(".spring-rating-info-modal__backdrop");
+  if (closeBtn) closeBtn.addEventListener("click", closeSpringRatingInfoModal);
+  if (backdrop) backdrop.addEventListener("click", closeSpringRatingInfoModal);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") closeSpringRatingInfoModal();
+  });
+}
+
 function initWinterRatingPlayerModal() {
   var modal = document.getElementById("winterRatingPlayerModal");
   if (!modal || modal.getAttribute("data-inited") === "1") return;
@@ -2816,6 +2846,13 @@ navItems.forEach(function (item) {
 });
 
 document.addEventListener("click", function (e) {
+  var springBtn = e.target.closest("#springRatingInfoBtn");
+  if (springBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    openSpringRatingInfoModal();
+    return;
+  }
   var backBtn = e.target.closest(".bonus-game-back[data-view-target]");
   if (backBtn) {
     e.preventDefault();

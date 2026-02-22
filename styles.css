@@ -105,8 +105,8 @@
 }
 [data-theme="light"] .feature--highlight {
   background: linear-gradient(135deg, rgba(255, 248, 240, 0.98), rgba(255, 237, 213, 0.95));
-  border-color: rgba(249, 115, 22, 0.5);
-  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
+  border: 2px solid rgba(249, 115, 22, 0.65);
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
 }
 [data-theme="light"] .tournament-day-tooltip {
   background: linear-gradient(135deg, #fffbf7, #fff0e0);
@@ -1941,6 +1941,72 @@ img.chat-contact__avatar {
   width: 100%;
 }
 
+.features-row--three {
+  display: flex;
+  gap: 8px;
+}
+.features-row--three .feature {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  gap: 8px;
+}
+.features-row--three .feature__icon {
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+}
+.features-row--three .feature__title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.features-row--three .feature__text {
+  font-size: 11px;
+  margin-top: 2px;
+}
+.features-row--three .feature--rating-promo {
+  padding: 8px 10px !important;
+}
+.features-row--three .feature--rating-three {
+  font-size: 10px;
+}
+.features-row--three .feature--rating-three .feature__title {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.features-row--three .feature--rating-three .feature__title-line2 {
+  font-size: 9px;
+  margin-top: 0.1em;
+}
+.features-row--three .feature--rating-three .feature__icon {
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+}
+
+.feature--rating-spring-full .feature__title {
+  font-size: 16px !important;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.feature--rating-spring-full .feature__title-line2 {
+  display: block;
+  margin-top: 0.15em;
+}
+.feature--rating-spring-full .feature__text {
+  font-size: 28px;
+  margin-top: 4px;
+}
+.feature--rating-spring-full .feature__icon {
+  width: 51px;
+  height: 51px;
+  font-size: 35px;
+}
+.feature--rating-spring-full.feature--rating-promo {
+  padding: 16px 18px !important;
+}
+
 .feature--rating-promo {
   padding: 9px 10px !important;
   border-width: 1.5px !important;
@@ -2838,8 +2904,8 @@ a.home-mini-icon-item {
 }
 
 .feature--highlight {
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.2);
+  border: 2px solid rgba(168, 85, 247, 0.65);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
   background: linear-gradient(135deg, #251e33, #1a1525);
 }
 
@@ -2856,8 +2922,8 @@ a.home-mini-icon-item {
 }
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--highlight {
   background: linear-gradient(135deg, #fed7aa, #fdba74);
-  border-color: rgba(249, 115, 22, 0.6);
-  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.25);
+  border: 2px solid rgba(249, 115, 22, 0.7);
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.35);
 }
 [data-theme="light"] .view--active[data-view="home"] .updates-block__toggle {
   background: linear-gradient(135deg, #ffedd5, #fed7aa);
@@ -3070,6 +3136,122 @@ a.home-mini-icon-item {
   color: var(--text-muted);
 }
 [data-theme="light"] .winter-rating-player-modal__inner {
+  background: rgba(255, 248, 240, 0.98);
+}
+
+/* Модалка «Рейтинг турнирщиков весны» */
+.spring-rating-info-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+.spring-rating-info-modal.spring-rating-info-modal--open {
+  opacity: 1;
+  visibility: visible;
+}
+.spring-rating-info-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+.spring-rating-info-modal__inner {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  max-height: 85vh;
+  overflow: auto;
+  background: var(--block-bg);
+  border-radius: 12px;
+  padding: 20px 16px 20px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.spring-rating-info-modal__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.spring-rating-info-modal__close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.spring-rating-info-modal__title {
+  margin: 0 36px 6px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.spring-rating-info-modal__subtitle {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.spring-rating-info-modal__leagues {
+  margin: 0 0 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+[data-theme="light"] .spring-rating-info-modal__leagues {
+  background: rgba(0, 0, 0, 0.05);
+}
+.spring-rating-info-modal__league {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.spring-rating-info-modal__league:last-child {
+  margin-bottom: 0;
+}
+.spring-rating-info-modal__intro {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.spring-rating-info-modal__points {
+  margin: 0 0 10px;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.spring-rating-info-modal__note {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.spring-rating-info-modal__coef {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+.spring-rating-info-modal__coef-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+[data-theme="light"] .spring-rating-info-modal__inner {
   background: rgba(255, 248, 240, 0.98);
 }
 
