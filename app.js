@@ -43,7 +43,6 @@
     var m = localStorage.getItem("chill_radio_mode") || "";
     return MODES.indexOf(m) >= 0 ? m : "";
   }
-  var labelEl = document.getElementById("radioToggleLabel");
   var shortLabels = { "": "Выкл", chill: "Чил", "80s": "80е", radio7: "Радио7" };
   function setMode(mode) {
     localStorage.setItem("chill_radio_mode", mode);
@@ -51,7 +50,8 @@
     if (mode === "chill") btn.classList.add("radio-toggle--chill");
     if (mode === "80s") btn.classList.add("radio-toggle--80s");
     if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
-    if (labelEl) labelEl.textContent = shortLabels[mode] || shortLabels[""];
+    var labelEl = btn.querySelector(".radio-toggle__label");
+    if (labelEl) labelEl.textContent = shortLabels[mode] !== undefined ? shortLabels[mode] : shortLabels[""];
     var titles = { "": "Радио: выкл", chill: "Радио: чил", "80s": "Радио: 80–90‑е", radio7: "Радио 7 на семи холмах" };
     btn.title = titles[mode] || titles[""];
     btn.setAttribute("aria-label", btn.title);
@@ -67,14 +67,14 @@
     if (url) {
       radio.src = url;
       var p = radio.play();
-      if (p && typeof p.then === "function") p.catch(function () { setMode(""); });
+      if (p && typeof p.then === "function") p.catch(function () {});
     }
   }
   setMode(getMode());
   if (getMode()) {
     radio.src = STATIONS[getMode()];
     var p = radio.play();
-    if (p && typeof p.then === "function") p.catch(function () { setMode(""); });
+    if (p && typeof p.then === "function") p.catch(function () {});
   }
   btn.addEventListener("click", function () {
     var cur = getMode();
@@ -2861,11 +2861,12 @@ function initProfileFriends() {
         }
         listEl.innerHTML = data.friends.map(function (f) {
           var name = (f.userName || f.userId || "Игрок").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-          return "<div class=\"friends-list-modal__item\" data-user-id=\"" + (f.userId || "").replace(/"/g, "&quot;") + "\" data-user-name=\"" + name + "\">" + name + "</div>";
+          var id = (f.userId || "").replace(/"/g, "&quot;");
+          return "<a href=\"#\" class=\"friends-list-modal__item\" data-user-id=\"" + id + "\" data-user-name=\"" + name + "\">" + name + " <span class=\"friends-list-modal__item-action\">Написать</span></a>";
         }).join("");
         listEl.querySelectorAll(".friends-list-modal__item").forEach(function (item) {
-          item.style.cursor = "pointer";
-          item.addEventListener("click", function () {
+          item.addEventListener("click", function (e) {
+            e.preventDefault();
             var id = item.dataset.userId;
             var name = item.dataset.userName;
             if (id && typeof window.openChatUserModalById === "function") {

@@ -571,23 +571,32 @@ body:has(.view--active[data-view="chat"]) {
   min-width: 40px;
   padding: 0 8px;
   gap: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
 }
 .radio-toggle .radio-toggle__label {
   font-size: 11px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
+  flex-shrink: 0;
 }
-.radio-toggle .radio-toggle__icon--off { display: inline; }
+.radio-toggle .radio-toggle__icon {
+  flex-shrink: 0;
+}
+.radio-toggle .radio-toggle__icon--off { display: inline-flex; }
 .radio-toggle .radio-toggle__icon--chill,
 .radio-toggle .radio-toggle__icon--80s,
 .radio-toggle .radio-toggle__icon--radio7 { display: none; }
 .radio-toggle.radio-toggle--chill .radio-toggle__icon--off { display: none; }
-.radio-toggle.radio-toggle--chill .radio-toggle__icon--chill { display: inline; }
+.radio-toggle.radio-toggle--chill .radio-toggle__icon--chill { display: inline-flex; }
 .radio-toggle.radio-toggle--80s .radio-toggle__icon--off { display: none; }
-.radio-toggle.radio-toggle--80s .radio-toggle__icon--80s { display: inline; }
+.radio-toggle.radio-toggle--80s .radio-toggle__icon--80s { display: inline-flex; }
 .radio-toggle.radio-toggle--radio7 .radio-toggle__icon--off { display: none; }
-.radio-toggle.radio-toggle--radio7 .radio-toggle__icon--radio7 { display: inline; }
+.radio-toggle.radio-toggle--radio7 .radio-toggle__icon--radio7 { display: inline-flex; }
 
 .logo {
   display: inline-flex;
@@ -5817,14 +5826,27 @@ img.plasterer-card {
   color: var(--text-muted);
 }
 .friends-list-modal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 12px;
   font-size: 14px;
   color: var(--text);
+  text-decoration: none;
   border-radius: 8px;
   margin-bottom: 4px;
+  cursor: pointer;
 }
 .friends-list-modal__item:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+.friends-list-modal__item-action {
+  font-size: 12px;
+  color: var(--accent);
+  margin-left: 8px;
+}
+.friends-list-modal__item:hover .friends-list-modal__item-action {
+  text-decoration: underline;
 }
 
 .profile-personal {
