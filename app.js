@@ -35,24 +35,26 @@
   if (!radio || !btn) return;
   var STATIONS = {
     chill: "https://ice2.somafm.com/groovesalad-128-mp3",
-    "90s": "https://stream.revma.ihrhls.com/zc6834/playlist.m3u8",
+    lounge: "https://ice5.somafm.com/illstreet-128-mp3",
+    "90s": "http://stream3.megarockradio.net:8000/stream",
     radio7: "https://stream.rcast.net/263744"
   };
-  var MODES = ["", "chill", "90s", "radio7"];
+  var MODES = ["", "chill", "lounge", "90s", "radio7"];
   function getMode() {
     var m = localStorage.getItem("chill_radio_mode") || "";
     return MODES.indexOf(m) >= 0 ? m : "";
   }
-  var shortLabels = { "": "Выкл", chill: "Чил", "90s": "90е", radio7: "Радио7" };
+  var shortLabels = { "": "Выкл", chill: "Чил", lounge: "Lounge", "90s": "90е", radio7: "Радио7" };
   function setMode(mode) {
     localStorage.setItem("chill_radio_mode", mode);
-    btn.classList.remove("radio-toggle--chill", "radio-toggle--90s", "radio-toggle--radio7");
+    btn.classList.remove("radio-toggle--chill", "radio-toggle--lounge", "radio-toggle--90s", "radio-toggle--radio7");
     if (mode === "chill") btn.classList.add("radio-toggle--chill");
+    if (mode === "lounge") btn.classList.add("radio-toggle--lounge");
     if (mode === "90s") btn.classList.add("radio-toggle--90s");
     if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
     var labelEl = btn.querySelector(".radio-toggle__label");
     if (labelEl) labelEl.textContent = shortLabels[mode] !== undefined ? shortLabels[mode] : shortLabels[""];
-    var titles = { "": "Радио: выкл", chill: "Радио: чил", "90s": "Радио: американские 90‑е", radio7: "Радио 7 на семи холмах" };
+    var titles = { "": "Радио: выкл", chill: "Радио: чил", lounge: "Радио: Lounge", "90s": "Радио: американские 90‑е", radio7: "Радио 7 на семи холмах" };
     btn.title = titles[mode] || titles[""];
     btn.setAttribute("aria-label", btn.title);
   }
@@ -268,10 +270,10 @@ const footer = document.querySelector(".card__footer");
 
 function tryChillRadioPlay() {
   var mode = localStorage.getItem("chill_radio_mode") || "";
-  if (mode !== "chill" && mode !== "90s" && mode !== "radio7") return;
+  if (mode !== "chill" && mode !== "lounge" && mode !== "90s" && mode !== "radio7") return;
   var radio = document.getElementById("chillRadio");
   if (!radio) return;
-  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", "90s": "https://stream.revma.ihrhls.com/zc6834/playlist.m3u8", radio7: "https://stream.rcast.net/263744" };
+  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", lounge: "https://ice5.somafm.com/illstreet-128-mp3", "90s": "http://stream3.megarockradio.net:8000/stream", radio7: "https://stream.rcast.net/263744" };
   if (urls[mode]) radio.src = urls[mode];
   var p = radio.play();
   if (p && typeof p.then === "function") p.catch(function () {});
