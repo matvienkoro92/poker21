@@ -29,6 +29,16 @@
   }
 })();
 
+function getAssetUrl(relativePath) {
+  try {
+    var base = typeof document !== "undefined" && document.baseURI ? document.baseURI : (typeof location !== "undefined" && location.href) || "";
+    if (!base) return "assets/" + relativePath;
+    return new URL("assets/" + relativePath, base).href;
+  } catch (e) {
+    return "assets/" + relativePath;
+  }
+}
+
 // Лайтбокс: увеличение картинок и аватарок по клику
 (function initImageLightbox() {
   var lightbox = document.getElementById("imageLightbox");
@@ -1288,6 +1298,52 @@ var WINTER_RATING_BY_DATE = {
     { nick: "MilkyWay77", points: 0, reward: 0 },
     { nick: "MORPEH", points: 0, reward: 0 },
   ],
+  "12.02.2026": [
+    { nick: "WiNifly", points: 135, reward: 63750 },
+    { nick: "Waaar", points: 220, reward: 23900 },
+    { nick: "Coo1er91", points: 90, reward: 26300 },
+    { nick: "МужНаЧас", points: 90, reward: 5280 },
+    { nick: "YOUAREMYDONKEY", points: 90, reward: 10800 },
+    { nick: "Пряник", points: 70, reward: 12700 },
+    { nick: "Зараза", points: 50, reward: 6050 },
+    { nick: "FrankL", points: 0, reward: 0 },
+    { nick: "ПокерМанки", points: 0, reward: 0 },
+    { nick: "Em13", points: 0, reward: 0 },
+    { nick: "igor83", points: 0, reward: 0 },
+  ],
+  "11.02.2026": [
+    { nick: "МужНаЧас", points: 135, reward: 31300 },
+    { nick: "FrankL", points: 90, reward: 7000 },
+    { nick: "ПокерМанки", points: 70, reward: 6200 },
+    { nick: "king00001", points: 60, reward: 7700 },
+    { nick: "WiNifly", points: 60, reward: 5700 },
+    { nick: "Waaar", points: 0, reward: 0 },
+    { nick: "Пряник", points: 0, reward: 0 },
+    { nick: "FishKopcheny", points: 0, reward: 0 },
+    { nick: "Adam1993", points: 0, reward: 0 },
+    { nick: "ZVIGENI", points: 0, reward: 0 },
+    { nick: "DmQa", points: 0, reward: 0 },
+    { nick: "Ksuha", points: 0, reward: 0 },
+    { nick: "Алеша ™", points: 0, reward: 0 },
+  ],
+  "10.02.2026": [
+    { nick: "Waaar", points: 135, reward: 22200 },
+    { nick: "Coo1er91", points: 110, reward: 8000 },
+    { nick: "Em13", points: 90, reward: 13300 },
+    { nick: "king00001", points: 90, reward: 9000 },
+    { nick: "ZVIGENI", points: 60, reward: 6600 },
+    { nick: "Пряник", points: 60, reward: 3500 },
+    { nick: "XORTYRETSKOGO", points: 0, reward: 0 },
+    { nick: "FishKopcheny", points: 0, reward: 0 },
+    { nick: "FrankL", points: 0, reward: 0 },
+  ],
+  "09.02.2026": [
+    { nick: "Палач", points: 70, reward: 8400 },
+    { nick: "FishKopcheny", points: 0, reward: 0 },
+    { nick: "king00001", points: 0, reward: 0 },
+    { nick: "MilkyWay77", points: 0, reward: 0 },
+    { nick: "Tanechka", points: 0, reward: 0 },
+  ],
   "06.02.2026": [
     { nick: "MTTwnik", points: 110, reward: 21000 },
     { nick: "Waaar", points: 110, reward: 9000 },
@@ -1308,13 +1364,17 @@ var WINTER_RATING_BY_DATE = {
   ],
 };
 var WINTER_RATING_IMAGES = {
+  "12.02.2026": ["rating-12-02-2026.png", "rating-12-02-2026-2.png", "rating-12-02-2026-3.png"],
+  "11.02.2026": ["rating-11-02-2026.png", "rating-11-02-2026-2.png", "rating-11-02-2026-3.png"],
+  "10.02.2026": ["rating-10-02-2026.png", "rating-10-02-2026-2.png"],
+  "09.02.2026": ["rating-09-02-2026.png"],
   "08.02.2026": ["rating-08-02-2026.png"],
   "06.02.2026": ["rating-06-02-2026.png", "rating-06-02-2026-2.png"],
   "05.02.2026": ["rating-05-02-2026.png", "rating-05-02-2026-2.png"],
   "04.02.2026": ["rating-04-02-2026.png"],
   "03.02.2026": ["rating-03-02-2026.png", "rating-03-02-2026-2.png"],
   "02.02.2026": ["rating-02-02-2026.png", "rating-02-02-2026-2.png", "rating-02-02-2026-3.png"],
-  "01.02.2026": ["rating-01-02-2026.png", "rating-01-02-2026-2.png", "rating-01-02-2026-3.png"],
+  "01.02.2026": ["rating-01-02-2026.png", "rating-01-02-2026-2.png", "rating-01-02-2026-3.png", "rating-01-02-2026-4.png", "rating-01-02-2026-5.png", "rating-01-02-2026-6.png", "rating-01-02-2026-7.png"],
   "31.01.2026": ["rating-31-01-2026.png", "rating-31-01-2026-2.png", "rating-31-01-2026-3.png"],
   "30.01.2026": ["rating-30-01-2026.png", "rating-30-01-2026-2.png", "rating-30-01-2026-3.png"],
   "29.01.2026": ["rating-29-01-2026.png", "rating-29-01-2026-2.png", "rating-29-01-2026-3.png", "rating-29-01-2026-4.png"],
@@ -1719,9 +1779,26 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
     { time: "17:00", players: [{ nick: "Waaar", place: 1, points: 135, reward: 25900 }, { nick: "WiNifly", place: 2, points: 110, reward: 17500 }, { nick: "ПокерМанки", place: 3, points: 90, reward: 22500 }, { nick: "Coo1er91", place: 4, points: 70, reward: 18000 }, { nick: "king00001", place: 5, points: 60, reward: 7700 }, { nick: "MTTwnik", place: 6, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 7, points: 0, reward: 0 }, { nick: "MORPEH", place: 8, points: 0, reward: 0 }] },
     { time: "18:00", players: [{ nick: "Waaar", place: 2, points: 110, reward: 16500 }] },
   ],
+  "12.02.2026": [
+    { time: "12:00", players: [{ nick: "Waaar", place: 2, points: 110, reward: 8900 }, { nick: "МужНаЧас", place: 3, points: 90, reward: 5280 }, { nick: "YOUAREMYDONKEY", place: 6, points: 0, reward: 0 }, { nick: "FrankL", place: 7, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 8, points: 0, reward: 0 }] },
+    { time: "17:00", players: [{ nick: "YOUAREMYDONKEY", place: 3, points: 90, reward: 10800 }, { nick: "WiNifly", place: 0, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 0, points: 0, reward: 0 }, { nick: "Em13", place: 0, points: 0, reward: 0 }, { nick: "igor83", place: 0, points: 0, reward: 0 }] },
+    { time: "19:00", players: [{ nick: "WiNifly", place: 1, points: 135, reward: 63750 }, { nick: "Waaar", place: 2, points: 110, reward: 15000 }, { nick: "Coo1er91", place: 3, points: 90, reward: 26300 }, { nick: "Пряник", place: 4, points: 70, reward: 12700 }, { nick: "Зараза", place: 6, points: 50, reward: 6050 }] },
+  ],
+  "11.02.2026": [
+    { time: "12:00", players: [{ nick: "FrankL", place: 3, points: 90, reward: 7000 }, { nick: "Waaar", place: 4, points: 0, reward: 0 }, { nick: "DmQa", place: 9, points: 0, reward: 0 }, { nick: "Ksuha", place: 10, points: 0, reward: 0 }, { nick: "Алеша ™", place: 14, points: 0, reward: 0 }] },
+    { time: "17:00", players: [{ nick: "king00001", place: 5, points: 60, reward: 7700 }, { nick: "WiNifly", place: 6, points: 0, reward: 0 }, { nick: "FishKopcheny", place: 9, points: 0, reward: 0 }, { nick: "Adam1993", place: 10, points: 0, reward: 0 }, { nick: "ZVIGENI", place: 11, points: 0, reward: 0 }] },
+    { time: "20:00", players: [{ nick: "МужНаЧас", place: 1, points: 135, reward: 31300 }, { nick: "ПокерМанки", place: 4, points: 70, reward: 6200 }, { nick: "WiNifly", place: 5, points: 60, reward: 5700 }, { nick: "Waaar", place: 6, points: 0, reward: 0 }, { nick: "Пряник", place: 9, points: 0, reward: 0 }] },
+  ],
+  "10.02.2026": [
+    { time: "17:00", players: [{ nick: "Waaar", place: 1, points: 135, reward: 22200 }, { nick: "king00001", place: 3, points: 90, reward: 9000 }, { nick: "ZVIGENI", place: 5, points: 60, reward: 6600 }, { nick: "XORTYRETSKOGO", place: 6, points: 0, reward: 0 }, { nick: "FishKopcheny", place: 8, points: 0, reward: 0 }] },
+    { time: "20:00", players: [{ nick: "Coo1er91", place: 2, points: 110, reward: 8000 }, { nick: "Em13", place: 3, points: 90, reward: 13300 }, { nick: "Пряник", place: 5, points: 60, reward: 3500 }, { nick: "ZVIGENI", place: 7, points: 0, reward: 0 }, { nick: "FrankL", place: 9, points: 0, reward: 0 }] },
+  ],
   "06.02.2026": [
     { time: "17:00", players: [{ nick: "MTTwnik", place: 1, points: 135, reward: 21000 }, { nick: "Waaar", place: 2, points: 110, reward: 9000 }, { nick: "Borsoi", place: 3, points: 90, reward: 6000 }] },
     { time: "12:00", players: [{ nick: "WiNifly", place: 0, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 0, points: 0, reward: 0 }, { nick: "king00001", place: 0, points: 0, reward: 0 }, { nick: "Coo1er91", place: 0, points: 0, reward: 0 }, { nick: "Smile", place: 0, points: 0, reward: 0 }, { nick: "Smorodina", place: 0, points: 0, reward: 0 }] },
+  ],
+  "09.02.2026": [
+    { time: "17:00", players: [{ nick: "Палач", place: 4, points: 70, reward: 8400 }, { nick: "FishKopcheny", place: 8, points: 0, reward: 0 }, { nick: "king00001", place: 9, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 11, points: 0, reward: 0 }, { nick: "Tanechka", place: 12, points: 0, reward: 0 }] },
   ],
   "08.02.2026": [
     { time: "18:00", players: [{ nick: "WiNifly", place: 1, points: 60, reward: 20700 }, { nick: "vnukshtukatura", place: 2, points: 0, reward: 15500 }, { nick: "Аспирин", place: 0, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 0, points: 0, reward: 0 }, { nick: "king00001", place: 0, points: 0, reward: 0 }] },
@@ -1735,7 +1812,7 @@ function openWinterRatingLightbox(dateStr, index) {
   if (!box || !img || !files || !files.length || index < 0 || index >= files.length) return;
   box.dataset.lightboxDate = dateStr;
   box.dataset.lightboxIndex = String(index);
-  img.src = "./assets/" + files[index];
+  img.src = getAssetUrl(files[index]);
   img.alt = "Скрин рейтинга " + dateStr + " (" + (index + 1) + ")";
   box.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
@@ -1853,7 +1930,7 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026"].filter(function (d) { return d.indexOf(".02.2026") === -1; });
+  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026"];
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
@@ -1941,15 +2018,14 @@ function initWinterRatingPlayerModal() {
   });
 }
 
-// Итоговая таблица без февраля (пока февраль скрыт): считаем только по датам не из февраля.
+// Итоговая таблица рейтинга (декабрь, январь, февраль).
 // Бонусы к итогу: Coo1er91 +55, Waaar +325 (ручные доп. очки). Доп. в итог (не по датам): Waaar +765 очков, +588225 призы; EM13!! +135 очков.
-function getWinterRatingOverallNoFebruary() {
+function getWinterRatingOverall() {
   var byNick = {};
   var data = WINTER_RATING_BY_DATE || {};
   var dateStrs = Object.keys(data);
   for (var i = 0; i < dateStrs.length; i++) {
     var dateStr = dateStrs[i];
-    if (dateStr.indexOf(".02.2026") !== -1) continue;
     var list = data[dateStr];
     if (!Array.isArray(list) || !list.length) continue;
     for (var j = 0; j < list.length; j++) {
@@ -2011,9 +2087,9 @@ function initWinterRating() {
   }
   var allRows = [];
   try {
-    allRows = getWinterRatingOverallNoFebruary();
+    allRows = getWinterRatingOverall();
   } catch (e) {
-    if (typeof console !== "undefined" && console.error) console.error("getWinterRatingOverallNoFebruary", e);
+    if (typeof console !== "undefined" && console.error) console.error("getWinterRatingOverall", e);
   }
   if (!Array.isArray(allRows)) allRows = [];
   allRows = allRows.filter(function (r) {
@@ -2089,8 +2165,8 @@ function initWinterRating() {
   }
   var datesContainer = document.getElementById("winterRatingDates");
   if (!datesContainer) return;
-  if (datesContainer.getAttribute("data-rating-inited") === "1") return;
-  datesContainer.setAttribute("data-rating-inited", "1");
+  var alreadyInited = datesContainer.getAttribute("data-rating-inited") === "1";
+  if (!alreadyInited) datesContainer.setAttribute("data-rating-inited", "1");
   var dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
   if (dateItems.length === 0 && typeof WINTER_RATING_BY_DATE === "object") {
     var dates = Object.keys(WINTER_RATING_BY_DATE).sort(function (a, b) {
@@ -2129,7 +2205,7 @@ function initWinterRating() {
         var files = WINTER_RATING_IMAGES[dateStr];
         if (files && files.length) {
           screensContainer.innerHTML = files.map(function (f, i) {
-            return "<div class=\"winter-rating__screenshot\" role=\"button\" tabindex=\"0\"><img src=\"./assets/" + f + "\" alt=\"Скрин рейтинга " + dateStr + " (" + (i + 1) + ")\" /></div>";
+            return "<div class=\"winter-rating__screenshot\" role=\"button\" tabindex=\"0\"><img src=\"" + getAssetUrl(f) + "\" alt=\"Скрин рейтинга " + dateStr + " (" + (i + 1) + ")\" /></div>";
           }).join("");
           screensContainer.querySelectorAll(".winter-rating__screenshot").forEach(function (cell, idx) {
             var img = cell.querySelector("img");
@@ -2139,15 +2215,17 @@ function initWinterRating() {
           });
         }
       }
-      btn.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var scrollY = window.scrollY || window.pageYOffset;
-        panel.classList.toggle("winter-rating__date-panel--hidden");
-        var open = !panel.classList.contains("winter-rating__date-panel--hidden");
-        btn.setAttribute("aria-expanded", open ? "true" : "false");
-        requestAnimationFrame(function () { window.scrollTo(0, scrollY); });
-      });
+      if (!alreadyInited) {
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var scrollY = window.scrollY || window.pageYOffset;
+          panel.classList.toggle("winter-rating__date-panel--hidden");
+          var open = !panel.classList.contains("winter-rating__date-panel--hidden");
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+          requestAnimationFrame(function () { window.scrollTo(0, scrollY); });
+        });
+      }
     } catch (err) {
       if (typeof console !== "undefined" && console.error) console.error("winter rating date item", err);
     }

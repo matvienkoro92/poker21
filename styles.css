@@ -1942,19 +1942,19 @@ img.chat-contact__avatar {
 }
 
 .feature--rating-promo {
-  padding: 14px 16px !important;
+  padding: 9px 10px !important;
   border-width: 1.5px !important;
   box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25) !important;
 }
 .feature--rating-promo .feature__icon {
-  width: 44px;
-  height: 44px;
-  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
 }
 .feature--rating-promo .feature__title {
-  font-size: clamp(15px, 3.6vw, 18px);
-  font-weight: 700;
-  line-height: 1.15;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 .feature--rating-promo .feature__title-line2 {
   display: block;
@@ -1962,13 +1962,13 @@ img.chat-contact__avatar {
 }
 .feature--rating-promo .feature__title-accent {
   color: var(--accent);
-  font-weight: 800;
+  font-weight: 700;
   padding: 0 2px;
   border-radius: 2px;
   background: var(--accent-soft);
 }
 .feature--rating-promo .feature__text {
-  font-size: 12px;
+  font-size: 11px;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature--rating-promo {
   border-color: rgba(245, 158, 11, 0.6) !important;
@@ -3586,11 +3586,6 @@ a.home-mini-icon-item {
   padding: 4px 0;
   font-size: 13px;
 }
-/* Пока скрыты данные за февраль */
-.winter-rating__date-item[data-rating-date$=".02.2026"] {
-  display: none;
-}
-
 .winter-rating__date-item {
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
