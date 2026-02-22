@@ -43,12 +43,15 @@
     var m = localStorage.getItem("chill_radio_mode") || "";
     return MODES.indexOf(m) >= 0 ? m : "";
   }
+  var labelEl = document.getElementById("radioToggleLabel");
+  var shortLabels = { "": "Выкл", chill: "Чил", "80s": "80е", radio7: "Радио7" };
   function setMode(mode) {
     localStorage.setItem("chill_radio_mode", mode);
     btn.classList.remove("radio-toggle--chill", "radio-toggle--80s", "radio-toggle--radio7");
     if (mode === "chill") btn.classList.add("radio-toggle--chill");
     if (mode === "80s") btn.classList.add("radio-toggle--80s");
     if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
+    if (labelEl) labelEl.textContent = shortLabels[mode] || shortLabels[""];
     var titles = { "": "Радио: выкл", chill: "Радио: чил", "80s": "Радио: 80–90‑е", radio7: "Радио 7 на семи холмах" };
     btn.title = titles[mode] || titles[""];
     btn.setAttribute("aria-label", btn.title);
@@ -4555,9 +4558,12 @@ function initChat() {
     if (modalWriteBtn) {
       modalWriteBtn.addEventListener("click", function () {
         if (chatUserModalUserId) {
-          setTab("personal");
-          showConv(chatUserModalUserId, chatUserModalUserName || "Игрок");
+          var uid = chatUserModalUserId;
+          var uname = chatUserModalUserName || "Игрок";
           closeChatUserModal();
+          if (typeof setView === "function") setView("chat");
+          setTab("personal");
+          showConv(uid, uname);
         }
       });
     }
