@@ -37,24 +37,26 @@
     chill: "https://ice2.somafm.com/groovesalad-128-mp3",
     lounge: "https://ice5.somafm.com/illstreet-128-mp3",
     "90s": "http://stream3.megarockradio.net:8000/stream",
-    radio7: "https://stream.rcast.net/263744"
+    radio7: "https://stream.rcast.net/263744",
+    winwave: "https://moscow1.winwave.ru/listen/winwave/radio2"
   };
-  var MODES = ["", "chill", "lounge", "90s", "radio7"];
+  var MODES = ["", "chill", "lounge", "90s", "radio7", "winwave"];
   function getMode() {
     var m = localStorage.getItem("chill_radio_mode") || "";
     return MODES.indexOf(m) >= 0 ? m : "";
   }
-  var shortLabels = { "": "Выкл", chill: "Чил", lounge: "Lounge", "90s": "90е", radio7: "Радио7" };
+  var shortLabels = { "": "Выкл", chill: "Чил", lounge: "Lounge", "90s": "90е", radio7: "Радио7", winwave: "Покер" };
   function setMode(mode) {
     localStorage.setItem("chill_radio_mode", mode);
-    btn.classList.remove("radio-toggle--chill", "radio-toggle--lounge", "radio-toggle--90s", "radio-toggle--radio7");
+    btn.classList.remove("radio-toggle--chill", "radio-toggle--lounge", "radio-toggle--90s", "radio-toggle--radio7", "radio-toggle--winwave");
     if (mode === "chill") btn.classList.add("radio-toggle--chill");
     if (mode === "lounge") btn.classList.add("radio-toggle--lounge");
     if (mode === "90s") btn.classList.add("radio-toggle--90s");
     if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
+    if (mode === "winwave") btn.classList.add("radio-toggle--winwave");
     var labelEl = btn.querySelector(".radio-toggle__label");
     if (labelEl) labelEl.textContent = shortLabels[mode] !== undefined ? shortLabels[mode] : shortLabels[""];
-    var titles = { "": "Радио: выкл", chill: "Радио: чил", lounge: "Радио: Lounge", "90s": "Радио: американские 90‑е", radio7: "Радио 7 на семи холмах" };
+    var titles = { "": "Радио: выкл", chill: "Радио: чил", lounge: "Радио: Lounge", "90s": "Радио: американские 90‑е", radio7: "Радио 7 на семи холмах", winwave: "WinWave — покерное радио" };
     btn.title = titles[mode] || titles[""];
     btn.setAttribute("aria-label", btn.title);
   }
@@ -270,10 +272,10 @@ const footer = document.querySelector(".card__footer");
 
 function tryChillRadioPlay() {
   var mode = localStorage.getItem("chill_radio_mode") || "";
-  if (mode !== "chill" && mode !== "lounge" && mode !== "90s" && mode !== "radio7") return;
+  if (mode !== "chill" && mode !== "lounge" && mode !== "90s" && mode !== "radio7" && mode !== "winwave") return;
   var radio = document.getElementById("chillRadio");
   if (!radio) return;
-  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", lounge: "https://ice5.somafm.com/illstreet-128-mp3", "90s": "http://stream3.megarockradio.net:8000/stream", radio7: "https://stream.rcast.net/263744" };
+  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", lounge: "https://ice5.somafm.com/illstreet-128-mp3", "90s": "http://stream3.megarockradio.net:8000/stream", radio7: "https://stream.rcast.net/263744", winwave: "https://moscow1.winwave.ru/listen/winwave/radio2" };
   if (urls[mode]) radio.src = urls[mode];
   var p = radio.play();
   if (p && typeof p.then === "function") p.catch(function () {});
@@ -304,6 +306,7 @@ function setView(viewName) {
       footer.classList.add("card__footer--hidden");
     }
   }
+  if (viewName === "home") initPokerShowsPlayer();
   if (viewName === "winter-rating") initWinterRating();
   if (viewName === "profile") {
     updateProfileUserName();
@@ -2881,6 +2884,30 @@ function initProfileFriends() {
       .catch(function () {
         listEl.innerHTML = "<p class=\"friends-list-modal__empty\">Ошибка сети</p>";
       });
+  });
+}
+
+function initPokerShowsPlayer() {
+  var iframe = document.getElementById("pokerShowsIframe");
+  var tabs = document.querySelectorAll(".home-poker-shows__tab[data-poker-show]");
+  if (!iframe || !tabs.length) return;
+  var playlists = {
+    afterdark: "PL2bAZuFpadxGdQdaYJuSUtw9JFgsMB8YV",
+    highstakes: "PLzjpJOumIPMiQQhiCWYlawTFz7LNKPino"
+  };
+  tabs.forEach(function (tab) {
+    if (tab.dataset.pokerShowsBound) return;
+    tab.dataset.pokerShowsBound = "1";
+    tab.addEventListener("click", function () {
+      var show = tab.getAttribute("data-poker-show");
+      var listId = playlists[show];
+      if (!listId) return;
+      iframe.src = "https://www.youtube.com/embed/videoseries?list=" + listId + "&rel=0";
+      tabs.forEach(function (t) {
+        t.classList.toggle("home-poker-shows__tab--active", t === tab);
+        t.setAttribute("aria-pressed", t === tab ? "true" : "false");
+      });
+    });
   });
 }
 
@@ -6212,6 +6239,7 @@ updateCashoutManager();
 setInterval(updateCashoutManager, 60000);
 числ
 if (typeof initChat === "function") initChat();
+if (typeof initPokerShowsPlayer === "function") initPokerShowsPlayer();
 
 (function initUpdatesBlock() {
   var updates = (typeof window !== "undefined" && window.APP_UPDATES) || [];

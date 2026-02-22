@@ -58,6 +58,7 @@
                 <span class="radio-toggle__icon radio-toggle__icon--lounge" aria-hidden="true">🛋</span>
                 <span class="radio-toggle__icon radio-toggle__icon--90s" aria-hidden="true">📻</span>
                 <span class="radio-toggle__icon radio-toggle__icon--radio7" aria-hidden="true">7️⃣</span>
+                <span class="radio-toggle__icon radio-toggle__icon--winwave" aria-hidden="true">🃏</span>
                 <span class="radio-toggle__label" id="radioToggleLabel">Выкл</span>
               </button>
               <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
@@ -187,6 +188,17 @@
                 </a>
               </div>
             </div>
+
+            <section class="home-poker-shows" aria-labelledby="pokerShowsTitle">
+              <h2 class="home-poker-shows__title" id="pokerShowsTitle">Покер-шоу в эфире</h2>
+              <div class="home-poker-shows__tabs">
+                <button type="button" class="home-poker-shows__tab home-poker-shows__tab--active" data-poker-show="afterdark" aria-pressed="true">Poker After Dark</button>
+                <button type="button" class="home-poker-shows__tab" data-poker-show="highstakes" aria-pressed="false">High Stakes Poker</button>
+              </div>
+              <div class="home-poker-shows__player-wrap">
+                <iframe id="pokerShowsIframe" class="home-poker-shows__iframe" title="Покер-шоу в эфире" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen src="https://www.youtube.com/embed/videoseries?list=PL2bAZuFpadxGdQdaYJuSUtw9JFgsMB8YV&amp;rel=0"></iframe>
+              </div>
+            </section>
 
           </div>
 
