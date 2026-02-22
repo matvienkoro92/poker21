@@ -512,6 +512,17 @@ body:has(.view--active[data-view="chat"]) {
   align-items: center;
   gap: 8px;
 }
+.header-radio-listeners {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  line-height: 1.2;
+}
+.header-radio-listeners #headerRadioListenersCount {
+  font-weight: 600;
+  color: var(--text);
+}
 .chat-switcher-wrap--header {
   position: relative;
   flex-shrink: 0;
