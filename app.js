@@ -33,32 +33,51 @@
   var radio = document.getElementById("chillRadio");
   var btn = document.getElementById("radioToggle");
   if (!radio || !btn) return;
-  function isOn() {
-    return localStorage.getItem("chill_radio_on") === "1";
+  var STATIONS = {
+    chill: "https://ice2.somafm.com/groovesalad-128-mp3",
+    "80s": "https://ice5.somafm.com/u80s-128-mp3",
+    radio7: "https://stream.rcast.net/263744"
+  };
+  var MODES = ["", "chill", "80s", "radio7"];
+  function getMode() {
+    var m = localStorage.getItem("chill_radio_mode") || "";
+    return MODES.indexOf(m) >= 0 ? m : "";
   }
-  function setOn(on) {
-    localStorage.setItem("chill_radio_on", on ? "1" : "0");
-    btn.classList.toggle("radio-toggle--on", on);
-    btn.title = on ? "Выключить радио" : "Включить радио";
-    btn.setAttribute("aria-label", on ? "Выключить радио" : "Включить радио");
+  function setMode(mode) {
+    localStorage.setItem("chill_radio_mode", mode);
+    btn.classList.remove("radio-toggle--chill", "radio-toggle--80s", "radio-toggle--radio7");
+    if (mode === "chill") btn.classList.add("radio-toggle--chill");
+    if (mode === "80s") btn.classList.add("radio-toggle--80s");
+    if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
+    var titles = { "": "Радио: выкл", chill: "Радио: чил", "80s": "Радио: 80–90‑е", radio7: "Радио 7 на семи холмах" };
+    btn.title = titles[mode] || titles[""];
+    btn.setAttribute("aria-label", btn.title);
   }
-  function updateFromStorage() {
-    setOn(isOn());
+  function applyAndPlay(mode) {
+    setMode(mode);
+    if (!mode) {
+      radio.pause();
+      radio.removeAttribute("src");
+      return;
+    }
+    var url = STATIONS[mode];
+    if (url) {
+      radio.src = url;
+      var p = radio.play();
+      if (p && typeof p.then === "function") p.catch(function () { setMode(""); });
+    }
   }
-  updateFromStorage();
-  if (isOn()) {
+  setMode(getMode());
+  if (getMode()) {
+    radio.src = STATIONS[getMode()];
     var p = radio.play();
-    if (p && typeof p.then === "function") p.catch(function () { setOn(false); });
+    if (p && typeof p.then === "function") p.catch(function () { setMode(""); });
   }
   btn.addEventListener("click", function () {
-    var next = !isOn();
-    setOn(next);
-    if (next) {
-      var p = radio.play();
-      if (p && typeof p.then === "function") p.catch(function () { setOn(false); });
-    } else {
-      radio.pause();
-    }
+    var cur = getMode();
+    var idx = MODES.indexOf(cur);
+    var next = MODES[(idx + 1) % MODES.length];
+    applyAndPlay(next);
   });
 })();
 
@@ -245,9 +264,12 @@ const navItems = document.querySelectorAll("[data-view-target]:not(.bonus-game-b
 const footer = document.querySelector(".card__footer");
 
 function tryChillRadioPlay() {
-  if (localStorage.getItem("chill_radio_on") !== "1") return;
+  var mode = localStorage.getItem("chill_radio_mode") || "";
+  if (mode !== "chill" && mode !== "80s" && mode !== "radio7") return;
   var radio = document.getElementById("chillRadio");
   if (!radio) return;
+  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", "80s": "https://ice5.somafm.com/u80s-128-mp3", radio7: "https://stream.rcast.net/263744" };
+  if (urls[mode]) radio.src = urls[mode];
   var p = radio.play();
   if (p && typeof p.then === "function") p.catch(function () {});
 }

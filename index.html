@@ -17,10 +17,8 @@
     />
   </head>
   <body>
-    <!-- Chill-радио: включается при входе на главную (после первого касания из-за правил браузера) -->
-    <audio id="chillRadio" preload="metadata" loop crossorigin="anonymous" aria-hidden="true">
-      <source src="https://ice2.somafm.com/groovesalad-128-mp3" type="audio/mpeg" />
-    </audio>
+    <!-- Радио: чил или 80–90‑е (переключение одной кнопкой) -->
+    <audio id="chillRadio" preload="metadata" loop crossorigin="anonymous" aria-hidden="true"></audio>
     <div id="app" class="app" data-telegram-app-url="" data-api-base="https://poker-app-ebon.vercel.app">
       <div class="bg-gradient"></div>
       <div class="bg-blur"></div>
@@ -53,14 +51,18 @@
           </a>
           <div class="header-actions">
             <span class="header-greeting" id="headerGreeting">Привет, Роман</span>
-            <button type="button" class="radio-toggle theme-toggle" id="radioToggle" title="Включить радио" aria-label="Включить радио">
-              <span class="radio-toggle__icon radio-toggle__icon--off" aria-hidden="true">🎵</span>
-              <span class="radio-toggle__icon radio-toggle__icon--on" aria-hidden="true">🔊</span>
-            </button>
-            <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
-              <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
-              <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
-            </button>
+            <div class="header-actions__row">
+              <button type="button" class="radio-toggle theme-toggle" id="radioToggle" title="Радио: выкл" aria-label="Радио: выкл">
+                <span class="radio-toggle__icon radio-toggle__icon--off" aria-hidden="true">🎵</span>
+                <span class="radio-toggle__icon radio-toggle__icon--chill" aria-hidden="true">🎧</span>
+                <span class="radio-toggle__icon radio-toggle__icon--80s" aria-hidden="true">📻</span>
+                <span class="radio-toggle__icon radio-toggle__icon--radio7" aria-hidden="true">7️⃣</span>
+              </button>
+              <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
+                <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
+                <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
+              </button>
+            </div>
             <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
               <img id="authUserAvatar" class="auth-user__avatar" alt="" />
               <span id="authUserText"></span>
