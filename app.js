@@ -276,6 +276,28 @@ const views = document.querySelectorAll("[data-view]");
 const navItems = document.querySelectorAll("[data-view-target]:not(.bonus-game-back)");
 const footer = document.querySelector(".card__footer");
 
+function playClickSound() {
+  try {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    var ctx = window.__clickAudioCtx;
+    if (!ctx) ctx = window.__clickAudioCtx = new Ctx();
+    if (ctx.state === "suspended") ctx.resume();
+    var now = ctx.currentTime;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.03);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    osc.start(now);
+    osc.stop(now + 0.05);
+  } catch (err) {}
+}
+
 function tryChillRadioPlay() {
   var mode = localStorage.getItem("chill_radio_mode") || "";
   if (mode !== "chill" && mode !== "lounge" && mode !== "90s" && mode !== "radio7" && mode !== "winwave") return;
@@ -3071,6 +3093,11 @@ navItems.forEach(function (item) {
 });
 
 document.addEventListener("click", function (e) {
+  var interactive = e.target.closest("button, a[href], .feature--link, .home-mini-icon-item, .hero__link, .bottom-nav__item, [data-view-target], .feature, [role=\"button\"]");
+  if (interactive && !e.target.closest("audio, [aria-hidden=\"true\"]")) playClickSound();
+}, true);
+
+document.addEventListener("click", function (e) {
   var springBtn = e.target.closest("#springRatingInfoBtn");
   if (springBtn) {
     e.preventDefault();
@@ -3090,16 +3117,7 @@ document.addEventListener("click", function (e) {
   if (!link || link.getAttribute("data-download-page")) return;
   e.preventDefault();
   var view = link.getAttribute("data-view-target");
-  if (view) {
-    if (view === "hall-of-fame") {
-      var doorSound = document.getElementById("hallDoorSound");
-      if (doorSound && doorSound.src) {
-        doorSound.currentTime = 0;
-        doorSound.play().catch(function () {});
-      }
-    }
-    setView(view);
-  }
+  if (view) setView(view);
 });
 
 document.addEventListener("click", function (e) {

@@ -128,18 +128,16 @@
 }
 [data-theme="light"] .hero__link {
   box-shadow:
-    0 0 16px rgba(234, 179, 8, 0.5),
-    0 0 32px rgba(234, 179, 8, 0.25),
-    0 10px 30px rgba(0, 0, 0, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.12);
-  border-color: rgba(234, 179, 8, 0.65);
+    0 0 12px rgba(255, 255, 255, 0.5),
+    0 0 24px rgba(255, 255, 255, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 [data-theme="light"] .hero__link:hover {
   box-shadow:
-    0 0 22px rgba(234, 179, 8, 0.6),
-    0 0 40px rgba(234, 179, 8, 0.3),
-    0 12px 36px rgba(0, 0, 0, 0.22),
-    0 4px 14px rgba(0, 0, 0, 0.14);
+    0 0 18px rgba(255, 255, 255, 0.6),
+    0 0 32px rgba(255, 255, 255, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.18);
 }
 [data-theme="light"] .bonus-card {
   background: #2d3748;
@@ -2531,6 +2529,25 @@ a.home-mini-icon-item {
   box-shadow: 0 0 18px rgba(250, 204, 21, 0.55), 0 0 32px rgba(250, 204, 21, 0.25);
 }
 
+/* Чат в ТГ и Канал — белая подсветка */
+.home-mini-icon-item--white {
+  position: relative;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35), 0 0 20px rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border-color: rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+.home-mini-icon-item--white::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.2) 45%, transparent 55%);
+  pointer-events: none;
+}
+.home-mini-icon-item--white:hover {
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.45), 0 0 28px rgba(255, 255, 255, 0.2);
+}
+
 .download-layout {
   margin-top: 14px;
   display: flex;
@@ -2971,31 +2988,17 @@ a.home-mini-icon-item {
   border-radius: 999px;
   overflow: hidden;
   box-shadow:
-    0 0 16px rgba(250, 204, 21, 0.5),
-    0 0 32px rgba(250, 204, 21, 0.25),
-    0 10px 30px rgba(0, 0, 0, 0.6),
-    0 4px 12px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(250, 204, 21, 0.6);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
-}
-.hero__link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.28) 42%, transparent 58%);
-  pointer-events: none;
+    0 0 12px rgba(255, 255, 255, 0.35),
+    0 0 24px rgba(255, 255, 255, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: box-shadow 0.2s ease;
 }
 .hero__link:hover {
   box-shadow:
-    0 0 22px rgba(250, 204, 21, 0.6),
-    0 0 40px rgba(250, 204, 21, 0.3),
-    0 12px 36px rgba(0, 0, 0, 0.65),
-    0 4px 14px rgba(0, 0, 0, 0.45);
-  transform: scale(1.02);
-}
-.hero__link:active {
-  transform: scale(0.98);
+    0 0 18px rgba(255, 255, 255, 0.45),
+    0 0 32px rgba(255, 255, 255, 0.2),
+    0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 .hero__image {
@@ -3101,6 +3104,14 @@ a.home-mini-icon-item {
 }
 [data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--hall:hover {
   box-shadow: 0 0 18px rgba(234, 179, 8, 0.6), 0 0 32px rgba(234, 179, 8, 0.3);
+}
+[data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--white {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.25));
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.2);
+}
+[data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--white:hover {
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 0 28px rgba(255, 255, 255, 0.25);
 }
 
 /* Рейтинг Турнирщиков зимы на 250 000₽ — на всю строчку */
