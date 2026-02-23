@@ -165,12 +165,33 @@ function getAssetUrl(relativePath) {
       .sort(function (a, b) { return b.totalReward - a.totalReward; })
       .slice(0, 15);
   }
+  var GAZETTE_READ_KEY = "poker_gazette_read";
+  var GAZETTE_VERSION = "2026-02-23";
   var modal = document.getElementById("gazetteModal");
   var listEl = document.getElementById("gazetteModalTopList");
   var openBtn = document.getElementById("gazetteOpenBtn");
   var closeBtn = document.getElementById("gazetteModalClose");
   var backdrop = document.getElementById("gazetteModalBackdrop");
+  var unreadDot = document.getElementById("gazetteUnreadDot");
   if (!modal || !listEl) return;
+  function hasUnreadGazette() {
+    try {
+      return (localStorage.getItem(GAZETTE_READ_KEY) || "") !== GAZETTE_VERSION;
+    } catch (e) {
+      return true;
+    }
+  }
+  function updateGazetteUnreadDot() {
+    if (!unreadDot) return;
+    unreadDot.classList.toggle("welcome-gazette-icon__unread--visible", hasUnreadGazette());
+  }
+  function markGazetteRead() {
+    try {
+      localStorage.setItem(GAZETTE_READ_KEY, GAZETTE_VERSION);
+    } catch (e) {}
+    updateGazetteUnreadDot();
+  }
+  updateGazetteUnreadDot();
   function openGazette() {
     var top = getGazetteTop15();
     listEl.innerHTML = top.length ? top.map(function (r, i) {
@@ -180,6 +201,7 @@ function getAssetUrl(relativePath) {
       return "<div class=\"gazette-modal__top-item\"><span class=\"gazette-modal__top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"gazette-modal__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"gazette-modal__top-reward\">" + sum + " ₽</span></div>";
     }).join("") : "<p class=\"gazette-modal__intro\">Нет данных за указанный период.</p>";
     modal.setAttribute("aria-hidden", "false");
+    markGazetteRead();
   }
   function closeGazette() {
     modal.setAttribute("aria-hidden", "true");

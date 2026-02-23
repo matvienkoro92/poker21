@@ -77,8 +77,16 @@
           <!-- Главная -->
           <div class="view view--active" data-view="home">
             <div class="welcome-title-row">
-              <h1 class="title title--welcome">Добро пожаловать!</h1>
-              <button type="button" class="welcome-gazette-icon" id="gazetteOpenBtn" title="Газета" aria-label="Открыть газету Вестник Два туза">📰</button>
+              <div class="welcome-title-wrap">
+                <h1 class="title title--welcome">Добро пожаловать!</h1>
+                <p class="welcome-date">Понедельник, 23 февраля</p>
+              </div>
+              <button type="button" class="welcome-gazette-icon" id="gazetteOpenBtn" title="Газета" aria-label="Открыть газету Вестник Два туза">
+                <span class="welcome-gazette-icon__badge-wrap">
+                  <span class="welcome-gazette-icon__unread" id="gazetteUnreadDot" aria-hidden="true"></span>
+                </span>
+                <span class="welcome-gazette-icon__emoji" aria-hidden="true">📰</span>
+              </button>
             </div>
             <p class="subtitle">
               Закрытый покерный онлайн-клуб для своих.
@@ -1427,15 +1435,36 @@
         <div class="gazette-modal__backdrop" id="gazetteModalBackdrop"></div>
         <div class="gazette-modal__paper">
           <button type="button" class="gazette-modal__close" id="gazetteModalClose" aria-label="Закрыть">×</button>
-          <header class="gazette-modal__header">
-            <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Два туза</h2>
-            <p class="gazette-modal__date">15–22 февраля 2026</p>
-          </header>
-          <article class="gazette-modal__article">
-            <h3 class="gazette-modal__headline">Заносы прошлой недели</h3>
-            <p class="gazette-modal__intro">Топ-15 лучших по выигрышам в турнирах</p>
-            <div class="gazette-modal__top-list" id="gazetteModalTopList"></div>
-          </article>
+          <!-- Первая полоса -->
+          <div class="gazette-modal__page gazette-modal__page--1">
+            <p class="gazette-modal__page-num gazette-modal__page-num--1" aria-hidden="true">1</p>
+            <header class="gazette-modal__header">
+              <p class="gazette-modal__edition">№ 8 (415) · Цена договорная</p>
+              <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Два туза</h2>
+              <p class="gazette-modal__date">15–22 февраля 2026</p>
+              <div class="gazette-modal__rule"></div>
+            </header>
+            <article class="gazette-modal__lead">
+              <h3 class="gazette-modal__headline gazette-modal__headline--main">Кулер пушит T8o и выбивает АК по окончании реги</h3>
+              <div class="gazette-modal__photo-wrap">
+                <img src="./assets/gazette-front-photo.png" alt="Стол турнира: Кулер и ШЛЯПАУ в хенде" class="gazette-modal__photo" />
+                <p class="gazette-modal__photo-caption">Турнир понедельника. Фото нашего корреспондента.</p>
+              </div>
+              <div class="gazette-modal__body">
+                <p>Кулер запушил T8o и выбил АК по окончании реги, чем вызвал волну негодования и даже показался инвалидом некоторым игрокам. На что он ответил, что они все долбоёбы. Но до драки так и не дошло — оба дали заднюю и сказали, что имели в виду совсем другое.</p>
+              </div>
+              <p class="gazette-modal__continued">Заносы прошлой недели — стр. 2 →</p>
+            </article>
+            <div class="gazette-modal__fold"></div>
+          </div>
+          <!-- Вторая полоса -->
+          <div class="gazette-modal__page gazette-modal__page--2">
+            <p class="gazette-modal__page-num" aria-hidden="true">2</p>
+            <article class="gazette-modal__article">
+              <h3 class="gazette-modal__headline gazette-modal__headline--continuation">Заносы прошлой недели <span class="gazette-modal__headline-cont">(продолжение)</span></h3>
+              <div class="gazette-modal__top-list" id="gazetteModalTopList"></div>
+            </article>
+          </div>
         </div>
       </div>
       <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
