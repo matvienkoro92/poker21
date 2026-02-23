@@ -58,7 +58,6 @@
                 <span class="radio-toggle__icon radio-toggle__icon--lounge" aria-hidden="true">🛋</span>
                 <span class="radio-toggle__icon radio-toggle__icon--90s" aria-hidden="true">📻</span>
                 <span class="radio-toggle__icon radio-toggle__icon--radio7" aria-hidden="true">7️⃣</span>
-                <span class="radio-toggle__icon radio-toggle__icon--winwave" aria-hidden="true">🃏</span>
                 <span class="radio-toggle__label" id="radioToggleLabel">Выкл</span>
               </button>
               <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
@@ -94,18 +93,20 @@
               </div>
               <div class="home-mini-icons">
                 <a
-                  class="home-mini-icon-item home-mini-icon-item--white"
+                  class="home-mini-icon-item home-mini-icon-item--white home-mini-icon-item--hover-scale"
                   href="https://t.me/+snBngKmXYa1mYjky"
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Чат игроков в Telegram"
                   aria-label="Чат в ТГ"
                 >
-                  <span class="home-mini-icon" aria-hidden="true">✈️</span>
+                  <span class="home-mini-icon home-mini-icon--telegram" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                  </span>
                   <span class="home-mini-icon__label">Чат в ТГ</span>
                 </a>
                 <a
-                  class="home-mini-icon-item home-mini-icon-item--white"
+                  class="home-mini-icon-item home-mini-icon-item--white home-mini-icon-item--hover-scale"
                   href="https://t.me/+UjuRSQoCpBk4YzVi"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -128,11 +129,10 @@
 
             <div class="features">
               <div class="features-row features-row--full">
-                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" data-view-target="winter-rating" aria-label="Рейтинг турнирщиков зимы 2025-2026">
+                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" data-view-target="winter-rating" aria-label="Рейтинг турнирщиков зима 2025-2026 на 250 000р">
                   <div class="feature__icon feature__icon--gold">🏆</div>
                   <div class="feature__body">
-                    <div class="feature__title">Рейтинг турнирщиков зимы 2025-2026<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
-                    <div class="feature__text">Актуальный рейтинг игроков</div>
+                    <div class="feature__title feature__title--justify">РЕЙТИНГ ТУРНИРЩИКОВ<br />зима 2025-2026<br /><span class="feature__title-prize">на 250 000р</span></div>
                   </div>
                 </a>
               </div>
@@ -161,22 +161,11 @@
                 <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
                   <div class="feature__icon feature__icon--purple">📋</div>
                   <div class="feature__body">
-                    <div class="feature__title">Задачи по покеру</div>
+                    <div class="feature__title">Научиться играть</div>
                   </div>
                 </a>
               </div>
             </div>
-
-            <section class="home-poker-shows" aria-labelledby="pokerShowsTitle">
-              <h2 class="home-poker-shows__title" id="pokerShowsTitle">Покер-шоу в эфире</h2>
-              <div class="home-poker-shows__tabs">
-                <button type="button" class="home-poker-shows__tab home-poker-shows__tab--active" data-poker-show="afterdark" aria-pressed="true">Poker After Dark</button>
-                <button type="button" class="home-poker-shows__tab" data-poker-show="highstakes" aria-pressed="false">High Stakes Poker</button>
-              </div>
-              <div class="home-poker-shows__player-wrap">
-                <iframe id="pokerShowsIframe" class="home-poker-shows__iframe" title="Покер-шоу в эфире" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen src="https://www.youtube.com/embed/videoseries?list=PL2bAZuFpadxGdQdaYJuSUtw9JFgsMB8YV&amp;rel=0"></iframe>
-              </div>
-            </section>
 
           </div>
 
@@ -1201,10 +1190,10 @@
             </div>
           </div>
 
-          <!-- Задачи по покеру -->
+          <!-- Научиться играть -->
           <div class="view" data-view="poker-tasks">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
-            <h1 class="title">Задачи по покеру</h1>
+            <h1 class="title">Научиться играть</h1>
             <p class="randomizer-desc">Скоро здесь появятся задачи.</p>
           </div>
 
