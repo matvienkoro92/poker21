@@ -214,7 +214,14 @@
               <h3 class="winter-rating__dates-caption">Таблица по датам</h3>
               <p class="winter-rating__dates-hint">Скрин и данные на выбранную дату</p>
               <div class="winter-rating__dates" id="winterRatingDates">
-                <!-- Февраль: сначала в списке дат -->
+                <!-- 22.02 сверху, затем 21.02 -->
+                <div class="winter-rating__date-item" data-rating-date="22.02.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2202">22.02.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2202" role="region" aria-label="Рейтинг на 22.02.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="22.02.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable2202"></div>
+                  </div>
+                </div>
                 <div class="winter-rating__date-item" data-rating-date="21.02.2026">
                   <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2102">21.02.2026</button>
                   <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2102" role="region" aria-label="Рейтинг на 21.02.2026">
@@ -1480,6 +1487,10 @@
         <div class="respect-voters-modal__inner">
           <button type="button" class="respect-voters-modal__close" aria-label="Закрыть">×</button>
           <h3 class="respect-voters-modal__title">Уважение в чате</h3>
+          <div class="respect-voters-modal__actions">
+            <button type="button" class="respect-voters-modal__btn respect-voters-modal__btn--up" id="respectVotersModalBtnUp">Поднять уважение</button>
+            <button type="button" class="respect-voters-modal__btn respect-voters-modal__btn--down" id="respectVotersModalBtnDown">Уменьшить уважение</button>
+          </div>
           <div class="respect-voters-modal__section">
             <h4 class="respect-voters-modal__subtitle">Подняли уважение</h4>
             <div class="respect-voters-modal__list" id="respectVotersModalUp"></div>

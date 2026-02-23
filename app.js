@@ -369,7 +369,11 @@ function setView(viewName) {
     window.chatGeneralUnread = false;
     window.chatPersonalUnread = false;
     updateChatNavDot();
-    initChat();
+    if (window.chatListenersAttached && typeof window.chatRefresh === "function") {
+      window.chatRefresh();
+    } else {
+      initChat();
+    }
   } else {
     document.documentElement.classList.remove("app-view-chat");
   }
@@ -1468,6 +1472,26 @@ var WINTER_RATING_BY_DATE = {
     { nick: "petroochoo", points: 0, reward: 0 },
     { nick: "Em13!!", points: 0, reward: 0 },
   ],
+  "22.02.2026": [
+    { nick: "Бабник", points: 135, reward: 52147 },
+    { nick: "FrankL", points: 135, reward: 17400 },
+    { nick: "AndrushaMorf", points: 90, reward: 243825 },
+    { nick: "Rifa", points: 100, reward: 18600 },
+    { nick: "ПокерМанки", points: 70, reward: 16900 },
+    { nick: "Konsy", points: 70, reward: 7200 },
+    { nick: "baldand", points: 110, reward: 0 },
+    { nick: "Mr.V", points: 50, reward: 0 },
+    { nick: "NINT3NDO", points: 90, reward: 0 },
+    { nick: "Waaar", points: 0, reward: 8200 },
+    { nick: "bugsergo", points: 0, reward: 3100 },
+    { nick: "|---777---|", points: 0, reward: 3100 },
+    { nick: "king00001", points: 0, reward: 0 },
+    { nick: "MilkyWay77", points: 0, reward: 0 },
+    { nick: "pryanik2la", points: 0, reward: 0 },
+    { nick: "siropchik", points: 0, reward: 0 },
+    { nick: "Asta la Vista", points: 0, reward: 0 },
+    { nick: "Simba33", points: 0, reward: 0 },
+  ],
   "15.02.2026": [
     { nick: "Waaar", points: 185, reward: 25000 },
     { nick: "Rifa", points: 135, reward: 29300 },
@@ -1642,6 +1666,7 @@ var WINTER_RATING_IMAGES = {
   "19.02.2026": ["rating-19-02-2026.png", "rating-19-02-2026-2.png"],
   "20.02.2026": ["rating-20-02-2026.png", "rating-20-02-2026-2.png"],
   "21.02.2026": ["rating-21-02-2026.png", "rating-21-02-2026-2.png"],
+  "22.02.2026": ["rating-22-02-2026.png", "rating-22-02-2026-2.png", "rating-22-02-2026-3.png", "rating-22-02-2026-4.png", "rating-22-02-2026-5.png"],
   "15.02.2026": ["rating-15-02-2026.png", "rating-15-02-2026-2.png", "rating-15-02-2026-3.png", "rating-15-02-2026-4.png"],
   "16.02.2026": ["rating-16-02-2026.png", "rating-16-02-2026-2.png", "rating-16-02-2026-3.png"],
   "13.02.2026": ["rating-13-02-2026.png", "rating-13-02-2026-2.png", "rating-13-02-2026-3.png"],
@@ -2085,6 +2110,13 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
     { time: "15:00", players: [{ nick: "Бабник", place: 1, points: 135, reward: 33543 }, { nick: "pryanik2la", place: 5, points: 60, reward: 3935 }, { nick: "Em13!!", place: 8, points: 0, reward: 0 }] },
     { time: "17:00", players: [{ nick: "|---777---|", place: 3, points: 90, reward: 12000 }, { nick: "Waaar", place: 4, points: 0, reward: 0 }, { nick: "Rifa", place: 5, points: 0, reward: 0 }, { nick: "Borsoi", place: 9, points: 0, reward: 0 }, { nick: "petroochoo", place: 13, points: 0, reward: 0 }] },
   ],
+  "22.02.2026": [
+    { time: "00:00", players: [{ nick: "Бабник", place: 1, points: 135, reward: 52147 }, { nick: "baldand", place: 2, points: 110, reward: 0 }, { nick: "NINT3NDO", place: 3, points: 90, reward: 0 }] },
+    { time: "12:00", players: [{ nick: "FrankL", place: 1, points: 135, reward: 17400 }, { nick: "Mr.V", place: 6, points: 50, reward: 0 }, { nick: "Waaar", place: 7, points: 0, reward: 0 }, { nick: "king00001", place: 11, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 12, points: 0, reward: 0 }] },
+    { time: "17:00", players: [{ nick: "Konsy", place: 4, points: 70, reward: 7200 }, { nick: "Rifa", place: 6, points: 50, reward: 0 }, { nick: "king00001", place: 7, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 8, points: 0, reward: 0 }, { nick: "FrankL", place: 11, points: 0, reward: 0 }] },
+    { time: "18:00", players: [{ nick: "AndrushaMorf", place: 3, points: 90, reward: 243825 }, { nick: "pryanik2la", place: 0, points: 0, reward: 0 }, { nick: "siropchik", place: 0, points: 0, reward: 0 }, { nick: "Asta la Vista", place: 0, points: 0, reward: 0 }, { nick: "Simba33", place: 0, points: 0, reward: 0 }] },
+    { time: "18:00", players: [{ nick: "ПокерМанки", place: 4, points: 70, reward: 16900 }, { nick: "Rifa", place: 6, points: 50, reward: 18600 }, { nick: "Waaar", place: 7, points: 0, reward: 8200 }, { nick: "bugsergo", place: 12, points: 0, reward: 3100 }, { nick: "|---777---|", place: 14, points: 0, reward: 3100 }] },
+  ],
   "15.02.2026": [
     { time: "12:00", players: [{ nick: "ПокерМанки", place: 1, points: 135, reward: 15800 }, { nick: "Malek3084", place: 4, points: 70, reward: 5000 }, { nick: "FrankL", place: 5, points: 60, reward: 4600 }, { nick: "Waaar", place: 7, points: 0, reward: 0 }, { nick: "MilkyWay77", place: 9, points: 0, reward: 0 }] },
     { time: "15:00", players: [{ nick: "Em13!!", place: 3, points: 90, reward: 9119 }, { nick: "Sarmat1305", place: 4, points: 70, reward: 4993 }, { nick: "ИринаЗорина", place: 0, points: 0, reward: 0 }, { nick: "pryanik2la", place: 26, points: 0, reward: 0 }] },
@@ -2272,7 +2304,7 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026"];
+  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
@@ -2540,26 +2572,40 @@ function initWinterRating() {
   var alreadyInited = datesContainer.getAttribute("data-rating-inited") === "1";
   if (!alreadyInited) datesContainer.setAttribute("data-rating-inited", "1");
   var dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
-  if (dateItems.length === 0 && typeof WINTER_RATING_BY_DATE === "object") {
+  if (typeof WINTER_RATING_BY_DATE === "object" && Object.keys(WINTER_RATING_BY_DATE).length) {
     var dates = Object.keys(WINTER_RATING_BY_DATE).sort(function (a, b) {
       var pa = a.split("."), pb = b.split(".");
       var ka = (pa[2] || "") + (pa[1] || "") + (pa[0] || "");
       var kb = (pb[2] || "") + (pb[1] || "") + (pb[0] || "");
       return kb.localeCompare(ka);
     });
-    dates.forEach(function (dateStr) {
-      var parts = dateStr.split(".");
-      var slug = (parts[0] || "") + (parts[1] || "");
-      var item = document.createElement("div");
-      item.className = "winter-rating__date-item";
-      item.setAttribute("data-rating-date", dateStr);
-      item.innerHTML = "<button type=\"button\" class=\"winter-rating__date-btn\" aria-expanded=\"false\" aria-controls=\"winterRatingPanel" + slug + "\">" + dateStr + "</button>" +
-        "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" +
-        "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div>" +
-        "<div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div></div>";
-      datesContainer.appendChild(item);
-    });
-    dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
+    var existingDates = Array.prototype.map.call(dateItems, function (it) { return it.getAttribute("data-rating-date"); });
+    var missingDates = dates.filter(function (d) { return existingDates.indexOf(d) === -1; });
+    if (missingDates.length) {
+      var firstExisting = datesContainer.querySelector(".winter-rating__date-item");
+      missingDates.forEach(function (dateStr) {
+        var parts = dateStr.split(".");
+        var slug = (parts[0] || "") + (parts[1] || "");
+        var item = document.createElement("div");
+        item.className = "winter-rating__date-item";
+        item.setAttribute("data-rating-date", dateStr);
+        item.innerHTML = "<button type=\"button\" class=\"winter-rating__date-btn\" aria-expanded=\"false\" aria-controls=\"winterRatingPanel" + slug + "\">" + dateStr + "</button>" +
+          "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" +
+          "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div>" +
+          "<div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div></div>";
+        var insertBefore = null;
+        for (var i = 0; i < dates.length; i++) {
+          if (dates[i] === dateStr && i + 1 < dates.length) {
+            var nextDate = dates[i + 1];
+            var nextEl = datesContainer.querySelector(".winter-rating__date-item[data-rating-date=\"" + nextDate + "\"]");
+            if (nextEl) { insertBefore = nextEl; break; }
+          }
+        }
+        if (insertBefore) datesContainer.insertBefore(item, insertBefore);
+        else datesContainer.appendChild(item);
+      });
+      dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
+    }
   }
   dateItems.forEach(function (item) {
     try {
@@ -4697,14 +4743,73 @@ function initChat() {
   var respectVotersModalEl = document.getElementById("respectVotersModal");
   if (respectVotersModalEl && !respectVotersModalEl.dataset.bound) {
     respectVotersModalEl.dataset.bound = "1";
+    var rvUpEl = document.getElementById("respectVotersModalUp");
+    var rvDownEl = document.getElementById("respectVotersModalDown");
+    var rvBtnUp = document.getElementById("respectVotersModalBtnUp");
+    var rvBtnDown = document.getElementById("respectVotersModalBtnDown");
     function closeRespectVotersModal() {
       respectVotersModalEl.classList.remove("respect-voters-modal--open");
       respectVotersModalEl.setAttribute("aria-hidden", "true");
     }
+    function loadRespectVotersList(userId) {
+      if (!userId || !rvUpEl || !rvDownEl || !base || !initData) return;
+      rvUpEl.textContent = "";
+      rvDownEl.textContent = "Загрузка…";
+      fetch(base + "/api/respect?userId=" + encodeURIComponent(userId) + "&initData=" + encodeURIComponent(initData) + "&list=1")
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.ok) {
+            var up = Array.isArray(data.up) ? data.up : [];
+            var down = Array.isArray(data.down) ? data.down : [];
+            rvUpEl.textContent = up.map(function (uid) { return String(uid).replace(/^tg_/, "ID"); }).join(", ") || "Никто";
+            rvDownEl.textContent = down.map(function (uid) { return String(uid).replace(/^tg_/, "ID"); }).join(", ") || "Никто";
+          } else {
+            rvUpEl.textContent = "—";
+            rvDownEl.textContent = "—";
+          }
+        })
+        .catch(function () {
+          rvUpEl.textContent = "—";
+          rvDownEl.textContent = "Ошибка загрузки";
+        });
+    }
+    window._loadRespectVotersList = loadRespectVotersList;
     var rvBackdrop = respectVotersModalEl.querySelector(".respect-voters-modal__backdrop");
     var rvClose = respectVotersModalEl.querySelector(".respect-voters-modal__close");
     if (rvBackdrop) rvBackdrop.addEventListener("click", closeRespectVotersModal);
     if (rvClose) rvClose.addEventListener("click", closeRespectVotersModal);
+    if (rvBtnUp) {
+      rvBtnUp.addEventListener("click", function () {
+        var targetId = respectVotersModalEl.dataset.targetUserId;
+        if (!targetId || !base || !initData || rvBtnUp.disabled) return;
+        rvBtnUp.disabled = true;
+        fetch(base + "/api/respect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, targetUserId: targetId, action: "up" }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          rvBtnUp.disabled = false;
+          if (d && d.ok) loadRespectVotersList(targetId);
+          else if (tg && tg.showAlert) tg.showAlert(d && d.error === "already_raised" ? "Уже поднимали" : (d && d.error) || "Ошибка");
+        }).catch(function () { rvBtnUp.disabled = false; });
+      });
+    }
+    if (rvBtnDown) {
+      rvBtnDown.addEventListener("click", function () {
+        var targetId = respectVotersModalEl.dataset.targetUserId;
+        if (!targetId || !base || !initData || rvBtnDown.disabled) return;
+        rvBtnDown.disabled = true;
+        fetch(base + "/api/respect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, targetUserId: targetId, action: "down" }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          rvBtnDown.disabled = false;
+          if (d && d.ok) loadRespectVotersList(targetId);
+          else if (tg && tg.showAlert) tg.showAlert(d && d.error === "already_lowered" ? "Уже уменьшали" : (d && d.error) || "Ошибка");
+        }).catch(function () { rvBtnDown.disabled = false; });
+      });
+    }
   }
 
   if (!base) {
@@ -4865,6 +4970,7 @@ function initChat() {
       if (data && data.ok) {
         chatIsAdmin = !!data.isAdmin;
         var messages = data.messages || [];
+        window._chatGeneralCache = { messages: messages, participantsCount: data.participantsCount, onlineCount: data.onlineCount };
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
         if (isChatViewActive && chatActiveTab === "general") {
@@ -5088,27 +5194,11 @@ function initChat() {
         var id = row.dataset.userId;
         if (!id || !initData || !base) return;
         var modal = document.getElementById("respectVotersModal");
-        var upEl = document.getElementById("respectVotersModalUp");
-        var downEl = document.getElementById("respectVotersModalDown");
-        if (!modal || !upEl || !downEl) return;
-        upEl.textContent = "";
-        downEl.textContent = "Загрузка…";
+        if (!modal) return;
+        modal.dataset.targetUserId = id;
         modal.classList.add("respect-voters-modal--open");
         modal.setAttribute("aria-hidden", "false");
-        fetch(base + "/api/respect?userId=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData) + "&list=1").then(function (r) { return r.json(); }).then(function (data) {
-          if (data && data.ok) {
-            var up = Array.isArray(data.up) ? data.up : [];
-            var down = Array.isArray(data.down) ? data.down : [];
-            upEl.textContent = up.map(function (uid) { return String(uid).replace(/^tg_/, "ID"); }).join(", ") || "Никто";
-            downEl.textContent = down.map(function (uid) { return String(uid).replace(/^tg_/, "ID"); }).join(", ") || "Никто";
-          } else {
-            upEl.textContent = "—";
-            downEl.textContent = "—";
-          }
-        }).catch(function () {
-          upEl.textContent = "—";
-          downEl.textContent = "Ошибка загрузки";
-        });
+        if (typeof window._loadRespectVotersList === "function") window._loadRespectVotersList(id);
       });
     });
     generalMessages.querySelectorAll(".chat-msg__profile-row[data-user-id]").forEach(function (row) {
@@ -5775,6 +5865,19 @@ function initChat() {
 
   if (!chatListenersAttached) {
     chatListenersAttached = true;
+    window.chatListenersAttached = true;
+    window.chatRefresh = function () {
+      if (chatActiveTab === "general" && generalMessages && window._chatGeneralCache && window._chatGeneralCache.messages && window._chatGeneralCache.messages.length) {
+        renderGeneralMessages(window._chatGeneralCache.messages);
+        if (window._chatGeneralCache.participantsCount != null || window._chatGeneralCache.onlineCount != null) {
+          window.lastGeneralStats = (window._chatGeneralCache.participantsCount != null ? window._chatGeneralCache.participantsCount : "—") + " уч · " + (window._chatGeneralCache.onlineCount != null ? window._chatGeneralCache.onlineCount : "—") + " онл";
+          updateChatHeaderStats();
+        }
+      }
+      setTab(chatActiveTab);
+      if (chatWithUserId) showConv(chatWithUserId, chatWithUserName);
+      else showList();
+    };
     document.querySelectorAll(".chat-manager-btn--tg").forEach(function (link) {
       link.addEventListener("click", function (e) {
         var href = link.getAttribute("href");

@@ -3003,7 +3003,7 @@ a.home-mini-icon-item {
 
 .hero__image {
   width: 100%;
-  max-width: 230px;
+  max-width: 280px;
   border-radius: 999px;
   display: block;
   vertical-align: middle;
@@ -3011,7 +3011,7 @@ a.home-mini-icon-item {
 
 .hero__video {
   width: 100%;
-  max-width: 230px;
+  max-width: 280px;
   border-radius: 999px;
   object-fit: cover;
   display: block;
@@ -5846,10 +5846,45 @@ img.plasterer-card {
   background: rgba(255, 255, 255, 0.2);
 }
 .respect-voters-modal__title {
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   font-size: 17px;
   font-weight: 700;
   color: var(--text);
+}
+.respect-voters-modal__actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.respect-voters-modal__btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.respect-voters-modal__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.respect-voters-modal__btn--up {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+}
+.respect-voters-modal__btn--up:hover:not(:disabled) {
+  opacity: 0.95;
+}
+.respect-voters-modal__btn--down {
+  background: linear-gradient(135deg, #64748b, #475569);
+  color: #fff;
+}
+.respect-voters-modal__btn--down:hover:not(:disabled) {
+  opacity: 0.95;
 }
 .respect-voters-modal__section {
   margin-bottom: 16px;
