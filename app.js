@@ -144,6 +144,50 @@ function getAssetUrl(relativePath) {
   });
 })();
 
+// Газета «Вестник Два туза» — топ-15 заносов 15–22 февраля
+(function initGazetteModal() {
+  var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
+  function getGazetteTop15() {
+    var byNick = {};
+    GAZETTE_DATES.forEach(function (dateStr) {
+      var list = typeof WINTER_RATING_BY_DATE !== "undefined" && WINTER_RATING_BY_DATE[dateStr];
+      if (!list || !list.length) return;
+      list.forEach(function (r) {
+        var nick = r.nick;
+        var reward = r.reward != null ? Number(r.reward) : 0;
+        if (!byNick[nick]) byNick[nick] = 0;
+        byNick[nick] += reward;
+      });
+    });
+    return Object.keys(byNick)
+      .map(function (nick) { return { nick: nick, totalReward: byNick[nick] }; })
+      .filter(function (r) { return r.totalReward > 0; })
+      .sort(function (a, b) { return b.totalReward - a.totalReward; })
+      .slice(0, 15);
+  }
+  var modal = document.getElementById("gazetteModal");
+  var listEl = document.getElementById("gazetteModalTopList");
+  var openBtn = document.getElementById("gazetteOpenBtn");
+  var closeBtn = document.getElementById("gazetteModalClose");
+  var backdrop = document.getElementById("gazetteModalBackdrop");
+  if (!modal || !listEl) return;
+  function openGazette() {
+    var top = getGazetteTop15();
+    listEl.innerHTML = top.length ? top.map(function (r, i) {
+      var nick = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      var sum = r.totalReward.toLocaleString("ru-RU");
+      return "<div class=\"gazette-modal__top-item\"><span class=\"gazette-modal__top-num\">" + (i + 1) + ".</span><span class=\"gazette-modal__top-nick\">" + nick + "</span><span class=\"gazette-modal__top-reward\">" + sum + " ₽</span></div>";
+    }).join("") : "<p class=\"gazette-modal__intro\">Нет данных за указанный период.</p>";
+    modal.setAttribute("aria-hidden", "false");
+  }
+  function closeGazette() {
+    modal.setAttribute("aria-hidden", "true");
+  }
+  if (openBtn) openBtn.addEventListener("click", openGazette);
+  if (closeBtn) closeBtn.addEventListener("click", closeGazette);
+  if (backdrop) backdrop.addEventListener("click", closeGazette);
+})();
+
 // Инициализация Telegram WebApp (если открыто внутри Telegram)
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 

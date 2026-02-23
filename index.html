@@ -78,7 +78,7 @@
           <div class="view view--active" data-view="home">
             <div class="welcome-title-row">
               <h1 class="title title--welcome">Добро пожаловать!</h1>
-              <span class="welcome-gazette-icon" title="Газета" aria-hidden="true">📰</span>
+              <button type="button" class="welcome-gazette-icon" id="gazetteOpenBtn" title="Газета" aria-label="Открыть газету Вестник Два туза">📰</button>
             </div>
             <p class="subtitle">
               Закрытый покерный онлайн-клуб для своих.
@@ -1421,6 +1421,21 @@
         <div class="image-lightbox__content">
           <img class="image-lightbox__img" src="" alt="" />
           <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
+        </div>
+      </div>
+      <div class="gazette-modal" id="gazetteModal" role="dialog" aria-modal="true" aria-labelledby="gazetteModalTitle" aria-label="Газета Вестник Два туза" aria-hidden="true">
+        <div class="gazette-modal__backdrop" id="gazetteModalBackdrop"></div>
+        <div class="gazette-modal__paper">
+          <button type="button" class="gazette-modal__close" id="gazetteModalClose" aria-label="Закрыть">×</button>
+          <header class="gazette-modal__header">
+            <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Два туза</h2>
+            <p class="gazette-modal__date">15–22 февраля 2026</p>
+          </header>
+          <article class="gazette-modal__article">
+            <h3 class="gazette-modal__headline">Заносы прошлой недели</h3>
+            <p class="gazette-modal__intro">Топ-15 лучших по выигрышам в турнирах</p>
+            <div class="gazette-modal__top-list" id="gazetteModalTopList"></div>
+          </article>
         </div>
       </div>
       <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
