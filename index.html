@@ -19,6 +19,10 @@
   <body>
     <!-- Радио: чил, американские 90‑е или Радио 7 (переключение одной кнопкой) -->
     <audio id="chillRadio" preload="metadata" loop crossorigin="anonymous" aria-hidden="true"></audio>
+    <!-- Звук открытия двери при нажатии на Зал славы (файл: assets/door-open.mp3) -->
+    <audio id="hallDoorSound" preload="auto" aria-hidden="true">
+      <source src="./assets/door-open.mp3" type="audio/mpeg">
+    </audio>
     <div id="app" class="app" data-telegram-app-url="" data-api-base="https://poker-app-ebon.vercel.app">
       <div class="bg-gradient"></div>
       <div class="bg-blur"></div>
@@ -77,41 +81,50 @@
         <section class="card__content">
           <!-- Главная -->
           <div class="view view--active" data-view="home">
-            <h1 class="title">Добро пожаловать в клуб «Два туза»</h1>
+            <h1 class="title">Добро пожаловать</h1>
             <p class="subtitle">
               Закрытый покерный онлайн-клуб для своих.
             </p>
 
             <div class="hero-row">
               <div class="hero">
-                <a
-                  href="https://t.me/+snBngKmXYa1mYjky"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hero__link"
-                >
+                <a href="#" class="hero__link" data-view-target="hall-of-fame" title="Зал славы" aria-label="Зал славы Два туза">
                   <img
-                    src="./assets/two-aces-hero.png"
-                    alt="Клуб Два туза — перейти в чат игроков"
+                    src="./assets/hall-of-fame-hero.png"
+                    alt="Зал славы Два туза"
                     class="hero__video hero__image"
                   />
                 </a>
               </div>
               <div class="home-mini-icons">
-                <a href="#" class="home-mini-icon-item home-mini-icon-item--hall" data-view-target="hall-of-fame" title="Зал славы" aria-label="Зал славы">
-                  <span class="home-mini-icon" aria-hidden="true">🏆</span>
-                  <span class="home-mini-icon__label">Зал славы</span>
+                <a
+                  class="home-mini-icon-item home-mini-icon-item--hall"
+                  href="https://t.me/+snBngKmXYa1mYjky"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Чат игроков в Telegram"
+                  aria-label="Чат в ТГ"
+                >
+                  <span class="home-mini-icon" aria-hidden="true">✈️</span>
+                  <span class="home-mini-icon__label">Чат в ТГ</span>
                 </a>
-                <span class="home-mini-icon-item" title="Магазин">
-                  <span class="home-mini-icon" aria-hidden="true">🛒</span>
-                  <span class="home-mini-icon__label">Магазин</span>
-                </span>
+                <a
+                  class="home-mini-icon-item home-mini-icon-item--hall"
+                  href="https://t.me/+UjuRSQoCpBk4YzVi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Канал"
+                  aria-label="Канал"
+                >
+                  <span class="home-mini-icon" aria-hidden="true">📡</span>
+                  <span class="home-mini-icon__label">Канал</span>
+                </a>
                 <span class="home-mini-icon-item" title="Акции">
-                  <span class="home-mini-icon" aria-hidden="true">🎁</span>
+                  <span class="home-mini-icon" aria-hidden="true">🏷️</span>
                   <span class="home-mini-icon__label">Акции</span>
                 </span>
                 <span class="home-mini-icon-item" title="Партнёрка">
-                  <span class="home-mini-icon" aria-hidden="true">🤝</span>
+                  <span class="home-mini-icon" aria-hidden="true">💼</span>
                   <span class="home-mini-icon__label">Партнёрка</span>
                 </span>
               </div>
@@ -119,43 +132,11 @@
 
             <div class="features">
               <div class="features-row features-row--full">
-                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" data-view-target="winter-rating" aria-label="Рейтинг Турнирщиков зимы">
+                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" data-view-target="winter-rating" aria-label="Рейтинг турнирщиков зимы 2025-2026">
                   <div class="feature__icon feature__icon--gold">🏆</div>
                   <div class="feature__body">
-                    <div class="feature__title">Турнирщики зимы<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
-                  </div>
-                </a>
-              </div>
-              <div class="features-row features-row--three">
-                <a href="#" class="feature feature--link feature--rating-promo feature--rating-three" id="springRatingInfoBtn" aria-label="Рейтинг Турнирщиков весны 2026">
-                  <div class="feature__icon feature__icon--gold">🏆</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Рейтинг Турнирщиков весны 2026<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
-                    <div class="feature__text">Стартуем 1го марта</div>
-                  </div>
-                </a>
-                <a
-                  class="feature feature--link feature--highlight"
-                  href="https://t.me/+snBngKmXYa1mYjky"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="feature__icon feature__icon--green">💬</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Чат</div>
-                    <div class="feature__text">Чат игроков</div>
-                  </div>
-                </a>
-                <a
-                  class="feature feature--link feature--highlight"
-                  href="https://t.me/+UjuRSQoCpBk4YzVi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="feature__icon feature__icon--orange">📢</div>
-                  <div class="feature__body">
-                    <div class="feature__title">Канал</div>
-                    <div class="feature__text">Розыгрыши и анонсы</div>
+                    <div class="feature__title">Рейтинг турнирщиков зимы 2025-2026<br /><span class="feature__title-line2">на <span class="feature__title-accent">250 000₽</span></span></div>
+                    <div class="feature__text">Актуальный рейтинг игроков</div>
                   </div>
                 </a>
               </div>

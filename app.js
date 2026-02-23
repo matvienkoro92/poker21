@@ -180,6 +180,11 @@ if (tg) {
   })();
 }
 
+(function setRandomListenersCount() {
+  var el = document.getElementById("headerRadioListenersCount");
+  if (el) el.textContent = Math.floor(Math.random() * (15 - 7 + 1)) + 7;
+})();
+
 // Авторизация через Telegram: проверка initData на сервере
 (function initTelegramAuth() {
   const banner = document.getElementById("authBanner");
@@ -3085,7 +3090,16 @@ document.addEventListener("click", function (e) {
   if (!link || link.getAttribute("data-download-page")) return;
   e.preventDefault();
   var view = link.getAttribute("data-view-target");
-  if (view) setView(view);
+  if (view) {
+    if (view === "hall-of-fame") {
+      var doorSound = document.getElementById("hallDoorSound");
+      if (doorSound && doorSound.src) {
+        doorSound.currentTime = 0;
+        doorSound.play().catch(function () {});
+      }
+    }
+    setView(view);
+  }
 });
 
 document.addEventListener("click", function (e) {
