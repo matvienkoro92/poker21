@@ -939,6 +939,22 @@ body:has(.view--active[data-view="chat"]) {
   color: #5c4033;
   min-width: 1.2em;
 }
+.gazette-modal__nick-btn {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: #2c1810;
+  cursor: pointer;
+  text-align: left;
+}
+.gazette-modal__nick-btn:hover {
+  text-decoration: underline;
+  color: #1a0d08;
+}
 .gazette-modal__top-nick {
   flex: 1;
   font-weight: 600;
@@ -2164,6 +2180,49 @@ img.chat-contact__avatar {
   margin-top: 2px;
   font-size: 11px;
   color: var(--text-muted);
+}
+
+/* Кнопка «Позвать друга» */
+.invite-friend-wrap {
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.invite-friend-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.15));
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.invite-friend-btn:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(22, 163, 74, 0.25));
+  border-color: rgba(34, 197, 94, 0.55);
+}
+.invite-friend-btn:active {
+  transform: scale(0.98);
+}
+.invite-friend-btn__icon {
+  font-size: 18px;
+}
+.invite-friend-btn__label {
+  letter-spacing: 0.02em;
+}
+[data-theme="light"] .invite-friend-btn {
+  color: #0f172a;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(22, 163, 74, 0.12));
+  border-color: rgba(34, 197, 94, 0.5);
+}
+[data-theme="light"] .invite-friend-btn:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(22, 163, 74, 0.2));
 }
 
 .features {
@@ -3490,6 +3549,26 @@ a.home-mini-icon-item {
 .winter-rating-player-modal__close:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+.winter-rating-player-modal__back {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: #f97316;
+  font-size: 14px;
+  cursor: pointer;
+}
+.winter-rating-player-modal__back:hover {
+  color: #ea580c;
+  text-decoration: underline;
+}
+[data-theme="light"] .winter-rating-player-modal__back {
+  color: #ea580c;
+}
+[data-theme="light"] .winter-rating-player-modal__back:hover {
+  color: #c2410c;
+}
 .winter-rating-player-modal__title {
   margin: 0 32px 12px 0;
   font-size: 17px;
@@ -3506,6 +3585,64 @@ a.home-mini-icon-item {
   margin: 0;
   font-size: 14px;
   color: var(--text-muted);
+}
+/* Узкая колонка «Турнир» */
+.winter-rating-player-modal__th-tournament,
+.winter-rating-player-modal__td-tournament {
+  max-width: 72px;
+  width: 72px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+/* Модалка игрока в стиле газеты (при открытии из «Заносов недели») */
+.winter-rating-player-modal--gazette .winter-rating-player-modal__inner {
+  background: #f4e4c1;
+  background-image:
+    linear-gradient(rgba(139, 90, 43, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 90, 43, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: #2c1810;
+  font-family: Georgia, "Times New Roman", serif;
+  box-shadow:
+    inset 0 0 60px rgba(139, 90, 43, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(139, 90, 43, 0.3);
+  border: none;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__close {
+  background: rgba(139, 90, 43, 0.15);
+  border: 1px solid rgba(139, 90, 43, 0.35);
+  color: #2c1810;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__close:hover {
+  background: rgba(139, 90, 43, 0.25);
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__back {
+  color: #5c4033;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__back:hover {
+  color: #2c1810;
+  text-decoration: underline;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__title {
+  color: #2c1810;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__empty {
+  color: #5c4033;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__table {
+  color: #2c1810;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__table th,
+.winter-rating-player-modal--gazette .winter-rating-player-modal__table td {
+  border-color: rgba(139, 90, 43, 0.35);
+  color: #2c1810;
+}
+.winter-rating-player-modal--gazette .winter-rating-player-modal__table thead th {
+  color: #5c4033;
+  font-weight: 700;
 }
 [data-theme="light"] .winter-rating-player-modal__inner {
   background: rgba(255, 248, 240, 0.98);
