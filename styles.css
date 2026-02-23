@@ -2182,49 +2182,6 @@ img.chat-contact__avatar {
   color: var(--text-muted);
 }
 
-/* Кнопка «Позвать друга» */
-.invite-friend-wrap {
-  margin-top: 12px;
-  margin-bottom: 4px;
-}
-.invite-friend-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.15));
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-}
-.invite-friend-btn:hover {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(22, 163, 74, 0.25));
-  border-color: rgba(34, 197, 94, 0.55);
-}
-.invite-friend-btn:active {
-  transform: scale(0.98);
-}
-.invite-friend-btn__icon {
-  font-size: 18px;
-}
-.invite-friend-btn__label {
-  letter-spacing: 0.02em;
-}
-[data-theme="light"] .invite-friend-btn {
-  color: #0f172a;
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(22, 163, 74, 0.12));
-  border-color: rgba(34, 197, 94, 0.5);
-}
-[data-theme="light"] .invite-friend-btn:hover {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(22, 163, 74, 0.2));
-}
-
 .features {
   margin-top: 20px;
   display: flex;

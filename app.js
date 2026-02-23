@@ -195,27 +195,6 @@ function getAssetUrl(relativePath) {
   if (backdrop) backdrop.addEventListener("click", closeGazette);
 })();
 
-(function initInviteFriend() {
-  var btn = document.getElementById("inviteFriendBtn");
-  if (!btn) return;
-  btn.addEventListener("click", function () {
-    var appEl = document.getElementById("app");
-    var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "";
-    if (!appUrl || appUrl.indexOf("t.me") === -1) {
-      if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
-        var fallback = "https://t.me/+snBngKmXYa1mYjky";
-        window.navigator.clipboard.writeText(fallback).then(function () { alert("Ссылка на чат скопирована: " + fallback); });
-      } else {
-        alert("Откройте приложение в Telegram и нажмите «Позвать друга» снова.");
-      }
-      return;
-    }
-    var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(appUrl) + "&text=" + encodeURIComponent("Присоединяйся к покерному клубу «Два туза»!");
-    var t = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    if (t && t.openTelegramLink) t.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
-  });
-})();
-
 // Инициализация Telegram WebApp (если открыто внутри Telegram)
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
