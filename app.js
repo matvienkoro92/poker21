@@ -552,6 +552,14 @@ const views = document.querySelectorAll("[data-view]");
 const navItems = document.querySelectorAll("[data-view-target]:not(.bonus-game-back)");
 const footer = document.querySelector(".card__footer");
 
+// На главной при загрузке — класс для layout без :has() (устройства без поддержки, убирает отступ внизу)
+(function () {
+  var initialView = document.querySelector(".view--active[data-view]");
+  if (initialView && initialView.getAttribute("data-view") === "home") {
+    document.documentElement.classList.add("app-view-home");
+  }
+})();
+
 function playClickSound() {
   try {
     var Ctx = window.AudioContext || window.webkitAudioContext;
@@ -615,7 +623,13 @@ function setView(viewName) {
     }
   }
   if (viewName === "home") initPokerShowsPlayer();
-  if (viewName === "winter-rating") initWinterRating();
+  if (viewName === "winter-rating") {
+    try {
+      initWinterRating();
+    } catch (err) {
+      if (typeof console !== "undefined" && console.error) console.error("initWinterRating", err);
+    }
+  }
   if (viewName === "profile") {
     updateProfileUserName();
     updateProfileDtId();
@@ -646,7 +660,7 @@ function setView(viewName) {
   if (headerSwitcherWrap) headerSwitcherWrap.classList.toggle("header-chat-switcher--hidden", viewName !== "chat");
   if (viewName === "chat") {
     document.documentElement.classList.add("app-view-chat");
-    document.documentElement.classList.remove("app-view-winter-rating");
+    document.documentElement.classList.remove("app-view-winter-rating", "app-view-home");
     window.chatGeneralUnread = false;
     window.chatPersonalUnread = false;
     updateChatNavDot();
@@ -656,10 +670,13 @@ function setView(viewName) {
       initChat();
     }
   } else if (viewName === "winter-rating") {
-    document.documentElement.classList.remove("app-view-chat");
+    document.documentElement.classList.remove("app-view-chat", "app-view-home");
     document.documentElement.classList.add("app-view-winter-rating");
-  } else {
+  } else if (viewName === "home") {
     document.documentElement.classList.remove("app-view-chat", "app-view-winter-rating");
+    document.documentElement.classList.add("app-view-home");
+  } else {
+    document.documentElement.classList.remove("app-view-chat", "app-view-winter-rating", "app-view-home");
   }
 }
 function updateChatNavDot() {
@@ -3459,7 +3476,7 @@ document.addEventListener("click", function (e) {
   if (interactive && !e.target.closest("audio, [aria-hidden=\"true\"]")) playClickSound();
 }, true);
 
-document.addEventListener("click", function (e) {
+function handleViewLinkClick(e) {
   var springBtn = e.target.closest("#springRatingInfoBtn");
   if (springBtn) {
     e.preventDefault();
@@ -3480,7 +3497,17 @@ document.addEventListener("click", function (e) {
   e.preventDefault();
   var view = link.getAttribute("data-view-target");
   if (view) setView(view);
-});
+}
+
+document.addEventListener("click", handleViewLinkClick);
+
+document.addEventListener("touchstart", function (e) {
+  var link = e.target.closest("a[data-view-target]");
+  if (!link || link.getAttribute("data-download-page")) return;
+  e.preventDefault();
+  var view = link.getAttribute("data-view-target");
+  if (view) setView(view);
+}, { passive: false });
 
 document.addEventListener("click", function (e) {
   var link = e.target.closest("[data-view-target][data-download-page]");
