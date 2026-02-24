@@ -210,8 +210,20 @@ function getTopByDates(dates) {
     newsEl.hidden = view !== "news";
     if (paperEl) paperEl.scrollTop = 0;
   }
-  function openGazette() {
-    showGazetteView("pick");
+  function openGazette(goToNews, articleIndex) {
+    if (goToNews === "news") {
+      showGazetteView("news");
+      if (typeof articleIndex === "number" && articleIndex >= 0 && newsEl) {
+        var article = newsEl.querySelector('.gazette-modal__lead[data-gazette-article="' + articleIndex + '"]');
+        if (article) {
+          setTimeout(function () {
+            article.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100);
+        }
+      }
+    } else {
+      showGazetteView("pick");
+    }
     modal.setAttribute("aria-hidden", "false");
     markGazetteRead();
   }
@@ -234,6 +246,30 @@ function getTopByDates(dates) {
   if (openBtn) openBtn.addEventListener("click", openGazette);
   if (closeBtn) closeBtn.addEventListener("click", closeGazette);
   if (backdrop) backdrop.addEventListener("click", closeGazette);
+
+  var appEl = document.getElementById("app");
+  var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+  appUrl = appUrl.replace(/\/$/, "");
+  modal.addEventListener("click", function (e) {
+    var shareBtn = e.target && e.target.closest ? e.target.closest(".gazette-modal__share-btn") : null;
+    if (shareBtn && shareBtn.dataset.gazetteShare !== undefined) {
+      e.preventDefault();
+      var idx = shareBtn.dataset.gazetteShare;
+      var link = idx !== undefined && idx !== "" ? appUrl + "?startapp=news_" + idx : appUrl + "?startapp=news";
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте её другу — по ней откроется эта новость."); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    }
+  });
 
   var subscribeBtn = document.getElementById("gazetteSubscribeBtn");
   var subscribeWrap = modal && modal.querySelector(".gazette-modal__subscribe-wrap");
@@ -292,6 +328,13 @@ function getTopByDates(dates) {
           setSubscribeButtonState(subscribed);
         });
     });
+  }
+
+  var startParam = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.startParam;
+  if (startParam && (startParam === "news" || startParam.indexOf("news_") === 0)) {
+    var articleNum = startParam === "news" ? undefined : parseInt(startParam.replace("news_", ""), 10);
+    if (startParam !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
+    setTimeout(function () { openGazette("news", articleNum); }, 300);
   }
 })();
 
