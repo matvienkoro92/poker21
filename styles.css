@@ -3644,7 +3644,7 @@ a.home-mini-icon-item {
   display: block;
 }
 
-/* iPhone 15 (393px) и до 430px: всё в рамках экрана, без горизонтального скролла */
+/* iPhone 13 (390px), iPhone 15 и до 430px: «Зал славы» меньше — кнопки справа влезают в экран */
 @media (max-width: 430px) {
   html, body {
     overflow-x: hidden;
@@ -3652,25 +3652,29 @@ a.home-mini-icon-item {
   .card {
     max-width: 100%;
   }
+  .hero-row {
+    gap: 8px;
+    min-width: 0;
+  }
   .hero__image,
   .hero__video {
-    max-width: min(260px, calc(100vw - 130px));
+    max-width: min(210px, calc(100vw - 155px));
   }
 }
-/* Узкие экраны (Realme C11 и др.): картинка «Зал славы» меньше */
+/* Узкие экраны (Realme C11 и др.): картинка «Зал славы» ещё меньше */
 @media (max-width: 380px) {
   .hero__image,
   .hero__video {
-    max-width: min(200px, calc(100vw - 120px));
+    max-width: min(180px, calc(100vw - 125px));
   }
   .hero-row {
-    gap: 8px;
+    gap: 6px;
   }
 }
 @media (max-width: 360px) {
   .hero__image,
   .hero__video {
-    max-width: min(170px, calc(100vw - 100px));
+    max-width: min(160px, calc(100vw - 105px));
   }
 }
 
