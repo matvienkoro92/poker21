@@ -288,15 +288,23 @@ body {
   justify-content: center;
   overflow: hidden;
 }
-/* Главная: прокрутка всей страницы — карточка по высоте контента, без пустого пространства внизу */
+/* Главная: скролл только до низа кнопок — контейнер по высоте экрана, контент не тянет вниз */
+html:has(.view--active[data-view="home"]),
+body:has(.view--active[data-view="home"]) {
+  min-height: 0;
+  height: auto;
+}
 .app:has(.view--active[data-view="home"]) {
+  min-height: 0;
+  height: 100dvh;
+  max-height: 100dvh;
   align-items: flex-start;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
-  padding-bottom: 12px;
+  padding-bottom: 0;
 }
 
 .bg-gradient {
@@ -728,7 +736,7 @@ body:has(.view--active[data-view="chat"]) {
   flex: 0 1 auto;
   min-height: 0;
   overflow: visible;
-  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 0;
 }
 .card__content:has(.view--active[data-view="chat"]) {
   flex: 1;
