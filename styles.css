@@ -322,7 +322,12 @@ html.app-view-home .app .bottom-nav {
   align-self: auto;
   width: 100%;
 }
+html.app-view-home .card {
+  flex: 1 1 auto;
+  min-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px) - max(20px, calc(env(safe-area-inset-top, 0px) + 52px)));
+}
 html.app-view-home .card .card__content {
+  flex: 1 1 auto;
   padding-bottom: 0;
 }
 
@@ -744,17 +749,17 @@ body:has(.view--active[data-view="chat"]) {
   flex-direction: column;
   gap: 14px;
 }
-/* Главная: карточка по высоте контента, прокручивается вся страница (.app), низ не обрезается */
+/* Главная: карточка заполняет область над меню — разрыва между кнопками и нижним меню нет */
 .card:has(.view--active[data-view="home"]) {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   width: 100%;
   max-width: 420px;
-  min-height: 0;
+  min-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px) - max(20px, calc(env(safe-area-inset-top, 0px) + 52px)));
   display: flex;
   flex-direction: column;
 }
 .card:has(.view--active[data-view="home"]) .card__content {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: visible;
   padding-bottom: 0;
