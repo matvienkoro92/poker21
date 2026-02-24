@@ -3462,7 +3462,11 @@ function initProfileAvatar() {
 }
 
 navItems.forEach(function (item) {
-  item.addEventListener("click", function () {
+  item.addEventListener("click", function (e) {
+    if (window.__touchWasScroll && window.__touchWasScroll()) {
+      e.preventDefault();
+      return;
+    }
     var target = item.dataset.viewTarget;
     if (target) {
       setView(target);
@@ -3476,7 +3480,43 @@ document.addEventListener("click", function (e) {
   if (interactive && !e.target.closest("audio, [aria-hidden=\"true\"]")) playClickSound();
 }, true);
 
+(function scrollVsTap() {
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchMoved = false;
+  var scrollThreshold = 12;
+  document.addEventListener("touchstart", function (e) {
+    if (e.touches.length) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+    }
+  }, { passive: true });
+  document.addEventListener("touchmove", function (e) {
+    if (e.touches.length && !touchMoved) {
+      var dx = e.touches[0].clientX - touchStartX;
+      var dy = e.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) > scrollThreshold || Math.abs(dy) > scrollThreshold) touchMoved = true;
+    }
+  }, { passive: true });
+  window.__touchWasScroll = function () { return touchMoved; };
+  document.addEventListener("touchend", function () {
+    setTimeout(function () { touchMoved = false; }, 0);
+  }, { passive: true });
+})();
+
+var viewHandledInTouchend = false;
+
 function handleViewLinkClick(e) {
+  if (viewHandledInTouchend) {
+    viewHandledInTouchend = false;
+    e.preventDefault();
+    return;
+  }
+  if (window.__touchWasScroll && window.__touchWasScroll()) {
+    e.preventDefault();
+    return;
+  }
   var springBtn = e.target.closest("#springRatingInfoBtn");
   if (springBtn) {
     e.preventDefault();
@@ -3501,12 +3541,16 @@ function handleViewLinkClick(e) {
 
 document.addEventListener("click", handleViewLinkClick);
 
-document.addEventListener("touchstart", function (e) {
+document.addEventListener("touchend", function (e) {
   var link = e.target.closest("a[data-view-target]");
   if (!link || link.getAttribute("data-download-page")) return;
+  if (window.__touchWasScroll && window.__touchWasScroll()) return;
   e.preventDefault();
   var view = link.getAttribute("data-view-target");
-  if (view) setView(view);
+  if (view) {
+    viewHandledInTouchend = true;
+    setView(view);
+  }
 }, { passive: false });
 
 document.addEventListener("click", function (e) {
