@@ -4802,32 +4802,54 @@ a.home-mini-icon-item {
   gap: 8px;
   margin: 0 12px;
 }
-/* Экран рейтинга — уместить в один экран без вертикального скролла */
+/* Экран рейтинга — уместить в один экран, контент не уезжает в сторону */
 .card:has(.view--active[data-view="winter-rating"]) .card__content,
 html.app-view-winter-rating .card .card__content {
   overflow: hidden;
+  overflow-x: hidden;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
 .view--active[data-view="winter-rating"] {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
 html.app-view-winter-rating .card .view.view--active[data-view="winter-rating"] {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
+}
+/* Карточка на экране рейтинга — не уезжает в сторону, всегда в видимой области */
+.app:has(.view--active[data-view="winter-rating"]) .card,
+html.app-view-winter-rating .app .card {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+.app:has(.view--active[data-view="winter-rating"]),
+html.app-view-winter-rating .app {
+  overflow-x: hidden;
 }
 /* Фон карточки на экране рейтинга (fallback без :has(), против чёрного экрана на части устройств) */
 html.app-view-winter-rating .card {
   background: var(--card-bg);
   min-height: 200px;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 html.app-view-winter-rating .card::before {
   opacity: 0;
@@ -4837,11 +4859,18 @@ html.app-view-winter-rating .card::before {
 html.app-view-winter-rating .card .winter-rating {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 6px 0 8px;
+}
+.view--active[data-view="winter-rating"] .winter-rating__table-wrap,
+html.app-view-winter-rating .card .winter-rating__table-wrap {
+  min-width: 0;
+  overflow-x: auto;
 }
 .view--active[data-view="winter-rating"] .winter-rating__title {
   margin: 0 0 12px;
