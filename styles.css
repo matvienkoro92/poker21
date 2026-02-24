@@ -2565,6 +2565,7 @@ img.chat-contact__avatar {
   font-size: 1.5em;
   font-weight: 700;
   color: #f97316;
+  white-space: nowrap;
 }
 [data-theme="light"] .feature__title-prize {
   color: #ea580c;
@@ -2597,6 +2598,61 @@ img.chat-contact__avatar {
   flex-direction: column;
   justify-content: center;
   line-height: 1.3;
+  min-width: 0;
+}
+
+/* Узкие экраны: кнопка «Рейтинг турнирщиков» — 3 строки, мелкий шрифт, кубки меньше; остальные блоки компактнее */
+@media (max-width: 400px) {
+  .feature--rating-spring-full.feature--rating-promo {
+    padding: 6px 10px !important;
+    min-height: 56px;
+  }
+  .feature--rating-spring-full .feature__title {
+    font-size: 10px !important;
+    line-height: 1.25;
+    text-align: center;
+  }
+  .feature--rating-spring-full .feature__body {
+    line-height: 1.25;
+  }
+  .feature__title--justify {
+    text-align: center;
+  }
+  .feature--rating-spring-full .feature__title-prize {
+    font-size: 1.15em;
+    white-space: nowrap;
+  }
+  .feature--rating-spring-full .feature__cup {
+    font-size: 36px;
+  }
+  .feature--rating-spring-full .feature__cup--left {
+    margin-right: 6px;
+  }
+  .feature--rating-spring-full .feature__cup--right {
+    margin-left: 6px;
+  }
+  .features-section-title {
+    font-size: 13px;
+    margin-top: 14px;
+  }
+  .features {
+    margin-top: 14px;
+    gap: 8px;
+  }
+  .games-apps-grid .feature__title {
+    font-size: 11px;
+  }
+}
+@media (max-width: 360px) {
+  .feature--rating-spring-full .feature__title {
+    font-size: 9px !important;
+  }
+  .feature--rating-spring-full .feature__title-prize {
+    font-size: 1.05em;
+  }
+  .feature--rating-spring-full .feature__cup {
+    font-size: 32px;
+  }
 }
 
 .feature--rating-promo {
@@ -2976,6 +3032,7 @@ img.chat-contact__avatar {
   background: rgba(148, 163, 184, 0.2);
   border: 1px solid rgba(148, 163, 184, 0.4);
   border-radius: 12px;
+  min-width: 0;
 }
 /* Неактивные кнопки (Магазин, Акции, Партнёрка) — тусклее */
 .home-mini-icons span.home-mini-icon-item {
@@ -2995,17 +3052,42 @@ img.chat-contact__avatar {
   border-radius: 0;
 }
 .home-mini-icon__label {
-  font-size: 6px;
+  font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.01em;
   color: var(--text);
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
   max-width: 100%;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+/* Узкие экраны: подписи кнопок (Чат, Канал, Партнёрка) в 2 строки, не обрезаются */
+@media (max-width: 400px) {
+  .home-mini-icon__label {
+    font-size: 8px;
+    line-height: 1.2;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 52px;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  .home-mini-icon-item {
+    width: 52px;
+    padding: 5px 2px;
+    min-height: 48px;
+  }
+  .features-section-title {
+    font-size: 13px;
+  }
+  .features {
+    margin-top: 14px;
+    gap: 8px;
+  }
 }
 
 .home-mini-icon-wrap {
@@ -3560,6 +3642,36 @@ a.home-mini-icon-item {
   border-radius: 999px;
   object-fit: cover;
   display: block;
+}
+
+/* iPhone 15 (393px) и до 430px: всё в рамках экрана, без горизонтального скролла */
+@media (max-width: 430px) {
+  html, body {
+    overflow-x: hidden;
+  }
+  .card {
+    max-width: 100%;
+  }
+  .hero__image,
+  .hero__video {
+    max-width: min(260px, calc(100vw - 130px));
+  }
+}
+/* Узкие экраны (Realme C11 и др.): картинка «Зал славы» меньше */
+@media (max-width: 380px) {
+  .hero__image,
+  .hero__video {
+    max-width: min(200px, calc(100vw - 120px));
+  }
+  .hero-row {
+    gap: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .hero__image,
+  .hero__video {
+    max-width: min(170px, calc(100vw - 100px));
+  }
 }
 
 .feature {
@@ -7007,12 +7119,17 @@ img.plasterer-card {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 0;
   z-index: 1001;
   pointer-events: auto;
+  box-sizing: border-box;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 .bottom-nav__item {
   flex: 1;
+  min-width: 0;
   max-width: 120px;
   border: none;
   border-radius: 12px;
@@ -7023,20 +7140,25 @@ img.plasterer-card {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 6px 6px 8px;
+  padding: 6px 4px 8px;
   border-radius: 999px;
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   line-height: 1.2;
   cursor: pointer;
   pointer-events: auto;
   touch-action: manipulation;
   overflow: visible;
+  box-sizing: border-box;
 }
 .bottom-nav__item .bottom-nav__label {
   line-height: 1.2;
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .bottom-nav__item:nth-child(3),
@@ -7143,6 +7265,45 @@ img.plasterer-card {
 .bottom-nav__chat-option:hover {
   background: rgba(168, 85, 247, 0.15);
   color: var(--accent);
+}
+
+/* Узкие экраны: нижнее меню влезает в ширину (Realme C11 и др.) */
+@media (max-width: 400px) {
+  .bottom-nav {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .bottom-nav__item,
+  .bottom-nav__chat-wrap .bottom-nav__item {
+    max-width: none;
+    padding: 6px 2px 8px;
+    font-size: 9px;
+    letter-spacing: 0.02em;
+  }
+  .bottom-nav__chat-wrap {
+    max-width: none;
+  }
+  .bottom-nav__icon {
+    font-size: 16px;
+  }
+  .bottom-nav__item:nth-child(3) .bottom-nav__icon,
+  .bottom-nav__chat-wrap .bottom-nav__icon {
+    font-size: 18px;
+  }
+}
+@media (max-width: 360px) {
+  .bottom-nav__item,
+  .bottom-nav__chat-wrap .bottom-nav__item {
+    font-size: 8px;
+    padding: 4px 1px 6px;
+  }
+  .bottom-nav__icon {
+    font-size: 14px;
+  }
+  .bottom-nav__item:nth-child(3) .bottom-nav__icon,
+  .bottom-nav__chat-wrap .bottom-nav__icon {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
