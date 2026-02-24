@@ -1028,7 +1028,10 @@ body:has(.view--active[data-view="chat"]) {
   font-weight: 600;
 }
 .gazette-modal__lead--top {
-  margin-top: 28px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(139, 90, 43, 0.4);
+  box-shadow: 0 -1px 0 rgba(139, 90, 43, 0.1);
 }
 .gazette-modal__back {
   margin: 0 0 16px;
