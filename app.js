@@ -351,55 +351,6 @@ function getTopByDates(dates) {
     }, { passive: false });
   }
 
-  var testNotifyBtn = document.getElementById("gazetteNotifyTestBtn");
-  if (testNotifyBtn) {
-    function runGazetteNotifyTest() {
-      var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
-      if (!initData) {
-        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram."); else alert("Откройте приложение в Telegram.");
-        return;
-      }
-      var appEl = document.getElementById("app");
-      var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
-      var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/gazette-notify-test";
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "";
-      testNotifyBtn.disabled = true;
-      fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData, appUrl: appUrl, articleIndex: 0 }),
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          testNotifyBtn.disabled = false;
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (data && data.ok && data.sent) {
-            if (tg && tg.showAlert) tg.showAlert("Сообщение отправлено. Проверьте чат с ботом в Telegram."); else alert("Сообщение отправлено.");
-          } else {
-            var msg = (data && data.error) || "Ошибка.";
-            if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
-          }
-        })
-        .catch(function () {
-          testNotifyBtn.disabled = false;
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен."); else alert("Сервис временно недоступен.");
-        });
-    }
-    testNotifyBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
-      runGazetteNotifyTest();
-    });
-    testNotifyBtn.addEventListener("touchend", function (e) {
-      if (e.target !== testNotifyBtn && !testNotifyBtn.contains(e.target)) return;
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
-      e.preventDefault();
-      runGazetteNotifyTest();
-    }, { passive: false });
-  }
-
   var tg = window.Telegram && window.Telegram.WebApp;
   var startParam = tg && (tg.initDataUnsafe && tg.initDataUnsafe.start_param || tg.startParam || "");
   if (!startParam && typeof tg === "object" && tg.initData) {
