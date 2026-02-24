@@ -330,7 +330,14 @@ function getTopByDates(dates) {
     });
   }
 
-  var startParam = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.startParam;
+  var tg = window.Telegram && window.Telegram.WebApp;
+  var startParam = tg && (tg.initDataUnsafe && tg.initDataUnsafe.start_param || tg.startParam || "");
+  if (!startParam && typeof tg === "object" && tg.initData) {
+    try {
+      var params = new URLSearchParams(tg.initData);
+      startParam = params.get("start_param") || "";
+    } catch (e) {}
+  }
   if (startParam && (startParam === "news" || startParam.indexOf("news_") === 0)) {
     var articleNum = startParam === "news" ? undefined : parseInt(startParam.replace("news_", ""), 10);
     if (startParam !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
