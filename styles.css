@@ -492,6 +492,14 @@ body:has(.view--active[data-view="chat"]) {
   pointer-events: none;
   mask-image: radial-gradient(circle at top, black 0, transparent 60%);
 }
+/* Главная: контур внизу по центру уходит под кнопку рейтинга — вырез по середине */
+.card:has(.view--active[data-view="home"])::before,
+html.app-view-home .card::before {
+  mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 48% 22% at 50% 100%, black 0%, black 100%);
+  mask-composite: subtract;
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 48% 22% at 50% 100%, black 0%, black 100%);
+  -webkit-mask-composite: source-out;
+}
 
 .auth-banner {
   margin: 0 0 12px;
