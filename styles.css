@@ -276,7 +276,7 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Отступ сверху: safe-area + высота шапки Telegram («Закрыть»), чтобы заголовок не перекрывался */
+/* Отступ сверху: safe-area + высота шапки Telegram («Закрыть»), карточка и меню всегда колонкой */
 .app {
   position: relative;
   width: 100%;
@@ -284,11 +284,12 @@ body {
   padding-top: max(20px, calc(env(safe-area-inset-top, 0px) + 52px));
   padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: hidden;
 }
-/* Главная: скролл только до низа кнопок — контейнер по высоте экрана, контент не тянет вниз */
+/* Главная: высота по контенту, меню сразу под кнопками — без пустого отступа на телефоне */
 html:has(.view--active[data-view="home"]),
 body:has(.view--active[data-view="home"]) {
   min-height: 0;
@@ -296,15 +297,22 @@ body:has(.view--active[data-view="home"]) {
 }
 .app:has(.view--active[data-view="home"]) {
   min-height: 0;
-  height: 100dvh;
-  max-height: 100dvh;
-  align-items: flex-start;
+  height: auto;
+  flex-direction: column;
+  align-items: center;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
   padding-bottom: 0;
+}
+/* На главной нижнее меню в потоке — на всю ширину, без зазора под контентом */
+.app:has(.view--active[data-view="home"]) .bottom-nav {
+  position: static;
+  margin-top: 0;
+  align-self: stretch;
+  width: 100%;
 }
 
 .bg-gradient {
@@ -4789,7 +4797,8 @@ a.home-mini-icon-item {
   margin: 0 12px;
 }
 /* Экран рейтинга — уместить в один экран без вертикального скролла */
-.card:has(.view--active[data-view="winter-rating"]) .card__content {
+.card:has(.view--active[data-view="winter-rating"]) .card__content,
+html.app-view-winter-rating .card .card__content {
   overflow: hidden;
   min-height: 0;
   display: flex;
@@ -4802,7 +4811,24 @@ a.home-mini-icon-item {
   display: flex;
   flex-direction: column;
 }
-.view--active[data-view="winter-rating"] .winter-rating {
+html.app-view-winter-rating .card .view.view--active[data-view="winter-rating"] {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* Фон карточки на экране рейтинга (fallback без :has(), против чёрного экрана на части устройств) */
+html.app-view-winter-rating .card {
+  background: var(--card-bg);
+  min-height: 200px;
+}
+html.app-view-winter-rating .card::before {
+  opacity: 0;
+  pointer-events: none;
+}
+.view--active[data-view="winter-rating"] .winter-rating,
+html.app-view-winter-rating .card .winter-rating {
   flex: 1;
   min-height: 0;
   overflow: hidden;

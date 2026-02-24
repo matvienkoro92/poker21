@@ -646,6 +646,7 @@ function setView(viewName) {
   if (headerSwitcherWrap) headerSwitcherWrap.classList.toggle("header-chat-switcher--hidden", viewName !== "chat");
   if (viewName === "chat") {
     document.documentElement.classList.add("app-view-chat");
+    document.documentElement.classList.remove("app-view-winter-rating");
     window.chatGeneralUnread = false;
     window.chatPersonalUnread = false;
     updateChatNavDot();
@@ -654,8 +655,11 @@ function setView(viewName) {
     } else {
       initChat();
     }
-  } else {
+  } else if (viewName === "winter-rating") {
     document.documentElement.classList.remove("app-view-chat");
+    document.documentElement.classList.add("app-view-winter-rating");
+  } else {
+    document.documentElement.classList.remove("app-view-chat", "app-view-winter-rating");
   }
 }
 function updateChatNavDot() {
