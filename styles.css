@@ -2793,6 +2793,13 @@ img.chat-contact__avatar {
   border: 1px solid rgba(120, 113, 108, 0.5) !important;
   box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35) !important;
 }
+/* Главная: кнопка рейтинга — тонкая светлая обводка по периметру (приоритет над общими стилями .feature--link) */
+.view--active[data-view="home"] .feature.feature--link.feature--rating-promo {
+  border: 1px solid rgba(148, 163, 184, 0.6) !important;
+}
+[data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo {
+  border: 1px solid rgba(120, 113, 108, 0.55) !important;
+}
 [data-theme="light"] .view--active[data-view="home"] .feature--rating-promo .feature__title-accent {
   color: #c2410c;
   background: rgba(249, 115, 22, 0.2);
