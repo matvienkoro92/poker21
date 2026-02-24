@@ -1180,6 +1180,10 @@ body:has(.view--active[data-view="chat"]) {
   filter: sepia(0.35) contrast(1.05);
   box-sizing: border-box;
 }
+/* Фото в духе жёлтой прессы: усиленный сепия под газетную полосу */
+.gazette-modal__photo-wrap--warm .gazette-modal__photo {
+  filter: sepia(0.6) contrast(1.08) saturate(0.9);
+}
 .gazette-modal__photo-caption {
   margin: 6px 0 0;
   font-size: 10px;
