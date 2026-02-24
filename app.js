@@ -363,11 +363,12 @@ function getTopByDates(dates) {
       var appEl = document.getElementById("app");
       var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
       var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/gazette-notify-test";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "";
       testNotifyBtn.disabled = true;
       fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData }),
+        body: JSON.stringify({ initData: initData, appUrl: appUrl, articleIndex: 0 }),
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
