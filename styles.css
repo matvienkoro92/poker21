@@ -259,6 +259,7 @@
 
 html {
   touch-action: manipulation;
+  overflow-x: hidden;
 }
 body {
   margin: 0;
@@ -271,6 +272,8 @@ body {
   align-items: stretch;
   touch-action: manipulation;
   justify-content: center;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Отступ сверху: safe-area + высота шапки Telegram («Закрыть»), чтобы заголовок не перекрывался */
@@ -285,12 +288,15 @@ body {
   justify-content: center;
   overflow: hidden;
 }
-/* Главная: прокрутка всей страницы — карточка по высоте контента, низ не обрезается */
+/* Главная: прокрутка всей страницы — карточка по высоте контента, без пустого пространства внизу */
 .app:has(.view--active[data-view="home"]) {
   align-items: flex-start;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  padding-bottom: 12px;
 }
 
 .bg-gradient {
@@ -722,7 +728,7 @@ body:has(.view--active[data-view="chat"]) {
   flex: 0 1 auto;
   min-height: 0;
   overflow: visible;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 24px);
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
 }
 .card__content:has(.view--active[data-view="chat"]) {
   flex: 1;
@@ -1066,6 +1072,8 @@ body:has(.view--active[data-view="chat"]) {
   max-height: calc(100vh - 32px);
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 .gazette-modal__content[hidden] {
   display: none !important;
@@ -2292,6 +2300,8 @@ img.chat-contact__avatar {
   max-height: none;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 .chat-general-view .chat-input-area {
   flex-shrink: 0;
@@ -2340,6 +2350,9 @@ img.chat-contact__avatar {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 .chat-list-view--hidden { display: none !important; }
 .chat-conv-view {
@@ -2366,6 +2379,8 @@ img.chat-contact__avatar {
   max-height: none;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
@@ -4813,6 +4828,8 @@ a.home-mini-icon-item {
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y pan-x;
 }
 .view--active[data-view="winter-rating"] .winter-rating__table {
   font-size: 11px;

@@ -414,6 +414,14 @@ function getTopByDates(dates) {
   });
 })();
 
+// Восстановление скролла при «Назад» (чтобы body не оставался overflow: hidden после модалок)
+window.addEventListener("popstate", function () {
+  if (document.body) {
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+  }
+});
+
 // Инициализация Telegram WebApp (если открыто внутри Telegram)
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
@@ -578,6 +586,10 @@ function tryChillRadioPlay() {
 }
 
 function setView(viewName) {
+  if (document.body) {
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+  }
   views.forEach(function (view) {
     if (view.dataset.view === viewName) {
       view.classList.add("view--active");
