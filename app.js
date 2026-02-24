@@ -177,7 +177,7 @@ function getTopByDates(dates) {
 // Газета «Вестник Два туза» — только горячие новости
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
-  var GAZETTE_VERSION = "2026-02-23";
+  var GAZETTE_VERSION = "2026-02-24";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
@@ -234,6 +234,65 @@ function getTopByDates(dates) {
   if (openBtn) openBtn.addEventListener("click", openGazette);
   if (closeBtn) closeBtn.addEventListener("click", closeGazette);
   if (backdrop) backdrop.addEventListener("click", closeGazette);
+
+  var subscribeBtn = document.getElementById("gazetteSubscribeBtn");
+  var subscribeWrap = modal && modal.querySelector(".gazette-modal__subscribe-wrap");
+  var GAZETTE_SUBSCRIBED_KEY = "poker_gazette_subscribed";
+  function setSubscribeButtonState(subscribed) {
+    if (!subscribeBtn) return;
+    subscribeBtn.disabled = false;
+    subscribeBtn.textContent = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
+    subscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+  }
+  function updateSubscribeButtonFromStorage() {
+    try {
+      setSubscribeButtonState(localStorage.getItem(GAZETTE_SUBSCRIBED_KEY) === "1");
+    } catch (e) {
+      setSubscribeButtonState(false);
+    }
+  }
+  updateSubscribeButtonFromStorage();
+  if (subscribeBtn) {
+    subscribeBtn.addEventListener("click", function () {
+      var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
+      if (!initData) {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться.");
+        return;
+      }
+      var subscribed = subscribeBtn.dataset.subscribed === "1";
+      var base = (document.getElementById("app") && document.getElementById("app").getAttribute("data-api-base")) || "";
+      subscribeBtn.disabled = true;
+      fetch(base.replace(/\/$/, "") + "/api/gazette-subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, unsubscribe: subscribed }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.ok) {
+            try {
+              localStorage.setItem(GAZETTE_SUBSCRIBED_KEY, data.subscribed ? "1" : "0");
+            } catch (e) {}
+            setSubscribeButtonState(!!data.subscribed);
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) {
+              tg.showAlert(data.subscribed ? "Подписка оформлена. Пуши о новых новостях будут приходить в Telegram." : "Вы отписаны от уведомлений газеты.");
+            }
+          } else {
+            var msg = (data && data.error) || "Ошибка. Попробуйте позже.";
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+            setSubscribeButtonState(subscribed);
+          }
+        })
+        .catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен. Попробуйте позже."); else alert("Сервис временно недоступен.");
+          setSubscribeButtonState(subscribed);
+        });
+    });
+  }
 })();
 
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
