@@ -78,11 +78,18 @@
     var p = radio.play();
     if (p && typeof p.then === "function") p.catch(function () {});
   }
+  var firstPlayHintKey = "poker_radio_first_play_hint";
   btn.addEventListener("click", function () {
     var cur = getMode();
     var idx = MODES.indexOf(cur);
     var next = MODES[(idx + 1) % MODES.length];
     applyAndPlay(next);
+    if (next && !cur && !localStorage.getItem(firstPlayHintKey)) {
+      try {
+        localStorage.setItem(firstPlayHintKey, "1");
+      } catch (e) {}
+      alert("Если радио не играет, подождите немного.");
+    }
   });
 })();
 
@@ -144,36 +151,41 @@ function getAssetUrl(relativePath) {
   });
 })();
 
-// Газета «Вестник Два туза» — топ-15 заносов 15–22 февраля
-(function initGazetteModal() {
-  var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
-  function getGazetteTop15() {
-    var byNick = {};
-    GAZETTE_DATES.forEach(function (dateStr) {
-      var list = typeof WINTER_RATING_BY_DATE !== "undefined" && WINTER_RATING_BY_DATE[dateStr];
-      if (!list || !list.length) return;
-      list.forEach(function (r) {
-        var nick = r.nick;
-        var reward = r.reward != null ? Number(r.reward) : 0;
-        if (!byNick[nick]) byNick[nick] = 0;
-        byNick[nick] += reward;
-      });
+// Топы по выигрышу за набор дат (прошлая/текущая неделя)
+var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
+var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
+function getTopByDates(dates) {
+  if (!dates || !dates.length) return [];
+  var byNick = {};
+  dates.forEach(function (dateStr) {
+    var list = typeof WINTER_RATING_BY_DATE !== "undefined" && WINTER_RATING_BY_DATE[dateStr];
+    if (!list || !list.length) return;
+    list.forEach(function (r) {
+      var nick = r.nick;
+      var reward = r.reward != null ? Number(r.reward) : 0;
+      if (!byNick[nick]) byNick[nick] = 0;
+      byNick[nick] += reward;
     });
-    return Object.keys(byNick)
-      .map(function (nick) { return { nick: nick, totalReward: byNick[nick] }; })
-      .filter(function (r) { return r.totalReward > 0; })
-      .sort(function (a, b) { return b.totalReward - a.totalReward; })
-      .slice(0, 15);
-  }
+  });
+  return Object.keys(byNick)
+    .map(function (nick) { return { nick: nick, totalReward: byNick[nick] }; })
+    .filter(function (r) { return r.totalReward > 0; })
+    .sort(function (a, b) { return b.totalReward - a.totalReward; })
+    .slice(0, 15);
+}
+
+// Газета «Вестник Два туза» — только горячие новости
+(function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
   var GAZETTE_VERSION = "2026-02-23";
   var modal = document.getElementById("gazetteModal");
-  var listEl = document.getElementById("gazetteModalTopList");
+  var pickEl = document.getElementById("gazetteModalPick");
+  var newsEl = document.getElementById("gazetteModalNews");
   var openBtn = document.getElementById("gazetteOpenBtn");
   var closeBtn = document.getElementById("gazetteModalClose");
   var backdrop = document.getElementById("gazetteModalBackdrop");
   var unreadDot = document.getElementById("gazetteUnreadDot");
-  if (!modal || !listEl) return;
+  if (!modal || !pickEl || !newsEl) return;
   function hasUnreadGazette() {
     try {
       return (localStorage.getItem(GAZETTE_READ_KEY) || "") !== GAZETTE_VERSION;
@@ -192,29 +204,105 @@ function getAssetUrl(relativePath) {
     updateGazetteUnreadDot();
   }
   updateGazetteUnreadDot();
+  var paperEl = modal && modal.querySelector(".gazette-modal__paper");
+  function showGazetteView(view) {
+    pickEl.hidden = view !== "pick";
+    newsEl.hidden = view !== "news";
+    if (paperEl) paperEl.scrollTop = 0;
+  }
   function openGazette() {
-    var top = getGazetteTop15();
-    listEl.innerHTML = top.length ? top.map(function (r, i) {
-      var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-      var nickAttr = String(r.nick).replace(/"/g, "&quot;");
-      var sum = r.totalReward.toLocaleString("ru-RU");
-      return "<div class=\"gazette-modal__top-item\"><span class=\"gazette-modal__top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"gazette-modal__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"gazette-modal__top-reward\">" + sum + " ₽</span></div>";
-    }).join("") : "<p class=\"gazette-modal__intro\">Нет данных за указанный период.</p>";
+    showGazetteView("pick");
     modal.setAttribute("aria-hidden", "false");
     markGazetteRead();
   }
   function closeGazette() {
     modal.setAttribute("aria-hidden", "true");
+    showGazetteView("pick");
   }
-  listEl.addEventListener("click", function (e) {
-    var btn = e.target && e.target.closest ? e.target.closest(".gazette-modal__nick-btn") : null;
-    if (!btn || !btn.dataset.nick) return;
-    e.preventDefault();
-    if (typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick, { onlyDates: GAZETTE_DATES });
+  modal.addEventListener("click", function (e) {
+    var card = e.target && e.target.closest ? e.target.closest(".gazette-modal__page-card") : null;
+    if (card && card.dataset.gazettePage === "news") {
+      e.preventDefault();
+      showGazetteView("news");
+      return;
+    }
+    if (e.target && e.target.id === "gazetteModalBackNews" || (e.target.closest && e.target.closest(".gazette-modal__back"))) {
+      e.preventDefault();
+      showGazetteView("pick");
+    }
   });
   if (openBtn) openBtn.addEventListener("click", openGazette);
   if (closeBtn) closeBtn.addEventListener("click", closeGazette);
   if (backdrop) backdrop.addEventListener("click", closeGazette);
+})();
+
+// Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
+(function initWinterRatingWeekTops() {
+  var pastBtn = document.getElementById("winterRatingTopPastWeekBtn");
+  var currentBtn = document.getElementById("winterRatingTopCurrentWeekBtn");
+  var pastPreview = document.getElementById("winterRatingTopPastWeekPreview");
+  var currentPreview = document.getElementById("winterRatingTopCurrentWeekPreview");
+  var modal = document.getElementById("winterRatingWeekTopModal");
+  var modalTitle = document.getElementById("winterRatingWeekTopModalTitle");
+  var listEl = document.getElementById("winterRatingWeekTopList");
+  var modalClose = document.getElementById("winterRatingWeekTopModalClose");
+  var modalBackdrop = document.getElementById("winterRatingWeekTopModalBackdrop");
+  if (!pastBtn || !currentBtn || !pastPreview || !currentPreview || !modal || !modalTitle || !listEl) return;
+  var currentModalDates = null;
+  function escapePreview(s) {
+    return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function previewHtml(top, max) {
+    max = max || 3;
+    if (!top || !top.length) return "";
+    var lines = top.slice(0, max).map(function (r, i) {
+      var sum = r.totalReward.toLocaleString("ru-RU");
+      return "<span class=\"winter-rating__week-top-preview-line\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</span>";
+    }).join("");
+    var ellipsis = top.length > max ? "<span class=\"winter-rating__week-top-preview-ellipsis\">…</span>" : "";
+    return lines + ellipsis;
+  }
+  function updateButtonPreviews() {
+    var pastTop = getTopByDates(GAZETTE_DATES);
+    var currentTop = getTopByDates(CURRENT_WEEK_DATES);
+    currentPreview.innerHTML = currentTop.length ? previewHtml(currentTop) : "";
+    pastPreview.innerHTML = pastTop.length ? previewHtml(pastTop) : "";
+  }
+  updateButtonPreviews();
+  function renderTopList(top, dates) {
+    currentModalDates = dates;
+    listEl.innerHTML = top.length ? top.map(function (r, i) {
+      var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      var nickAttr = String(r.nick).replace(/"/g, "&quot;");
+      var sum = r.totalReward.toLocaleString("ru-RU");
+      return "<div class=\"winter-rating__week-top-item\"><span class=\"winter-rating__week-top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"winter-rating__week-top-reward\">" + sum + " ₽</span></div>";
+    }).join("") : "<p class=\"winter-rating__week-top-empty\">Нет данных за выбранный период.</p>";
+  }
+  function openModal(panelTitle, dates) {
+    var top = getTopByDates(dates);
+    modalTitle.textContent = panelTitle;
+    renderTopList(top, dates);
+    modal.setAttribute("aria-hidden", "false");
+    if (document.body) document.body.style.overflow = "hidden";
+  }
+  function closeModal() {
+    modal.setAttribute("aria-hidden", "true");
+    if (document.body) document.body.style.overflow = "";
+  }
+  currentBtn.addEventListener("click", function () {
+    openModal("Топы текущей недели", CURRENT_WEEK_DATES);
+  });
+  pastBtn.addEventListener("click", function () {
+    openModal("Топы прошлой недели", GAZETTE_DATES);
+  });
+  if (modalClose) modalClose.addEventListener("click", closeModal);
+  if (modalBackdrop) modalBackdrop.addEventListener("click", closeModal);
+  listEl.addEventListener("click", function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest(".winter-rating__nick-btn") : null;
+    if (!btn || !btn.dataset.nick) return;
+    e.preventDefault();
+    if (typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick, { onlyDates: currentModalDates || GAZETTE_DATES });
+  });
 })();
 
 // Инициализация Telegram WebApp (если открыто внутри Telegram)

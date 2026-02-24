@@ -141,10 +141,11 @@
             <div class="features">
               <div class="features-row features-row--full">
                 <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" data-view-target="winter-rating" aria-label="Рейтинг турнирщиков зима 2025-2026 на 250 000р">
-                  <div class="feature__icon feature__icon--gold">🏆</div>
+                  <span class="feature__cup feature__cup--left" aria-hidden="true">🏆</span>
                   <div class="feature__body">
-                    <div class="feature__title feature__title--justify">РЕЙТИНГ ТУРНИРЩИКОВ<br />зима 2025-2026<br /><span class="feature__title-prize">на 250 000р</span></div>
+                    <div class="feature__title feature__title--justify">Рейтинг турнирщиков<br /><span class="feature__title-prize">НА 250 000р</span><br />Зима 2025-2026</div>
                   </div>
+                  <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
                 </a>
               </div>
 
@@ -211,6 +212,16 @@
               <p class="winter-rating__show-all-wrap" id="winterRatingShowAllWrap">
                 <button type="button" class="winter-rating__show-all-btn" id="winterRatingShowAllBtn">Показать всех</button>
               </p>
+              <div class="winter-rating__week-tops-row">
+                <button type="button" class="winter-rating__week-top-btn" id="winterRatingTopCurrentWeekBtn">
+                  <span class="winter-rating__week-top-btn-label">Топы текущей недели</span>
+                  <span class="winter-rating__week-top-btn-preview" id="winterRatingTopCurrentWeekPreview"></span>
+                </button>
+                <button type="button" class="winter-rating__week-top-btn" id="winterRatingTopPastWeekBtn">
+                  <span class="winter-rating__week-top-btn-label">Топы прошлой недели</span>
+                  <span class="winter-rating__week-top-btn-preview" id="winterRatingTopPastWeekPreview"></span>
+                </button>
+              </div>
               <h3 class="winter-rating__dates-caption">Таблица по датам</h3>
               <p class="winter-rating__dates-hint">Скрин и данные на выбранную дату</p>
               <div class="winter-rating__dates" id="winterRatingDates">
@@ -1435,16 +1446,32 @@
         <div class="gazette-modal__backdrop" id="gazetteModalBackdrop"></div>
         <div class="gazette-modal__paper">
           <button type="button" class="gazette-modal__close" id="gazetteModalClose" aria-label="Закрыть">×</button>
-          <!-- Первая полоса -->
-          <div class="gazette-modal__page gazette-modal__page--1">
-            <p class="gazette-modal__page-num gazette-modal__page-num--1" aria-hidden="true">1</p>
+          <!-- Выбор страницы -->
+          <div class="gazette-modal__pick" id="gazetteModalPick">
             <header class="gazette-modal__header">
-              <p class="gazette-modal__edition">№ 8 (415) · Цена договорная</p>
               <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Два туза</h2>
-              <p class="gazette-modal__date">15–22 февраля 2026</p>
               <div class="gazette-modal__rule"></div>
             </header>
+            <div class="gazette-modal__pages">
+              <button type="button" class="gazette-modal__page-card gazette-modal__page-card--newspaper" data-gazette-page="news" aria-label="Открыть горячие новости недели">
+                <span class="gazette-modal__page-card-inner">
+                  <span class="gazette-modal__page-card-caption">Горячие новости недели</span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <!-- Страница: Горячие новости -->
+          <div class="gazette-modal__content gazette-modal__content--news" id="gazetteModalNews" hidden>
+            <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад к выбору страницы">← К газете</button>
+            <p class="gazette-modal__content-date">Воскресенье, 23 февраля 2026</p>
             <article class="gazette-modal__lead">
+              <h3 class="gazette-modal__headline gazette-modal__headline--main">АндрюшаМорф в это воскресенье выиграл 243 825₽ в майне на Иксе, оформив топ занос прошлой недели</h3>
+              <div class="gazette-modal__photo-wrap">
+                <img src="./assets/gazette-andrusha-morf.png" alt="Игровые данные: АндрюшаМорф, 3-е место в MAIN 2,5M GTD" class="gazette-modal__photo" />
+                <p class="gazette-modal__photo-caption">Андрюха держится в топе рейтинга на протяжении всей зимы и временами делает четкие выстрелы по 200–300к, потому-то он и легенда клуба!</p>
+              </div>
+            </article>
+            <article class="gazette-modal__lead gazette-modal__lead--top">
               <h3 class="gazette-modal__headline gazette-modal__headline--main">Кулер пушит T8o и выбивает АК по окончании реги и оказывается инвалидом (по игре)</h3>
               <div class="gazette-modal__photo-wrap">
                 <img src="./assets/gazette-front-photo.png" alt="Стол турнира: Кулер и ШЛЯПАУ в хенде" class="gazette-modal__photo" />
@@ -1453,18 +1480,16 @@
               <div class="gazette-modal__body">
                 <p>Кулер запушил T8o и выбил АК по окончании реги, чем вызвал волну негодования и даже показался инвалидом некоторым игрокам. На что он ответил, что они все долбоёбы. Но до драки так и не дошло — оба дали заднюю и сказали, что имели в виду совсем другое.</p>
               </div>
-              <p class="gazette-modal__continued">Заносы прошлой недели — стр. 2 →</p>
-            </article>
-            <div class="gazette-modal__fold"></div>
-          </div>
-          <!-- Вторая полоса -->
-          <div class="gazette-modal__page gazette-modal__page--2">
-            <p class="gazette-modal__page-num" aria-hidden="true">2</p>
-            <article class="gazette-modal__article">
-              <h3 class="gazette-modal__headline gazette-modal__headline--continuation">Заносы прошлой недели <span class="gazette-modal__headline-cont">(продолжение)</span></h3>
-              <div class="gazette-modal__top-list" id="gazetteModalTopList"></div>
             </article>
           </div>
+        </div>
+      </div>
+      <div class="winter-rating-week-top-modal" id="winterRatingWeekTopModal" role="dialog" aria-modal="true" aria-labelledby="winterRatingWeekTopModalTitle" aria-label="Топы за неделю" aria-hidden="true">
+        <div class="winter-rating-week-top-modal__backdrop" id="winterRatingWeekTopModalBackdrop"></div>
+        <div class="winter-rating-week-top-modal__inner">
+          <button type="button" class="winter-rating-week-top-modal__close" id="winterRatingWeekTopModalClose" aria-label="Закрыть">×</button>
+          <h3 class="winter-rating-week-top-modal__title" id="winterRatingWeekTopModalTitle">Топы прошлой недели</h3>
+          <div class="winter-rating-week-top-modal__list" id="winterRatingWeekTopList"></div>
         </div>
       </div>
       <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
