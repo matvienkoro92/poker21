@@ -1094,6 +1094,25 @@ body:has(.view--active[data-view="chat"]) {
   opacity: 0.7;
   cursor: not-allowed;
 }
+.gazette-modal__test-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--gazette-ink, #1c1917);
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.gazette-modal__test-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.1);
+}
+.gazette-modal__test-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 /* Контент страницы (новости или заносы) */
 .gazette-modal__content {
   padding: 44px 20px 24px;

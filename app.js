@@ -289,17 +289,20 @@ function getTopByDates(dates) {
   }
   updateSubscribeButtonFromStorage();
   if (subscribeBtn) {
-    subscribeBtn.addEventListener("click", function () {
+    var gazetteSubscribeHandledInTouchend = false;
+    function runGazetteSubscribe() {
       var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
       if (!initData) {
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться.");
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться."); else alert("Откройте приложение в Telegram, чтобы подписаться.");
         return;
       }
       var subscribed = subscribeBtn.dataset.subscribed === "1";
-      var base = (document.getElementById("app") && document.getElementById("app").getAttribute("data-api-base")) || "";
+      var appEl = document.getElementById("app");
+      var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
+      var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/gazette-subscribe";
       subscribeBtn.disabled = true;
-      fetch(base.replace(/\/$/, "") + "/api/gazette-subscribe", {
+      fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ initData: initData, unsubscribe: subscribed }),
@@ -314,6 +317,8 @@ function getTopByDates(dates) {
             var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
             if (tg && tg.showAlert) {
               tg.showAlert(data.subscribed ? "Подписка оформлена. Пуши о новых новостях будут приходить в Telegram." : "Вы отписаны от уведомлений газеты.");
+            } else {
+              alert(data.subscribed ? "Подписка оформлена." : "Вы отписаны.");
             }
           } else {
             var msg = (data && data.error) || "Ошибка. Попробуйте позже.";
@@ -327,7 +332,71 @@ function getTopByDates(dates) {
           if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен. Попробуйте позже."); else alert("Сервис временно недоступен.");
           setSubscribeButtonState(subscribed);
         });
+    }
+    subscribeBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (gazetteSubscribeHandledInTouchend) {
+        gazetteSubscribeHandledInTouchend = false;
+        return;
+      }
+      if (window.__touchWasScroll && window.__touchWasScroll()) return;
+      runGazetteSubscribe();
     });
+    subscribeBtn.addEventListener("touchend", function (e) {
+      if (e.target !== subscribeBtn && !subscribeBtn.contains(e.target)) return;
+      if (window.__touchWasScroll && window.__touchWasScroll()) return;
+      e.preventDefault();
+      gazetteSubscribeHandledInTouchend = true;
+      runGazetteSubscribe();
+    }, { passive: false });
+  }
+
+  var testNotifyBtn = document.getElementById("gazetteNotifyTestBtn");
+  if (testNotifyBtn) {
+    function runGazetteNotifyTest() {
+      var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
+      if (!initData) {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram."); else alert("Откройте приложение в Telegram.");
+        return;
+      }
+      var appEl = document.getElementById("app");
+      var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
+      var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/gazette-notify-test";
+      testNotifyBtn.disabled = true;
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          testNotifyBtn.disabled = false;
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (data && data.ok && data.sent) {
+            if (tg && tg.showAlert) tg.showAlert("Сообщение отправлено. Проверьте чат с ботом в Telegram."); else alert("Сообщение отправлено.");
+          } else {
+            var msg = (data && data.error) || "Ошибка.";
+            if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+          }
+        })
+        .catch(function () {
+          testNotifyBtn.disabled = false;
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен."); else alert("Сервис временно недоступен.");
+        });
+    }
+    testNotifyBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (window.__touchWasScroll && window.__touchWasScroll()) return;
+      runGazetteNotifyTest();
+    });
+    testNotifyBtn.addEventListener("touchend", function (e) {
+      if (e.target !== testNotifyBtn && !testNotifyBtn.contains(e.target)) return;
+      if (window.__touchWasScroll && window.__touchWasScroll()) return;
+      e.preventDefault();
+      runGazetteNotifyTest();
+    }, { passive: false });
   }
 
   var tg = window.Telegram && window.Telegram.WebApp;
