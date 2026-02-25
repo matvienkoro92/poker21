@@ -5220,6 +5220,107 @@ a.home-mini-icon-item {
   gap: 8px;
   margin: 0 12px;
 }
+/* Календарь по датам */
+.winter-rating__calendar-wrap {
+  margin-bottom: 10px;
+}
+.winter-rating__calendar {
+  background: rgba(15, 23, 42, 0.25);
+  border-radius: 12px;
+  padding: 12px 10px 10px;
+  border: 1px solid var(--border-subtle);
+}
+[data-theme="light"] .winter-rating__calendar {
+  background: rgba(248, 250, 252, 0.8);
+}
+.winter-rating__calendar-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.winter-rating__calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.winter-rating__calendar-wday {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.winter-rating__calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.winter-rating__calendar-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.winter-rating__calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  min-width: 0;
+}
+.winter-rating__calendar-cell--empty {
+  visibility: hidden;
+}
+.winter-rating__calendar-cell--no-data {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+.winter-rating__calendar-cell--day {
+  border: none;
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+.winter-rating__calendar-cell--day:hover {
+  background: rgba(212, 175, 55, 0.25);
+}
+.winter-rating__calendar-cell--day.winter-rating__calendar-cell--active {
+  background: rgba(212, 175, 55, 0.35);
+  color: var(--text);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.4);
+}
+[data-theme="light"] .winter-rating__calendar-cell--day:hover {
+  background: rgba(249, 115, 22, 0.2);
+}
+[data-theme="light"] .winter-rating__calendar-cell--day.winter-rating__calendar-cell--active {
+  background: rgba(249, 115, 22, 0.3);
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.4);
+}
+/* Список дат: кнопки скрыты, открытие только через календарь */
+.winter-rating__dates .winter-rating__date-item > .winter-rating__date-btn {
+  display: none;
+}
+.winter-rating__dates .winter-rating__date-item {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+.winter-rating__dates .winter-rating__date-item .winter-rating__date-panel {
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  margin-top: 4px;
+}
+.winter-rating__dates .winter-rating__date-panel--hidden {
+  display: none;
+}
 /* Экран рейтинга — уместить в один экран, контент не уезжает в сторону */
 .card:has(.view--active[data-view="winter-rating"]) .card__content,
 html.app-view-winter-rating .card .card__content {

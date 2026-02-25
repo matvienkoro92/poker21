@@ -3252,6 +3252,74 @@ function initWinterRating() {
       if (typeof console !== "undefined" && console.error) console.error("winter rating date item", err);
     }
   });
+  var calendarWrap = document.getElementById("winterRatingCalendarWrap");
+  if (calendarWrap && dateItems.length) {
+    var availableDates = Array.prototype.map.call(dateItems, function (it) { return it.getAttribute("data-rating-date"); });
+    var firstDate = availableDates[0];
+    var parts = firstDate ? firstDate.split(".") : [];
+    var dayNum = parseInt(parts[0], 10);
+    var monthNum = parseInt(parts[1], 10);
+    var yearNum = parseInt(parts[2], 10);
+    if (!yearNum || !monthNum) return;
+    var monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+    var monthLabel = (monthNames[monthNum - 1] || "") + " " + yearNum;
+    var firstDay = new Date(yearNum, monthNum - 1, 1);
+    var dow = firstDay.getDay();
+    var monFirst = (dow + 6) % 7;
+    var daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+    var cells = [];
+    var i;
+    for (i = 0; i < monFirst; i++) cells.push({ empty: true });
+    for (i = 1; i <= daysInMonth; i++) {
+      var d = i < 10 ? "0" + i : "" + i;
+      var m = monthNum < 10 ? "0" + monthNum : "" + monthNum;
+      var dateStr = d + "." + m + "." + yearNum;
+      cells.push({ empty: false, day: i, dateStr: dateStr, hasData: availableDates.indexOf(dateStr) !== -1 });
+    }
+    var weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+    var headerRow = "<div class=\"winter-rating__calendar-weekdays\">" + weekdays.map(function (w) { return "<span class=\"winter-rating__calendar-wday\">" + w + "</span>"; }).join("") + "</div>";
+    var rowHtml = "";
+    var rowsHtml = "";
+    for (i = 0; i < cells.length; i++) {
+      if (i > 0 && i % 7 === 0) {
+        rowsHtml += "<div class=\"winter-rating__calendar-row\">" + rowHtml + "</div>";
+        rowHtml = "";
+      }
+      var cell = cells[i];
+      if (cell.empty) {
+        rowHtml += "<span class=\"winter-rating__calendar-cell winter-rating__calendar-cell--empty\"></span>";
+      } else if (cell.hasData) {
+        rowHtml += "<button type=\"button\" class=\"winter-rating__calendar-cell winter-rating__calendar-cell--day\" data-rating-date=\"" + cell.dateStr.replace(/"/g, "&quot;") + "\" aria-label=\"Рейтинг на " + cell.dateStr + "\">" + cell.day + "</button>";
+      } else {
+        rowHtml += "<span class=\"winter-rating__calendar-cell winter-rating__calendar-cell--no-data\" aria-hidden=\"true\">" + cell.day + "</span>";
+      }
+    }
+    if (cells.length % 7 !== 0) {
+      for (i = cells.length % 7; i < 7; i++) rowHtml += "<span class=\"winter-rating__calendar-cell winter-rating__calendar-cell--empty\"></span>";
+    }
+    rowsHtml += "<div class=\"winter-rating__calendar-row\">" + rowHtml + "</div>";
+    calendarWrap.innerHTML = "<div class=\"winter-rating__calendar\"><div class=\"winter-rating__calendar-title\">" + monthLabel + "</div>" + headerRow + "<div class=\"winter-rating__calendar-grid\">" + rowsHtml + "</div></div>";
+    calendarWrap.setAttribute("aria-hidden", "false");
+    calendarWrap.querySelectorAll(".winter-rating__calendar-cell--day").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var dateStr = btn.getAttribute("data-rating-date");
+        var item = datesContainer.querySelector(".winter-rating__date-item[data-rating-date=\"" + dateStr + "\"]");
+        if (!item) return;
+        var panel = item.querySelector(".winter-rating__date-panel");
+        var otherBtn = item.querySelector(".winter-rating__date-btn");
+        datesContainer.querySelectorAll(".winter-rating__date-panel").forEach(function (p) {
+          p.classList.add("winter-rating__date-panel--hidden");
+        });
+        datesContainer.querySelectorAll(".winter-rating__date-btn").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+        datesContainer.querySelectorAll(".winter-rating__calendar-cell--day").forEach(function (b) { b.classList.remove("winter-rating__calendar-cell--active"); });
+        if (panel) {
+          panel.classList.remove("winter-rating__date-panel--hidden");
+          if (otherBtn) otherBtn.setAttribute("aria-expanded", "true");
+          btn.classList.add("winter-rating__calendar-cell--active");
+        }
+      });
+    });
+  }
 }
 
 function fetchRaffleBadge() {
