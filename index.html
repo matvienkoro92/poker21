@@ -19,37 +19,37 @@
     <meta name="twitter:description" content="Горячие новости покерного клуба «Два туза». Откройте в Telegram." />
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="stylesheet" href="./styles.css?v=18" />
-    <!-- Критические стили главной: body[data-view="home"] и html.app-view-home, !important для проды. data-build: смена при пуше = кэш обновился. -->
-    <style>
-      html.app-view-home body, body[data-view="home"] { min-height: 0 !important; height: auto !important; }
-      html.app-view-home .app, body[data-view="home"] .app {
+    <!-- Разметка главной: класс на #app (.app--view-home), чтобы стили работали на проде независимо от body/html -->
+    <style id="home-layout-critical">
+      html:has(.app.app--view-home) body { min-height: 0 !important; height: auto !important; }
+      .app.app--view-home {
         min-height: 0 !important; height: 100vh !important; max-height: 100vh !important;
         height: 100dvh !important; max-height: 100dvh !important;
         flex-direction: column !important; align-items: center !important;
         overflow-y: auto !important; overflow-x: hidden !important; padding-bottom: 0 !important;
         -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;
       }
-      html.app-view-home .app .bottom-nav, body[data-view="home"] .app .bottom-nav {
+      .app.app--view-home .bottom-nav {
         position: fixed !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important;
       }
-      html.app-view-home .card, body[data-view="home"] .card {
+      .app.app--view-home .card {
         flex: 1 1 auto !important; flex-shrink: 0 !important;
         min-height: 100vh !important; min-height: 100dvh !important;
       }
-      html.app-view-home .card .card__content, body[data-view="home"] .card .card__content {
+      .app.app--view-home .card .card__content {
         flex: 1 1 auto !important;
         padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
       }
-      html.app-view-home .card::before, body[data-view="home"] .card::before {
+      .app.app--view-home .card::before {
         mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 55% 28% at 50% 100%, black 0%, black 100%) !important;
         mask-composite: subtract !important;
         -webkit-mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 55% 28% at 50% 100%, black 0%, black 100%) !important;
         -webkit-mask-composite: source-out !important;
       }
-      html.app-view-home .feature.feature--link.feature--rating-promo, body[data-view="home"] .feature.feature--link.feature--rating-promo {
+      .app.app--view-home .feature.feature--link.feature--rating-promo {
         border: 1px solid rgba(148, 163, 184, 0.6) !important;
       }
-      [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo, [data-theme="light"] body[data-view="home"] .feature.feature--link.feature--rating-promo {
+      [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo {
         border: 1px solid rgba(120, 113, 108, 0.55) !important;
       }
     </style>
@@ -63,7 +63,7 @@
   <body data-view="home">
     <!-- Радио: чил, американские 90‑е или Радио 7 (переключение одной кнопкой) -->
     <audio id="chillRadio" preload="metadata" loop crossorigin="anonymous" aria-hidden="true"></audio>
-    <div id="app" class="app" data-telegram-app-url="https://t.me/Poker_dvatuza_bot/DvaTuza" data-api-base="https://poker-app-ebon.vercel.app">
+    <div id="app" class="app app--view-home" data-telegram-app-url="https://t.me/Poker_dvatuza_bot/DvaTuza" data-api-base="https://poker-app-ebon.vercel.app">
       <div class="bg-gradient"></div>
       <div class="bg-blur"></div>
 

@@ -700,6 +700,8 @@ function setView(viewName) {
     document.documentElement.classList.remove("app-view-chat", "app-view-winter-rating", "app-view-home");
   }
   if (document.body) document.body.setAttribute("data-view", viewName || "");
+  var appEl = document.getElementById("app");
+  if (appEl) appEl.classList.toggle("app--view-home", viewName === "home");
 }
 function updateChatNavDot() {
   var hasUnread = !!(window.chatGeneralUnread || window.chatPersonalUnread);
