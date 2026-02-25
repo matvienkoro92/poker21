@@ -1221,6 +1221,32 @@ html.app-view-home .card .card__content {
   opacity: 0.7;
   cursor: not-allowed;
 }
+/* Кнопка подписки в блоке новостей */
+.gazette-modal__subscribe-in-news {
+  margin: 0 0 16px;
+  text-align: center;
+}
+.gazette-modal__subscribe-in-news-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c1810;
+  background: rgba(139, 90, 43, 0.2);
+  border: 1px solid rgba(139, 90, 43, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+.gazette-modal__subscribe-in-news-btn:hover:not(:disabled) {
+  background: rgba(139, 90, 43, 0.35);
+  border-color: rgba(139, 90, 43, 0.65);
+}
+.gazette-modal__subscribe-in-news-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 /* Контент страницы (новости или заносы) */
 .gazette-modal__content {
   padding: 50px 52px 24px 20px;
@@ -4207,6 +4233,39 @@ a.home-mini-icon-item {
 }
 .winter-rating__show-all-btn:hover {
   opacity: 0.85;
+}
+.winter-rating__subscribe-wrap {
+  margin: 0 12px 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  text-align: center;
+}
+.winter-rating__subscribe-text {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.4;
+}
+.winter-rating__subscribe-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent, #d4af37);
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+.winter-rating__subscribe-btn:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.28);
+  border-color: rgba(212, 175, 55, 0.7);
+}
+.winter-rating__subscribe-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 .winter-rating__nick-btn {
   font: inherit;

@@ -281,13 +281,21 @@ function getTopByDates(dates) {
   });
 
   var subscribeBtn = document.getElementById("gazetteSubscribeBtn");
+  var subscribeBtnNews = document.getElementById("gazetteSubscribeBtnNews");
   var subscribeWrap = modal && modal.querySelector(".gazette-modal__subscribe-wrap");
   var GAZETTE_SUBSCRIBED_KEY = "poker_gazette_subscribed";
   function setSubscribeButtonState(subscribed) {
-    if (!subscribeBtn) return;
-    subscribeBtn.disabled = false;
-    subscribeBtn.textContent = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
-    subscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+    var text = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
+    if (subscribeBtn) {
+      subscribeBtn.disabled = false;
+      subscribeBtn.textContent = text;
+      subscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+    }
+    if (subscribeBtnNews) {
+      subscribeBtnNews.disabled = false;
+      subscribeBtnNews.textContent = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
+      subscribeBtnNews.dataset.subscribed = subscribed ? "1" : "0";
+    }
   }
   function updateSubscribeButtonFromStorage() {
     try {
@@ -297,7 +305,7 @@ function getTopByDates(dates) {
     }
   }
   updateSubscribeButtonFromStorage();
-  if (subscribeBtn) {
+  if (subscribeBtn || subscribeBtnNews) {
     var gazetteSubscribeHandledInTouchend = false;
     function runGazetteSubscribe() {
       var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
@@ -306,17 +314,21 @@ function getTopByDates(dates) {
         if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться."); else alert("Откройте приложение в Telegram, чтобы подписаться.");
         return;
       }
-      var subscribed = subscribeBtn.dataset.subscribed === "1";
+      var activeBtn = subscribeBtn || subscribeBtnNews;
+      var subscribed = (activeBtn && activeBtn.dataset.subscribed === "1") || false;
       var appEl = document.getElementById("app");
       var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
       var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/gazette-subscribe";
-      subscribeBtn.disabled = true;
+      if (subscribeBtn) subscribeBtn.disabled = true;
+      if (subscribeBtnNews) subscribeBtnNews.disabled = true;
       fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ initData: initData, unsubscribe: subscribed }),
       })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
+        })
         .then(function (data) {
           if (data && data.ok) {
             try {
@@ -342,23 +354,94 @@ function getTopByDates(dates) {
           setSubscribeButtonState(subscribed);
         });
     }
-    subscribeBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      if (gazetteSubscribeHandledInTouchend) {
-        gazetteSubscribeHandledInTouchend = false;
-        return;
-      }
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
-      runGazetteSubscribe();
-    });
-    subscribeBtn.addEventListener("touchend", function (e) {
-      if (e.target !== subscribeBtn && !subscribeBtn.contains(e.target)) return;
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
-      e.preventDefault();
-      gazetteSubscribeHandledInTouchend = true;
-      runGazetteSubscribe();
-    }, { passive: false });
+    function bindSubscribeClick(btn) {
+      if (!btn) return;
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (gazetteSubscribeHandledInTouchend) {
+          gazetteSubscribeHandledInTouchend = false;
+          return;
+        }
+        if (window.__touchWasScroll && window.__touchWasScroll()) return;
+        runGazetteSubscribe();
+      });
+      btn.addEventListener("touchend", function (e) {
+        if (e.target !== btn && !btn.contains(e.target)) return;
+        if (window.__touchWasScroll && window.__touchWasScroll()) return;
+        e.preventDefault();
+        gazetteSubscribeHandledInTouchend = true;
+        runGazetteSubscribe();
+      }, { passive: false });
+    }
+    bindSubscribeClick(subscribeBtn);
+    bindSubscribeClick(subscribeBtnNews);
   }
+
+  (function initRatingSubscribe() {
+    var ratingSubscribeBtn = document.getElementById("ratingSubscribeBtn");
+    var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
+    function setRatingSubscribeButtonState(subscribed) {
+      if (!ratingSubscribeBtn) return;
+      ratingSubscribeBtn.disabled = false;
+      ratingSubscribeBtn.textContent = subscribed ? "Отписаться от обновлений рейтинга" : "Подписаться на обновления рейтинга";
+      ratingSubscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+    }
+    function updateRatingSubscribeFromStorage() {
+      try {
+        setRatingSubscribeButtonState(localStorage.getItem(RATING_SUBSCRIBED_KEY) === "1");
+      } catch (e) {
+        setRatingSubscribeButtonState(false);
+      }
+    }
+    updateRatingSubscribeFromStorage();
+    if (ratingSubscribeBtn) {
+      ratingSubscribeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (window.__touchWasScroll && window.__touchWasScroll()) return;
+        var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
+        if (!initData) {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться."); else alert("Откройте приложение в Telegram, чтобы подписаться.");
+          return;
+        }
+        var subscribed = ratingSubscribeBtn.dataset.subscribed === "1";
+        var appEl = document.getElementById("app");
+        var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
+        var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/rating-subscribe";
+        ratingSubscribeBtn.disabled = true;
+        fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, unsubscribe: subscribed }),
+        })
+          .then(function (r) { return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; }); })
+          .then(function (data) {
+            if (data && data.ok) {
+              try {
+                localStorage.setItem(RATING_SUBSCRIBED_KEY, data.subscribed ? "1" : "0");
+              } catch (e) {}
+              setRatingSubscribeButtonState(!!data.subscribed);
+              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+              if (tg && tg.showAlert) {
+                tg.showAlert(data.subscribed ? "Подписка оформлена. Уведомления об обновлении рейтинга будут приходить в Telegram." : "Вы отписаны от уведомлений рейтинга.");
+              } else {
+                alert(data.subscribed ? "Подписка оформлена." : "Вы отписаны.");
+              }
+            } else {
+              var msg = (data && data.error) || "Ошибка. Попробуйте позже.";
+              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+              if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+              setRatingSubscribeButtonState(subscribed);
+            }
+          })
+          .catch(function () {
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен. Попробуйте позже."); else alert("Сервис временно недоступен.");
+            setRatingSubscribeButtonState(subscribed);
+          });
+      });
+    }
+  })();
 
   var tg = window.Telegram && window.Telegram.WebApp;
   var startParam = tg && (tg.initDataUnsafe && tg.initDataUnsafe.start_param || tg.startParam || "");
