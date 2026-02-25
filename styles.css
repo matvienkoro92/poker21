@@ -376,6 +376,7 @@ body {
 }
 .card:has(.view--active[data-view="home"]) {
   background: linear-gradient(135deg, #0f172a 0%, #0f172a 100%);
+  border: none;
 }
 .card:has(.view--active[data-view="home"])::after {
   content: "";
@@ -472,13 +473,27 @@ body:has(.view--active[data-view="chat"]) {
   pointer-events: none;
   mask-image: radial-gradient(circle at top, black 0, transparent 60%);
 }
-/* Главная: контур внизу по центру уходит под кнопку рейтинга — вырез по середине */
+/* Главная: рамку рисуем через ::before — сверху сразу над «Привет, Роман», снизу после кнопки турнирщиков */
+html.app-view-home .card {
+  border: none;
+}
 .card:has(.view--active[data-view="home"])::before,
 html.app-view-home .card::before {
-  mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 48% 22% at 50% 100%, black 0%, black 100%);
-  mask-composite: subtract;
-  -webkit-mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 48% 22% at 50% 100%, black 0%, black 100%);
-  -webkit-mask-composite: source-out;
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 0;
+  right: 0;
+  bottom: 30%;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+  opacity: 1;
+  z-index: 2;
+  mask: none;
+  -webkit-mask: none;
+  mask-image: none;
+  -webkit-mask-image: none;
 }
 
 .auth-banner {
@@ -2798,11 +2813,11 @@ img.chat-contact__avatar {
 /* Главная: кнопка рейтинга — тонкая светлая обводка по периметру (приоритет над общими стилями .feature--link) */
 .view--active[data-view="home"] .feature.feature--link.feature--rating-promo,
 html.app-view-home .feature.feature--link.feature--rating-promo {
-  border: 1px solid rgba(148, 163, 184, 0.6) !important;
+  border: 1px solid rgba(148, 163, 184, 0.85) !important;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo,
 [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo {
-  border: 1px solid rgba(120, 113, 108, 0.55) !important;
+  border: 1px solid rgba(120, 113, 108, 0.75) !important;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature--rating-promo .feature__title-accent {
   color: #c2410c;
@@ -2820,6 +2835,23 @@ html.app-view-home .feature.feature--link.feature--rating-promo {
 }
 .features-section-title--end {
   text-align: right;
+}
+.features-section-title--games {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.games-apps-block {
+  margin-top: 18px;
+  padding: 14px 12px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  background: var(--block-bg);
+}
+[data-theme="light"] .games-apps-block {
+  border-color: rgba(251, 146, 60, 0.4);
+  background: rgba(255, 237, 213, 0.4);
 }
 
 .games-apps-grid {

@@ -25,21 +25,28 @@
       [data-theme="light"] .app.app--view-home { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%) !important; }
       .app.app--view-home .card {
         display: flex !important; flex-direction: column !important;
+        border: none !important;
+      }
+      .app.app--view-home .card::before {
+        content: "" !important;
+        position: absolute !important;
+        top: 10% !important; left: 0 !important; right: 0 !important;
+        bottom: 30% !important;
+        border: 1px solid var(--card-border) !important;
+        border-radius: var(--radius-lg) !important;
+        opacity: 1 !important;
+        z-index: 2 !important;
+        mask: none !important;
+        -webkit-mask: none !important;
       }
       .app.app--view-home .card .card__content {
         padding-left: 5mm !important; padding-right: 5mm !important;
       }
-      .app.app--view-home .card::before {
-        mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 55% 28% at 50% 100%, black 0%, black 100%) !important;
-        mask-composite: subtract !important;
-        -webkit-mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 55% 28% at 50% 100%, black 0%, black 100%) !important;
-        -webkit-mask-composite: source-out !important;
-      }
       .app.app--view-home .feature.feature--link.feature--rating-promo {
-        border: 1px solid rgba(148, 163, 184, 0.6) !important;
+        border: 1px solid rgba(148, 163, 184, 0.85) !important;
       }
       [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo {
-        border: 1px solid rgba(120, 113, 108, 0.55) !important;
+        border: 1px solid rgba(120, 113, 108, 0.75) !important;
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -181,8 +188,9 @@
                 </a>
               </div>
 
-              <h2 class="features-section-title">Игры и приложения</h2>
-              <div class="games-apps-grid">
+              <div class="games-apps-block">
+                <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
+                <div class="games-apps-grid">
                 <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
                   <div class="feature__icon feature__icon--purple">🃏</div>
                   <div class="feature__body">
@@ -208,6 +216,7 @@
                     <div class="feature__title">Научиться играть</div>
                   </div>
                 </a>
+              </div>
               </div>
             </div>
 
