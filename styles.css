@@ -4096,21 +4096,27 @@ a.home-mini-icon-item {
   box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 0 28px rgba(255, 255, 255, 0.25);
 }
 
-/* Рейтинг Турнирщиков зимы на 250 000₽ — на всю строчку */
+/* Рейтинг Турнирщиков зимы — стильный блок в духе покерного клуба */
 .winter-rating {
   width: 100%;
   margin: 20px 0 24px;
-  padding: 16px 0;
-  border-radius: var(--radius-lg);
-  background: var(--block-bg);
-  border: 1px solid var(--border-subtle);
+  padding: 20px 0 20px;
+  border-radius: 16px;
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 28, 22, 0.92) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+[data-theme="light"] .winter-rating {
+  background: linear-gradient(165deg, rgba(255, 248, 240, 0.98) 0%, rgba(240, 253, 244, 0.95) 100%);
+  border-color: rgba(249, 115, 22, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 .winter-rating__title {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 18px;
   font-weight: 700;
   color: var(--text);
@@ -4120,10 +4126,15 @@ a.home-mini-icon-item {
   line-height: 1.3;
 }
 .winter-rating__title-accent {
-  color: var(--accent, #d4af37);
+  color: #d4af37;
   font-weight: 800;
   font-size: 1.33em;
   line-height: 1.2;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+[data-theme="light"] .winter-rating__title-accent {
+  color: #ea580c;
+  text-shadow: none;
 }
 .winter-rating__cup {
   font-size: 28px;
@@ -4212,7 +4223,7 @@ a.home-mini-icon-item {
   opacity: 0.9;
 }
 
-/* Всплывающее окно сводки по игроку */
+/* Модалка сводки по игроку — в стиле покерного клуба */
 .winter-rating-player-modal {
   position: fixed;
   inset: 0;
@@ -4221,10 +4232,10 @@ a.home-mini-icon-item {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.82);
+  background: rgba(0, 0, 0, 0.78);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 .winter-rating-player-modal[aria-hidden="false"] {
   opacity: 1;
@@ -4235,21 +4246,26 @@ a.home-mini-icon-item {
   max-width: 100%;
   max-height: 85vh;
   overflow: auto;
-  background: rgba(15, 23, 42, 0.96);
-  border-radius: 12px;
-  padding: 20px 16px 16px;
-  border: 1px solid var(--border-subtle);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(175deg, #1a2332 0%, #0f1923 50%, #0d161c 100%);
+  border-radius: 16px;
+  padding: 24px 20px 20px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+[data-theme="light"] .winter-rating-player-modal__inner {
+  background: linear-gradient(175deg, #f8fafc 0%, #f1f5f9 100%);
+  border-color: rgba(249, 115, 22, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
 }
 .winter-rating-player-modal__close {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   width: 36px;
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text);
   font-size: 22px;
   line-height: 1;
@@ -4258,22 +4274,25 @@ a.home-mini-icon-item {
   align-items: center;
   justify-content: center;
   padding: 0;
+  transition: background 0.2s ease;
 }
 .winter-rating-player-modal__close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(212, 175, 55, 0.2);
 }
 .winter-rating-player-modal__back {
   display: inline-block;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   padding: 4px 0;
   background: none;
   border: none;
-  color: #f97316;
+  color: #d4af37;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: color 0.2s ease;
 }
 .winter-rating-player-modal__back:hover {
-  color: #ea580c;
+  color: #e5c548;
   text-decoration: underline;
 }
 [data-theme="light"] .winter-rating-player-modal__back {
@@ -4281,15 +4300,19 @@ a.home-mini-icon-item {
 }
 [data-theme="light"] .winter-rating-player-modal__back:hover {
   color: #c2410c;
+  text-decoration: underline;
 }
 .winter-rating-player-modal__title {
-  margin: 0 32px 12px 0;
-  font-size: 17px;
+  margin: 0 40px 14px 0;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text);
+  letter-spacing: 0.01em;
 }
 .winter-rating-player-modal__table-wrap {
   overflow-x: auto;
+  border-radius: 10px;
+  overflow: hidden;
 }
 .winter-rating-player-modal__table {
   margin: 0;
@@ -4356,9 +4379,6 @@ a.home-mini-icon-item {
 .winter-rating-player-modal--gazette .winter-rating-player-modal__table thead th {
   color: #5c4033;
   font-weight: 700;
-}
-[data-theme="light"] .winter-rating-player-modal__inner {
-  background: rgba(255, 248, 240, 0.98);
 }
 
 /* Модалка «Рейтинг турнирщиков весны» */
@@ -4886,23 +4906,33 @@ a.home-mini-icon-item {
 .winter-rating__week-top-btn {
   flex: 1;
   min-width: 140px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
-  background: var(--card-bg, rgba(30, 41, 59, 0.6));
-  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.3));
-  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   text-align: left;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .winter-rating__week-top-btn:hover {
-  background: rgba(148, 163, 184, 0.15);
-  border-color: var(--accent, rgba(212, 175, 55, 0.5));
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .winter-rating__week-top-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(249, 115, 22, 0.25);
+}
+[data-theme="light"] .winter-rating__week-top-btn:hover {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.4);
 }
 .winter-rating__week-top-btn-label {
   display: block;
@@ -4961,7 +4991,7 @@ a.home-mini-icon-item {
   color: var(--text-muted);
 }
 
-/* Модалка «Топы за неделю» */
+/* Модалка «Топы за неделю» — в стиле покерного клуба */
 .winter-rating-week-top-modal {
   position: fixed;
   inset: 0;
@@ -4982,7 +5012,7 @@ a.home-mini-icon-item {
 .winter-rating-week-top-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.78);
   cursor: pointer;
 }
 .winter-rating-week-top-modal__inner {
@@ -4993,67 +5023,89 @@ a.home-mini-icon-item {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: rgba(15, 23, 42, 0.97);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 20px 16px 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(175deg, #1a2332 0%, #0f1923 50%, #0d161c 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 16px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+[data-theme="light"] .winter-rating-week-top-modal__inner {
+  background: linear-gradient(175deg, #f8fafc 0%, #f1f5f9 100%);
+  border-color: rgba(249, 115, 22, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
 }
 .winter-rating-week-top-modal__close {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   width: 36px;
   height: 36px;
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
 }
 .winter-rating-week-top-modal__close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(212, 175, 55, 0.2);
 }
 .winter-rating-week-top-modal__title {
-  margin: 0 36px 12px 0;
-  font-size: 16px;
+  margin: 0 40px 14px 0;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text);
+  letter-spacing: 0.01em;
 }
 .winter-rating-week-top-modal__prize {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 13px;
   color: var(--text-muted);
+  line-height: 1.4;
 }
 .winter-rating-week-top-modal__list {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 .winter-rating-week-top-modal__share-row {
-  margin: 14px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
 }
 .winter-rating-week-top-modal__share-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 9px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  background: rgba(30, 41, 59, 0.8);
-  color: var(--text);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(212, 175, 55, 0.12);
+  color: #d4af37;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 .winter-rating-week-top-modal__share-btn:hover {
-  background: rgba(51, 65, 85, 0.9);
-  border-color: rgba(148, 163, 184, 0.5);
+  background: rgba(212, 175, 55, 0.22);
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #e5c548;
+}
+[data-theme="light"] .winter-rating-week-top-modal__share-btn {
+  border-color: rgba(249, 115, 22, 0.4);
+  background: rgba(249, 115, 22, 0.1);
+  color: #ea580c;
+}
+[data-theme="light"] .winter-rating-week-top-modal__share-btn:hover {
+  background: rgba(249, 115, 22, 0.18);
+  border-color: rgba(249, 115, 22, 0.5);
+  color: #c2410c;
 }
 .winter-rating__dates-caption {
   margin: 24px 12px 8px 12px;
