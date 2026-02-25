@@ -481,7 +481,7 @@ html.app-view-home .card {
 html.app-view-home .card::before {
   content: "";
   position: absolute;
-  top: 0;
+  top: 14%;
   left: 0;
   right: 0;
   bottom: 37%;
