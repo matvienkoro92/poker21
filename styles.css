@@ -484,7 +484,7 @@ html.app-view-home .card::before {
   top: 10%;
   left: 0;
   right: 0;
-  bottom: 30%;
+  bottom: 34%;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   pointer-events: none;
