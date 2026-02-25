@@ -506,14 +506,38 @@ function getTopByDates(dates) {
   setTimeout(function () {
     if (window.updateWinterRatingWeekTopPreviews) window.updateWinterRatingWeekTopPreviews();
   }, 0);
+  function prizeForPlace(place) {
+    if (place === 1) return "5 000 ₽";
+    if (place === 2) return "3 000 ₽";
+    if (place === 3) return "1 000 ₽";
+    return "—";
+  }
   function renderTopList(top, dates) {
     currentModalDates = dates;
-    listEl.innerHTML = top.length ? top.map(function (r, i) {
-      var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-      var nickAttr = String(r.nick).replace(/"/g, "&quot;");
-      var sum = r.totalReward.toLocaleString("ru-RU");
-      return "<div class=\"winter-rating__week-top-item\"><span class=\"winter-rating__week-top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"winter-rating__week-top-reward\">" + sum + " ₽</span></div>";
-    }).join("") : "<p class=\"winter-rating__week-top-empty\">Нет данных за выбранный период.</p>";
+    var isCurrentWeek = dates === CURRENT_WEEK_DATES;
+    if (!top.length) {
+      listEl.innerHTML = "<p class=\"winter-rating__week-top-empty\">Нет данных за выбранный период.</p>";
+      listEl.classList.remove("winter-rating-week-top-modal__list--with-prize");
+      return;
+    }
+    if (isCurrentWeek) {
+      listEl.classList.add("winter-rating-week-top-modal__list--with-prize");
+      listEl.innerHTML = "<div class=\"winter-rating__week-top-header\"><span class=\"winter-rating__week-top-num\">№</span><span class=\"winter-rating__week-top-header-nick\">Ник</span><span class=\"winter-rating__week-top-header-reward\">Выигрыш</span><span class=\"winter-rating__week-top-header-prize\">Приз</span></div>" + top.map(function (r, i) {
+        var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        var nickAttr = String(r.nick).replace(/"/g, "&quot;");
+        var sum = r.totalReward.toLocaleString("ru-RU");
+        var prize = prizeForPlace(i + 1);
+        return "<div class=\"winter-rating__week-top-item\"><span class=\"winter-rating__week-top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"winter-rating__week-top-reward\">" + sum + " ₽</span><span class=\"winter-rating__week-top-prize\">" + prize + "</span></div>";
+      }).join("");
+    } else {
+      listEl.classList.remove("winter-rating-week-top-modal__list--with-prize");
+      listEl.innerHTML = top.map(function (r, i) {
+        var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        var nickAttr = String(r.nick).replace(/"/g, "&quot;");
+        var sum = r.totalReward.toLocaleString("ru-RU");
+        return "<div class=\"winter-rating__week-top-item\"><span class=\"winter-rating__week-top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"winter-rating__week-top-reward\">" + sum + " ₽</span></div>";
+      }).join("");
+    }
   }
   function openModal(panelTitle, dates) {
     var top = getTopByDates(dates);

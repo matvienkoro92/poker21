@@ -4163,7 +4163,7 @@ a.home-mini-icon-item {
   text-shadow: none;
 }
 .winter-rating__cup {
-  font-size: 28px;
+  font-size: 40px; /* +10% от 36 */
   line-height: 1;
 }
 .winter-rating__table-caption-row {
@@ -5132,6 +5132,43 @@ a.home-mini-icon-item {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
+.winter-rating-week-top-modal__list--with-prize .winter-rating__week-top-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 0 6px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.winter-rating-week-top-modal__list--with-prize .winter-rating__week-top-header-nick {
+  flex: 1;
+  min-width: 0;
+}
+.winter-rating-week-top-modal__list--with-prize .winter-rating__week-top-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.winter-rating-week-top-modal__list--with-prize .winter-rating__week-top-item .winter-rating__nick-btn {
+  flex: 1;
+  min-width: 0;
+}
+.winter-rating-week-top-modal__list--with-prize .winter-rating__week-top-prize {
+  font-weight: 700;
+  color: var(--accent, #d4af37);
+  white-space: nowrap;
+  min-width: 4.5em;
+  text-align: right;
+}
+.winter-rating-week-top-modal__list--with-prize .winter-rating__week-top-header-prize {
+  min-width: 4.5em;
+  text-align: right;
+}
 .winter-rating-week-top-modal__share-row {
   margin: 16px 0 0;
   padding-top: 14px;
@@ -5259,7 +5296,7 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   gap: 6px;
 }
 .view--active[data-view="winter-rating"] .winter-rating__cup {
-  font-size: 30px;
+  font-size: 43px; /* +10% от 39 */
   margin-left: -6px;
   margin-right: 2px;
 }
