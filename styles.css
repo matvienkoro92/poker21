@@ -2860,6 +2860,9 @@ html.app-view-home .feature.feature--link.feature--rating-promo {
   gap: 8px;
   margin-bottom: 0;
 }
+.games-apps-block .games-apps-grid {
+  margin-top: 12px;
+}
 .games-apps-grid .feature {
   min-width: 0;
   min-height: 52px;
