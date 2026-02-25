@@ -964,20 +964,66 @@ html.app-view-home .card .card__content {
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   overflow-x: hidden;
-  background: #f4e4c1;
+  background: #ebe0c8;
   background-image:
     linear-gradient(rgba(139, 90, 43, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(139, 90, 43, 0.04) 1px, transparent 1px);
-  background-size: 16px 16px;
-  color: #2c1810;
+  background-size: 12px 12px;
+  color: #1a1a1a;
   font-family: Georgia, "Times New Roman", serif;
+  border: none;
+  border-top: 3px double #2c1810;
+  border-left: 2px solid #2c1810;
+  border-right: 2px solid #2c1810;
+  border-bottom: 3px solid #2c1810;
   box-shadow:
-    inset 0 0 80px rgba(139, 90, 43, 0.06),
-    0 2px 0 rgba(139, 90, 43, 0.15),
-    0 8px 24px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(139, 90, 43, 0.25);
+    inset 0 0 40px rgba(139, 90, 43, 0.06),
+    2px 2px 0 rgba(0, 0, 0, 0.06),
+    6px 6px 0 rgba(0, 0, 0, 0.04),
+    10px 10px 28px rgba(0, 0, 0, 0.25);
   border-radius: 0;
   -webkit-overflow-scrolling: touch;
+}
+.gazette-modal__paper::before {
+  content: "";
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 24px 24px 0;
+  border-color: transparent #c4b59a transparent transparent;
+  box-shadow: -1px 2px 3px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  pointer-events: none;
+}
+/* Декоративные тузы и масти в углах газеты */
+.gazette-modal__deco {
+  position: absolute;
+  z-index: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(44, 24, 16, 0.28);
+  line-height: 1;
+  pointer-events: none;
+}
+.gazette-modal__deco--tl {
+  top: 54px;
+  left: 16px;
+}
+.gazette-modal__deco--tr {
+  top: 54px;
+  right: 16px;
+}
+.gazette-modal__deco--bl {
+  bottom: 16px;
+  left: 16px;
+}
+.gazette-modal__deco--br {
+  bottom: 16px;
+  right: 16px;
 }
 .gazette-modal__close {
   position: absolute;
@@ -998,9 +1044,17 @@ html.app-view-home .card .card__content {
 .gazette-modal__close:hover {
   background: rgba(139, 90, 43, 0.25);
 }
+/* Отступы под кнопку закрыть (top) и справа от неё */
+.gazette-modal__paper {
+  padding-top: 0;
+}
+.gazette-modal__pick,
+.gazette-modal__content {
+  padding-right: 52px;
+}
 /* Выбор страницы */
 .gazette-modal__pick {
-  padding: 28px 20px 24px;
+  padding: 50px 52px 24px 20px;
   box-sizing: border-box;
 }
 .gazette-modal__pick[hidden] {
@@ -1034,37 +1088,88 @@ html.app-view-home .card .card__content {
 }
 /* Карточка в виде газеты (первая полоса) */
 .gazette-modal__page-card--newspaper {
-  background: #f4e4c1;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: #ebe0c8;
   background-image:
-    linear-gradient(rgba(139, 90, 43, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 90, 43, 0.06) 1px, transparent 1px);
-  background-size: 14px 14px;
-  border: 2px solid #8b5a2b;
+    linear-gradient(rgba(139, 90, 43, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 90, 43, 0.04) 1px, transparent 1px);
+  background-size: 12px 12px;
+  border: none;
+  border-top: 3px double #2c1810;
+  border-left: 2px solid #2c1810;
+  border-right: 2px solid #2c1810;
+  border-bottom: 3px double #2c1810;
   box-shadow:
-    inset 0 0 30px rgba(139, 90, 43, 0.08),
-    0 2px 0 rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.2);
-  color: #2c1810;
+    inset 0 0 40px rgba(139, 90, 43, 0.06),
+    2px 2px 0 rgba(0, 0, 0, 0.06),
+    4px 4px 0 rgba(0, 0, 0, 0.04),
+    8px 8px 20px rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
   font-family: Georgia, "Times New Roman", serif;
+  text-align: left;
+}
+.gazette-modal__page-card--newspaper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 28px 28px 0;
+  border-color: transparent #c4b59a transparent transparent;
+  box-shadow: -1px 2px 3px rgba(0, 0, 0, 0.1);
 }
 .gazette-modal__page-card--newspaper:hover {
-  background-color: #f0dda8;
-  background-image:
-    linear-gradient(rgba(139, 90, 43, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 90, 43, 0.08) 1px, transparent 1px);
-  border-color: #6b4423;
+  background-color: #e5d9be;
+  border-color: #2c1810;
   box-shadow:
-    inset 0 0 30px rgba(139, 90, 43, 0.1),
-    0 2px 0 rgba(0, 0, 0, 0.08),
-    0 6px 16px rgba(0, 0, 0, 0.25);
+    inset 0 0 40px rgba(139, 90, 43, 0.08),
+    2px 2px 0 rgba(0, 0, 0, 0.08),
+    6px 6px 0 rgba(0, 0, 0, 0.05),
+    10px 10px 24px rgba(0, 0, 0, 0.2);
+}
+.gazette-modal__page-card-masthead {
+  display: block;
+  width: 100%;
+  padding: 10px 20px 8px;
+  background: #2c1810;
+  color: #ebe0c8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.gazette-modal__page-card-rule {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #2c1810;
+  margin: 0;
+}
+.gazette-modal__page-card--newspaper .gazette-modal__page-card-inner {
+  padding: 20px 20px 22px;
+  gap: 6px;
 }
 .gazette-modal__page-card--newspaper .gazette-modal__page-card-caption {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  color: #2c1810;
+  color: #1a1a1a;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  line-height: 1.25;
+  font-family: Georgia, "Times New Roman", serif;
+  text-shadow: none;
+}
+.gazette-modal__page-card-sub {
+  display: block;
+  font-size: 12px;
+  color: #5c4033;
+  letter-spacing: 0.05em;
+  font-style: italic;
 }
 .gazette-modal__page-card-inner {
   display: flex;
@@ -1118,7 +1223,7 @@ html.app-view-home .card .card__content {
 }
 /* Контент страницы (новости или заносы) */
 .gazette-modal__content {
-  padding: 44px 20px 24px;
+  padding: 50px 52px 24px 20px;
   overflow-y: auto;
   max-height: calc(100vh - 32px);
   box-sizing: border-box;
@@ -1131,7 +1236,37 @@ html.app-view-home .card .card__content {
 }
 /* Чтобы контент газеты не уходил под нижнее меню: отступ снизу = высота меню + 2мм */
 .gazette-modal__content--news {
+  padding-top: 50px;
   padding-bottom: calc(74px + 2mm);
+}
+.gazette-modal__content-masthead {
+  display: block;
+  width: 100%;
+  padding: 12px 20px 10px;
+  background: #2c1810;
+  color: #ebe0c8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.gazette-modal__content-rule {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #2c1810;
+  margin: 0;
+}
+.gazette-modal__content--news .gazette-modal__back {
+  margin-top: 0;
+  margin-bottom: 4px;
+  padding-left: 4px;
+  color: #5c4033;
+  font-size: 13px;
+}
+.gazette-modal__content--news .gazette-modal__content-masthead {
+  margin-top: 12px;
 }
 .gazette-modal__content-date {
   margin: 0 0 12px;
@@ -1143,8 +1278,12 @@ html.app-view-home .card .card__content {
 .gazette-modal__lead--top {
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid rgba(139, 90, 43, 0.4);
-  box-shadow: 0 -1px 0 rgba(139, 90, 43, 0.1);
+  border-top: 2px solid #2c1810;
+}
+.gazette-modal__content--news .gazette-modal__lead--top:first-of-type {
+  margin-top: 16px;
+  padding-top: 20px;
+  border-top: none;
 }
 .gazette-modal__back {
   margin: 0 0 16px;
@@ -1202,9 +1341,15 @@ html.app-view-home .card .card__content {
   margin: 0 0 10px;
   font-size: 20px;
   font-weight: 700;
-  color: #2c1810;
+  color: #1a1a1a;
   line-height: 1.25;
   text-align: left;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.gazette-modal__content--news .gazette-modal__content-date {
+  color: #5c4033;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 .gazette-modal__photo-wrap {
   margin: 14px 0 10px;
@@ -2847,6 +2992,10 @@ html.app-view-home .feature.feature--link.feature--rating-promo {
 
 .games-apps-block {
   margin-top: 18px;
+  margin-left: -5mm;
+  margin-right: -5mm;
+  width: calc(100% + 10mm);
+  box-sizing: border-box;
   padding: 14px 12px 12px;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
@@ -2869,22 +3018,56 @@ html.app-view-home .feature.feature--link.feature--rating-promo {
 .games-apps-grid .feature {
   min-width: 0;
   min-height: 52px;
-  padding: 6px 8px;
-  gap: 8px;
+  padding: 0;
+  padding-right: 8px;
+  gap: 0;
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 14px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.games-apps-grid .feature__icon {
+.games-apps-grid .feature:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.games-apps-grid .feature:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+[data-theme="light"] .games-apps-grid .feature {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 4px 14px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .games-apps-grid .feature:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 8px 20px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+[data-theme="light"] .games-apps-grid .feature:active {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.games-apps-grid .feature__icon--games,
+.games-apps-grid .feature__icon.feature__icon--games {
   flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  font-size: 14px;
-  border-radius: 10px;
+  width: 48px;
+  min-height: 52px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  margin: 0;
+}
+.games-apps-grid .feature__icon-emoji {
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
 }
 .games-apps-grid .feature__body {
   flex: 1;
   min-width: 0;
+  padding: 10px 0 10px 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;

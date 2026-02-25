@@ -195,26 +195,26 @@
                 <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
                 <div class="games-apps-grid">
                 <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
-                  <div class="feature__icon feature__icon--purple">🃏</div>
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎴</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Найди Пиханину</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
-                  <div class="feature__icon feature__icon--purple">🃏</div>
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🏎️</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Переедь Штукатура</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
                   <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш"></span>
-                  <div class="feature__icon feature__icon--purple">🎁</div>
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Розыгрыши</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
-                  <div class="feature__icon feature__icon--purple">📋</div>
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📚</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Научиться играть</div>
                   </div>
@@ -1506,6 +1506,10 @@
       <div class="gazette-modal" id="gazetteModal" role="dialog" aria-modal="true" aria-labelledby="gazetteModalTitle" aria-label="Газета Вестник Два туза" aria-hidden="true">
         <div class="gazette-modal__backdrop" id="gazetteModalBackdrop"></div>
         <div class="gazette-modal__paper">
+          <span class="gazette-modal__deco gazette-modal__deco--tl" aria-hidden="true">A♠</span>
+          <span class="gazette-modal__deco gazette-modal__deco--tr" aria-hidden="true">A♥</span>
+          <span class="gazette-modal__deco gazette-modal__deco--bl" aria-hidden="true">A♦</span>
+          <span class="gazette-modal__deco gazette-modal__deco--br" aria-hidden="true">A♣</span>
           <button type="button" class="gazette-modal__close" id="gazetteModalClose" aria-label="Закрыть">×</button>
           <!-- Выбор страницы -->
           <div class="gazette-modal__pick" id="gazetteModalPick">
@@ -1515,8 +1519,11 @@
             </header>
             <div class="gazette-modal__pages">
               <button type="button" class="gazette-modal__page-card gazette-modal__page-card--newspaper" data-gazette-page="news" aria-label="Открыть горячие новости недели">
+                <span class="gazette-modal__page-card-masthead">ПЕРВАЯ ПОЛОСА</span>
+                <span class="gazette-modal__page-card-rule"></span>
                 <span class="gazette-modal__page-card-inner">
                   <span class="gazette-modal__page-card-caption">Горячие новости недели</span>
+                  <span class="gazette-modal__page-card-sub">Читать в номере →</span>
                 </span>
               </button>
             </div>
@@ -1528,6 +1535,8 @@
           <!-- Страница: Горячие новости -->
           <div class="gazette-modal__content gazette-modal__content--news" id="gazetteModalNews" hidden>
             <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад к выбору страницы">← К газете</button>
+            <div class="gazette-modal__content-masthead">Горячие новости недели</div>
+            <div class="gazette-modal__content-rule"></div>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="6">
               <p class="gazette-modal__content-date">24 февраля</p>
               <h3 class="gazette-modal__headline gazette-modal__headline--main">ТУРНИР ЗА 300₽ СОБРАЛ 108 ТЫСЯЧ ПРИЗОВЫХ: АМАЛИЯ И АСПИРИН — ЛУЧШИЕ ДРУЗЬЯ ИЛИ ХОЛОДНОКРОВНЫЕ ОДИНОЧКИ-ИСКАТЕЛИ БОГАТСТВА?</h3>
