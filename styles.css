@@ -484,7 +484,7 @@ html.app-view-home .card::before {
   top: 10%;
   left: 0;
   right: 0;
-  bottom: 34%;
+  bottom: 37%;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   pointer-events: none;
@@ -2814,6 +2814,9 @@ img.chat-contact__avatar {
 .view--active[data-view="home"] .feature.feature--link.feature--rating-promo,
 html.app-view-home .feature.feature--link.feature--rating-promo {
   border: 1px solid rgba(148, 163, 184, 0.85) !important;
+  max-width: 92%;
+  margin-left: auto;
+  margin-right: auto;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo,
 [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo {
