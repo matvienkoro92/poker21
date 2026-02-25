@@ -4657,6 +4657,11 @@ a.home-mini-icon-item {
   gap: 10px;
   margin: 14px 12px 10px;
 }
+.winter-rating__week-tops-hint {
+  margin: 12px 12px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
 .winter-rating__week-top-btn {
   flex: 1;
   min-width: 140px;
@@ -4796,6 +4801,11 @@ a.home-mini-icon-item {
   font-size: 16px;
   font-weight: 700;
   color: var(--text);
+}
+.winter-rating-week-top-modal__prize {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 .winter-rating-week-top-modal__list {
   overflow-y: auto;

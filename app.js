@@ -396,6 +396,7 @@ function getTopByDates(dates) {
   var modalClose = document.getElementById("winterRatingWeekTopModalClose");
   var modalBackdrop = document.getElementById("winterRatingWeekTopModalBackdrop");
   var shareBtn = document.getElementById("winterRatingWeekTopShareBtn");
+  var prizeInfo = document.getElementById("winterRatingWeekTopPrizeInfo");
   if (!pastBtn || !currentBtn || !pastPreview || !currentPreview || !modal || !modalTitle || !listEl) return;
   var currentModalDates = null;
   var currentModalLinkType = null;
@@ -418,7 +419,10 @@ function getTopByDates(dates) {
     currentPreview.innerHTML = currentTop.length ? previewHtml(currentTop) : "";
     pastPreview.innerHTML = pastTop.length ? previewHtml(pastTop) : "";
   }
-  updateButtonPreviews();
+  window.updateWinterRatingWeekTopPreviews = updateButtonPreviews;
+  setTimeout(function () {
+    if (window.updateWinterRatingWeekTopPreviews) window.updateWinterRatingWeekTopPreviews();
+  }, 0);
   function renderTopList(top, dates) {
     currentModalDates = dates;
     listEl.innerHTML = top.length ? top.map(function (r, i) {
@@ -433,6 +437,11 @@ function getTopByDates(dates) {
     modalTitle.textContent = panelTitle;
     renderTopList(top, dates);
     currentModalLinkType = dates === CURRENT_WEEK_DATES ? "current" : "past";
+    if (prizeInfo) {
+      var isCurrent = dates === CURRENT_WEEK_DATES;
+      prizeInfo.style.display = isCurrent ? "" : "none";
+      prizeInfo.setAttribute("aria-hidden", isCurrent ? "false" : "true");
+    }
     modal.setAttribute("aria-hidden", "false");
     if (document.body) document.body.style.overflow = "hidden";
   }
@@ -477,7 +486,7 @@ function getTopByDates(dates) {
     var btn = e.target && e.target.closest ? e.target.closest(".winter-rating__nick-btn") : null;
     if (!btn || !btn.dataset.nick) return;
     e.preventDefault();
-    if (typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick, { onlyDates: currentModalDates || GAZETTE_DATES });
+    if (typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick, { onlyDates: currentModalDates || GAZETTE_DATES, skipGazetteStyle: true });
   });
 })();
 
@@ -2821,10 +2830,11 @@ function openWinterRatingPlayerModal(nick, options) {
     options.onlyDates.forEach(function (d) { allowedSet[d] = true; });
     summary = summary.filter(function (s) { return allowedSet[s.date]; });
   }
-  modal.classList.toggle("winter-rating-player-modal--gazette", !!fromGazette);
+  var useGazetteStyle = fromGazette && !options.skipGazetteStyle;
+  modal.classList.toggle("winter-rating-player-modal--gazette", !!useGazetteStyle);
   titleEl.textContent = nick;
   if (summary.length) {
-    var showPoints = !fromGazette;
+    var showPoints = !useGazetteStyle;
     var headers = "<th>Дата</th><th class=\"winter-rating-player-modal__th-tournament\">Турнир</th><th>Место</th>";
     if (showPoints) headers += "<th>Баллы</th>";
     headers += "<th>Выигрыш</th>";
@@ -2947,6 +2957,9 @@ function getWinterRatingOverall() {
 }
 
 function initWinterRating() {
+  try {
+    if (typeof window.updateWinterRatingWeekTopPreviews === "function") window.updateWinterRatingWeekTopPreviews();
+  } catch (e) {}
   try {
     initWinterRatingLightbox();
     initWinterRatingPlayerModal();
