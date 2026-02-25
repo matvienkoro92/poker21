@@ -1229,6 +1229,14 @@ html.app-view-home .card .card__content {
   line-height: 1.55;
   text-align: justify;
 }
+.gazette-modal__body a.gazette-modal__rating-link {
+  color: #8b5a2b;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.gazette-modal__body a.gazette-modal__rating-link:hover {
+  color: #5c4033;
+}
 .gazette-modal__share-row {
   margin: 16px 0 0;
   padding-top: 12px;

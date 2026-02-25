@@ -251,6 +251,15 @@ function getTopByDates(dates) {
   var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
   appUrl = appUrl.replace(/\/$/, "");
   modal.addEventListener("click", function (e) {
+    var ratingLink = e.target && e.target.closest ? e.target.closest("a[data-close-gazette][data-view-target]") : null;
+    if (ratingLink) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeGazette();
+      var view = ratingLink.getAttribute("data-view-target");
+      if (view && typeof setView === "function") setView(view);
+      return;
+    }
     var shareBtn = e.target && e.target.closest ? e.target.closest(".gazette-modal__share-btn") : null;
     if (shareBtn && shareBtn.dataset.gazetteShare !== undefined) {
       e.preventDefault();
@@ -496,22 +505,7 @@ if (tg) {
       themeParams.bg_color
     );
   }
-  // Инициировать диалог с ботом при первом входе (чтобы пользователь мог получать рассылку)
-  (function ensureBotStarted() {
-    var appEl = document.getElementById("app");
-    var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "";
-    var botUsername = (appEl && appEl.getAttribute("data-bot-username")) || "";
-    if (!botUsername && appUrl && appUrl.indexOf("t.me") !== -1) {
-      var m = appUrl.match(/t\.me\/([a-zA-Z0-9_]+)/);
-      if (m) botUsername = m[1];
-    }
-    if (!botUsername) return;
-    var key = "poker_bot_start_done";
-    if (localStorage.getItem(key)) return;
-    localStorage.setItem(key, "1");
-    var startLink = "https://t.me/" + botUsername + "?start=miniapp";
-    if (tg.openTelegramLink) tg.openTelegramLink(startLink);
-  })();
+  // Не перенаправляем в чат бота при открытии — приложение должно запускаться с первого нажатия
 }
 
 (function setRandomListenersCount() {
