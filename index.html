@@ -32,13 +32,15 @@
       .app.app--view-home .bottom-nav {
         position: fixed !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important;
       }
+      .app.app--view-home { background: #0f172a !important; }
+      [data-theme="light"] .app.app--view-home { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%) !important; }
       .app.app--view-home .card {
-        flex: 1 1 auto !important; flex-shrink: 0 !important;
-        min-height: 100vh !important; min-height: 100dvh !important;
+        flex: 0 1 auto !important; flex-shrink: 0 !important;
+        min-height: 0 !important;
       }
       .app.app--view-home .card .card__content {
-        flex: 1 1 auto !important;
-        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+        flex: 0 1 auto !important;
+        padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
       }
       .app.app--view-home .card::before {
         mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 55% 28% at 50% 100%, black 0%, black 100%) !important;
