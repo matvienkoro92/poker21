@@ -699,6 +699,7 @@ function setView(viewName) {
   } else {
     document.documentElement.classList.remove("app-view-chat", "app-view-winter-rating", "app-view-home");
   }
+  if (document.body) document.body.setAttribute("data-view", viewName || "");
 }
 function updateChatNavDot() {
   var hasUnread = !!(window.chatGeneralUnread || window.chatPersonalUnread);
