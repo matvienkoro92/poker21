@@ -3300,23 +3300,37 @@ function initWinterRating() {
     rowsHtml += "<div class=\"winter-rating__calendar-row\">" + rowHtml + "</div>";
     calendarWrap.innerHTML = "<div class=\"winter-rating__calendar\"><div class=\"winter-rating__calendar-title\">" + monthLabel + "</div>" + headerRow + "<div class=\"winter-rating__calendar-grid\">" + rowsHtml + "</div></div>";
     calendarWrap.setAttribute("aria-hidden", "false");
+    var dateModal = document.getElementById("winterRatingDateModal");
+    var dateModalBackdrop = document.getElementById("winterRatingDateModalBackdrop");
+    var dateModalClose = document.getElementById("winterRatingDateModalClose");
+    var dateModalTitle = document.getElementById("winterRatingDateModalTitle");
+    var dateModalBody = document.getElementById("winterRatingDateModalBody");
+    function openDateModal(dateStr, panel) {
+      if (!dateModal || !dateModalBody || !panel) return;
+      dateModalBody.innerHTML = "";
+      var clone = panel.cloneNode(true);
+      clone.classList.remove("winter-rating__date-panel--hidden");
+      dateModalBody.appendChild(clone);
+      if (dateModalTitle) dateModalTitle.textContent = "Рейтинг на " + dateStr;
+      dateModal.setAttribute("aria-hidden", "false");
+      if (document.body) document.body.style.overflow = "hidden";
+    }
+    function closeDateModal() {
+      if (!dateModal) return;
+      dateModal.setAttribute("aria-hidden", "true");
+      if (document.body) document.body.style.overflow = "";
+    }
+    if (dateModalBackdrop) dateModalBackdrop.addEventListener("click", closeDateModal);
+    if (dateModalClose) dateModalClose.addEventListener("click", closeDateModal);
     calendarWrap.querySelectorAll(".winter-rating__calendar-cell--day").forEach(function (btn) {
-      btn.addEventListener("click", function () {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         var dateStr = btn.getAttribute("data-rating-date");
         var item = datesContainer.querySelector(".winter-rating__date-item[data-rating-date=\"" + dateStr + "\"]");
         if (!item) return;
         var panel = item.querySelector(".winter-rating__date-panel");
-        var otherBtn = item.querySelector(".winter-rating__date-btn");
-        datesContainer.querySelectorAll(".winter-rating__date-panel").forEach(function (p) {
-          p.classList.add("winter-rating__date-panel--hidden");
-        });
-        datesContainer.querySelectorAll(".winter-rating__date-btn").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
-        datesContainer.querySelectorAll(".winter-rating__calendar-cell--day").forEach(function (b) { b.classList.remove("winter-rating__calendar-cell--active"); });
-        if (panel) {
-          panel.classList.remove("winter-rating__date-panel--hidden");
-          if (otherBtn) otherBtn.setAttribute("aria-expanded", "true");
-          btn.classList.add("winter-rating__calendar-cell--active");
-        }
+        if (panel) openDateModal(dateStr, panel);
       });
     });
   }

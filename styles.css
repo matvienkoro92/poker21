@@ -1291,6 +1291,12 @@ html.app-view-home .card .card__content {
   color: #5c4033;
   font-size: 13px;
 }
+.gazette-modal__article-back {
+  margin: 0 0 8px;
+}
+.gazette-modal__article-back .gazette-modal__back {
+  margin-bottom: 0;
+}
 .gazette-modal__content--news .gazette-modal__content-masthead {
   margin-top: 12px;
 }
@@ -5203,6 +5209,91 @@ a.home-mini-icon-item {
   border-color: rgba(249, 115, 22, 0.5);
   color: #c2410c;
 }
+
+/* Модалка «Рейтинг на дату» по клику в календаре */
+.winter-rating-date-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.winter-rating-date-modal[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+}
+.winter-rating-date-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  cursor: pointer;
+}
+.winter-rating-date-modal__inner {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 48px 16px 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+.winter-rating-date-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+.winter-rating-date-modal__close:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+.winter-rating-date-modal__title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.winter-rating-date-modal__body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
+}
+.winter-rating-date-modal__body .winter-rating__date-panel {
+  display: block;
+  padding: 0;
+  border: none;
+}
+.winter-rating-date-modal__body .winter-rating__screenshots {
+  margin-bottom: 12px;
+}
+.winter-rating-date-modal__body .winter-rating__date-table-wrap {
+  overflow-x: auto;
+}
+
 .winter-rating__dates-caption {
   margin: 24px 12px 8px 12px;
   font-size: 15px;
