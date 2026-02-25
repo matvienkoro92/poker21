@@ -309,47 +309,7 @@ body {
   justify-content: flex-start;
   overflow: hidden;
 }
-/* Главная: меню фиксировано внизу экрана, скролл только внутри области — нельзя отлистать ниже меню */
-html:has(.view--active[data-view="home"]),
-body:has(.view--active[data-view="home"]),
-html.app-view-home,
-html.app-view-home body {
-  min-height: 0;
-  height: auto;
-}
-.app:has(.view--active[data-view="home"]),
-html.app-view-home .app {
-  min-height: 0;
-  height: 100dvh;
-  max-height: 100dvh;
-  flex-direction: column;
-  align-items: center;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
-  padding-bottom: 0;
-}
-/* На главной меню не поднимается при скролле — остаётся внизу экрана (фиксировано) */
-.app:has(.view--active[data-view="home"]) .bottom-nav,
-html.app-view-home .app .bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin-top: 0;
-  align-self: auto;
-  width: 100%;
-}
-html.app-view-home .card {
-  flex: 1 1 auto;
-  min-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px) - max(20px, calc(env(safe-area-inset-top, 0px) + 52px)));
-}
-html.app-view-home .card .card__content {
-  flex: 1 1 auto;
-  padding-bottom: 0;
-}
+/* Главная: скролл как в остальных разделах — прокручивается вся страница, меню внизу фиксировано как везде */
 
 .bg-gradient {
   position: absolute;
@@ -777,21 +737,18 @@ html.app-view-home .card::before {
   flex-direction: column;
   gap: 14px;
 }
-/* Главная: карточка заполняет область над меню — разрыва между кнопками и нижним меню нет */
+/* Главная: карточка по высоте по контенту, скролл всей страницы как в остальных разделах */
 .card:has(.view--active[data-view="home"]) {
-  flex: 1 1 auto;
   width: 100%;
   max-width: 420px;
-  min-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px) - max(20px, calc(env(safe-area-inset-top, 0px) + 52px)));
   display: flex;
   flex-direction: column;
 }
 .card:has(.view--active[data-view="home"]) .card__content {
-  flex: 1 1 auto;
-  min-height: 0;
   min-width: 0;
   overflow: visible;
-  padding-bottom: 0;
+  padding-left: 5mm;
+  padding-right: 5mm;
   margin-left: -20px;
   margin-right: -20px;
   width: calc(100% + 40px);
@@ -802,6 +759,8 @@ html.app-view-home .card::before {
 }
 /* fallback для главной без :has() */
 html.app-view-home .card .card__content {
+  padding-left: 5mm;
+  padding-right: 5mm;
   margin-left: -20px;
   margin-right: -20px;
   width: calc(100% + 40px);
@@ -3167,6 +3126,7 @@ html.app-view-home .feature.feature--link.feature--rating-promo {
   gap: 6px;
   flex-shrink: 0;
   margin-left: auto;
+  margin-right: -5mm;
 }
 .home-mini-icon-item {
   display: flex;
@@ -3761,7 +3721,10 @@ a.home-mini-icon-item {
 
 .hero__link {
   display: block;
-  width: 100%;
+  width: 88%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: auto;
   aspect-ratio: 1;
   text-decoration: none;
   color: inherit;
@@ -4829,6 +4792,29 @@ a.home-mini-icon-item {
 .winter-rating-week-top-modal__list {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+.winter-rating-week-top-modal__share-row {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+.winter-rating-week-top-modal__share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(30, 41, 59, 0.8);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.winter-rating-week-top-modal__share-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(148, 163, 184, 0.5);
 }
 .winter-rating__dates-caption {
   margin: 24px 12px 8px 12px;

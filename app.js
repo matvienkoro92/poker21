@@ -364,6 +364,15 @@ function getTopByDates(dates) {
     if (startParam !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
     setTimeout(function () { openGazette("news", articleNum); }, 300);
   }
+  if (startParam === "rating_top_past" || startParam === "rating_top_current") {
+    var ratingTopKind = startParam === "rating_top_current" ? "current" : "past";
+    setTimeout(function () {
+      if (typeof setView === "function") setView("winter-rating");
+      setTimeout(function () {
+        if (typeof window.openWinterRatingWeekTopModal === "function") window.openWinterRatingWeekTopModal(ratingTopKind);
+      }, 350);
+    }, 0);
+  }
 })();
 
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
@@ -377,8 +386,10 @@ function getTopByDates(dates) {
   var listEl = document.getElementById("winterRatingWeekTopList");
   var modalClose = document.getElementById("winterRatingWeekTopModalClose");
   var modalBackdrop = document.getElementById("winterRatingWeekTopModalBackdrop");
+  var shareBtn = document.getElementById("winterRatingWeekTopShareBtn");
   if (!pastBtn || !currentBtn || !pastPreview || !currentPreview || !modal || !modalTitle || !listEl) return;
   var currentModalDates = null;
+  var currentModalLinkType = null;
   function escapePreview(s) {
     return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
@@ -412,9 +423,35 @@ function getTopByDates(dates) {
     var top = getTopByDates(dates);
     modalTitle.textContent = panelTitle;
     renderTopList(top, dates);
+    currentModalLinkType = dates === CURRENT_WEEK_DATES ? "current" : "past";
     modal.setAttribute("aria-hidden", "false");
     if (document.body) document.body.style.overflow = "hidden";
   }
+  if (shareBtn) {
+    shareBtn.addEventListener("click", function () {
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var type = currentModalLinkType === "current" ? "rating_top_current" : "rating_top_past";
+      var link = appUrl + "?startapp=" + type;
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется этот топ недели."); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    });
+  }
+  window.openWinterRatingWeekTopModal = function (kind) {
+    if (kind === "current") openModal("Топы текущей недели", CURRENT_WEEK_DATES);
+    else openModal("Топы прошлой недели", GAZETTE_DATES);
+  };
   function closeModal() {
     modal.setAttribute("aria-hidden", "true");
     if (document.body) document.body.style.overflow = "";

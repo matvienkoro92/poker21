@@ -19,28 +19,15 @@
     <meta name="twitter:description" content="Горячие новости покерного клуба «Два туза». Откройте в Telegram." />
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="stylesheet" href="./styles.css?v=18" />
-    <!-- Главная: страница не скроллится, скролл только внутри карточки; конец контента = кнопки, дальше скроллить нельзя -->
+    <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
-      html:has(.app.app--view-home) body { min-height: 0 !important; height: auto !important; }
-      .app.app--view-home {
-        min-height: 0 !important; height: 100vh !important; max-height: 100vh !important;
-        height: 100dvh !important; max-height: 100dvh !important;
-        flex-direction: column !important; align-items: center !important;
-        overflow: hidden !important; padding-bottom: 0 !important;
-      }
-      .app.app--view-home .bottom-nav {
-        position: fixed !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important;
-      }
       .app.app--view-home { background: #0f172a !important; }
       [data-theme="light"] .app.app--view-home { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%) !important; }
       .app.app--view-home .card {
-        flex: 1 !important; min-height: 0 !important; max-height: 100% !important;
-        display: flex !important; flex-direction: column !important; overflow: hidden !important;
+        display: flex !important; flex-direction: column !important;
       }
       .app.app--view-home .card .card__content {
-        flex: 1 !important; min-height: 0 !important; overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        padding-left: 5mm !important; padding-right: 5mm !important;
       }
       .app.app--view-home .card::before {
         mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 55% 28% at 50% 100%, black 0%, black 100%) !important;
@@ -1526,6 +1513,20 @@
           <!-- Страница: Горячие новости -->
           <div class="gazette-modal__content gazette-modal__content--news" id="gazetteModalNews" hidden>
             <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад к выбору страницы">← К газете</button>
+            <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="4">
+              <p class="gazette-modal__content-date">24 февраля</p>
+              <h3 class="gazette-modal__headline gazette-modal__headline--main">ТРИСТА РУБЛЕЙ ВХОД — СТО ВОСЕМЬ ТЫСЯЧ В ОБЩАКЕ! АМАЛИЯ ПРОШЛА ДАЛЬШЕ ВСЕХ: ВТОРОЙ ДЕНЬ РВЁТ ТУРНИРЫ, ПО КЛУБУ — ПЕРВАЯ ПО ВЫИГРЫШАМ!</h3>
+              <div class="gazette-modal__photo-wrap">
+                <img src="./assets/gazette-amaliya-tuesday.png" alt="Статистика рук: Турнир Вторника, Амалия в топе" class="gazette-modal__photo" />
+                <p class="gazette-modal__photo-caption">Турнир Вторника за 300₽. Кто зашёл — тот в деле. Кто вышел в топ — тот забрал свой кусок. Амалия — четвёртая с 8700₽ в кармане.</p>
+              </div>
+              <div class="gazette-modal__body">
+                <p>Разборки на столе такие: турнир за триста целковых собрал банк под сто восемь тысяч — по клубу гремят цифры, народ в деле. За первое место отдали больше тридцати тысяч — серьёзные деньги. Но главное не это. Главное — кто дальше всех прошёл и кому банк отдал по-крупному. Амалия. Второй день подряд крушит столы, забирает призы, и на этой неделе по выигрышам в клубе — пока что первая. Никто не подобрался. В Турнире Вторника за 300₽ она влепила четвёртое место и унесла 8700 — без лишнего шума, по-пацански. Кто не в теме — пусть смотрит рейтинг. Кто в теме — уже знает: по игре и по деньгам сейчас она на вершине.</p>
+              </div>
+              <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="4" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+              </p>
+            </article>
             <article class="gazette-modal__lead" data-gazette-article="5">
               <p class="gazette-modal__content-date">25 февраля</p>
               <h3 class="gazette-modal__headline gazette-modal__headline--main">ЛЮБОВЬ ПОКЕРА И ВАРКРАФТА: была ли интимная связь? Откуда взялись два новых смайла — эксклюзив!</h3>
@@ -1605,6 +1606,9 @@
           <button type="button" class="winter-rating-week-top-modal__close" id="winterRatingWeekTopModalClose" aria-label="Закрыть">×</button>
           <h3 class="winter-rating-week-top-modal__title" id="winterRatingWeekTopModalTitle">Топы прошлой недели</h3>
           <div class="winter-rating-week-top-modal__list" id="winterRatingWeekTopList"></div>
+          <p class="winter-rating-week-top-modal__share-row">
+            <button type="button" class="winter-rating-week-top-modal__share-btn" id="winterRatingWeekTopShareBtn" aria-label="Скопировать ссылку на топ недели">📤 Поделиться</button>
+          </p>
         </div>
       </div>
       <div class="chat-user-modal" id="chatUserModal" aria-hidden="true" role="dialog" aria-labelledby="chatUserModalTitle" aria-label="Карточка пользователя">
