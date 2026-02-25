@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="dark" class="app-view-home">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -19,6 +19,34 @@
     <meta name="twitter:description" content="Горячие новости покерного клуба «Два туза». Откройте в Telegram." />
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="stylesheet" href="./styles.css?v=17" />
+    <!-- Критические стили главной: в HTML, чтобы работали на проде и без :has() -->
+    <style>
+      html.app-view-home, html.app-view-home body { min-height: 0; height: auto; }
+      html.app-view-home .app {
+        min-height: 0; height: 100dvh; max-height: 100dvh; flex-direction: column; align-items: center;
+        overflow-y: auto; overflow-x: hidden; padding-bottom: 0;
+      }
+      html.app-view-home .app .bottom-nav {
+        position: fixed; left: 0; right: 0; bottom: 0; width: 100%;
+      }
+      html.app-view-home .card {
+        flex: 1 1 auto;
+        min-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px) - max(20px, calc(env(safe-area-inset-top, 0px) + 52px)));
+      }
+      html.app-view-home .card .card__content { flex: 1 1 auto; padding-bottom: 0; }
+      html.app-view-home .card::before {
+        mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 48% 22% at 50% 100%, black 0%, black 100%);
+        mask-composite: subtract;
+        -webkit-mask-image: radial-gradient(circle at 50% 0%, black 0, transparent 65%), radial-gradient(ellipse 48% 22% at 50% 100%, black 0%, black 100%);
+        -webkit-mask-composite: source-out;
+      }
+      html.app-view-home .feature.feature--link.feature--rating-promo {
+        border: 1px solid rgba(148, 163, 184, 0.6) !important;
+      }
+      [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo {
+        border: 1px solid rgba(120, 113, 108, 0.55) !important;
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
