@@ -3281,7 +3281,33 @@ function initWinterRating() {
   var datesContainer = document.getElementById("winterRatingDates");
   if (!datesContainer) return;
   var alreadyInited = datesContainer.getAttribute("data-rating-inited") === "1";
-  if (!alreadyInited) datesContainer.setAttribute("data-rating-inited", "1");
+  if (!alreadyInited) {
+    datesContainer.setAttribute("data-rating-inited", "1");
+    datesContainer.addEventListener("click", function (e) {
+      var shareBtn = e.target && e.target.closest ? e.target.closest(".winter-rating__date-share-btn") : null;
+      if (!shareBtn) return;
+      var wrap = shareBtn.closest(".winter-rating__date-share");
+      var dateStr = wrap && wrap.getAttribute("data-rating-date");
+      if (!dateStr) return;
+      e.preventDefault();
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=rating_" + String(dateStr).replace(/\./g, "_");
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг за " + dateStr + "."); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    });
+  }
   var dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
   if (typeof WINTER_RATING_BY_DATE === "object" && Object.keys(WINTER_RATING_BY_DATE).length) {
     var dates = Object.keys(WINTER_RATING_BY_DATE).sort(function (a, b) {
@@ -3359,29 +3385,9 @@ function initWinterRating() {
       if (!shareWrap) {
         shareWrap = document.createElement("div");
         shareWrap.className = "winter-rating__date-share";
+        shareWrap.setAttribute("data-rating-date", dateStr || "");
         shareWrap.innerHTML = "<button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">📤 Поделиться</button>";
         panel.insertBefore(shareWrap, panel.firstChild);
-        var dateShareBtn = shareWrap.querySelector("button");
-        if (dateShareBtn) {
-          dateShareBtn.addEventListener("click", function () {
-            var appEl = document.getElementById("app");
-            var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-            appUrl = appUrl.replace(/\/$/, "");
-            var link = appUrl + "?startapp=rating_" + (dateStr || "").replace(/\./g, "_");
-            if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(link).then(function () {
-                var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-                if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг за " + (dateStr || "") + "."); else alert("Ссылка скопирована.");
-              }).catch(function () {
-                var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-                if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-              });
-            } else {
-              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-              if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-            }
-          });
-        }
       }
       if (!alreadyInited) {
         btn.addEventListener("click", function (e) {

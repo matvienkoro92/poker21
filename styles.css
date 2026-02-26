@@ -4259,6 +4259,19 @@ a.home-mini-icon-item {
   justify-content: center;
   gap: 10px;
 }
+@media (max-width: 480px) {
+  .winter-rating__actions-row {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .winter-rating__actions-row .winter-rating__subscribe-btn,
+  .winter-rating__actions-row .winter-rating__share-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
 .winter-rating__subscribe-btn {
   display: inline-block;
   padding: 10px 18px;
