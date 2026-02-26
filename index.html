@@ -1478,6 +1478,14 @@
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title streams-title">Стримы</h1>
             <p class="streams-intro">Трансляция экрана и голоса в реальном времени. Задержка 2 минуты потребует отдельного стрим-сервера — пока доступна только прямая трансляция.</p>
+            <div class="streams-open-in-browser" id="streamsOpenInBrowserWrap">
+              <p class="streams-open-in-browser__text">Трансляция экрана не работает во встроенном браузере Telegram. Откройте приложение в Chrome или скопируйте ссылку:</p>
+              <div class="streams-link-row streams-open-in-browser__row">
+                <input type="text" id="streamsBrowserLinkInput" class="streams-link-input" readonly aria-label="Ссылка для открытия в браузере" />
+                <button type="button" class="streams-open-browser-btn" id="streamsOpenBrowserBtn">Открыть в браузере</button>
+                <button type="button" class="streams-copy-btn" id="streamsCopyBrowserLinkBtn">Копировать</button>
+              </div>
+            </div>
             <div class="streams-actions">
               <div class="streams-block streams-block--broadcast">
                 <h2 class="streams-block__title">Начать трансляцию</h2>

@@ -36,7 +36,7 @@
   var STATIONS = {
     chill: "https://ice2.somafm.com/groovesalad-128-mp3",
     lounge: "https://ice5.somafm.com/illstreet-128-mp3",
-    "90s": "http://stream3.megarockradio.net:8000/stream",
+    "90s": "https://nostalgiafm.hostingradio.ru:8014/nostalgiafm.mp3",
     radio7: "https://stream.rcast.net/263744"
   };
   var MODES = ["", "chill", "lounge", "90s", "radio7"];
@@ -44,7 +44,7 @@
     var m = localStorage.getItem("chill_radio_mode") || "";
     return MODES.indexOf(m) >= 0 ? m : "";
   }
-  var shortLabels = { "": "Выкл", chill: "Чил", lounge: "Lounge", "90s": "90е", radio7: "Радио7" };
+  var shortLabels = { "": "Выкл", chill: "Чил", lounge: "Lounge", "90s": "90е РФ", radio7: "Радио7" };
   function setMode(mode) {
     localStorage.setItem("chill_radio_mode", mode);
     btn.classList.remove("radio-toggle--chill", "radio-toggle--lounge", "radio-toggle--90s", "radio-toggle--radio7");
@@ -54,7 +54,7 @@
     if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
     var labelEl = btn.querySelector(".radio-toggle__label");
     if (labelEl) labelEl.textContent = shortLabels[mode] !== undefined ? shortLabels[mode] : shortLabels[""];
-    var titles = { "": "Радио: выкл", chill: "Радио: чил", lounge: "Радио: Lounge", "90s": "Радио: американские 90‑е", radio7: "Радио 7 на семи холмах" };
+    var titles = { "": "Радио: выкл", chill: "Радио: чил", lounge: "Радио: Lounge", "90s": "Радио: русские 90‑е", radio7: "Радио 7 на семи холмах" };
     btn.title = titles[mode] || titles[""];
     btn.setAttribute("aria-label", btn.title);
   }
@@ -489,6 +489,11 @@ function getTopByDates(dates) {
       }, 300);
     }, 0);
   }
+  if (window.location.hash === "#streams") {
+    setTimeout(function () {
+      if (typeof setView === "function") setView("streams");
+    }, 0);
+  }
 })();
 
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
@@ -800,7 +805,7 @@ function tryChillRadioPlay() {
   if (mode !== "chill" && mode !== "lounge" && mode !== "90s" && mode !== "radio7") return;
   var radio = document.getElementById("chillRadio");
   if (!radio) return;
-  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", lounge: "https://ice5.somafm.com/illstreet-128-mp3", "90s": "http://stream3.megarockradio.net:8000/stream", radio7: "https://stream.rcast.net/263744" };
+  var urls = { chill: "https://ice2.somafm.com/groovesalad-128-mp3", lounge: "https://ice5.somafm.com/illstreet-128-mp3", "90s": "https://nostalgiafm.hostingradio.ru:8014/nostalgiafm.mp3", radio7: "https://stream.rcast.net/263744" };
   if (urls[mode]) radio.src = urls[mode];
   var p = radio.play();
   if (p && typeof p.then === "function") p.catch(function () {});
@@ -4029,6 +4034,9 @@ function initStreams() {
   var previewVideo = document.getElementById("streamsPreviewVideo");
   var shareLinkInput = document.getElementById("streamsShareLink");
   var copyLinkBtn = document.getElementById("streamsCopyLinkBtn");
+  var browserLinkInput = document.getElementById("streamsBrowserLinkInput");
+  var copyBrowserLinkBtn = document.getElementById("streamsCopyBrowserLinkBtn");
+  var openBrowserBtn = document.getElementById("streamsOpenBrowserBtn");
   var roomInput = document.getElementById("streamsRoomInput");
   var watchBtn = document.getElementById("streamsWatchBtn");
   var stopWatchBtn = document.getElementById("streamsStopWatchBtn");
@@ -4042,15 +4050,47 @@ function initStreams() {
     if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
   }
 
+  var directAppUrl = window.location.origin + window.location.pathname + (window.location.search || "") + "#streams";
+  if (browserLinkInput) browserLinkInput.value = directAppUrl;
+  if (openBrowserBtn) {
+    openBrowserBtn.addEventListener("click", function () {
+      if (tg && tg.openLink) {
+        tg.openLink(directAppUrl);
+      } else {
+        window.open(directAppUrl, "_blank", "noopener");
+      }
+    });
+  }
+  if (copyBrowserLinkBtn && browserLinkInput) {
+    copyBrowserLinkBtn.addEventListener("click", function () {
+      browserLinkInput.select();
+      try {
+        document.execCommand("copy");
+        showAlert("Ссылка скопирована. Вставьте её в адресную строку Chrome и откройте.");
+      } catch (e) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(browserLinkInput.value).then(function () {
+            showAlert("Ссылка скопирована. Вставьте её в адресную строку Chrome и откройте.");
+          }).catch(function () {});
+        }
+      }
+    });
+  }
+
   startBtn.addEventListener("click", function () {
     if (streamsBroadcastPeer || streamsBroadcastStream) return;
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-      showAlert("Трансляция экрана не поддерживается в этом браузере.");
+    if (!navigator.mediaDevices) {
+      showAlert("Трансляция недоступна: нет доступа к медиа-устройствам.");
+      return;
+    }
+    var getDisplayMedia = navigator.mediaDevices.getDisplayMedia || navigator.mediaDevices.webkitGetDisplayMedia;
+    if (!getDisplayMedia) {
+      showAlert("Трансляция экрана недоступна в Safari и в приложении Telegram. Откройте мини-приложение в Chrome (Android) или в браузере на компьютере.");
       return;
     }
     startBtn.disabled = true;
     var combinedStream = new MediaStream();
-    navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+    getDisplayMedia.call(navigator.mediaDevices, { video: true, audio: false })
       .then(function (screenStream) {
         screenStream.getVideoTracks().forEach(function (t) { combinedStream.addTrack(t); });
         return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (micStream) {
@@ -4061,7 +4101,7 @@ function initStreams() {
       .catch(function () {
         return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (micStream) {
           micStream.getAudioTracks().forEach(function (t) { combinedStream.addTrack(t); });
-          return navigator.mediaDevices.getDisplayMedia({ video: true }).then(function (screenStream) {
+          return getDisplayMedia.call(navigator.mediaDevices, { video: true }).then(function (screenStream) {
             screenStream.getVideoTracks().forEach(function (t) { combinedStream.addTrack(t); });
             return combinedStream;
           });
@@ -4107,7 +4147,11 @@ function initStreams() {
       })
       .catch(function (err) {
         startBtn.disabled = false;
-        showAlert("Не удалось получить экран или микрофон. Разрешите доступ.");
+        var msg = "Не удалось запустить трансляцию. Разрешите доступ к экрану и микрофону.";
+        if (err && (err.name === "NotAllowedError" || err.name === "PermissionDeniedError")) {
+          msg = "Доступ к экрану отклонён. Разрешите доступ в настройках браузера.";
+        }
+        showAlert(msg);
       });
   });
 
