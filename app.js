@@ -177,7 +177,7 @@ function getTopByDates(dates) {
 // Газета «Вестник Два туза» — только горячие новости
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
-  var GAZETTE_VERSION = "2026-02-24";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
+  var GAZETTE_VERSION = "2026-02-26";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
@@ -456,6 +456,9 @@ function getTopByDates(dates) {
     if (startParam !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
     setTimeout(function () { openGazette("news", articleNum); }, 300);
   }
+  if (startParam === "winter_rating") {
+    setTimeout(function () { if (typeof setView === "function") setView("winter-rating"); }, 0);
+  }
   if (startParam === "rating_top_past" || startParam === "rating_top_current") {
     var ratingTopKind = startParam === "rating_top_current" ? "current" : "past";
     setTimeout(function () {
@@ -563,6 +566,27 @@ function getTopByDates(dates) {
         navigator.clipboard.writeText(link).then(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется этот топ недели."); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    });
+  }
+  var winterRatingShareBtn = document.getElementById("winterRatingShareBtn");
+  if (winterRatingShareBtn) {
+    winterRatingShareBtn.addEventListener("click", function () {
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=winter_rating";
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков зимы."); else alert("Ссылка скопирована.");
         }).catch(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
