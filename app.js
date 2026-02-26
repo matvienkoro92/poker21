@@ -4088,7 +4088,13 @@ function initStreams() {
       showAlert("Трансляция экрана недоступна в Safari и в приложении Telegram. Откройте мини-приложение в Chrome (Android) или в браузере на компьютере.");
       return;
     }
+    if (!window.isSecureContext) {
+      showAlert("Трансляция экрана работает только по HTTPS. Откройте страницу по ссылке https://…");
+      return;
+    }
     startBtn.disabled = true;
+    var btnText = startBtn.textContent;
+    startBtn.textContent = "Запрос доступа к экрану…";
     var combinedStream = new MediaStream();
     getDisplayMedia.call(navigator.mediaDevices, { video: true, audio: false })
       .then(function (screenStream) {
@@ -4115,7 +4121,8 @@ function initStreams() {
           streamsBroadcastStream.getTracks().forEach(function (t) { t.stop(); });
           streamsBroadcastStream = null;
           startBtn.disabled = false;
-          showAlert("Библиотека PeerJS не загружена.");
+          startBtn.textContent = btnText;
+          showAlert("Библиотека PeerJS не загружена. Проверьте интернет и обновите страницу.");
           return;
         }
         var peer = new PeerJs(roomId, { debug: 0 });
@@ -4128,6 +4135,7 @@ function initStreams() {
           previewVideo.srcObject = streamsBroadcastStream;
           previewWrap.classList.remove("streams-preview-wrap--hidden");
           startBtn.disabled = false;
+          startBtn.textContent = btnText;
         });
         peer.on("call", function (call) {
           if (streamsBroadcastStream) call.answer(streamsBroadcastStream);
@@ -4147,9 +4155,14 @@ function initStreams() {
       })
       .catch(function (err) {
         startBtn.disabled = false;
+        startBtn.textContent = btnText;
         var msg = "Не удалось запустить трансляцию. Разрешите доступ к экрану и микрофону.";
         if (err && (err.name === "NotAllowedError" || err.name === "PermissionDeniedError")) {
-          msg = "Доступ к экрану отклонён. Разрешите доступ в настройках браузера.";
+          msg = "Доступ к экрану отклонён. Нажмите «Запустить» снова и выберите экран или вкладку в окне браузера.";
+        } else if (err && err.name === "NotFoundError") {
+          msg = "Не найден источник для трансляции. Выберите вкладку или окно в диалоге браузера.";
+        } else if (err) {
+          msg = "Ошибка: " + (err.message || err.name || "неизвестная");
         }
         showAlert(msg);
       });
