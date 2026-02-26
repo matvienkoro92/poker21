@@ -4297,6 +4297,13 @@ a.home-mini-icon-item {
   background: rgba(212, 175, 55, 0.28);
   border-color: rgba(212, 175, 55, 0.7);
 }
+.winter-rating__date-share {
+  margin-bottom: 14px;
+  text-align: center;
+}
+.winter-rating__date-share .winter-rating__date-share-btn {
+  margin: 0;
+}
 .winter-rating__nick-btn {
   font: inherit;
   font-size: inherit;

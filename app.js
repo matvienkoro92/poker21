@@ -459,6 +459,15 @@ function getTopByDates(dates) {
   if (startParam === "winter_rating") {
     setTimeout(function () { if (typeof setView === "function") setView("winter-rating"); }, 0);
   }
+  if (startParam && startParam.indexOf("rating_") === 0) {
+    var dateParam = startParam.replace("rating_", "").replace(/_/g, ".");
+    setTimeout(function () {
+      if (typeof setView === "function") setView("winter-rating");
+      setTimeout(function () {
+        if (typeof window.openWinterRatingDatePanel === "function") window.openWinterRatingDatePanel(dateParam);
+      }, 400);
+    }, 0);
+  }
   if (startParam === "rating_top_past" || startParam === "rating_top_current") {
     var ratingTopKind = startParam === "rating_top_current" ? "current" : "past";
     setTimeout(function () {
@@ -3167,6 +3176,17 @@ function initWinterRating() {
   } catch (e) {
     if (typeof console !== "undefined" && console.error) console.error("initWinterRating lightbox/modal", e);
   }
+  window.openWinterRatingDatePanel = function (dateStr) {
+    var container = document.getElementById("winterRatingDates");
+    if (!container) return;
+    var item = container.querySelector(".winter-rating__date-item[data-rating-date=\"" + (dateStr || "") + "\"]");
+    if (!item) return;
+    var panel = item.querySelector(".winter-rating__date-panel");
+    var btn = item.querySelector(".winter-rating__date-btn");
+    if (panel) panel.classList.remove("winter-rating__date-panel--hidden");
+    if (btn) btn.setAttribute("aria-expanded", "true");
+    try { item.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+  };
   var updatedEl = document.getElementById("winterRatingUpdated");
   var countersEl = document.getElementById("winterRatingCounters");
   var tbody = document.getElementById("winterRatingTableBody");
@@ -3334,6 +3354,34 @@ function initWinterRating() {
       }
       if (screensContainer) {
         fillScreensForDate(screensContainer, dateStr);
+      }
+      var shareWrap = panel.querySelector(".winter-rating__date-share");
+      if (!shareWrap) {
+        shareWrap = document.createElement("div");
+        shareWrap.className = "winter-rating__date-share";
+        shareWrap.innerHTML = "<button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">📤 Поделиться</button>";
+        panel.insertBefore(shareWrap, panel.firstChild);
+        var dateShareBtn = shareWrap.querySelector("button");
+        if (dateShareBtn) {
+          dateShareBtn.addEventListener("click", function () {
+            var appEl = document.getElementById("app");
+            var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+            appUrl = appUrl.replace(/\/$/, "");
+            var link = appUrl + "?startapp=rating_" + (dateStr || "").replace(/\./g, "_");
+            if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(link).then(function () {
+                var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+                if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг за " + (dateStr || "") + "."); else alert("Ссылка скопирована.");
+              }).catch(function () {
+                var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+                if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+              });
+            } else {
+              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+              if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+            }
+          });
+        }
       }
       if (!alreadyInited) {
         btn.addEventListener("click", function (e) {
