@@ -256,13 +256,13 @@
               <p class="winter-rating__show-all-wrap" id="winterRatingShowAllWrap">
                 <button type="button" class="winter-rating__show-all-btn" id="winterRatingShowAllBtn">Показать всех</button>
               </p>
-              <div class="winter-rating__subscribe-wrap">
+              <div class="winter-rating__actions-wrap">
                 <p class="winter-rating__subscribe-text">Получать уведомления об обновлении рейтинга в Telegram</p>
-                <button type="button" class="winter-rating__subscribe-btn" id="ratingSubscribeBtn">Подписаться на обновления рейтинга</button>
+                <div class="winter-rating__actions-row">
+                  <button type="button" class="winter-rating__subscribe-btn" id="ratingSubscribeBtn">Подписаться на обновления рейтинга</button>
+                  <button type="button" class="winter-rating__share-btn" id="winterRatingShareBtn" aria-label="Поделиться ссылкой на рейтинг">📤 Поделиться</button>
+                </div>
               </div>
-              <p class="winter-rating__share-row">
-                <button type="button" class="winter-rating__share-btn" id="winterRatingShareBtn" aria-label="Поделиться ссылкой на рейтинг">📤 Поделиться</button>
-              </p>
               <p class="winter-rating__week-tops-hint">
                 Топ‑3 недели получают от клуба дополнительные бонусы: 1‑е место — билеты на турниры на 5000₽, 2‑е — билеты за 3000₽, 3‑е — билет за 1000₽.
               </p>
@@ -280,7 +280,14 @@
               <p class="winter-rating__dates-hint">Выберите дату в календаре</p>
               <div class="winter-rating__dates" id="winterRatingDates">
                 <div class="winter-rating__calendar-wrap" id="winterRatingCalendarWrap" aria-hidden="true"></div>
-                <!-- 24.02, 23.02 сверху, затем 22.02, 21.02 -->
+                <!-- 25.02, 24.02, 23.02 сверху, затем 22.02, 21.02 -->
+                <div class="winter-rating__date-item" data-rating-date="25.02.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2502">25.02.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2502" role="region" aria-label="Рейтинг на 25.02.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="25.02.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable2502"></div>
+                  </div>
+                </div>
                 <div class="winter-rating__date-item" data-rating-date="24.02.2026">
                   <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2402">24.02.2026</button>
                   <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2402" role="region" aria-label="Рейтинг на 24.02.2026">

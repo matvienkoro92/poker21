@@ -2030,6 +2030,61 @@ var WINTER_RATING_BY_DATE = {
     { nick: "МЕТ|$", points: 0, reward: 0 },
     { nick: "kabanchik", points: 0, reward: 0 },
   ],
+  "25.02.2026": [
+    { nick: "ПокерМанки", points: 135, reward: 29500 },
+    { nick: "Waaar", points: 110, reward: 18600 },
+    { nick: "king00001", points: 0, reward: 0 },
+    { nick: "ЧУРменя", points: 0, reward: 0 },
+    { nick: "FishKopcheny", points: 0, reward: 0 },
+    { nick: "Waaar", points: 135, reward: 20900 },
+    { nick: "king00001", points: 0, reward: 0 },
+    { nick: "Borsoi", points: 0, reward: 0 },
+    { nick: "БЕЛЫЙ", points: 0, reward: 0 },
+    { nick: "Em13!!", points: 135, reward: 29278 },
+    { nick: "nikola233", points: 50, reward: 2102 },
+    { nick: "Рыбнадзор", points: 0, reward: 1724 },
+    { nick: "shockin", points: 0, reward: 0 },
+    { nick: "АршакМкртчян", points: 110, reward: 28974 },
+    { nick: "kriaks", points: 0, reward: 0 },
+    { nick: "Em13!!", points: 0, reward: 0 },
+    { nick: "nikola233", points: 0, reward: 0 },
+    { nick: "Рыбнадзор", points: 70, reward: 10182 },
+    { nick: "АршакМкртчян", points: 0, reward: 1250 },
+    { nick: "Em13!!", points: 0, reward: 283 },
+    { nick: "machete", points: 0, reward: 0 },
+    { nick: "n1kk1ex", points: 0, reward: 0 },
+    { nick: "Рыбнадзор", points: 0, reward: 5254 },
+    { nick: "Фокс", points: 0, reward: 0 },
+    { nick: "pryanik2la", points: 0, reward: 0 },
+    { nick: "Malek3084", points: 0, reward: 0 },
+    { nick: "Prushnik", points: 0, reward: 1780 },
+    { nick: "Player2EBBB6", points: 0, reward: 195 },
+    { nick: "Boba7575", points: 0, reward: 159 },
+    { nick: "cadillac", points: 0, reward: 142 },
+    { nick: "Azza43ru", points: 0, reward: 0 },
+    { nick: "АршакМкртчян", points: 0, reward: 11438 },
+    { nick: "Superden", points: 0, reward: 0 },
+    { nick: "Xpoper", points: 0, reward: 0 },
+    { nick: "НиLLIтяк", points: 0, reward: 0 },
+    { nick: "AliPetuhov", points: 0, reward: 10330 },
+    { nick: "TonniHalf", points: 0, reward: 5880 },
+    { nick: "Rom4ik", points: 0, reward: 3940 },
+    { nick: "Че643", points: 0, reward: 3300 },
+    { nick: "ЧУРменя", points: 0, reward: 2520 },
+    { nick: "Psyho44", points: 0, reward: 7430 },
+    { nick: "ПаПа_Мо}|{еТ", points: 0, reward: 0 },
+    { nick: "XORTYRETSKOGO", points: 0, reward: 0 },
+    { nick: "DemonDen", points: 0, reward: 0 },
+    { nick: "WiNifly", points: 0, reward: 0 },
+    { nick: "cadillac", points: 0, reward: 2660 },
+    { nick: "Baal", points: 0, reward: 0 },
+    { nick: "tatarin_1", points: 0, reward: 0 },
+    { nick: "Ksuha", points: 0, reward: 0 },
+    { nick: "Tanechka", points: 0, reward: 0 },
+    { nick: "pryanik2la", points: 0, reward: 8408 },
+    { nick: "K-700", points: 0, reward: 0 },
+    { nick: "Olegggaaa", points: 0, reward: 0 },
+  ],
   "24.02.2026": [
     { nick: "Mr.V", points: 110, reward: 12700 },
     { nick: "Waaar", points: 70, reward: 6000 },
@@ -2234,6 +2289,7 @@ var WINTER_RATING_IMAGES = {
   "22.02.2026": ["rating-22-02-2026.png", "rating-22-02-2026-2.png", "rating-22-02-2026-3.png", "rating-22-02-2026-4.png", "rating-22-02-2026-5.png"],
   "23.02.2026": ["rating-23-02-2026.png", "rating-23-02-2026-2.png", "rating-23-02-2026-3.png", "rating-23-02-2026-4.png", "rating-23-02-2026-5.png", "rating-23-02-2026-6.png", "rating-23-02-2026-7.png", "rating-23-02-2026-8.png", "rating-23-02-2026-9.png"],
   "24.02.2026": ["rating-24-02-2026.png", "rating-24-02-2026-2.png", "rating-24-02-2026-3.png", "rating-24-02-2026-4.png", "rating-24-02-2026-5.png"],
+  "25.02.2026": ["rating-25-02-2026.png", "rating-25-02-2026-2.png", "rating-25-02-2026-3.png", "rating-25-02-2026-4.png", "rating-25-02-2026-5.png", "rating-25-02-2026-6.png", "rating-25-02-2026-7.png", "rating-25-02-2026-8.png", "rating-25-02-2026-9.png", "rating-25-02-2026-10.png", "rating-25-02-2026-11.png", "rating-25-02-2026-12.png"],
   "15.02.2026": ["rating-15-02-2026.png", "rating-15-02-2026-2.png", "rating-15-02-2026-3.png", "rating-15-02-2026-4.png"],
   "16.02.2026": ["rating-16-02-2026.png", "rating-16-02-2026-2.png", "rating-16-02-2026-3.png"],
   "13.02.2026": ["rating-13-02-2026.png", "rating-13-02-2026-2.png", "rating-13-02-2026-3.png"],
@@ -2695,6 +2751,20 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
     { time: "19:00", name: "MTT-PLO5 300", players: [{ nick: "Sarmat1305", place: 1, points: 0, reward: 12322 }, { nick: "undertaker", place: 0, points: 0, reward: 0 }, { nick: "allex 1983", place: 0, points: 0, reward: 0 }, { nick: "XP3864042", place: 29, points: 0, reward: 0 }] },
     { time: "22:00", name: "Magic 500 * 150K", players: [{ nick: "Игрок", place: 3, points: 0, reward: 7659 }, { nick: "Фокс", place: 17, points: 0, reward: 0 }, { nick: "TIT163RUS", place: 25, points: 0, reward: 0 }, { nick: "МЕТ|$", place: 34, points: 0, reward: 0 }, { nick: "kabanchik", place: 0, points: 0, reward: 0 }] },
   ],
+  "25.02.2026": [
+    { time: "12:00", name: "DV Rebuy", players: [{ nick: "Waaar", place: 1, points: 135, reward: 20900 }, { nick: "king00001", place: 9, points: 0, reward: 0 }, { nick: "Borsoi", place: 16, points: 0, reward: 0 }, { nick: "БЕЛЫЙ", place: 17, points: 0, reward: 0 }] },
+    { time: "13:00", name: "DV Bounty 150k", players: [{ nick: "АршакМкртчян", place: 2, points: 110, reward: 28974 }, { nick: "kriaks", place: 0, points: 0, reward: 0 }, { nick: "Em13!!", place: 0, points: 0, reward: 0 }, { nick: "nikola233", place: 0, points: 0, reward: 0 }] },
+    { time: "15:00", name: "New - Hot PKO 2/3", players: [{ nick: "Em13!!", place: 1, points: 135, reward: 29278 }, { nick: "nikola233", place: 6, points: 50, reward: 2102 }, { nick: "Рыбнадзор", place: 9, points: 0, reward: 1724 }, { nick: "shockin", place: 0, points: 0, reward: 0 }] },
+    { time: "17:00", name: "Rebuy MTT 7MAX MTT-NLH", players: [{ nick: "ПокерМанки", place: 1, points: 135, reward: 29500 }, { nick: "Waaar", place: 2, points: 110, reward: 18600 }, { nick: "king00001", place: 7, points: 0, reward: 0 }, { nick: "ЧУРменя", place: 11, points: 0, reward: 0 }, { nick: "FishKopcheny", place: 0, points: 0, reward: 0 }] },
+    { time: "21:00", name: "NLH KNOCKOUT 250k", players: [{ nick: "Рыбнадзор", place: 4, points: 70, reward: 10182 }, { nick: "АршакМкртчян", place: 0, points: 0, reward: 1250 }, { nick: "Em13!!", place: 14, points: 0, reward: 283 }, { nick: "machete", place: 0, points: 0, reward: 0 }, { nick: "n1kk1ex", place: 0, points: 0, reward: 0 }] },
+    { time: "10:00", name: "DV Turbo 500 90K", players: [{ nick: "Рыбнадзор", place: 7, points: 0, reward: 5254 }, { nick: "Фокс", place: 23, points: 0, reward: 0 }, { nick: "Em13!!", place: 96, points: 0, reward: 0 }, { nick: "pryanik2la", place: 100, points: 0, reward: 0 }, { nick: "Malek3084", place: 53, points: 0, reward: 0 }] },
+    { time: "16:00", name: "Magic Chest", players: [{ nick: "Prushnik", place: 1, points: 0, reward: 1780 }, { nick: "Player2EBBB6", place: 4, points: 0, reward: 195 }, { nick: "Boba7575", place: 5, points: 0, reward: 159 }, { nick: "cadillac", place: 6, points: 0, reward: 142 }, { nick: "Azza43ru", place: 10, points: 0, reward: 0 }] },
+    { time: "18:00", name: "Freeroll 1 MLN", players: [{ nick: "АршакМкртчян", place: 12, points: 0, reward: 11438 }, { nick: "Superden", place: 113, points: 0, reward: 0 }, { nick: "Xpoper", place: 237, points: 0, reward: 0 }, { nick: "НиLLIтяк", place: 280, points: 0, reward: 0 }] },
+    { time: "18:00", name: "Турнир Среды", players: [{ nick: "AliPetuhov", place: 2, points: 0, reward: 10330 }, { nick: "TonniHalf", place: 3, points: 0, reward: 5880 }, { nick: "Rom4ik", place: 5, points: 0, reward: 3940 }, { nick: "Че643", place: 6, points: 0, reward: 3300 }, { nick: "ЧУРменя", place: 7, points: 0, reward: 2520 }] },
+    { time: "21:00", name: "MOK MKO 7MAX MTT-NLH", players: [{ nick: "Psyho44", place: 1, points: 0, reward: 7430 }, { nick: "ПаПа_Мо}|{еТ", place: 8, points: 0, reward: 0 }, { nick: "XORTYRETSKOGO", place: 9, points: 0, reward: 0 }, { nick: "DemonDen", place: 10, points: 0, reward: 0 }, { nick: "WiNifly", place: 11, points: 0, reward: 0 }] },
+    { time: "22:00", name: "Energetik Tournament", players: [{ nick: "cadillac", place: 3, points: 0, reward: 2660 }, { nick: "Baal", place: 5, points: 0, reward: 0 }, { nick: "tatarin_1", place: 6, points: 0, reward: 0 }, { nick: "Ksuha", place: 7, points: 0, reward: 0 }, { nick: "Tanechka", place: 8, points: 0, reward: 0 }] },
+    { time: "22:00", name: "Magic 500 * 150K", players: [{ nick: "pryanik2la", place: 3, points: 0, reward: 8408 }, { nick: "K-700", place: 39, points: 0, reward: 0 }, { nick: "Рыбнадзор", place: 0, points: 0, reward: 0 }, { nick: "Olegggaaa", place: 0, points: 0, reward: 0 }, { nick: "Malek3084", place: 52, points: 0, reward: 0 }] },
+  ],
   "24.02.2026": [
     { time: "12:00", name: "DV Rebuy", players: [{ nick: "Mr.V", place: 2, points: 110, reward: 12700 }, { nick: "Waaar", place: 4, points: 70, reward: 6000 }, { nick: "MilkyWay77", place: 12, points: 0, reward: 0 }, { nick: "king00001", place: 13, points: 0, reward: 0 }, { nick: "|---777---|", place: 17, points: 0, reward: 0 }] },
     { time: "15:00", name: "New - Hot PKO 2/3", players: [{ nick: "Бабник", place: 3, points: 90, reward: 12983 }, { nick: "Em13!!", place: 22, points: 0, reward: 0 }, { nick: "пупсик", place: 0, points: 0, reward: 0 }, { nick: "ArsenalFan", place: 0, points: 0, reward: 0 }, { nick: "nikola233", place: 0, points: 0, reward: 0 }] },
@@ -2903,7 +2973,7 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
-  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026", "23.02.2026", "24.02.2026"];
+  var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026", "23.02.2026", "24.02.2026", "25.02.2026"];
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
@@ -3249,10 +3319,17 @@ function initWinterRating() {
           return "<div class=\"winter-rating__screenshot\" role=\"button\" tabindex=\"0\"><img src=\"" + getAssetUrl(f) + "?" + cacheV + "\" alt=\"Скрин рейтинга " + dStr + " (" + (i + 1) + ")\" loading=\"lazy\" /></div>";
         }).join("");
         container.querySelectorAll(".winter-rating__screenshot").forEach(function (cell, idx) {
-          var img = cell.querySelector("img");
-          if (img && img.src) {
-            cell.addEventListener("click", function () { openWinterRatingLightbox(dStr, idx); });
-          }
+          var openLightbox = function (e) {
+            if (e) e.preventDefault();
+            openWinterRatingLightbox(dStr, idx);
+          };
+          cell.addEventListener("click", openLightbox);
+          cell.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openLightbox();
+            }
+          });
         });
       }
       if (screensContainer) {

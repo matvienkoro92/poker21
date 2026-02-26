@@ -4240,7 +4240,7 @@ a.home-mini-icon-item {
 .winter-rating__show-all-btn:hover {
   opacity: 0.85;
 }
-.winter-rating__subscribe-wrap {
+.winter-rating__actions-wrap {
   margin: 0 12px 20px;
   padding-top: 16px;
   border-top: 1px solid rgba(212, 175, 55, 0.25);
@@ -4251,6 +4251,13 @@ a.home-mini-icon-item {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
   line-height: 1.4;
+}
+.winter-rating__actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 .winter-rating__subscribe-btn {
   display: inline-block;
@@ -4272,11 +4279,6 @@ a.home-mini-icon-item {
 .winter-rating__subscribe-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-.winter-rating__share-row {
-  margin: 0 12px 20px;
-  padding-top: 12px;
-  text-align: center;
 }
 .winter-rating__share-btn {
   display: inline-block;
@@ -5661,6 +5663,7 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   height: 100%;
   object-fit: cover;
   vertical-align: middle;
+  pointer-events: none;
 }
 .winter-rating__screenshot img[src=""],
 .winter-rating__screenshot img:not([src]) {
@@ -5685,12 +5688,14 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   box-sizing: border-box;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: opacity 0.2s, visibility 0.2s;
 }
 
 .winter-rating-lightbox[aria-hidden="false"] {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .winter-rating-lightbox__close {
