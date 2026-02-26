@@ -477,6 +477,18 @@ function getTopByDates(dates) {
       }, 350);
     }, 0);
   }
+  if (startParam && startParam.indexOf("streams_") === 0) {
+    var streamsRoomId = startParam.replace("streams_", "");
+    setTimeout(function () {
+      if (typeof setView === "function") setView("streams");
+      setTimeout(function () {
+        var roomInput = document.getElementById("streamsRoomInput");
+        if (roomInput && streamsRoomId) roomInput.value = streamsRoomId;
+        var watchBtn = document.getElementById("streamsWatchBtn");
+        if (watchBtn) watchBtn.click();
+      }, 300);
+    }, 0);
+  }
 })();
 
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
@@ -840,6 +852,11 @@ function setView(viewName) {
     syncProfileStatusVisual();
     loadProfileRespect();
     initProfileFriends();
+  }
+  if (viewName === "streams") {
+    initStreams();
+  } else {
+    if (typeof streamsCleanup === "function") streamsCleanup();
   }
   if (viewName === "bonus-game") {
     initBonusGame();
@@ -3960,6 +3977,235 @@ function initProfileAvatar() {
   });
 
   loadAvatar();
+}
+
+// Стримы: трансляция экрана и микрофона в реальном времени (PeerJS). Задержка 2 мин — отдельный сервер.
+var streamsBroadcastPeer = null;
+var streamsBroadcastStream = null;
+var streamsWatchPeer = null;
+var streamsWatchCall = null;
+
+function randomStreamRoomId() {
+  return Math.random().toString(36).slice(2, 8);
+}
+
+function getStreamsAppUrl() {
+  var app = document.getElementById("app");
+  if (app && app.getAttribute("data-telegram-app-url")) return app.getAttribute("data-telegram-app-url");
+  return window.location.origin + window.location.pathname;
+}
+
+function streamsCleanup() {
+  if (streamsBroadcastStream) {
+    streamsBroadcastStream.getTracks().forEach(function (t) { t.stop(); });
+    streamsBroadcastStream = null;
+  }
+  if (streamsBroadcastPeer) {
+    try { streamsBroadcastPeer.destroy(); } catch (e) {}
+    streamsBroadcastPeer = null;
+  }
+  if (streamsWatchCall) {
+    try { streamsWatchCall.close(); } catch (e) {}
+    streamsWatchCall = null;
+  }
+  if (streamsWatchPeer) {
+    try { streamsWatchPeer.destroy(); } catch (e) {}
+    streamsWatchPeer = null;
+  }
+  var previewWrap = document.getElementById("streamsPreviewWrap");
+  var previewVideo = document.getElementById("streamsPreviewVideo");
+  var remoteWrap = document.getElementById("streamsRemoteWrap");
+  var remoteVideo = document.getElementById("streamsRemoteVideo");
+  if (previewWrap) previewWrap.classList.add("streams-preview-wrap--hidden");
+  if (previewVideo) previewVideo.srcObject = null;
+  if (remoteWrap) remoteWrap.classList.add("streams-remote-wrap--hidden");
+  if (remoteVideo) remoteVideo.srcObject = null;
+}
+
+function initStreams() {
+  var startBtn = document.getElementById("streamsStartBtn");
+  var stopBtn = document.getElementById("streamsStopBtn");
+  var previewWrap = document.getElementById("streamsPreviewWrap");
+  var previewVideo = document.getElementById("streamsPreviewVideo");
+  var shareLinkInput = document.getElementById("streamsShareLink");
+  var copyLinkBtn = document.getElementById("streamsCopyLinkBtn");
+  var roomInput = document.getElementById("streamsRoomInput");
+  var watchBtn = document.getElementById("streamsWatchBtn");
+  var stopWatchBtn = document.getElementById("streamsStopWatchBtn");
+  var remoteWrap = document.getElementById("streamsRemoteWrap");
+  var remoteVideo = document.getElementById("streamsRemoteVideo");
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+  if (!startBtn || !previewWrap || !previewVideo) return;
+
+  function showAlert(msg) {
+    if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+  }
+
+  startBtn.addEventListener("click", function () {
+    if (streamsBroadcastPeer || streamsBroadcastStream) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      showAlert("Трансляция экрана не поддерживается в этом браузере.");
+      return;
+    }
+    startBtn.disabled = true;
+    var combinedStream = new MediaStream();
+    navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+      .then(function (screenStream) {
+        screenStream.getVideoTracks().forEach(function (t) { combinedStream.addTrack(t); });
+        return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (micStream) {
+          micStream.getAudioTracks().forEach(function (t) { combinedStream.addTrack(t); });
+          return combinedStream;
+        }).catch(function () { return combinedStream; });
+      })
+      .catch(function () {
+        return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (micStream) {
+          micStream.getAudioTracks().forEach(function (t) { combinedStream.addTrack(t); });
+          return navigator.mediaDevices.getDisplayMedia({ video: true }).then(function (screenStream) {
+            screenStream.getVideoTracks().forEach(function (t) { combinedStream.addTrack(t); });
+            return combinedStream;
+          });
+        });
+      })
+      .then(function (stream) {
+        streamsBroadcastStream = stream;
+        var roomId = randomStreamRoomId();
+        var PeerJs = typeof Peer !== "undefined" ? Peer : null;
+        if (!PeerJs) {
+          streamsBroadcastStream.getTracks().forEach(function (t) { t.stop(); });
+          streamsBroadcastStream = null;
+          startBtn.disabled = false;
+          showAlert("Библиотека PeerJS не загружена.");
+          return;
+        }
+        var peer = new PeerJs(roomId, { debug: 0 });
+        streamsBroadcastPeer = peer;
+        peer.on("open", function () {
+          var appUrl = getStreamsAppUrl();
+          var link = appUrl + (appUrl.indexOf("?") >= 0 ? "&" : "?") + "startapp=streams_" + roomId;
+          if (shareLinkInput) shareLinkInput.value = link;
+          if (roomInput) roomInput.placeholder = roomId;
+          previewVideo.srcObject = streamsBroadcastStream;
+          previewWrap.classList.remove("streams-preview-wrap--hidden");
+          startBtn.disabled = false;
+        });
+        peer.on("call", function (call) {
+          if (streamsBroadcastStream) call.answer(streamsBroadcastStream);
+        });
+        peer.on("error", function (err) {
+          if (err.type !== "peer-unavailable") showAlert("Ошибка: " + (err.message || err.type || "сеть"));
+        });
+        peer.on("close", function () {
+          if (streamsBroadcastStream) {
+            streamsBroadcastStream.getTracks().forEach(function (t) { t.stop(); });
+            streamsBroadcastStream = null;
+          }
+          streamsBroadcastPeer = null;
+          previewWrap.classList.add("streams-preview-wrap--hidden");
+          previewVideo.srcObject = null;
+        });
+      })
+      .catch(function (err) {
+        startBtn.disabled = false;
+        showAlert("Не удалось получить экран или микрофон. Разрешите доступ.");
+      });
+  });
+
+  if (stopBtn) {
+    stopBtn.addEventListener("click", function () {
+      if (streamsBroadcastStream) streamsBroadcastStream.getTracks().forEach(function (t) { t.stop(); });
+      streamsBroadcastStream = null;
+      if (streamsBroadcastPeer) {
+        try { streamsBroadcastPeer.destroy(); } catch (e) {}
+        streamsBroadcastPeer = null;
+      }
+      previewWrap.classList.add("streams-preview-wrap--hidden");
+      previewVideo.srcObject = null;
+    });
+  }
+
+  if (copyLinkBtn && shareLinkInput) {
+    copyLinkBtn.addEventListener("click", function () {
+      shareLinkInput.select();
+      try {
+        document.execCommand("copy");
+        showAlert("Ссылка скопирована");
+      } catch (e) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareLinkInput.value).then(function () { showAlert("Ссылка скопирована"); }).catch(function () {});
+        }
+      }
+    });
+  }
+
+  function parseRoomIdFromInput(val) {
+    if (!val || !val.trim()) return null;
+    val = val.trim();
+    var m = val.match(/startapp=streams_([a-z0-9]+)/i) || val.match(/[?&]room=([a-z0-9]+)/i) || val.match(/#([a-z0-9]+)$/);
+    if (m) return m[1];
+    if (/^[a-z0-9]{4,10}$/i.test(val)) return val;
+    return null;
+  }
+
+  if (watchBtn && roomInput && remoteWrap && remoteVideo) {
+    watchBtn.addEventListener("click", function () {
+      var roomId = parseRoomIdFromInput(roomInput.value);
+      if (!roomId) {
+        showAlert("Введите код комнаты или ссылку от ведущего.");
+        return;
+      }
+      if (streamsWatchPeer) return;
+      var PeerJs = typeof Peer !== "undefined" ? Peer : null;
+      if (!PeerJs) {
+        showAlert("Библиотека PeerJS не загружена.");
+        return;
+      }
+      watchBtn.disabled = true;
+      var peer = new PeerJs({ debug: 0 });
+      streamsWatchPeer = peer;
+      peer.on("open", function () {
+        var call = peer.call(roomId, new MediaStream());
+        streamsWatchCall = call;
+        call.on("stream", function (stream) {
+          remoteVideo.srcObject = stream;
+          remoteWrap.classList.remove("streams-remote-wrap--hidden");
+          watchBtn.disabled = false;
+        });
+        call.on("close", function () {
+          remoteWrap.classList.add("streams-remote-wrap--hidden");
+          remoteVideo.srcObject = null;
+          streamsWatchCall = null;
+          watchBtn.disabled = false;
+        });
+        call.on("error", function () {
+          remoteWrap.classList.add("streams-remote-wrap--hidden");
+          watchBtn.disabled = false;
+          streamsWatchCall = null;
+        });
+      });
+      peer.on("error", function (err) {
+        if (err.type === "peer-unavailable" || err.type === "network") showAlert("Трансляция недоступна. Проверьте код комнаты.");
+        else showAlert("Ошибка: " + (err.message || err.type || "сеть"));
+        watchBtn.disabled = false;
+        streamsWatchPeer = null;
+      });
+    });
+
+    if (stopWatchBtn) {
+      stopWatchBtn.addEventListener("click", function () {
+        if (streamsWatchCall) {
+          try { streamsWatchCall.close(); } catch (e) {}
+          streamsWatchCall = null;
+        }
+        if (streamsWatchPeer) {
+          try { streamsWatchPeer.destroy(); } catch (e) {}
+          streamsWatchPeer = null;
+        }
+        remoteVideo.srcObject = null;
+        remoteWrap.classList.add("streams-remote-wrap--hidden");
+      });
+    }
+  }
 }
 
 navItems.forEach(function (item) {
