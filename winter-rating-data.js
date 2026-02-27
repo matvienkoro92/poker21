@@ -1182,6 +1182,8 @@ var WINTER_RATING_BY_DATE = {
     { nick: "Рыбнадзор", points: 50, reward: 8249 },
     { nick: "PapaRabotayet", points: 50, reward: 8620 },
     { nick: "Фокс", points: 110, reward: 24526 },
+    { nick: "frukt58", points: 0, reward: 20080 },
+    { nick: "Psyho44", points: 0, reward: 217000 },
   ],
   "24.02.2026": [
     { nick: "Mr.V", points: 110, reward: 12700 },

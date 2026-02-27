@@ -154,6 +154,16 @@ function getAssetUrl(relativePath) {
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
+
+function normalizeWinterNick(n) {
+  n = n != null ? String(n).trim() : "";
+  if (!n) return n;
+  var lower = n.toLowerCase();
+  if (lower === "pryanik2la") return "Пряник";
+  if (lower === "фокс") return "Фокс";
+  if (lower === "waaarr") return "Waaar";
+  return n;
+}
 function getTopByDates(dates) {
   if (!dates || !dates.length) return [];
   var byNick = {};
@@ -161,7 +171,7 @@ function getTopByDates(dates) {
     var list = typeof WINTER_RATING_BY_DATE !== "undefined" && WINTER_RATING_BY_DATE[dateStr];
     if (!list || !list.length) return;
     list.forEach(function (r) {
-      var nick = r.nick;
+      var nick = normalizeWinterNick(r.nick);
       var reward = r.reward != null ? Number(r.reward) : 0;
       if (!byNick[nick]) byNick[nick] = 0;
       byNick[nick] += reward;
@@ -552,10 +562,11 @@ function getTopByDates(dates) {
         players.forEach(function (p) {
           var reward = p.reward != null ? Number(p.reward) : 0;
           if (!reward) return;
-          var prev = maxByNick[p.nick];
+          var nick = normalizeWinterNick(p.nick);
+          var prev = maxByNick[nick];
           if (!prev || reward > prev.reward) {
-            maxByNick[p.nick] = {
-              nick: p.nick,
+            maxByNick[nick] = {
+              nick: nick,
               reward: reward,
               date: dateStr,
               tournament: t.name || t.time || ""
@@ -2920,12 +2931,14 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
     { time: "22:00", name: "Magic 500 * 150K", players: [{ nick: "pryanik2la", place: 3, points: 0, reward: 8408 }, { nick: "K-700", place: 39, points: 0, reward: 0 }, { nick: "Рыбнадзор", place: 0, points: 0, reward: 0 }, { nick: "Olegggaaa", place: 0, points: 0, reward: 0 }, { nick: "Malek3084", place: 52, points: 0, reward: 0 }] },
   ],
   "26.02.2026": [
+    { time: "11:00", name: "Magic Bounty 60K", players: [{ nick: "frukt58", place: 1, points: 0, reward: 20080 }, { nick: "tromarrio", place: 2, points: 0, reward: 0 }, { nick: "Syndicate", place: 3, points: 0, reward: 0 }, { nick: "Фокс", place: 4, points: 0, reward: 0 }, { nick: "Miracle Divice", place: 5, points: 0, reward: 0 }] },
     { time: "18:00", name: "Турнир Месяца", players: [{ nick: "ПокерМанки", place: 1, points: 135, reward: 267750 }, { nick: "Waaar", place: 2, points: 0, reward: 0 }, { nick: "FishKopcheny", place: 3, points: 0, reward: 0 }, { nick: "Mr.V", place: 4, points: 0, reward: 0 }, { nick: "Rifa", place: 5, points: 0, reward: 0 }] },
     { time: "17:00", name: "Rebuy", players: [{ nick: "ПокерМанки", place: 1, points: 135, reward: 22200 }, { nick: "FishKopcheny", place: 2, points: 110, reward: 15000 }, { nick: "BOTEZGAMBIT", place: 3, points: 90, reward: 9000 }, { nick: "WiNifly", place: 4, points: 70, reward: 7200 }, { nick: "king00001", place: 5, points: 60, reward: 6600 }] },
     { time: "12:00", name: "DV Rebuy", players: [{ nick: "Waaar", place: 1, points: 135, reward: 19100 }, { nick: "MilkyWay77", place: 2, points: 110, reward: 11460 }, { nick: "king00001", place: 4, points: 0, reward: 0 }, { nick: "Vaduxa_tiran", place: 13, points: 0, reward: 0 }, { nick: "Rifa", place: 14, points: 0, reward: 0 }] },
     { time: "18:00", name: "Турнир Четверга", players: [{ nick: "<Amaliya>", place: 1, points: 135, reward: 70400 }, { nick: "Аспирин", place: 2, points: 110, reward: 30300 }, { nick: "Player1BD20C", place: 3, points: 90, reward: 8600 }, { nick: "ЧУРменя", place: 4, points: 70, reward: 2520 }, { nick: "GetHigh", place: 5, points: 60, reward: 2200 }] },
     { time: "15:00", name: "New - Hot PKO 2/3", players: [{ nick: "Рыбнадзор", place: 7, points: 0, reward: 2886 }] },
     { time: "21:00", name: "NLH KNOCKOUT 250k", players: [{ nick: "PapaRabotayet", place: 6, points: 50, reward: 8620 }, { nick: "Рыбнадзор", place: 7, points: 0, reward: 2294 }] },
+    { time: "21:00", name: "MOK 7MAX", players: [{ nick: "Psyho44", place: 1, points: 0, reward: 217000 }, { nick: "JinDaniels", place: 2, points: 0, reward: 0 }, { nick: "WiNifly", place: 3, points: 0, reward: 0 }, { nick: "TonniHalf", place: 4, points: 0, reward: 0 }, { nick: "cadillac", place: 5, points: 0, reward: 0 }] },
     { time: "23:00", name: "Night magic 100K", players: [{ nick: "Фокс", place: 2, points: 110, reward: 24526 }, { nick: "Рыбнадзор", place: 6, points: 50, reward: 3069 }] },
   ],
   "26.02.2026": [
@@ -3145,13 +3158,14 @@ function escapeHtmlRating(s) {
 }
 
 function getWinterRatingPlayerSummary(nick) {
+  nick = normalizeWinterNick(nick);
   var dates = ["31.01.2026", "30.01.2026", "29.01.2026", "28.01.2026", "27.01.2026", "26.01.2026", "25.01.2026", "24.01.2026", "23.01.2026", "22.01.2026", "21.01.2026", "20.01.2026", "19.01.2026", "18.01.2026", "17.01.2026", "16.01.2026", "15.01.2026", "14.01.2026", "13.01.2026", "12.01.2026", "11.01.2026", "10.01.2026", "09.01.2026", "08.01.2026", "07.01.2026", "06.01.2026", "05.01.2026", "04.01.2026", "03.01.2026", "02.01.2026", "01.01.2026", "31.12.2025", "30.12.2025", "29.12.2025", "28.12.2025", "27.12.2025", "26.12.2025", "25.12.2025", "24.12.2025", "23.12.2025", "22.12.2025", "21.12.2025", "20.12.2025", "19.12.2025", "18.12.2025", "17.12.2025", "16.12.2025", "15.12.2025", "14.12.2025", "13.12.2025", "12.12.2025", "11.12.2025", "10.12.2025", "09.12.2025", "08.12.2025", "07.12.2025", "01.02.2026", "02.02.2026", "03.02.2026", "04.02.2026", "05.02.2026", "06.02.2026", "07.02.2026", "08.02.2026", "09.02.2026", "10.02.2026", "11.02.2026", "12.02.2026", "13.02.2026", "14.02.2026", "15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026", "23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026"];
   var out = [];
   dates.forEach(function (dateStr) {
     var tournaments = WINTER_RATING_TOURNAMENTS_BY_DATE && WINTER_RATING_TOURNAMENTS_BY_DATE[dateStr];
     if (tournaments && tournaments.length) {
       tournaments.forEach(function (t) {
-        var p = t.players && t.players.find(function (r) { return r.nick === nick; });
+        var p = t.players && t.players.find(function (r) { return normalizeWinterNick(r.nick) === nick; });
         if (p) {
           var reward = p.reward != null ? p.reward : 0;
           out.push({
@@ -3170,7 +3184,7 @@ function getWinterRatingPlayerSummary(nick) {
     if (!list || !list.length) return;
     var filtered = list.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
     var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
-    var idx = sorted.findIndex(function (r) { return r.nick === nick; });
+    var idx = sorted.findIndex(function (r) { return normalizeWinterNick(r.nick) === nick; });
     if (idx === -1) return;
     var row = sorted[idx];
     out.push({
@@ -3294,7 +3308,7 @@ function getWinterRatingOverall() {
     if (!Array.isArray(list) || !list.length) continue;
     for (var j = 0; j < list.length; j++) {
       var r = list[j];
-      var n = r && (r.nick != null) ? String(r.nick).trim() : "";
+      var n = normalizeWinterNick(r && r.nick);
       if (!n) continue;
       var pts = Number(r.points);
       var rew = Number(r.reward);
@@ -3550,7 +3564,7 @@ function initWinterRating() {
         shareWrap.className = "winter-rating__date-share";
         shareWrap.setAttribute("data-rating-date", dateStr || "");
         shareWrap.innerHTML = "<button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">📤 Поделиться</button>";
-        panel.insertBefore(shareWrap, panel.firstChild);
+        panel.appendChild(shareWrap);
       }
       if (!alreadyInited) {
         btn.addEventListener("click", function (e) {
