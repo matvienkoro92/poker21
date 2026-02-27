@@ -257,12 +257,14 @@
           <div class="view" data-view="winter-rating">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <section class="winter-rating" id="winterRatingSection" aria-labelledby="winterRatingTitle">
+              <div class="winter-rating__winter-decor" aria-hidden="true"><span class="winter-rating__suit">♠</span><span class="winter-rating__snow">❄</span><span class="winter-rating__suit">♥</span><span class="winter-rating__snow">❄</span><span class="winter-rating__suit">♦</span><span class="winter-rating__snow">❄</span><span class="winter-rating__suit">♣</span></div>
               <h2 class="winter-rating__title" id="winterRatingTitle">
                 <span class="winter-rating__cup" aria-hidden="true">🏆</span>
                 <span class="winter-rating__title-text">Рейтинг Турнирщиков зимы<br /><span class="winter-rating__title-accent">на 250 000₽</span></span>
+                <span class="winter-rating__title-snow" aria-hidden="true">❄</span>
               </h2>
               <div class="winter-rating__table-caption-row">
-                <h3 class="winter-rating__table-caption">Итоговая таблица</h3>
+                <h3 class="winter-rating__table-caption"><span class="winter-rating__caption-icon" aria-hidden="true">❄</span> Итоговая таблица</h3>
                 <div class="winter-rating__counters-block">
                   <div class="winter-rating__counters" id="winterRatingCounters" aria-live="polite">Рейтинг до 28 февраля. Загрузка…</div>
                   <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
@@ -288,7 +290,7 @@
                 <p class="winter-rating__subscribe-text">Получать уведомления об обновлении рейтинга в Telegram</p>
                 <div class="winter-rating__actions-row">
                   <button type="button" class="winter-rating__subscribe-btn" id="ratingSubscribeBtn">Подписаться на обновления рейтинга</button>
-                  <button type="button" class="winter-rating__share-btn" id="winterRatingShareBtn" aria-label="Поделиться ссылкой на рейтинг">📤 Поделиться</button>
+                  <button type="button" class="winter-rating__share-btn" id="winterRatingShareBtn" aria-label="Поделиться ссылкой на рейтинг">Поделиться</button>
                 </div>
               </div>
               <p class="winter-rating__week-tops-hint">
@@ -308,7 +310,7 @@
                   <span class="winter-rating__week-top-btn-preview" id="winterRatingTopFebruaryPreview"></span>
                 </button>
               </div>
-              <h3 class="winter-rating__dates-caption">Таблица по датам</h3>
+              <h3 class="winter-rating__dates-caption"><span class="winter-rating__caption-icon" aria-hidden="true">❄</span> Таблица по датам</h3>
               <p class="winter-rating__dates-hint">Выберите дату в календаре</p>
               <div class="winter-rating__dates" id="winterRatingDates">
                 <div class="winter-rating__calendar-wrap" id="winterRatingCalendarWrap" aria-hidden="true"></div>
@@ -1651,7 +1653,7 @@
                 <p>Турнир вышел достойным, а бой — зрелищным, с таким количеством коллов и чеков, что зрители в чате уже требуют рематч. Клуб аплодирует стоя и с опаской смотрит на столы: если эти двое ещё раз столкнутся в хедз-апе, от столов останутся только осколки.</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="8" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="8" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="7">
@@ -1668,7 +1670,7 @@
                 <p>«Вааар конечно лютая машина», — комментирует ПокерМанки. Вчера тот выиграл утренний турнир за 800₽, в вечернем столкнулся с глыбой и занял 2-е место — но тем не менее третий месяц подряд штурмует турниры без передышки и держится <a href="#" class="gazette-modal__rating-link" data-view-target="winter-rating" data-close-gazette="1">в топе клубного рейтинга</a> с огромным отрывом. 😱 Драма на столе не утихает!</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="7" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="7" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="6">
@@ -1683,7 +1685,7 @@
                 <p>В Турнире за 300₽ вчера разыграли 108 000₽ призовых — за первое место отдали больше тридцати тысяч. Два дня подряд Амалия показывает лучший результат в клубе по выигрышам и на этой неделе пока никого не пустила вперёд. В Турнире Вторника она шла к финалу рука об руку с Аспирином, как два лучших друга они бились спина к спине с врагами из других клубов. Но далее Амалия потеряла Аспирина по пути — тот вылетел шестым с 6400₽. Конечно её настрой угас, силы покинули, вера в себя иссякла и вылетела из турнира и она: в итоге четвёртое место и 8700₽. Останутся ли они друзьями после такого и были ли они друзьями на самом деле или их объединяла холодная жажда призов? По выигрышам за неделю Амалия по-прежнему первая в клубе — <a href="#" class="gazette-modal__rating-link" data-view-target="winter-rating" data-close-gazette="1">рейтинг не врёт</a>.</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="6" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="6" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead" data-gazette-article="5">
@@ -1699,7 +1701,7 @@
                 <p>Ожидают, что вскоре родятся ещё парочка смайлов — в духе легендарного «Нужно больше золота!» Игроки клуба уже шлют идеи: кто-то хочет эмодзи с кучей монет, кто-то — с лихом в мантии и тузом в рукаве. Как бы то ни было, покер и Варкрафт на одной странице — это уже история, и мы за ней следим.</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="5" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="5" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="4">
@@ -1716,7 +1718,7 @@
                 <p>В чате на сообщение об отмене уже поставили четыре рукопожатия — символ солидарности с теми, кто не смирился. Редакция будет следить за развитием драмы.</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="4" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="4" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="3">
@@ -1731,7 +1733,7 @@
                 <p>Невероятная развязка вчерашнего мэджика за 500₽! Гидрограф крушил всех подряд, сносил ноки одного за другим — в том числе жирный топ на 20к — и уже набрал 39к ноками. Казалось, победа в кармане. Но на его пути встал Кряк: хладнокровно придушил надежды, вскрыл блефы и только усмехался: «Кряк-кряк!» В итоге Кряк забирает 30 000₽, Гидрографу достаётся 51 000₽. Инсайдеры шепчут: если бы Кряк его не остановил, Гидрограф унёс бы все 66 000₽. И всё это в турнире за пять сотен. Драма на столе — такого вы ещё не видели!</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="3" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="3" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="2">
@@ -1743,7 +1745,7 @@
                 <p class="gazette-modal__photo-caption">В топе рейтинга всю зиму, выстрелы по 200–300к. Эксперты: «Вот почему его называют легендой клуба».</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="2" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="2" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="1">
@@ -1758,7 +1760,7 @@
                 <p>Шок на турнире понедельника: Кулер запушил T8o и выбил АК по окончании реги. Стол взорвался — такое решение кто-то назвал «инвалидным». Кулер парировал жёстко. Накал зашкаливал, но до рукоприкладства, по счастью, не дошло: оба остыли и договорились, что имели в виду «совсем другое». Остаётся вопрос: кто прав — тот, кто рискует, или тот, кого выбили? Читатели в комментариях уже делятся на два лагеря.</p>
               </div>
               <p class="gazette-modal__share-row">
-                <button type="button" class="gazette-modal__share-btn" data-gazette-share="1" aria-label="Скопировать ссылку на новость">📤 Отправить другу</button>
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="1" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
               </p>
             </article>
           </div>
@@ -1774,7 +1776,7 @@
           </p>
           <div class="winter-rating-week-top-modal__list" id="winterRatingWeekTopList"></div>
           <p class="winter-rating-week-top-modal__share-row">
-            <button type="button" class="winter-rating-week-top-modal__share-btn" id="winterRatingWeekTopShareBtn" aria-label="Скопировать ссылку на топ недели">📤 Поделиться</button>
+            <button type="button" class="winter-rating-week-top-modal__share-btn" id="winterRatingWeekTopShareBtn" aria-label="Скопировать ссылку на топ недели">Поделиться</button>
           </p>
         </div>
       </div>
@@ -1869,7 +1871,25 @@
           <button type="button" class="winter-rating-player-modal__close" aria-label="Закрыть">×</button>
           <button type="button" class="winter-rating-player-modal__back" id="winterRatingPlayerModalBack">← Назад</button>
           <h3 class="winter-rating-player-modal__title" id="winterRatingPlayerModalTitle"></h3>
+          <div class="winter-rating-player-modal__toolbar">
+            <div class="winter-rating-player-modal__filter">
+              <select id="winterRatingPlayerModalMonth" aria-label="Период">
+                <option value="all">Турниры за все время</option>
+                <option value="12.2025">Декабрь</option>
+                <option value="01.2026">Январь</option>
+                <option value="02.2026">Февраль</option>
+              </select>
+            </div>
+            <div class="winter-rating-player-modal__sort">
+              <button type="button" id="winterRatingPlayerModalSortBy" aria-label="Сортировать">Сортировать: По дате</button>
+              <button type="button" id="winterRatingPlayerModalSortDir" class="winter-rating-player-modal__sort-dir" aria-label="Направление сортировки" title="По убыванию">↓</button>
+            </div>
+          </div>
           <div class="winter-rating-player-modal__table-wrap"></div>
+          <div class="winter-rating-player-modal__summary" id="winterRatingPlayerModalSummary" aria-live="polite"></div>
+          <div class="winter-rating-player-modal__share-wrap">
+            <button type="button" class="winter-rating-player-modal__share-btn" id="winterRatingPlayerModalShareBtn" aria-label="Отправить другу">Отправить другу</button>
+          </div>
         </div>
       </div>
       <div class="spring-rating-info-modal" id="springRatingInfoModal" aria-hidden="true" role="dialog" aria-labelledby="springRatingInfoModalTitle" aria-label="Рейтинг турнирщиков весны">
