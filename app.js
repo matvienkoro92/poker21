@@ -187,7 +187,7 @@ function getTopByDates(dates) {
 // Газета «Вестник Два туза» — только горячие новости
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
-  var GAZETTE_VERSION = "2026-02-26";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
+  var GAZETTE_VERSION = "2026-02-27";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
@@ -268,6 +268,22 @@ function getTopByDates(dates) {
       closeGazette();
       var view = ratingLink.getAttribute("data-view-target");
       if (view && typeof setView === "function") setView(view);
+      return;
+    }
+    var articleLink = e.target && e.target.closest ? e.target.closest("a[data-gazette-article-link]") : null;
+    if (articleLink) {
+      e.preventDefault();
+      showGazetteView("news");
+      var idxStr = articleLink.getAttribute("data-gazette-article-link");
+      var idxNum = Number(idxStr);
+      if (idxStr && newsEl) {
+        var target = newsEl.querySelector('.gazette-modal__lead[data-gazette-article="' + idxStr + '"]');
+        if (target) {
+          setTimeout(function () {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100);
+        }
+      }
       return;
     }
     var shareBtn = e.target && e.target.closest ? e.target.closest(".gazette-modal__share-btn") : null;
