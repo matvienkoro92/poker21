@@ -3131,13 +3131,13 @@ html.app-view-home .feature.feature--link.feature--rating-promo {
   background: linear-gradient(145deg, rgba(30, 58, 95, 0.95), rgba(15, 23, 42, 0.98)) !important;
   box-shadow: 0 0 0 1px rgba(186, 230, 253, 0.25),
               0 4px 20px rgba(56, 189, 248, 0.15),
-              inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+              inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
 }
 .view--active[data-view="home"] .feature.feature--link.feature--rating-promo:hover,
 html.app-view-home .feature.feature--link.feature--rating-promo:hover {
   box-shadow: 0 0 0 1px rgba(186, 230, 253, 0.35),
               0 6px 24px rgba(56, 189, 248, 0.2),
-              inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+              inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 .view--active[data-view="home"] .feature--rating-promo .feature__title-prize,
 html.app-view-home .feature--rating-promo .feature__title-prize {
@@ -3150,13 +3150,13 @@ html.app-view-home .feature--rating-promo .feature__title-prize {
   background: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%) !important;
   box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.2),
               0 4px 16px rgba(56, 189, 248, 0.12),
-              inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+              inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo:hover,
 [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo:hover {
   box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35),
               0 6px 20px rgba(56, 189, 248, 0.18),
-              inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+              inset 0 1px 0 rgba(255, 255, 255, 1) !important;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature--rating-promo .feature__title-prize,
 [data-theme="light"] html.app-view-home .feature--rating-promo .feature__title-prize {
@@ -5170,6 +5170,29 @@ a.home-mini-icon-item {
   flex-wrap: wrap;
   gap: 10px;
   margin: 14px 12px 10px;
+}
+.winter-rating__single-top-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 12px 16px;
+}
+.winter-rating__single-top-wrap {
+  flex: 1;
+  min-width: 180px;
+}
+.winter-rating__single-top {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.winter-rating__single-top-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+.winter-rating__single-top-item {
+  margin: 0 0 2px;
 }
 .winter-rating__week-tops-hint {
   margin: 12px 12px 0;
