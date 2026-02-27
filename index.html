@@ -31,16 +31,33 @@
         border: none !important;
       }
       .app.app--view-home .card::before {
-        content: "" !important;
-        position: absolute !important;
-        top: 14% !important; left: 0 !important; right: 0 !important;
-        bottom: 37% !important;
-        border: 1px solid var(--card-border) !important;
-        border-radius: var(--radius-lg) !important;
-        opacity: 1 !important;
-        z-index: 2 !important;
-        mask: none !important;
-        -webkit-mask: none !important;
+        display: none !important;
+      }
+      .app.app--view-home .home-welcome-outline {
+        position: relative;
+        z-index: 2;
+        margin-top: -2mm;
+        margin-left: -5mm;
+        margin-right: -5mm;
+        width: calc(100% + 10mm);
+        box-sizing: border-box;
+        padding: 2mm 5mm 0;
+      }
+      .app.app--view-home .home-welcome-outline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 40px;
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg);
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+        pointer-events: none;
+      }
+      [data-theme="light"] .app.app--view-home .home-welcome-outline::before {
+        border-color: rgba(251, 146, 60, 0.4);
       }
       .app.app--view-home .card .card__content {
         padding-left: 5mm !important; padding-right: 5mm !important;
@@ -119,6 +136,7 @@
         <section class="card__content">
           <!-- Главная -->
           <div class="view view--active" data-view="home">
+            <div class="home-welcome-outline">
             <div class="welcome-title-row">
               <div class="welcome-title-wrap">
                 <h1 class="title title--welcome">Добро пожаловать!</h1>
@@ -194,8 +212,10 @@
                   <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
                 </a>
               </div>
+            </div>
+            </div>
 
-              <div class="games-apps-block">
+            <div class="games-apps-block">
                 <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
                 <div class="games-apps-grid">
                 <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
@@ -231,8 +251,6 @@
                 </a>
               </div>
               </div>
-            </div>
-
           </div>
 
           <!-- Рейтинг Турнирщиков зимы: даты и итоговая таблица внутри -->

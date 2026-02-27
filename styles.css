@@ -473,27 +473,41 @@ body:has(.view--active[data-view="chat"]) {
   pointer-events: none;
   mask-image: radial-gradient(circle at top, black 0, transparent 60%);
 }
-/* Главная: рамку рисуем через ::before — сверху сразу над «Привет, Роман», снизу после кнопки турнирщиков */
+/* Главная: обводка от 2мм над газетой до низа кнопки рейтинга, до краёв приложения */
 html.app-view-home .card {
   border: none;
 }
 .card:has(.view--active[data-view="home"])::before,
 html.app-view-home .card::before {
+  display: none;
+}
+.app.app--view-home .home-welcome-outline,
+html.app-view-home .home-welcome-outline {
+  position: relative;
+  z-index: 2;
+  margin-top: -2mm;
+  margin-left: -5mm;
+  margin-right: -5mm;
+  width: calc(100% + 10mm);
+  box-sizing: border-box;
+  padding: 2mm 5mm 0;
+}
+.app.app--view-home .home-welcome-outline::before,
+html.app-view-home .home-welcome-outline::before {
   content: "";
   position: absolute;
-  top: 14%;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: 37%;
+  bottom: 40px;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
   pointer-events: none;
-  opacity: 1;
-  z-index: 2;
-  mask: none;
-  -webkit-mask: none;
-  mask-image: none;
-  -webkit-mask-image: none;
+}
+[data-theme="light"] .home-welcome-outline::before {
+  border-color: rgba(251, 146, 60, 0.4);
 }
 
 .auth-banner {
