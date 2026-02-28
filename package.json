@@ -4,6 +4,7 @@
   "private": true,
   "description": "Приветственная страница покерного клуба Poker21 для Telegram Mini App.",
   "scripts": {
+    "build": "echo 'Static site, no build step'",
     "start": "npx serve .",
     "backup": "./scripts/backup.sh",
     "install-hooks": "cp scripts/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push scripts/backup.sh"
