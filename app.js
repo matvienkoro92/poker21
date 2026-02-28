@@ -3692,14 +3692,24 @@ function initWinterRating() {
   };
   var countersEl = document.getElementById("winterRatingCounters");
   var tbody = document.getElementById("winterRatingTableBody");
+  var tableCaption = document.querySelector("#winterRatingSection .winter-rating__table-caption");
   if (countersEl) {
-    try {
-      var c = getWinterRatingCounters();
-      countersEl.innerHTML = "Сыграно дней <strong>" + c.daysPassed + "/" + c.totalDays + "</strong>";
-    } catch (e) {
-      if (typeof console !== "undefined" && console.error) console.error("getWinterRatingCounters", e);
-      countersEl.innerHTML = "Сыграно дней <strong>—</strong>";
+    if (isSpringRatingMode()) {
+      countersEl.innerHTML = "Март — май 2026. <strong>Стартуем 1 марта</strong>";
+    } else {
+      try {
+        var c = getWinterRatingCounters();
+        countersEl.innerHTML = "Сыграно дней <strong>" + c.daysPassed + "/" + c.totalDays + "</strong>";
+      } catch (e) {
+        if (typeof console !== "undefined" && console.error) console.error("getWinterRatingCounters", e);
+        countersEl.innerHTML = "Сыграно дней <strong>—</strong>";
+      }
     }
+  }
+  if (tableCaption) {
+    tableCaption.innerHTML = isSpringRatingMode()
+      ? "<span class=\"winter-rating__caption-icon\" aria-hidden=\"true\">🌿</span> Весна 2026"
+      : "<span class=\"winter-rating__caption-icon\" aria-hidden=\"true\">❄</span> Итоговая таблица";
   }
   var allRows = [];
   try {
@@ -3738,19 +3748,23 @@ function initWinterRating() {
   }
   if (tbody) {
     try {
-      var htmlParts = [];
-      for (var wi = 0; wi < rows.length; wi++) {
-        var row = rows[wi];
-        var place = row.place != null ? parseInt(row.place, 10) : wi + 1;
-        if (place !== place) place = wi + 1;
-        var trClass = winterRatingRowClass(place);
-        var placeCell = winterRatingPlaceCell(place);
-        var nickStr = row.nick != null ? String(row.nick) : "";
-        var nickEsc = escapeHtmlRating(nickStr);
-        var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        htmlParts.push("<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + (row.points != null ? row.points : "") + "</td><td>" + (row.reward != null ? row.reward : "0") + "</td></tr>");
+      if (isSpringRatingMode() && rows.length === 0) {
+        tbody.innerHTML = "<tr><td colspan=\"4\" class=\"winter-rating__spring-placeholder\">Рейтинг турнирщиков весны стартует <strong>1 марта</strong>. Условия и призы — кнопка выше.</td></tr>";
+      } else {
+        var htmlParts = [];
+        for (var wi = 0; wi < rows.length; wi++) {
+          var row = rows[wi];
+          var place = row.place != null ? parseInt(row.place, 10) : wi + 1;
+          if (place !== place) place = wi + 1;
+          var trClass = winterRatingRowClass(place);
+          var placeCell = winterRatingPlaceCell(place);
+          var nickStr = row.nick != null ? String(row.nick) : "";
+          var nickEsc = escapeHtmlRating(nickStr);
+          var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          htmlParts.push("<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + (row.points != null ? row.points : "") + "</td><td>" + (row.reward != null ? row.reward : "0") + "</td></tr>");
+        }
+        tbody.innerHTML = htmlParts.join("");
       }
-      tbody.innerHTML = htmlParts.join("");
     } catch (e) {
       if (typeof console !== "undefined" && console.error) console.error("winter rating table render", e);
       tbody.innerHTML = "<tr><td colspan=\"4\">Ошибка отображения рейтинга</td></tr>";

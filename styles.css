@@ -4897,6 +4897,12 @@ a.home-mini-icon-item {
   margin: 0 12px 20px;
   -webkit-overflow-scrolling: touch;
 }
+.winter-rating__spring-placeholder {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
 .winter-rating__table-wrap--collapsed .winter-rating__table tbody tr:nth-child(n+11) {
   display: none;
 }
