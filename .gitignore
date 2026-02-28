@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Build output (generated on Vercel)
+public/
+
 # Node / tooling
 node_modules/
 .venv/
