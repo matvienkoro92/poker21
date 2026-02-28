@@ -3192,6 +3192,11 @@ html.app-view-home .feature--rating-promo .feature__title-prize {
   color: #7dd3fc !important;
   text-shadow: 0 0 12px rgba(125, 211, 252, 0.4);
 }
+.view--active[data-view="home"] .feature--rating-spring-promo .feature__title-prize--spring,
+html.app-view-home .feature--rating-spring-promo .feature__title-prize--spring {
+  color: #86efac !important;
+  text-shadow: 0 0 12px rgba(134, 239, 172, 0.4);
+}
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo,
 [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo {
   border: 1px solid rgba(56, 189, 248, 0.5) !important;
@@ -3211,9 +3216,253 @@ html.app-view-home .feature--rating-promo .feature__title-prize {
   color: #0284c7 !important;
   text-shadow: none;
 }
+[data-theme="light"] .view--active[data-view="home"] .feature--rating-spring-promo .feature__title-prize--spring,
+[data-theme="light"] html.app-view-home .feature--rating-spring-promo .feature__title-prize--spring {
+  color: #15803d !important;
+  text-shadow: none;
+}
 [data-theme="light"] .view--active[data-view="home"] .feature--rating-promo .feature__title-accent {
   color: #0284c7;
   background: rgba(56, 189, 248, 0.2);
+}
+
+/* Кнопка «Рейтинг Весны» — зелёно-цветущий стиль, листочек на строке «Весна 2026» */
+/* Та же специфичность, что у голубой кнопки зимы, но для весны — зелёный стиль */
+.view--active[data-view="home"] .feature.feature--link.feature--rating-promo.feature--rating-spring-promo,
+html.app-view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
+  border: 1px solid rgba(134, 239, 172, 0.55) !important;
+  background: linear-gradient(145deg, rgba(20, 83, 45, 0.95), rgba(22, 101, 52, 0.9)) !important;
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.3),
+              0 4px 20px rgba(34, 197, 94, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+.view--active[data-view="home"] .feature.feature--link.feature--rating-promo.feature--rating-spring-promo:hover,
+html.app-view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo:hover {
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.4),
+              0 6px 24px rgba(34, 197, 94, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+.feature--rating-spring-promo.feature--rating-promo {
+  border: 1px solid rgba(134, 239, 172, 0.5) !important;
+  border-radius: 22px !important;
+  max-width: 92%;
+  margin-left: auto;
+  margin-right: auto;
+  background: linear-gradient(145deg, rgba(20, 83, 45, 0.95), rgba(22, 101, 52, 0.9)) !important;
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.25),
+              0 4px 20px rgba(34, 197, 94, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+.view--active[data-view="home"] .feature--rating-spring-promo:hover,
+html.app-view-home .feature--rating-spring-promo:hover,
+.feature--rating-spring-promo:hover {
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.4),
+              0 6px 24px rgba(34, 197, 94, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+.feature--rating-spring-promo .feature__title-line1,
+.feature--rating-spring-promo .feature__title-line3--spring {
+  color: #fff !important;
+}
+.feature--rating-spring-promo .feature__title-prize--spring {
+  color: #86efac !important;
+  text-shadow: 0 0 12px rgba(134, 239, 172, 0.4);
+}
+.feature--rating-spring-promo .feature__title-leaf {
+  margin-left: 0.2em;
+  opacity: 0.95;
+  vertical-align: middle;
+}
+/* Высота и кубки как у кнопки «Рейтинг турнирщиков зимы» */
+.feature--rating-spring-promo.feature--rating-promo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px !important;
+  min-height: 72px;
+  box-sizing: border-box;
+}
+.feature--rating-spring-promo .feature__cup {
+  font-size: 50px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.feature--rating-spring-promo .feature__cup--left {
+  margin-right: 12px;
+}
+.feature--rating-spring-promo .feature__cup--right {
+  margin-left: 12px;
+}
+.feature--rating-spring-promo .feature__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.35;
+  min-width: 0;
+  overflow: hidden;
+}
+.feature--rating-spring-promo .feature__title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px !important;
+  font-weight: 700;
+}
+.feature--rating-spring-promo .feature__title-line1,
+.feature--rating-spring-promo .feature__title-prize,
+.feature--rating-spring-promo .feature__title-line3--spring {
+  display: block;
+  width: 100%;
+}
+.feature--rating-spring-promo .feature__title-line1 {
+  font-size: 0.78em;
+  white-space: nowrap;
+}
+.feature--rating-spring-promo .feature__title-prize {
+  font-size: 1.5em;
+  font-weight: 700;
+}
+.feature--rating-spring-promo .feature__title-line3--spring {
+  font-size: 1.1em;
+  margin-top: 0.15em;
+  color: #fff !important;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+[data-theme="light"] .feature--rating-spring-promo .feature__title-line1,
+[data-theme="light"] .feature--rating-spring-promo .feature__title-line3--spring {
+  color: #14532d !important;
+}
+[data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo.feature--rating-spring-promo,
+[data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo,
+[data-theme="light"] .feature--rating-spring-promo.feature--rating-promo {
+  border: 1px solid rgba(34, 197, 94, 0.5) !important;
+  background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%) !important;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2),
+              0 4px 16px rgba(34, 197, 94, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+[data-theme="light"] .feature--rating-spring-promo .feature__title {
+  color: #14532d;
+}
+[data-theme="light"] .feature--rating-spring-promo .feature__title-prize--spring {
+  color: #15803d !important;
+  text-shadow: none;
+}
+/* Та же высота, что у кнопки «Рейтинг турнирщиков зимы» */
+@media (max-width: 400px) {
+  .feature--rating-spring-promo.feature--rating-promo {
+    padding: 10px 16px !important;
+    min-height: 64px;
+  }
+  .feature--rating-spring-promo .feature__title {
+    font-size: 11px !important;
+    line-height: 1.28;
+  }
+  .feature--rating-spring-promo .feature__title-line1 {
+    font-size: 0.8em;
+  }
+  .feature--rating-spring-promo .feature__body {
+    line-height: 1.28;
+  }
+  .feature--rating-spring-promo .feature__cup {
+    font-size: 36px;
+  }
+  .feature--rating-spring-promo .feature__cup--left {
+    margin-right: 8px;
+  }
+  .feature--rating-spring-promo .feature__cup--right {
+    margin-left: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .feature--rating-spring-promo.feature--rating-promo {
+    padding: 10px 14px !important;
+  }
+  .feature--rating-spring-promo .feature__title {
+    font-size: 10px !important;
+  }
+  .feature--rating-spring-promo .feature__title-line1 {
+    font-size: 0.75em;
+  }
+  .feature--rating-spring-promo .feature__title-prize {
+    font-size: 1.08em;
+  }
+  .feature--rating-spring-promo .feature__cup {
+    font-size: 32px;
+  }
+}
+@media (max-width: 320px) {
+  .feature--rating-spring-promo.feature--rating-promo {
+    padding: 8px 12px !important;
+  }
+  .feature--rating-spring-promo .feature__title {
+    font-size: 9px !important;
+  }
+  .feature--rating-spring-promo .feature__title-line1 {
+    font-size: 0.68em;
+  }
+  .feature--rating-spring-promo .feature__title-prize {
+    font-size: 0.98em;
+  }
+  .feature--rating-spring-promo .feature__cup {
+    font-size: 28px;
+  }
+  .feature--rating-spring-promo .feature__cup--left {
+    margin-right: 6px;
+  }
+  .feature--rating-spring-promo .feature__cup--right {
+    margin-left: 6px;
+  }
+}
+@media (max-width: 300px) {
+  .feature--rating-spring-promo.feature--rating-promo {
+    padding: 6px 10px !important;
+    min-height: 58px;
+  }
+  .feature--rating-spring-promo .feature__title {
+    font-size: 8px !important;
+    line-height: 1.26;
+  }
+  .feature--rating-spring-promo .feature__title-line1 {
+    font-size: 0.65em;
+  }
+  .feature--rating-spring-promo .feature__title-prize {
+    font-size: 0.92em;
+  }
+  .feature--rating-spring-promo .feature__cup {
+    font-size: 24px;
+  }
+  .feature--rating-spring-promo .feature__cup--left {
+    margin-right: 5px;
+  }
+  .feature--rating-spring-promo .feature__cup--right {
+    margin-left: 5px;
+  }
+}
+@media (max-width: 280px) {
+  .feature--rating-spring-promo.feature--rating-promo {
+    padding: 6px 8px !important;
+    min-height: 54px;
+  }
+  .feature--rating-spring-promo .feature__title {
+    font-size: 7px !important;
+    line-height: 1.24;
+  }
+  .feature--rating-spring-promo .feature__title-line1 {
+    font-size: 0.6em;
+  }
+  .feature--rating-spring-promo .feature__title-prize {
+    font-size: 0.85em;
+  }
+  .feature--rating-spring-promo .feature__cup {
+    font-size: 22px;
+  }
+  .feature--rating-spring-promo .feature__cup--left {
+    margin-right: 4px;
+  }
+  .feature--rating-spring-promo .feature__cup--right {
+    margin-left: 4px;
+  }
 }
 
 .features-section-title {
@@ -4352,23 +4601,176 @@ a.home-mini-icon-item {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(100, 149, 237, 0.08);
   position: relative;
 }
-.winter-rating::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: radial-gradient(circle at 20% 10%, rgba(186, 230, 253, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 40%);
-  pointer-events: none;
+
+/* Рейтинг Весны — зелёно-цветущая тема, веточка вместо снежинки */
+.winter-rating.spring-rating {
+  background: linear-gradient(165deg, rgba(20, 50, 35, 0.94) 0%, rgba(22, 61, 42, 0.9) 40%, rgba(15, 45, 32, 0.92) 100%);
+  border-color: rgba(134, 239, 172, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(34, 197, 94, 0.1);
 }
-[data-theme="light"] .winter-rating {
-  background: linear-gradient(165deg, rgba(240, 249, 255, 0.98) 0%, rgba(224, 242, 254, 0.95) 50%, rgba(239, 246, 255, 0.98) 100%);
-  border-color: rgba(56, 189, 248, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+.winter-rating.spring-rating::before {
+  background-image: radial-gradient(circle at 20% 10%, rgba(134, 239, 172, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(187, 247, 208, 0.05) 0%, transparent 40%);
 }
-[data-theme="light"] .winter-rating::before {
-  background-image: radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+.winter-rating.spring-rating .winter-rating__winter-decor .winter-rating__suit {
+  color: rgba(134, 239, 172, 0.45);
 }
+.winter-rating.spring-rating .winter-rating__winter-decor .winter-rating__snow {
+  font-size: 0;
+  color: transparent;
+}
+.winter-rating.spring-rating .winter-rating__winter-decor .winter-rating__snow::before {
+  content: "🌿";
+  font-size: 14px;
+  color: rgba(187, 247, 208, 0.7);
+}
+.winter-rating.spring-rating .winter-rating__title-snow {
+  font-size: 0;
+  color: transparent;
+}
+.winter-rating.spring-rating .winter-rating__title-snow::before {
+  content: "🌿";
+  font-size: inherit;
+  margin-left: 4px;
+  opacity: 0.9;
+}
+.winter-rating.spring-rating .winter-rating__caption-icon {
+  font-size: 0;
+  color: transparent;
+}
+.winter-rating.spring-rating .winter-rating__caption-icon::before {
+  content: "🌿";
+  font-size: 1em;
+  margin-right: 6px;
+  opacity: 0.85;
+  color: rgba(187, 247, 208, 0.9);
+}
+.winter-rating.spring-rating .winter-rating__title-accent {
+  color: #86efac;
+  text-shadow: 0 0 20px rgba(134, 239, 172, 0.35), 0 0 40px rgba(34, 197, 94, 0.12);
+}
+.winter-rating__spring-conditions-wrap {
+  display: none;
+  margin: 0 0 8mm;
+}
+.winter-rating.spring-rating .winter-rating__spring-conditions-wrap {
+  display: block;
+  text-align: center;
+}
+.winter-rating__spring-conditions-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(15, 45, 32, 0.95);
+  background: linear-gradient(180deg, rgba(134, 239, 172, 0.9), rgba(34, 197, 94, 0.85));
+  border: 1px solid rgba(134, 239, 172, 0.6);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+}
+.winter-rating__spring-conditions-btn:hover {
+  background: linear-gradient(180deg, rgba(187, 247, 208, 0.95), rgba(134, 239, 172, 0.9));
+  border-color: rgba(134, 239, 172, 0.8);
+}
+.winter-rating__spring-conditions-btn:active {
+  transform: scale(0.98);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__spring-conditions-btn {
+  color: #14532d;
+  background: linear-gradient(180deg, rgba(187, 247, 208, 0.95), rgba(134, 239, 172, 0.9));
+  border-color: rgba(34, 197, 94, 0.5);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__spring-conditions-btn:hover {
+  background: linear-gradient(180deg, rgba(220, 252, 231, 0.98), rgba(187, 247, 208, 0.95));
+  border-color: rgba(34, 197, 94, 0.6);
+}
+.winter-rating.spring-rating .winter-rating__table-caption {
+  color: rgba(220, 252, 231, 0.95);
+}
+.winter-rating.spring-rating .winter-rating__show-all-btn {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.4));
+  border-color: rgba(134, 239, 172, 0.5);
+  color: #bbf7d0;
+}
+.winter-rating.spring-rating .winter-rating__show-all-btn:hover {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.45), rgba(22, 163, 74, 0.5));
+  border-color: rgba(134, 239, 172, 0.6);
+}
+.winter-rating.spring-rating .winter-rating__date-btn {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.2), rgba(22, 101, 52, 0.35));
+  border-color: rgba(134, 239, 172, 0.4);
+  color: #bbf7d0;
+}
+.winter-rating.spring-rating .winter-rating__date-btn:hover,
+.winter-rating.spring-rating .winter-rating__date-item[aria-expanded="true"] .winter-rating__date-btn {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.4));
+  border-color: rgba(134, 239, 172, 0.55);
+}
+.winter-rating.spring-rating .winter-rating__subscribe-btn,
+.winter-rating.spring-rating .winter-rating__share-btn {
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(134, 239, 172, 0.5);
+}
+.winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled),
+.winter-rating.spring-rating .winter-rating__share-btn:hover {
+  background: rgba(34, 197, 94, 0.35);
+  border-color: rgba(134, 239, 172, 0.7);
+}
+.winter-rating.spring-rating .winter-rating__week-top-btn {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.2), rgba(22, 101, 52, 0.35));
+  border-color: rgba(134, 239, 172, 0.4);
+  color: #bbf7d0;
+}
+.winter-rating.spring-rating .winter-rating__week-top-btn:hover {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.4));
+  border-color: rgba(134, 239, 172, 0.55);
+}
+[data-theme="light"] .winter-rating.spring-rating {
+  background: linear-gradient(165deg, rgba(240, 253, 244, 0.98) 0%, rgba(220, 252, 231, 0.95) 50%, rgba(187, 247, 208, 0.95) 100%);
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__title-accent {
+  color: #15803d;
+  text-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__caption-icon::before {
+  color: #166534;
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__show-all-btn {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.25), rgba(22, 163, 74, 0.2));
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #15803d;
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__date-btn {
+  background: linear-gradient(180deg, rgba(187, 247, 208, 0.5), rgba(134, 239, 172, 0.4));
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #166534;
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn,
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled),
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn:hover {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__week-top-btn {
+  background: linear-gradient(180deg, rgba(187, 247, 208, 0.5), rgba(134, 239, 172, 0.4));
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #166534;
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__week-top-btn:hover {
+  background: linear-gradient(180deg, rgba(134, 239, 172, 0.6), rgba(34, 197, 94, 0.35));
+  border-color: rgba(34, 197, 94, 0.55);
+}
+
 .winter-rating__winter-decor {
   text-align: center;
   letter-spacing: 0.4em;
@@ -4397,6 +4799,23 @@ a.home-mini-icon-item {
 .winter-rating__caption-icon {
   margin-right: 6px;
   opacity: 0.8;
+}
+.winter-rating::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(circle at 20% 10%, rgba(186, 230, 253, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 40%);
+  pointer-events: none;
+}
+[data-theme="light"] .winter-rating {
+  background: linear-gradient(165deg, rgba(240, 249, 255, 0.98) 0%, rgba(224, 242, 254, 0.95) 50%, rgba(239, 246, 255, 0.98) 100%);
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+[data-theme="light"] .winter-rating::before {
+  background-image: radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
 }
 .winter-rating__title {
   display: flex;
@@ -4937,18 +5356,34 @@ a.home-mini-icon-item {
 [data-theme="light"] .spring-rating-info-modal__leagues {
   background: rgba(0, 0, 0, 0.05);
 }
-.spring-rating-info-modal__league {
-  margin: 0 0 8px;
+.spring-rating-info-modal__league-block {
+  margin: 0 0 14px;
   font-size: 13px;
   line-height: 1.4;
 }
-.spring-rating-info-modal__league:last-child {
+.spring-rating-info-modal__league-block:last-child {
   margin-bottom: 0;
+}
+.spring-rating-info-modal__league-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.spring-rating-info-modal__league-sub {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+.spring-rating-info-modal__league-prizes {
+  margin: 0 0 0 18px;
+  padding: 0;
+  list-style: disc;
+}
+.spring-rating-info-modal__league-prizes li {
+  margin-bottom: 2px;
 }
 .spring-rating-info-modal__intro {
   margin: 0 0 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 }
 .spring-rating-info-modal__points {
   margin: 0 0 10px;
@@ -7047,6 +7482,85 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   font-size: 14px;
   color: var(--text-muted);
   line-height: 1.45;
+}
+.hall-of-fame__legends-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Карта с надписью «Легенда Два туза» и человечком */
+.hall-of-fame__legend-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 88px;
+  padding: 10px 8px 12px;
+  font-family: inherit;
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(226, 232, 240, 0.9) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+}
+[data-theme="dark"] .hall-of-fame__legend-link {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+.hall-of-fame__legend-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+  border-color: rgba(148, 163, 184, 0.55);
+}
+[data-theme="dark"] .hall-of-fame__legend-link:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+.hall-of-fame__legend-card-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+.hall-of-fame__legend-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  font-size: 28px;
+  line-height: 1;
+  background: rgba(148, 163, 184, 0.2);
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  border-radius: 50%;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+.hall-of-fame__legend-link:hover .hall-of-fame__legend-head {
+  background: rgba(148, 163, 184, 0.3);
+  border-color: rgba(148, 163, 184, 0.55);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+}
+.hall-of-fame__legend-name {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
 }
 
 [data-view="bonus-game"] .bonus-game-desc:first-of-type {

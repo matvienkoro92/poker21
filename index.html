@@ -65,8 +65,18 @@
       .app.app--view-home .feature.feature--link.feature--rating-promo {
         border: 1px solid rgba(186, 230, 253, 0.6) !important;
       }
+      .app.app--view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
+        border: 1px solid rgba(134, 239, 172, 0.55) !important;
+        background: linear-gradient(145deg, rgba(20, 83, 45, 0.95), rgba(22, 101, 52, 0.9)) !important;
+        box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.3), 0 4px 20px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+      }
       [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo {
         border: 1px solid rgba(56, 189, 248, 0.5) !important;
+      }
+      [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
+        border: 1px solid rgba(34, 197, 94, 0.5) !important;
+        background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%) !important;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2), 0 4px 16px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -212,6 +222,19 @@
                   <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
                 </a>
               </div>
+              <div class="features-row features-row--full">
+                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-promo" data-view-target="spring-rating" aria-label="Рейтинг турнирщиков весны на 250 000р">
+                  <span class="feature__cup feature__cup--left" aria-hidden="true">🏆</span>
+                  <div class="feature__body">
+                    <div class="feature__title feature__title--center feature__title--uppercase">
+                      <span class="feature__title-line1">Рейтинг турнирщиков</span>
+                      <span class="feature__title-prize feature__title-prize--spring">На 250 000р</span>
+                      <span class="feature__title-line3 feature__title-line3--spring">Весна 2026 <span class="feature__title-leaf" aria-hidden="true">🌿</span></span>
+                    </div>
+                  </div>
+                  <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
+                </a>
+              </div>
             </div>
             </div>
 
@@ -263,11 +286,13 @@
                 <span class="winter-rating__title-text">Рейтинг Турнирщиков зимы<br /><span class="winter-rating__title-accent">на 250 000₽</span></span>
                 <span class="winter-rating__title-snow" aria-hidden="true">❄</span>
               </h2>
+              <div class="winter-rating__spring-conditions-wrap" id="springRatingConditionsWrap">
+                <button type="button" class="winter-rating__spring-conditions-btn" id="springRatingConditionsBtn">Условия и призы</button>
+              </div>
               <div class="winter-rating__table-caption-row">
                 <h3 class="winter-rating__table-caption"><span class="winter-rating__caption-icon" aria-hidden="true">❄</span> Итоговая таблица</h3>
                 <div class="winter-rating__counters-block">
                   <div class="winter-rating__counters" id="winterRatingCounters" aria-live="polite">Рейтинг до 28 февраля. Загрузка…</div>
-                  <p class="winter-rating__updated" id="winterRatingUpdated">Обновлено: 11.02.2026</p>
                 </div>
               </div>
               <div class="winter-rating__table-wrap" id="winterRatingTableWrap">
@@ -324,7 +349,14 @@
                     <ul class="winter-rating__single-top-list" id="winterRatingSingleTopFebruaryList"></ul>
                   </div>
                 </div>
-                <!-- 25.02, 24.02, 23.02 сверху, затем 22.02, 21.02 -->
+                <!-- 27.02, 25.02, 24.02, 23.02… -->
+                <div class="winter-rating__date-item" data-rating-date="27.02.2026">
+                  <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2702">27.02.2026</button>
+                  <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2702" role="region" aria-label="Рейтинг на 27.02.2026">
+                    <div class="winter-rating__screenshots" data-rating-date="27.02.2026"></div>
+                    <div class="winter-rating__date-table-wrap" id="winterRatingDateTable2702"></div>
+                  </div>
+                </div>
                 <div class="winter-rating__date-item" data-rating-date="25.02.2026">
                   <button type="button" class="winter-rating__date-btn" aria-expanded="false" aria-controls="winterRatingPanel2502">25.02.2026</button>
                   <div class="winter-rating__date-panel winter-rating__date-panel--hidden" id="winterRatingPanel2502" role="region" aria-label="Рейтинг на 25.02.2026">
@@ -882,6 +914,12 @@
             </section>
           </div>
 
+          <!-- Рейтинг Весны: тот же контент, переносится из winter-rating при открытии -->
+          <div class="view" data-view="spring-rating" id="springRatingView">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <div id="springRatingSectionPlaceholder"></div>
+          </div>
+
           <!-- Чат: общий + личные + админы -->
           <div class="view" data-view="chat">
             <div class="chat-general-view" id="chatGeneralView">
@@ -1360,7 +1398,19 @@
             </section>
             <section class="hall-of-fame__block" aria-labelledby="hallLegendsTitle">
               <h2 class="hall-of-fame__section-title" id="hallLegendsTitle">Легенды клуба</h2>
-              <p class="hall-of-fame__placeholder">Скоро здесь появятся данные.</p>
+              <div class="hall-of-fame__legends-list" role="list">
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Waaarr" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Waaarr</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Emil13" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Emil13</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Рыбнадзор" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Рыбнадзор</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="AndrushaMorf" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">AndrushaMorf</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Shummmx" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Shummmx</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="WhiskeyClub" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">WhiskeyClub</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Пряник" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Пряник</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Siropchik" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Siropchik</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Хулинадо" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Хулинадо</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Shockin" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Shockin</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="qoqoEpta" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">qoqoEpta</span></button>
+              </div>
             </section>
           </div>
 
@@ -1899,10 +1949,30 @@
           <h3 class="spring-rating-info-modal__title" id="springRatingInfoModalTitle">Рейтинг турнирщиков весны</h3>
           <p class="spring-rating-info-modal__subtitle">Стартуем 1го марта</p>
           <div class="spring-rating-info-modal__leagues">
-            <p class="spring-rating-info-modal__league"><strong>Лига 1</strong> Призы 190 000₽<br />турниры от 500₽ и выше</p>
-            <p class="spring-rating-info-modal__league"><strong>Лига 2</strong> Призы 60 000₽<br />турниры до 499₽</p>
+            <div class="spring-rating-info-modal__league-block">
+              <p class="spring-rating-info-modal__league-title"><strong>Лига 1 Призы 190 000₽</strong></p>
+              <p class="spring-rating-info-modal__league-sub"><strong>турниры от 500₽ и выше</strong></p>
+              <ul class="spring-rating-info-modal__league-prizes">
+                <li>1 место — 100 000₽</li>
+                <li>2 место — 50 000₽</li>
+                <li>3 место — 25 000₽</li>
+                <li>4 место — 10 000₽</li>
+                <li>5 место — 5 000₽</li>
+              </ul>
+            </div>
+            <div class="spring-rating-info-modal__league-block">
+              <p class="spring-rating-info-modal__league-title"><strong>Лига 2 Призы 60 000₽</strong></p>
+              <p class="spring-rating-info-modal__league-sub"><strong>турниры до 499₽</strong></p>
+              <ul class="spring-rating-info-modal__league-prizes">
+                <li>1 место — 30 000₽</li>
+                <li>2 место — 15 000₽</li>
+                <li>3 место — 7 500₽</li>
+                <li>4 место — 5 000₽</li>
+                <li>5 место — 2 500₽</li>
+              </ul>
+            </div>
           </div>
-          <p class="spring-rating-info-modal__intro">Попадайте в ИТМ в турнирах и получайте очки</p>
+          <p class="spring-rating-info-modal__intro"><strong>Попадайте в ИТМ в турнирах и получайте очки</strong></p>
           <ul class="spring-rating-info-modal__points">
             <li>1 место — 135 очков</li>
             <li>2 место — 110 очков</li>
@@ -1910,8 +1980,10 @@
             <li>4 место — 70</li>
             <li>5 место — 60</li>
             <li>6 место — 50</li>
+            <li>7 место — 40</li>
+            <li>8 место — 30</li>
           </ul>
-          <p class="spring-rating-info-modal__note"><em>*Только если это место ИТМ с призами. Если в турнире было например 20 человек и за 6е место 0 призовых, то и баллы вы не получаете.</em></p>
+          <p class="spring-rating-info-modal__note"><em>*Только если это место ИТМ с призами. Если в турнире было например 20 человек и ИТМ начинается с 3х, а за 6е место 0 призовых, то и баллы за 6е место вы не получаете.</em></p>
           <p class="spring-rating-info-modal__coef">Количество баллов умножается в зависимости от того сколько людей играло в турнир</p>
           <ul class="spring-rating-info-modal__coef-list">
             <li>99 человек и меньше — коэф. ×1</li>
