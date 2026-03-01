@@ -190,7 +190,7 @@ function getTopByDates(dates) {
 // Газета «Вестник Два туза» — только горячие новости
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
-  var GAZETTE_VERSION = "2026-02-27";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
+  var GAZETTE_VERSION = "2026-03-01";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
