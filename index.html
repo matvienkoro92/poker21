@@ -66,17 +66,17 @@
         border: 1px solid rgba(186, 230, 253, 0.6) !important;
       }
       .app.app--view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
-        border: 1px solid rgba(181, 196, 138, 0.55) !important;
-        background: linear-gradient(145deg, rgba(74, 93, 35, 0.95), rgba(85, 107, 47, 0.9)) !important;
-        box-shadow: 0 0 0 1px rgba(181, 196, 138, 0.3), 0 4px 20px rgba(107, 142, 35, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(251, 191, 36, 0.5) !important;
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.9)) !important;
+        box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.25), 0 4px 20px rgba(251, 191, 36, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
       }
       [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo {
         border: 1px solid rgba(56, 189, 248, 0.5) !important;
       }
       [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
-        border: 1px solid rgba(107, 142, 35, 0.5) !important;
-        background: linear-gradient(145deg, #d4e4b0 0%, #b5c48a 50%, #8b9a5a 100%) !important;
-        box-shadow: 0 0 0 1px rgba(107, 142, 35, 0.2), 0 4px 16px rgba(107, 142, 35, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(245, 158, 11, 0.55) !important;
+        background: linear-gradient(145deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%) !important;
+        box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), 0 4px 16px rgba(245, 158, 11, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -201,10 +201,10 @@
                   <span class="home-mini-icon" aria-hidden="true">🏷️</span>
                   <span class="home-mini-icon__label">Акции</span>
                 </span>
-                <span class="home-mini-icon-item" title="Партнёрка">
+                <button type="button" class="home-mini-icon-item home-mini-icon-item--clickable" id="partnershipOpenBtn" title="Партнёрство">
                   <span class="home-mini-icon" aria-hidden="true">💼</span>
-                  <span class="home-mini-icon__label">Партнёрка</span>
-                </span>
+                  <span class="home-mini-icon__label">Партнёрство</span>
+                </button>
               </div>
             </div>
 
@@ -1661,6 +1661,67 @@
         <div class="image-lightbox__content">
           <img class="image-lightbox__img" src="" alt="" />
           <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
+        </div>
+      </div>
+      <!-- Модалка партнёрства: 4 листа (3 шага + предисловие) -->
+      <div class="partnership-modal" id="partnershipModal" role="dialog" aria-modal="true" aria-label="Партнёрство: 3 шага для своего клуба" aria-hidden="true">
+        <div class="partnership-modal__backdrop" id="partnershipModalBackdrop"></div>
+        <div class="partnership-modal__box">
+          <button type="button" class="partnership-modal__close" id="partnershipModalClose" aria-label="Закрыть">×</button>
+          <div class="partnership-modal__track" id="partnershipModalTrack">
+            <!-- Лист 1: Предисловие -->
+            <div class="partnership-modal__sheet partnership-modal__sheet--active" data-partnership-sheet="0">
+              <div class="partnership-modal__sheet-inner">
+                <img src="./assets/partnership-intro.png" alt="Клуб Два туза: игроки за покерным столом" class="partnership-modal__img" />
+                <h2 class="partnership-modal__title">❗️ 3 шага для создания своего покерного онлайн-клуба</h2>
+                <p class="partnership-modal__text">Зарабатывай на привлечении игроков. Стань партнером с нашей поддержкой и входом во все союзы с максимальным рейкбеком.</p>
+                <p class="partnership-modal__text">✅ Если у вас уже есть клуб, но он еще не в Poker21 или Xpoker, напишите в тг ➡️ <a href="https://t.me/Roman1787443" target="_blank" rel="noopener noreferrer" class="partnership-modal__link">@Roman1787443</a> для получения особых условий.</p>
+                <button type="button" class="partnership-modal__next" id="partnershipNextBtn" aria-label="Следующая страница">→</button>
+              </div>
+            </div>
+            <!-- Лист 2: Шаг 1 -->
+            <div class="partnership-modal__sheet" data-partnership-sheet="1">
+              <div class="partnership-modal__sheet-inner">
+                <img src="./assets/partnership-step1.png" alt="Создание онлайн-клуба: стол Два туза" class="partnership-modal__img" />
+                <h3 class="partnership-modal__heading">Если у вас еще нет клуба</h3>
+                <p class="partnership-modal__step">1️⃣ Создаем вам онлайн-клуб</p>
+                <p class="partnership-modal__text">в одном приложении на выбор или в нескольких.</p>
+                <button type="button" class="partnership-modal__next" aria-label="Следующая страница">→</button>
+              </div>
+            </div>
+            <!-- Лист 3: Шаг 2 -->
+            <div class="partnership-modal__sheet" data-partnership-sheet="2">
+              <div class="partnership-modal__sheet-inner">
+                <img src="./assets/partnership-step2.png" alt="Союз клубов: столы Два туза" class="partnership-modal__img" />
+                <p class="partnership-modal__step">2️⃣ Подключаем ваш клуб к союзу клубов.</p>
+                <p class="partnership-modal__text">В вашем клубе появляются наши кеш-столы, турниры и фрироллы.</p>
+                <p class="partnership-modal__text">Все те же самые столы, что и в клубе Два Туза, где уже играют наши игроки. И игроки вашего клуба будут видеть эти столы и смогут играть вместе с нашими через ваш клуб.</p>
+                <button type="button" class="partnership-modal__next" aria-label="Следующая страница">→</button>
+              </div>
+            </div>
+            <!-- Лист 4: Шаг 3 + стоимость + что подключено + контакт -->
+            <div class="partnership-modal__sheet" data-partnership-sheet="3">
+              <div class="partnership-modal__sheet-inner">
+                <img src="./assets/partnership-step3.png" alt="Игроки играют через ваш клуб: Два туза" class="partnership-modal__img" />
+                <p class="partnership-modal__step">3️⃣ Игроки вступают и играют через ваш клуб.</p>
+                <p class="partnership-modal__text">Вы получаете клубный сверх-рейкбек (комиссию с ваших игроков, которые играют через ваш клуб) до 90%.</p>
+                <button type="button" class="partnership-modal__next" aria-label="Следующая страница">→</button>
+              </div>
+            </div>
+            <!-- Лист 5: Стоимость и контакт -->
+            <div class="partnership-modal__sheet" data-partnership-sheet="4">
+              <div class="partnership-modal__sheet-inner">
+                <img src="./assets/partnership-cost.png" alt="Клуб Два туза: связь и условия" class="partnership-modal__img" />
+                <h3 class="partnership-modal__heading">Стоимость партнерства</h3>
+                <p class="partnership-modal__text">✅ 65$ в неделю, оплата минимум за месяц</p>
+                <p class="partnership-modal__text">✅ Если у вас уже есть активный клуб (проверяется), то условия индивидуальные</p>
+                <p class="partnership-modal__text partnership-modal__text--contact">❓ По вопросам и подключению пишите в лс<br />➡️ <a href="https://t.me/Roman1787443" target="_blank" rel="noopener noreferrer" class="partnership-modal__link">@Roman1787443</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="partnership-modal__nav" aria-hidden="true">
+            <span class="partnership-modal__page-indicator" id="partnershipPageIndicator">1 / 5</span>
+          </div>
         </div>
       </div>
       <div class="gazette-modal" id="gazetteModal" role="dialog" aria-modal="true" aria-labelledby="gazetteModalTitle" aria-label="Газета Вестник Два туза" aria-hidden="true">

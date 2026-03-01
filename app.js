@@ -406,6 +406,46 @@ function getTopByDates(dates) {
     bindSubscribeClick(subscribeBtnNews);
   }
 
+  (function initPartnershipModal() {
+    var modal = document.getElementById("partnershipModal");
+    var backdrop = document.getElementById("partnershipModalBackdrop");
+    var closeBtn = document.getElementById("partnershipModalClose");
+    var track = document.getElementById("partnershipModalTrack");
+    var indicator = document.getElementById("partnershipPageIndicator");
+    var openBtn = document.getElementById("partnershipOpenBtn");
+    if (!modal || !track || !indicator) return;
+    var currentIndex = 0;
+    var totalSheets = 5;
+    function setSlide(index) {
+      currentIndex = Math.max(0, Math.min(index, totalSheets - 1));
+      track.style.transform = "translateX(-" + currentIndex * 20 + "%)";
+      indicator.textContent = (currentIndex + 1) + " / " + totalSheets;
+    }
+    function openPartnership() {
+      setSlide(0);
+      modal.setAttribute("aria-hidden", "false");
+    }
+    function closePartnership() {
+      modal.setAttribute("aria-hidden", "true");
+    }
+    if (openBtn) openBtn.addEventListener("click", function (e) { e.preventDefault(); openPartnership(); });
+    if (closeBtn) closeBtn.addEventListener("click", closePartnership);
+    if (backdrop) backdrop.addEventListener("click", closePartnership);
+    modal.addEventListener("click", function (e) {
+      var nextBtn = e.target && e.target.closest ? e.target.closest(".partnership-modal__next") : null;
+      if (nextBtn) {
+        e.preventDefault();
+        if (currentIndex < totalSheets - 1) setSlide(currentIndex + 1);
+      }
+      var link = e.target && e.target.closest ? e.target.closest("a.partnership-modal__link[href^=\"https://t.me/\"]") : null;
+      if (link && link.href) {
+        e.preventDefault();
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(link.href); else window.open(link.href, "_blank");
+      }
+    });
+  })();
+
   (function initRatingSubscribe() {
     var ratingSubscribeBtn = document.getElementById("ratingSubscribeBtn");
     var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
