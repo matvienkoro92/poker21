@@ -154,9 +154,9 @@ function getAssetUrl(relativePath) {
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
-// Рейтинг весны: ссылка «Топы текущей недели» = Март week1 (mart=1&week=1); отдельная ссылка на топы Марта целиком (mart=1)
-var SPRING_TOP_CURRENT_WEEK_LINK_BASE = "";
-var SPRING_TOP_MARCH_LINK_BASE = "";  // Топы Марта — отдельная ссылка (к URL добавится ?mart=1 или &mart=1)
+// Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?mart=1&week=1, Топы Марта = BASE?mart=1
+// Укажите сюда полный URL (например https://t.me/... или ссылку на пост), параметры допишутся автоматически
+var SPRING_TOP_LINK_BASE = "";
 
 function normalizeWinterNick(n) {
   n = n != null ? String(n).trim() : "";
@@ -774,9 +774,9 @@ function getTopByDates(dates) {
     if (document.body) document.body.style.overflow = "";
   }
   currentBtn.addEventListener("click", function () {
-    if (isSpringRatingMode() && SPRING_TOP_CURRENT_WEEK_LINK_BASE) {
-      var sep = SPRING_TOP_CURRENT_WEEK_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
-      var link = SPRING_TOP_CURRENT_WEEK_LINK_BASE + sep + "mart=1&week=1";
+    if (isSpringRatingMode() && SPRING_TOP_LINK_BASE) {
+      var sep = SPRING_TOP_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
+      var link = SPRING_TOP_LINK_BASE + sep + "mart=1&week=1";
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
       else window.open(link, "_blank");
@@ -789,9 +789,9 @@ function getTopByDates(dates) {
   });
   if (febBtn) {
     febBtn.addEventListener("click", function () {
-      if (isSpringRatingMode() && SPRING_TOP_MARCH_LINK_BASE) {
-        var sep = SPRING_TOP_MARCH_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
-        var link = SPRING_TOP_MARCH_LINK_BASE + sep + "mart=1";
+      if (isSpringRatingMode() && SPRING_TOP_LINK_BASE) {
+        var sep = SPRING_TOP_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
+        var link = SPRING_TOP_LINK_BASE + sep + "mart=1";
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
         else window.open(link, "_blank");
