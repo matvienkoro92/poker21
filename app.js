@@ -154,11 +154,9 @@ function getAssetUrl(relativePath) {
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
-// Рейтинг весны: базовая ссылка на топы недель (?week=1 — прошлая, ?week=2 — текущая); отдельная ссылка на топы Марта
+// Рейтинг весны: ссылка «Топы текущей недели» = Март week1 (mart=1&week=1); отдельная ссылка на топы Марта целиком (mart=1)
 var SPRING_TOP_CURRENT_WEEK_LINK_BASE = "";
-var SPRING_TOP_PAST_WEEK_NUM = 1;    // Топы прошлой недели
-var SPRING_TOP_CURRENT_WEEK_NUM = 2;  // Топы текущей недели
-var SPRING_TOP_MARCH_LINK_BASE = "";  // Топы Марта (полная ссылка или база + ?month=march)
+var SPRING_TOP_MARCH_LINK_BASE = "";  // Топы Марта — отдельная ссылка (к URL добавится ?mart=1 или &mart=1)
 
 function normalizeWinterNick(n) {
   n = n != null ? String(n).trim() : "";
@@ -778,7 +776,7 @@ function getTopByDates(dates) {
   currentBtn.addEventListener("click", function () {
     if (isSpringRatingMode() && SPRING_TOP_CURRENT_WEEK_LINK_BASE) {
       var sep = SPRING_TOP_CURRENT_WEEK_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
-      var link = SPRING_TOP_CURRENT_WEEK_LINK_BASE + sep + "week=" + SPRING_TOP_CURRENT_WEEK_NUM;
+      var link = SPRING_TOP_CURRENT_WEEK_LINK_BASE + sep + "mart=1&week=1";
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
       else window.open(link, "_blank");
@@ -787,21 +785,13 @@ function getTopByDates(dates) {
     openModal("Топы текущей недели", CURRENT_WEEK_DATES, "current");
   });
   pastBtn.addEventListener("click", function () {
-    if (isSpringRatingMode() && SPRING_TOP_CURRENT_WEEK_LINK_BASE) {
-      var sep = SPRING_TOP_CURRENT_WEEK_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
-      var link = SPRING_TOP_CURRENT_WEEK_LINK_BASE + sep + "week=" + SPRING_TOP_PAST_WEEK_NUM;
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
-      else window.open(link, "_blank");
-      return;
-    }
     openModal("Топы прошлой недели", GAZETTE_DATES, "past");
   });
   if (febBtn) {
     febBtn.addEventListener("click", function () {
       if (isSpringRatingMode() && SPRING_TOP_MARCH_LINK_BASE) {
         var sep = SPRING_TOP_MARCH_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
-        var link = SPRING_TOP_MARCH_LINK_BASE + sep + "month=march";
+        var link = SPRING_TOP_MARCH_LINK_BASE + sep + "mart=1";
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
         else window.open(link, "_blank");
