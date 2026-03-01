@@ -561,10 +561,11 @@ function getTopByDates(dates) {
       }, 400);
     }, 0);
   }
-  if (startParam === "rating_top_past" || startParam === "rating_top_current") {
-    var ratingTopKind = startParam === "rating_top_current" ? "current" : "past";
+  if (startParam === "rating_top_past" || startParam === "rating_top_current" || startParam === "rating_top_february" || startParam === "rating_top_mar") {
+    var ratingTopKind = startParam === "rating_top_current" ? "current" : startParam === "rating_top_february" ? "feb" : startParam === "rating_top_mar" ? "feb" : "past";
+    var viewForTop = startParam === "rating_top_mar" ? "spring-rating" : "winter-rating";
     setTimeout(function () {
-      if (typeof setView === "function") setView("winter-rating");
+      if (typeof setView === "function") setView(viewForTop);
       setTimeout(function () {
         if (typeof window.openWinterRatingWeekTopModal === "function") window.openWinterRatingWeekTopModal(ratingTopKind);
       }, 350);
@@ -774,14 +775,19 @@ function getTopByDates(dates) {
       appUrl = appUrl.replace(/\/$/, "");
       var type = currentModalLinkType === "current"
         ? "rating_top_current"
-        : currentModalLinkType === "feb"
-          ? "rating_top_february"
-          : "rating_top_past";
+        : currentModalLinkType === "mar"
+          ? "rating_top_mar"
+          : currentModalLinkType === "feb"
+            ? "rating_top_february"
+            : "rating_top_past";
       var link = appUrl + "?startapp=" + type;
+      var msg = type === "rating_top_current"
+        ? "Ссылка скопирована. Отправьте другу — откроется блок «Топы текущей недели»."
+        : "Ссылка скопирована. Отправьте другу — откроется этот топ.";
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется этот топ недели."); else alert("Ссылка скопирована.");
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
         }).catch(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
@@ -3260,15 +3266,12 @@ function isSpringRatingMode() {
   return document.body && document.body.getAttribute("data-view") === "spring-rating";
 }
 function getRatingByDate() {
-  if (isSpringRatingMode()) return {};
   return typeof WINTER_RATING_BY_DATE !== "undefined" ? WINTER_RATING_BY_DATE : {};
 }
 function getRatingTournamentsByDate() {
-  if (isSpringRatingMode()) return {};
   return typeof WINTER_RATING_TOURNAMENTS_BY_DATE !== "undefined" ? WINTER_RATING_TOURNAMENTS_BY_DATE : {};
 }
 function getRatingImages() {
-  if (isSpringRatingMode()) return {};
   return typeof WINTER_RATING_IMAGES !== "undefined" ? WINTER_RATING_IMAGES : {};
 }
 
@@ -3733,6 +3736,7 @@ function initWinterRatingPlayerModal() {
 // Итоговая таблица рейтинга (декабрь, январь, февраль).
 // Бонусы к итогу: Coo1er91 +55, Waaar +325 (ручные доп. очки). Доп. в итог (не по датам): Waaar +765 очков, +588225 призы; EM13!! +135 очков.
 function getWinterRatingOverall() {
+  if (isSpringRatingMode()) return [];
   var byNick = {};
   var data = getRatingByDate() || {};
   var dateStrs = Object.keys(data);
@@ -3870,6 +3874,42 @@ function initWinterRating() {
   } catch (e) {
     if (typeof console !== "undefined" && console.error) console.error("winter rating rows map", e);
   }
+  var podiumEl = document.getElementById("springRatingTop3Podium");
+  if (podiumEl) {
+    var sectionEl = document.getElementById("winterRatingSection");
+    if (sectionEl && sectionEl.getAttribute("data-spring-top3-inited") !== "1") {
+      sectionEl.setAttribute("data-spring-top3-inited", "1");
+      sectionEl.addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest(".spring-rating-top3__nick-btn");
+        if (btn && btn.dataset.nick && typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick);
+      });
+    }
+    if (rows.length >= 3) {
+      podiumEl.removeAttribute("hidden");
+      var top3 = [rows[1], rows[0], rows[2]];
+      var places = [2, 1, 3];
+      var podiumTitle = isSpringRatingMode() ? "Рейтинг Весны" : "Рейтинг Зимы";
+      var podiumHtml = "<div class=\"spring-rating-top3__title\">" + podiumTitle + "</div><div class=\"spring-rating-top3__podium\">";
+      for (var pi = 0; pi < 3; pi++) {
+        var r = top3[pi];
+        var place = places[pi];
+        var nickStr = r && r.nick != null ? String(r.nick) : "";
+        var nickEsc = escapeHtmlRating(nickStr);
+        var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        var initial = nickStr.length ? nickStr.charAt(0).toUpperCase() : "?";
+        var pointsStr = r && r.points != null ? String(r.points) : "0";
+        var rewardStr = r && r.reward != null ? String(r.reward) : "0";
+        var rewardFormatted = rewardStr + " ₽";
+        var placeClass = place === 1 ? "spring-rating-top3__card--first" : "";
+        podiumHtml += "<div class=\"spring-rating-top3__card " + placeClass + "\"><span class=\"spring-rating-top3__rank\">#" + place + "</span><div class=\"spring-rating-top3__avatar\" aria-hidden=\"true\">" + initial + "</div><span class=\"spring-rating-top3__nick\">" + nickEsc + "</span><div class=\"spring-rating-top3__stats\"><span class=\"spring-rating-top3__points\">" + pointsStr + " баллов</span><span class=\"spring-rating-top3__reward\">" + rewardFormatted + "</span></div><button type=\"button\" class=\"spring-rating-top3__nick-btn\" data-nick=\"" + nickAttr + "\" aria-label=\"Подробнее: " + nickEsc + "\"></button></div>";
+      }
+      podiumHtml += "</div>";
+      podiumEl.innerHTML = podiumHtml;
+    } else {
+      podiumEl.setAttribute("hidden", "");
+      podiumEl.innerHTML = "";
+    }
+  }
   if (tbody) {
     try {
       if (isSpringRatingMode() && rows.length === 0) {
@@ -3919,10 +3959,6 @@ function initWinterRating() {
   }
   var datesContainer = document.getElementById("winterRatingDates");
   if (!datesContainer) return;
-  if (isSpringRatingMode()) {
-    datesContainer.innerHTML = "";
-    return;
-  }
   var alreadyInited = datesContainer.getAttribute("data-rating-inited") === "1";
   if (!alreadyInited) {
     datesContainer.setAttribute("data-rating-inited", "1");
@@ -4067,6 +4103,10 @@ function initWinterRating() {
     var availableMonths = Object.keys(monthSet).sort(function (a, b) {
       return b.localeCompare(a);
     }).map(function (k) { return monthSet[k]; });
+    if (isSpringRatingMode()) {
+      availableMonths = [{ year: 2026, month: 3 }];
+      availableDates = [];
+    }
     if (!availableMonths.length) return;
     calendarWrap._availableMonths = availableMonths;
     calendarWrap._availableDates = availableDates;
