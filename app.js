@@ -154,9 +154,9 @@ function getAssetUrl(relativePath) {
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
-// Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?mart=1&week=1, Топы Марта = BASE?mart=1
+// Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?Mart_week_1=1, Топы Марта = BASE?mart=1
 // Укажите сюда полный URL (например https://t.me/... или ссылку на пост), параметры допишутся автоматически
-var SPRING_TOP_LINK_BASE = "";
+var SPRING_TOP_LINK_BASE = "https://t.me/Poker_dvatuza_bot/DvaTuza";
 
 function normalizeWinterNick(n) {
   n = n != null ? String(n).trim() : "";
@@ -710,6 +710,10 @@ function getTopByDates(dates) {
       prizeInfo.style.display = isCurrent ? "" : "none";
       prizeInfo.setAttribute("aria-hidden", isCurrent ? "false" : "true");
     }
+    var shareRow = shareBtn ? shareBtn.closest(".winter-rating-week-top-modal__share-row") : null;
+    if (shareRow) {
+      shareRow.style.display = (typeof isSpringRatingMode === "function" && isSpringRatingMode() && linkType === "past") ? "none" : "";
+    }
     modal.setAttribute("aria-hidden", "false");
     if (document.body) document.body.style.overflow = "hidden";
   }
@@ -776,7 +780,7 @@ function getTopByDates(dates) {
   currentBtn.addEventListener("click", function () {
     if (isSpringRatingMode() && SPRING_TOP_LINK_BASE) {
       var sep = SPRING_TOP_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
-      var link = SPRING_TOP_LINK_BASE + sep + "mart=1&week=1";
+      var link = SPRING_TOP_LINK_BASE + sep + "Mart_week_1=1";
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
       else window.open(link, "_blank");
