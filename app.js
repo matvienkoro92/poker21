@@ -414,6 +414,11 @@ function getTopByDates(dates) {
     var indicator = document.getElementById("partnershipPageIndicator");
     var openBtn = document.getElementById("partnershipOpenBtn");
     if (!modal || !track || !indicator) return;
+    var partnershipAssets = ["partnership-intro.jpg", "partnership-step1.jpg", "partnership-step2.jpg", "partnership-step3.jpg", "partnership-cost.jpg"];
+    var imgs = modal.querySelectorAll(".partnership-modal__img");
+    for (var i = 0; i < imgs.length && i < partnershipAssets.length; i++) {
+      imgs[i].src = getAssetUrl(partnershipAssets[i]);
+    }
     var currentIndex = 0;
     var totalSheets = 5;
     function setSlide(index) {
@@ -433,9 +438,14 @@ function getTopByDates(dates) {
     if (backdrop) backdrop.addEventListener("click", closePartnership);
     modal.addEventListener("click", function (e) {
       var nextBtn = e.target && e.target.closest ? e.target.closest(".partnership-modal__next") : null;
+      var prevBtn = e.target && e.target.closest ? e.target.closest(".partnership-modal__prev") : null;
       if (nextBtn) {
         e.preventDefault();
         if (currentIndex < totalSheets - 1) setSlide(currentIndex + 1);
+      }
+      if (prevBtn) {
+        e.preventDefault();
+        if (currentIndex > 0) setSlide(currentIndex - 1);
       }
       var link = e.target && e.target.closest ? e.target.closest("a.partnership-modal__link[href^=\"https://t.me/\"]") : null;
       if (link && link.href) {

@@ -1727,11 +1727,18 @@ html.app-view-home .card .card__content {
 .partnership-modal__link:hover {
   color: #bfdbfe;
 }
+.partnership-modal__nav-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+.partnership-modal__prev,
 .partnership-modal__next {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 20px;
   width: 48px;
   height: 48px;
   padding: 0;
@@ -1743,6 +1750,7 @@ html.app-view-home .card .card__content {
   line-height: 1;
   cursor: pointer;
 }
+.partnership-modal__prev:hover,
 .partnership-modal__next:hover {
   background: rgba(255, 255, 255, 0.2);
 }
@@ -1782,6 +1790,7 @@ html.app-view-home .card .card__content {
 [data-theme="light"] .partnership-modal__link {
   color: #2563eb;
 }
+[data-theme="light"] .partnership-modal__prev,
 [data-theme="light"] .partnership-modal__next {
   color: #0f172a;
   background: rgba(0, 0, 0, 0.08);
@@ -5495,7 +5504,7 @@ a.home-mini-icon-item {
   font-weight: 700;
 }
 
-/* Модалка «Рейтинг турнирщиков весны» */
+/* Модалка «Рейтинг турнирщиков весны» — в стиле кнопки весны (slate + amber) */
 .spring-rating-info-modal {
   position: fixed;
   inset: 0;
@@ -5524,11 +5533,11 @@ a.home-mini-icon-item {
   max-width: 360px;
   max-height: 85vh;
   overflow: auto;
-  background: rgba(15, 23, 42, 0.98);
-  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(51, 65, 85, 0.96));
+  border-radius: 16px;
   padding: 20px 16px 20px;
-  border: 1px solid var(--border-subtle);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(251, 191, 36, 0.12);
 }
 .spring-rating-info-modal__close {
   position: absolute;
@@ -5538,8 +5547,8 @@ a.home-mini-icon-item {
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text);
+  background: rgba(251, 191, 36, 0.15);
+  color: #f8fafc;
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
@@ -5549,32 +5558,35 @@ a.home-mini-icon-item {
   padding: 0;
 }
 .spring-rating-info-modal__close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(251, 191, 36, 0.28);
 }
 .spring-rating-info-modal__title {
   margin: 0 36px 6px 0;
   font-size: 18px;
   font-weight: 700;
-  color: var(--text);
+  color: #f8fafc;
 }
 .spring-rating-info-modal__subtitle {
   margin: 0 0 14px;
   font-size: 14px;
-  color: var(--text-muted);
+  color: #fbbf24;
 }
 .spring-rating-info-modal__leagues {
   margin: 0 0 14px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.2);
 }
 [data-theme="light"] .spring-rating-info-modal__leagues {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
 }
 .spring-rating-info-modal__league-block {
   margin: 0 0 14px;
   font-size: 13px;
   line-height: 1.4;
+  color: #e2e8f0;
 }
 .spring-rating-info-modal__league-block:last-child {
   margin-bottom: 0;
@@ -5582,15 +5594,18 @@ a.home-mini-icon-item {
 .spring-rating-info-modal__league-title {
   margin: 0 0 4px;
   font-size: 14px;
+  color: #fbbf24;
 }
 .spring-rating-info-modal__league-sub {
   margin: 0 0 6px;
   font-size: 13px;
+  color: #cbd5e1;
 }
 .spring-rating-info-modal__league-prizes {
   margin: 0 0 0 18px;
   padding: 0;
   list-style: disc;
+  color: #e2e8f0;
 }
 .spring-rating-info-modal__league-prizes li {
   margin-bottom: 2px;
@@ -5599,22 +5614,56 @@ a.home-mini-icon-item {
   margin: 0 0 8px;
   font-size: 13px;
   font-weight: 700;
+  color: #f8fafc;
 }
 .spring-rating-info-modal__points {
   margin: 0 0 10px;
   padding-left: 20px;
   font-size: 13px;
   line-height: 1.5;
+  color: #e2e8f0;
 }
 .spring-rating-info-modal__note {
   margin: 0 0 12px;
   font-size: 12px;
   font-style: italic;
-  color: var(--text-muted);
+  color: #94a3b8;
   line-height: 1.4;
 }
 [data-theme="light"] .spring-rating-info-modal__inner {
-  background: rgb(255, 248, 240);
+  background: linear-gradient(180deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.22), 0 8px 32px rgba(0, 0, 0, 0.15), 0 4px 20px rgba(245, 158, 11, 0.15);
+}
+[data-theme="light"] .spring-rating-info-modal__close {
+  background: rgba(0, 0, 0, 0.08);
+  color: #78350f;
+}
+[data-theme="light"] .spring-rating-info-modal__close:hover {
+  background: rgba(0, 0, 0, 0.14);
+}
+[data-theme="light"] .spring-rating-info-modal__title {
+  color: #78350f;
+}
+[data-theme="light"] .spring-rating-info-modal__subtitle {
+  color: #b45309;
+}
+[data-theme="light"] .spring-rating-info-modal__league-block,
+[data-theme="light"] .spring-rating-info-modal__league-prizes,
+[data-theme="light"] .spring-rating-info-modal__points {
+  color: #451a03;
+}
+[data-theme="light"] .spring-rating-info-modal__league-title {
+  color: #b45309;
+}
+[data-theme="light"] .spring-rating-info-modal__league-sub {
+  color: #78350f;
+}
+[data-theme="light"] .spring-rating-info-modal__intro {
+  color: #451a03;
+}
+[data-theme="light"] .spring-rating-info-modal__note {
+  color: #92400e;
 }
 
 /* Модалка карточки пользователя в чате */
