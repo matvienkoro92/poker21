@@ -154,6 +154,11 @@ function getAssetUrl(relativePath) {
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
+// Рейтинг весны: базовая ссылка на топы недель (?week=1 — прошлая, ?week=2 — текущая); отдельная ссылка на топы Марта
+var SPRING_TOP_CURRENT_WEEK_LINK_BASE = "";
+var SPRING_TOP_PAST_WEEK_NUM = 1;    // Топы прошлой недели
+var SPRING_TOP_CURRENT_WEEK_NUM = 2;  // Топы текущей недели
+var SPRING_TOP_MARCH_LINK_BASE = "";  // Топы Марта (полная ссылка или база + ?month=march)
 
 function normalizeWinterNick(n) {
   n = n != null ? String(n).trim() : "";
@@ -771,13 +776,37 @@ function getTopByDates(dates) {
     if (document.body) document.body.style.overflow = "";
   }
   currentBtn.addEventListener("click", function () {
+    if (isSpringRatingMode() && SPRING_TOP_CURRENT_WEEK_LINK_BASE) {
+      var sep = SPRING_TOP_CURRENT_WEEK_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
+      var link = SPRING_TOP_CURRENT_WEEK_LINK_BASE + sep + "week=" + SPRING_TOP_CURRENT_WEEK_NUM;
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
+      else window.open(link, "_blank");
+      return;
+    }
     openModal("Топы текущей недели", CURRENT_WEEK_DATES, "current");
   });
   pastBtn.addEventListener("click", function () {
+    if (isSpringRatingMode() && SPRING_TOP_CURRENT_WEEK_LINK_BASE) {
+      var sep = SPRING_TOP_CURRENT_WEEK_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
+      var link = SPRING_TOP_CURRENT_WEEK_LINK_BASE + sep + "week=" + SPRING_TOP_PAST_WEEK_NUM;
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
+      else window.open(link, "_blank");
+      return;
+    }
     openModal("Топы прошлой недели", GAZETTE_DATES, "past");
   });
   if (febBtn) {
     febBtn.addEventListener("click", function () {
+      if (isSpringRatingMode() && SPRING_TOP_MARCH_LINK_BASE) {
+        var sep = SPRING_TOP_MARCH_LINK_BASE.indexOf("?") >= 0 ? "&" : "?";
+        var link = SPRING_TOP_MARCH_LINK_BASE + sep + "month=march";
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
+        else window.open(link, "_blank");
+        return;
+      }
       if (isSpringRatingMode()) openModal("Топы Марта", getMarchDatesFromData(), "mar");
       else openModal("Топы Февраля", getFebruaryDatesFromData(), "feb");
     });
@@ -3746,7 +3775,7 @@ function initWinterRating() {
   var tableCaption = document.querySelector("#winterRatingSection .winter-rating__table-caption");
   if (countersEl) {
     if (isSpringRatingMode()) {
-      countersEl.innerHTML = "Март — май 2026. <strong>Стартуем 1 марта</strong>";
+      countersEl.innerHTML = "";
     } else {
       try {
         var c = getWinterRatingCounters();
@@ -3800,7 +3829,7 @@ function initWinterRating() {
   if (tbody) {
     try {
       if (isSpringRatingMode() && rows.length === 0) {
-        tbody.innerHTML = "<tr><td colspan=\"4\" class=\"winter-rating__spring-placeholder\">Рейтинг турнирщиков весны стартует <strong>1 марта</strong>. Условия и призы — кнопка выше.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan=\"4\" class=\"winter-rating__spring-placeholder\"></td></tr>";
       } else {
         var htmlParts = [];
         for (var wi = 0; wi < rows.length; wi++) {
