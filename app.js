@@ -485,6 +485,9 @@ function getTopByDates(dates) {
   if (startParam === "winter_rating") {
     setTimeout(function () { if (typeof setView === "function") setView("winter-rating"); }, 0);
   }
+  if (startParam === "spring_rating") {
+    setTimeout(function () { if (typeof setView === "function") setView("spring-rating"); }, 0);
+  }
   if (startParam && startParam.indexOf("winter_rating_player_") === 0) {
     var playerNick = decodeURIComponent(startParam.replace("winter_rating_player_", "").replace(/\+/g, " "));
     if (playerNick) {
@@ -738,11 +741,13 @@ function getTopByDates(dates) {
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
-      var link = appUrl + "?startapp=winter_rating";
+      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
+      var link = appUrl + "?startapp=" + (isSpring ? "spring_rating" : "winter_rating");
+      var msg = isSpring ? "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков весны." : "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков зимы.";
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков зимы."); else alert("Ссылка скопирована.");
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
         }).catch(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);

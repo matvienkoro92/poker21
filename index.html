@@ -66,17 +66,17 @@
         border: 1px solid rgba(186, 230, 253, 0.6) !important;
       }
       .app.app--view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
-        border: 1px solid rgba(134, 239, 172, 0.55) !important;
-        background: linear-gradient(145deg, rgba(20, 83, 45, 0.95), rgba(22, 101, 52, 0.9)) !important;
-        box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.3), 0 4px 20px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(181, 196, 138, 0.55) !important;
+        background: linear-gradient(145deg, rgba(74, 93, 35, 0.95), rgba(85, 107, 47, 0.9)) !important;
+        box-shadow: 0 0 0 1px rgba(181, 196, 138, 0.3), 0 4px 20px rgba(107, 142, 35, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
       }
       [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo {
         border: 1px solid rgba(56, 189, 248, 0.5) !important;
       }
       [data-theme="light"] .app.app--view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
-        border: 1px solid rgba(34, 197, 94, 0.5) !important;
-        background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%) !important;
-        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2), 0 4px 16px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(107, 142, 35, 0.5) !important;
+        background: linear-gradient(145deg, #d4e4b0 0%, #b5c48a 50%, #8b9a5a 100%) !important;
+        box-shadow: 0 0 0 1px rgba(107, 142, 35, 0.2), 0 4px 16px rgba(107, 142, 35, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -209,19 +209,6 @@
             </div>
 
             <div class="features">
-              <div class="features-row features-row--full">
-                <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full" data-view-target="winter-rating" aria-label="Рейтинг турнирщиков зима 2025-2026 на 250 000р">
-                  <span class="feature__cup feature__cup--left" aria-hidden="true">🏆</span>
-                  <div class="feature__body">
-                    <div class="feature__title feature__title--center feature__title--uppercase">
-                      <span class="feature__title-line1">Рейтинг турнирщиков</span>
-                      <span class="feature__title-prize">НА 250 000р</span>
-                      <span class="feature__title-line3"><span class="feature__title-snowflake" aria-hidden="true">❄</span> Зима 2025-2026</span>
-                    </div>
-                  </div>
-                  <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
-                </a>
-              </div>
               <div class="features-row features-row--full">
                 <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-promo" data-view-target="spring-rating" aria-label="Рейтинг турнирщиков весны на 250 000р">
                   <span class="feature__cup feature__cup--left" aria-hidden="true">🏆</span>
@@ -1381,6 +1368,20 @@
           <div class="view" data-view="hall-of-fame">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="hall-of-fame__main-title">Зал славы</h1>
+            <div class="hall-of-fame__rating-card-wrap">
+              <a href="#" class="feature feature--link feature--rating-promo feature--rating-spring-full hall-of-fame__winter-rating-card" data-view-target="winter-rating" aria-label="Рейтинг турнирщиков зима 2025-2026 на 250 000р">
+                <span class="feature__cup feature__cup--left" aria-hidden="true">🏆</span>
+                <div class="feature__body">
+                  <div class="feature__title feature__title--center feature__title--uppercase">
+                    <span class="feature__title-line1">Рейтинг турнирщиков</span>
+                    <span class="feature__title-prize">НА 250 000р</span>
+                    <span class="feature__title-line3"><span class="feature__title-snowflake" aria-hidden="true">❄</span> Зима 2025-2026</span>
+                    <span class="hall-of-fame__winter-winner">Победитель Waaar</span>
+                  </div>
+                </div>
+                <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
+              </a>
+            </div>
             <section class="hall-of-fame__block hall-of-fame__block--bigwin" aria-labelledby="hallBigwinTitle">
               <h2 class="hall-of-fame__section-title" id="hallBigwinTitle">Самый большой выигрыш</h2>
               <div class="hall-of-fame__bigwin-lines">
@@ -1984,12 +1985,6 @@
             <li>8 место — 30</li>
           </ul>
           <p class="spring-rating-info-modal__note"><em>*Только если это место ИТМ с призами. Если в турнире было например 20 человек и ИТМ начинается с 3х, а за 6е место 0 призовых, то и баллы за 6е место вы не получаете.</em></p>
-          <p class="spring-rating-info-modal__coef">Количество баллов умножается в зависимости от того сколько людей играло в турнир</p>
-          <ul class="spring-rating-info-modal__coef-list">
-            <li>99 человек и меньше — коэф. ×1</li>
-            <li>100–199 — коэф. ×1.25</li>
-            <li>200–500 — коэф. ×1.5</li>
-          </ul>
         </div>
       </div>
       <div class="winter-rating-lightbox" id="winterRatingLightbox" aria-hidden="true" role="dialog" aria-label="Увеличенный скрин">

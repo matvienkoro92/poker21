@@ -3194,8 +3194,8 @@ html.app-view-home .feature--rating-promo .feature__title-prize {
 }
 .view--active[data-view="home"] .feature--rating-spring-promo .feature__title-prize--spring,
 html.app-view-home .feature--rating-spring-promo .feature__title-prize--spring {
-  color: #86efac !important;
-  text-shadow: 0 0 12px rgba(134, 239, 172, 0.4);
+  color: #b5c48a !important;
+  text-shadow: 0 0 12px rgba(181, 196, 138, 0.4);
 }
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo,
 [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo {
@@ -3230,34 +3230,34 @@ html.app-view-home .feature--rating-spring-promo .feature__title-prize--spring {
 /* Та же специфичность, что у голубой кнопки зимы, но для весны — зелёный стиль */
 .view--active[data-view="home"] .feature.feature--link.feature--rating-promo.feature--rating-spring-promo,
 html.app-view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo {
-  border: 1px solid rgba(134, 239, 172, 0.55) !important;
-  background: linear-gradient(145deg, rgba(20, 83, 45, 0.95), rgba(22, 101, 52, 0.9)) !important;
-  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.3),
-              0 4px 20px rgba(34, 197, 94, 0.2),
+  border: 1px solid rgba(181, 196, 138, 0.55) !important;
+  background: linear-gradient(145deg, rgba(74, 93, 35, 0.95), rgba(85, 107, 47, 0.9)) !important;
+  box-shadow: 0 0 0 1px rgba(181, 196, 138, 0.3),
+              0 4px 20px rgba(107, 142, 35, 0.2),
               inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 .view--active[data-view="home"] .feature.feature--link.feature--rating-promo.feature--rating-spring-promo:hover,
 html.app-view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo:hover {
-  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.4),
-              0 6px 24px rgba(34, 197, 94, 0.25),
+  box-shadow: 0 0 0 1px rgba(181, 196, 138, 0.4),
+              0 6px 24px rgba(107, 142, 35, 0.25),
               inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 .feature--rating-spring-promo.feature--rating-promo {
-  border: 1px solid rgba(134, 239, 172, 0.5) !important;
+  border: 1px solid rgba(181, 196, 138, 0.5) !important;
   border-radius: 22px !important;
   max-width: 92%;
   margin-left: auto;
   margin-right: auto;
-  background: linear-gradient(145deg, rgba(20, 83, 45, 0.95), rgba(22, 101, 52, 0.9)) !important;
-  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.25),
-              0 4px 20px rgba(34, 197, 94, 0.2),
+  background: linear-gradient(145deg, rgba(74, 93, 35, 0.95), rgba(85, 107, 47, 0.9)) !important;
+  box-shadow: 0 0 0 1px rgba(181, 196, 138, 0.25),
+              0 4px 20px rgba(107, 142, 35, 0.2),
               inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 .view--active[data-view="home"] .feature--rating-spring-promo:hover,
 html.app-view-home .feature--rating-spring-promo:hover,
 .feature--rating-spring-promo:hover {
-  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.4),
-              0 6px 24px rgba(34, 197, 94, 0.25),
+  box-shadow: 0 0 0 1px rgba(181, 196, 138, 0.4),
+              0 6px 24px rgba(107, 142, 35, 0.25),
               inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 .feature--rating-spring-promo .feature__title-line1,
@@ -3265,8 +3265,8 @@ html.app-view-home .feature--rating-spring-promo:hover,
   color: #fff !important;
 }
 .feature--rating-spring-promo .feature__title-prize--spring {
-  color: #86efac !important;
-  text-shadow: 0 0 12px rgba(134, 239, 172, 0.4);
+  color: #b5c48a !important;
+  text-shadow: 0 0 12px rgba(181, 196, 138, 0.4);
 }
 .feature--rating-spring-promo .feature__title-leaf {
   margin-left: 0.2em;
@@ -3330,22 +3330,22 @@ html.app-view-home .feature--rating-spring-promo:hover,
 }
 [data-theme="light"] .feature--rating-spring-promo .feature__title-line1,
 [data-theme="light"] .feature--rating-spring-promo .feature__title-line3--spring {
-  color: #14532d !important;
+  color: #4a5d23 !important;
 }
 [data-theme="light"] .view--active[data-view="home"] .feature.feature--link.feature--rating-promo.feature--rating-spring-promo,
 [data-theme="light"] html.app-view-home .feature.feature--link.feature--rating-promo.feature--rating-spring-promo,
 [data-theme="light"] .feature--rating-spring-promo.feature--rating-promo {
-  border: 1px solid rgba(34, 197, 94, 0.5) !important;
-  background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%) !important;
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2),
-              0 4px 16px rgba(34, 197, 94, 0.15),
+  border: 1px solid rgba(107, 142, 35, 0.5) !important;
+  background: linear-gradient(145deg, #d4e4b0 0%, #b5c48a 50%, #8b9a5a 100%) !important;
+  box-shadow: 0 0 0 1px rgba(107, 142, 35, 0.2),
+              0 4px 16px rgba(107, 142, 35, 0.15),
               inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
 }
 [data-theme="light"] .feature--rating-spring-promo .feature__title {
-  color: #14532d;
+  color: #4a5d23;
 }
 [data-theme="light"] .feature--rating-spring-promo .feature__title-prize--spring {
-  color: #15803d !important;
+  color: #556b2f !important;
   text-shadow: none;
 }
 /* Та же высота, что у кнопки «Рейтинг турнирщиков зимы» */
@@ -4604,9 +4604,9 @@ a.home-mini-icon-item {
 
 /* Рейтинг Весны — зелёно-цветущая тема, веточка вместо снежинки */
 .winter-rating.spring-rating {
-  background: linear-gradient(165deg, rgba(20, 50, 35, 0.94) 0%, rgba(22, 61, 42, 0.9) 40%, rgba(15, 45, 32, 0.92) 100%);
-  border-color: rgba(134, 239, 172, 0.25);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(34, 197, 94, 0.1);
+  background: linear-gradient(165deg, rgba(45, 55, 25, 0.94) 0%, rgba(55, 68, 32, 0.9) 40%, rgba(35, 45, 22, 0.92) 100%);
+  border-color: rgba(181, 196, 138, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(107, 142, 35, 0.1);
 }
 .winter-rating.spring-rating::before {
   background-image: radial-gradient(circle at 20% 10%, rgba(134, 239, 172, 0.08) 0%, transparent 50%),
@@ -4643,11 +4643,11 @@ a.home-mini-icon-item {
   font-size: 1em;
   margin-right: 6px;
   opacity: 0.85;
-  color: rgba(187, 247, 208, 0.9);
+  color: rgba(181, 196, 138, 0.9);
 }
 .winter-rating.spring-rating .winter-rating__title-accent {
-  color: #86efac;
-  text-shadow: 0 0 20px rgba(134, 239, 172, 0.35), 0 0 40px rgba(34, 197, 94, 0.12);
+  color: #b5c48a;
+  text-shadow: 0 0 20px rgba(181, 196, 138, 0.35), 0 0 40px rgba(107, 142, 35, 0.12);
 }
 .winter-rating__spring-conditions-wrap {
   display: none;
@@ -4662,113 +4662,113 @@ a.home-mini-icon-item {
   padding: 10px 20px;
   font-size: 15px;
   font-weight: 600;
-  color: rgba(15, 45, 32, 0.95);
-  background: linear-gradient(180deg, rgba(134, 239, 172, 0.9), rgba(34, 197, 94, 0.85));
-  border: 1px solid rgba(134, 239, 172, 0.6);
+  color: rgba(15, 35, 20, 0.95);
+  background: linear-gradient(180deg, rgba(181, 196, 138, 0.9), rgba(107, 142, 35, 0.85));
+  border: 1px solid rgba(181, 196, 138, 0.6);
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+  box-shadow: 0 2px 8px rgba(85, 107, 47, 0.2);
 }
 .winter-rating__spring-conditions-btn:hover {
-  background: linear-gradient(180deg, rgba(187, 247, 208, 0.95), rgba(134, 239, 172, 0.9));
-  border-color: rgba(134, 239, 172, 0.8);
+  background: linear-gradient(180deg, rgba(213, 224, 184, 0.95), rgba(181, 196, 138, 0.9));
+  border-color: rgba(181, 196, 138, 0.8);
 }
 .winter-rating__spring-conditions-btn:active {
   transform: scale(0.98);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__spring-conditions-btn {
-  color: #14532d;
-  background: linear-gradient(180deg, rgba(187, 247, 208, 0.95), rgba(134, 239, 172, 0.9));
-  border-color: rgba(34, 197, 94, 0.5);
+  color: #4a5d23;
+  background: linear-gradient(180deg, rgba(213, 224, 184, 0.95), rgba(181, 196, 138, 0.9));
+  border-color: rgba(107, 142, 35, 0.5);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__spring-conditions-btn:hover {
-  background: linear-gradient(180deg, rgba(220, 252, 231, 0.98), rgba(187, 247, 208, 0.95));
-  border-color: rgba(34, 197, 94, 0.6);
+  background: linear-gradient(180deg, rgba(228, 236, 208, 0.98), rgba(213, 224, 184, 0.95));
+  border-color: rgba(107, 142, 35, 0.6);
 }
 .winter-rating.spring-rating .winter-rating__table-caption {
-  color: rgba(220, 252, 231, 0.95);
+  color: rgba(228, 236, 208, 0.95);
 }
 .winter-rating.spring-rating .winter-rating__show-all-btn {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.4));
-  border-color: rgba(134, 239, 172, 0.5);
-  color: #bbf7d0;
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.35), rgba(85, 107, 47, 0.4));
+  border-color: rgba(181, 196, 138, 0.5);
+  color: #b5c48a;
 }
 .winter-rating.spring-rating .winter-rating__show-all-btn:hover {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.45), rgba(22, 163, 74, 0.5));
-  border-color: rgba(134, 239, 172, 0.6);
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.45), rgba(85, 107, 47, 0.5));
+  border-color: rgba(181, 196, 138, 0.6);
 }
 .winter-rating.spring-rating .winter-rating__date-btn {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.2), rgba(22, 101, 52, 0.35));
-  border-color: rgba(134, 239, 172, 0.4);
-  color: #bbf7d0;
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.2), rgba(74, 93, 35, 0.35));
+  border-color: rgba(181, 196, 138, 0.4);
+  color: #b5c48a;
 }
 .winter-rating.spring-rating .winter-rating__date-btn:hover,
 .winter-rating.spring-rating .winter-rating__date-item[aria-expanded="true"] .winter-rating__date-btn {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.4));
-  border-color: rgba(134, 239, 172, 0.55);
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.35), rgba(85, 107, 47, 0.4));
+  border-color: rgba(181, 196, 138, 0.55);
 }
 .winter-rating.spring-rating .winter-rating__subscribe-btn,
 .winter-rating.spring-rating .winter-rating__share-btn {
-  color: #bbf7d0;
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(134, 239, 172, 0.5);
+  color: #b5c48a;
+  background: rgba(107, 142, 35, 0.2);
+  border-color: rgba(181, 196, 138, 0.5);
 }
 .winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled),
 .winter-rating.spring-rating .winter-rating__share-btn:hover {
-  background: rgba(34, 197, 94, 0.35);
-  border-color: rgba(134, 239, 172, 0.7);
+  background: rgba(107, 142, 35, 0.35);
+  border-color: rgba(181, 196, 138, 0.7);
 }
 .winter-rating.spring-rating .winter-rating__week-top-btn {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.2), rgba(22, 101, 52, 0.35));
-  border-color: rgba(134, 239, 172, 0.4);
-  color: #bbf7d0;
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.2), rgba(74, 93, 35, 0.35));
+  border-color: rgba(181, 196, 138, 0.4);
+  color: #b5c48a;
 }
 .winter-rating.spring-rating .winter-rating__week-top-btn:hover {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.35), rgba(22, 163, 74, 0.4));
-  border-color: rgba(134, 239, 172, 0.55);
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.35), rgba(85, 107, 47, 0.4));
+  border-color: rgba(181, 196, 138, 0.55);
 }
 [data-theme="light"] .winter-rating.spring-rating {
-  background: linear-gradient(165deg, rgba(240, 253, 244, 0.98) 0%, rgba(220, 252, 231, 0.95) 50%, rgba(187, 247, 208, 0.95) 100%);
-  border-color: rgba(34, 197, 94, 0.35);
+  background: linear-gradient(165deg, rgba(244, 248, 236, 0.98) 0%, rgba(228, 236, 208, 0.95) 50%, rgba(213, 224, 184, 0.95) 100%);
+  border-color: rgba(107, 142, 35, 0.35);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__title-accent {
-  color: #15803d;
-  text-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
+  color: #556b2f;
+  text-shadow: 0 0 12px rgba(107, 142, 35, 0.25);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__caption-icon::before {
-  color: #166534;
+  color: #4a5d23;
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__show-all-btn {
-  background: linear-gradient(180deg, rgba(34, 197, 94, 0.25), rgba(22, 163, 74, 0.2));
-  border-color: rgba(34, 197, 94, 0.5);
-  color: #15803d;
+  background: linear-gradient(180deg, rgba(107, 142, 35, 0.25), rgba(85, 107, 47, 0.2));
+  border-color: rgba(107, 142, 35, 0.5);
+  color: #556b2f;
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__date-btn {
-  background: linear-gradient(180deg, rgba(187, 247, 208, 0.5), rgba(134, 239, 172, 0.4));
-  border-color: rgba(34, 197, 94, 0.4);
-  color: #166534;
+  background: linear-gradient(180deg, rgba(213, 224, 184, 0.5), rgba(181, 196, 138, 0.4));
+  border-color: rgba(107, 142, 35, 0.4);
+  color: #4a5d23;
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn,
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn {
-  color: #15803d;
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.45);
+  color: #556b2f;
+  background: rgba(107, 142, 35, 0.15);
+  border-color: rgba(107, 142, 35, 0.45);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled),
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn:hover {
-  background: rgba(34, 197, 94, 0.25);
-  border-color: rgba(34, 197, 94, 0.6);
+  background: rgba(107, 142, 35, 0.25);
+  border-color: rgba(107, 142, 35, 0.6);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__week-top-btn {
-  background: linear-gradient(180deg, rgba(187, 247, 208, 0.5), rgba(134, 239, 172, 0.4));
-  border-color: rgba(34, 197, 94, 0.4);
-  color: #166534;
+  background: linear-gradient(180deg, rgba(213, 224, 184, 0.5), rgba(181, 196, 138, 0.4));
+  border-color: rgba(107, 142, 35, 0.4);
+  color: #4a5d23;
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__week-top-btn:hover {
-  background: linear-gradient(180deg, rgba(134, 239, 172, 0.6), rgba(34, 197, 94, 0.35));
-  border-color: rgba(34, 197, 94, 0.55);
+  background: linear-gradient(180deg, rgba(181, 196, 138, 0.6), rgba(107, 142, 35, 0.35));
+  border-color: rgba(107, 142, 35, 0.55);
 }
 
 .winter-rating__winter-decor {
@@ -5403,16 +5403,6 @@ a.home-mini-icon-item {
   font-style: italic;
   color: var(--text-muted);
   line-height: 1.4;
-}
-.spring-rating-info-modal__coef {
-  margin: 0 0 6px;
-  font-size: 13px;
-}
-.spring-rating-info-modal__coef-list {
-  margin: 0;
-  padding-left: 20px;
-  font-size: 13px;
-  line-height: 1.5;
 }
 [data-theme="light"] .spring-rating-info-modal__inner {
   background: rgb(255, 248, 240);
@@ -7458,6 +7448,62 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+.hall-of-fame__rating-card-wrap {
+  margin: 0 auto 24px;
+  max-width: 92%;
+}
+/* Карточка «Зимний рейтинг» в Зале славы — тот же вид, что на главной */
+.view--active[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card,
+.view[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card {
+  border: 1px solid rgba(186, 230, 253, 0.6) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(145deg, rgba(30, 58, 95, 0.95), rgba(15, 23, 42, 0.98)) !important;
+  box-shadow: 0 0 0 1px rgba(186, 230, 253, 0.25),
+              0 4px 20px rgba(56, 189, 248, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+.view--active[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card:hover,
+.view[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card:hover {
+  box-shadow: 0 0 0 1px rgba(186, 230, 253, 0.35),
+              0 6px 24px rgba(56, 189, 248, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+.view--active[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card .feature__title-prize,
+.view[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card .feature__title-prize {
+  color: #7dd3fc !important;
+  text-shadow: 0 0 12px rgba(125, 211, 252, 0.4);
+}
+[data-theme="light"] .view--active[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card,
+[data-theme="light"] .view[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card {
+  border: 1px solid rgba(56, 189, 248, 0.5) !important;
+  background: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%) !important;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.2),
+              0 4px 16px rgba(56, 189, 248, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+[data-theme="light"] .view--active[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card:hover,
+[data-theme="light"] .view[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card:hover {
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35),
+              0 6px 20px rgba(56, 189, 248, 0.18),
+              inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+[data-theme="light"] .view--active[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card .feature__title-prize,
+[data-theme="light"] .view[data-view="hall-of-fame"] .hall-of-fame__winter-rating-card .feature__title-prize {
+  color: #0284c7 !important;
+  text-shadow: none;
+}
+.hall-of-fame__winter-winner {
+  display: block;
+  margin-top: 4px;
+  font-size: 1em;
+  font-weight: 600;
+  color: #7dd3fc;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+[data-theme="light"] .hall-of-fame__winter-winner {
+  color: #0284c7;
 }
 .hall-of-fame__block {
   margin-bottom: 24px;
