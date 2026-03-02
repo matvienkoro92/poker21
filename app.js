@@ -151,6 +151,35 @@ function getAssetUrl(relativePath) {
   });
 })();
 
+(function initSpringRatingLeagueTabs() {
+  document.body.addEventListener("click", function (e) {
+    var el = e.target;
+    var tab = null;
+    while (el && el !== document.body) {
+      if (el.classList && el.classList.contains("spring-rating-date-league-tab")) {
+        tab = el;
+        break;
+      }
+      el = el.parentElement;
+    }
+    if (!tab) return;
+    var wrap = tab.parentElement;
+    while (wrap && wrap !== document.body) {
+      if (wrap.classList && wrap.classList.contains("spring-rating-date-leagues")) break;
+      wrap = wrap.parentElement;
+    }
+    if (!wrap || wrap === document.body) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var league = tab.getAttribute("data-league");
+    if (!league) return;
+    var tabs = wrap.querySelectorAll(".spring-rating-date-league-tab");
+    var blocks = wrap.querySelectorAll(".spring-rating-date-league");
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle("spring-rating-date-league-tab--active", tabs[i].getAttribute("data-league") === league);
+    for (var j = 0; j < blocks.length; j++) blocks[j].style.display = blocks[j].getAttribute("data-league") === league ? "" : "none";
+  }, true);
+})();
+
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
@@ -456,6 +485,154 @@ function getTopByDates(dates) {
     });
   })();
 
+  (function initPokerTasksSpr() {
+    var startScreen = document.getElementById("pokerTasksStartScreen");
+    var taskScreen = document.getElementById("pokerTaskScreen");
+    var sprBtn = document.getElementById("pokerTasksSprBtn");
+    var backBtn = document.getElementById("pokerTaskScreenBack");
+    var prevBtn = document.getElementById("pokerTaskPrevBtn");
+    var nextBtn = document.getElementById("pokerTaskNextBtn");
+    var tableWrap = document.getElementById("pokerTaskTableWrap");
+    var view = document.querySelector('[data-view="poker-tasks"]');
+    var taskTables = [];
+    var currentTask = 1;
+    var totalTasks = 0;
+    function esc(s) {
+      if (s == null) return "";
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function buildPokerTaskTableHTML(task) {
+      if (!task || !task.positions || typeof POKER_TASK_POSITION_ORDER === "undefined") return "";
+      var order = POKER_TASK_POSITION_ORDER;
+      var html = "";
+      for (var i = 0; i < order.length; i++) {
+        var pos = order[i];
+        var posKey = pos.toLowerCase().replace(/\s/g, "");
+        var seatClass = "poker-task-screen__seat poker-task-screen__seat--" + posKey;
+        if (task.heroPosition === pos) seatClass += " poker-task-screen__seat--hero";
+        var p = task.positions[pos] || {};
+        var stack = p.stack != null ? esc(String(p.stack)) : "";
+        var bet = p.bet != null ? p.bet : null;
+        var isDealer = task.dealerPosition === pos;
+        var parts = [];
+        if (bet != null) {
+          parts.push("<span class=\"poker-task-screen__bet\"><span class=\"poker-task-screen__bet-chip\" aria-hidden=\"true\"></span><span class=\"poker-task-screen__bet-amount\">" + esc(String(bet)) + "</span></span>");
+        }
+        parts.push("<span class=\"poker-task-screen__pos\">" + esc(pos) + "</span>");
+        parts.push("<span class=\"poker-task-screen__stack\">" + stack + "</span>");
+        if (task.heroPosition === pos && task.heroCards && task.heroCards.length) {
+          var cardsHtml = "";
+          for (var c = 0; c < task.heroCards.length; c++) {
+            var card = task.heroCards[c];
+            var cardClass = "poker-task-screen__card";
+            if (card.red) cardClass += " poker-task-screen__card--red";
+            cardsHtml += "<span class=\"" + cardClass + "\">" + esc(card.rank || "") + "</span>";
+          }
+          parts.push("<span class=\"poker-task-screen__cards\">" + cardsHtml + "</span>");
+        }
+        if (isDealer) parts.push("<span class=\"poker-task-screen__dealer\">D</span>");
+        html += "<div class=\"" + seatClass + "\">" + parts.join("") + "</div>";
+      }
+      var pot = task.pot || {};
+      html += "<div class=\"poker-task-screen__pot\">";
+      html += "<span class=\"poker-task-screen__pot-main\">" + esc(pot.main || "") + "</span>";
+      html += "<span class=\"poker-task-screen__pot-bet\"><strong>" + esc(pot.bet || "") + "</strong> " + esc(pot.betPct || "") + "</span>";
+      html += "<span class=\"poker-task-screen__pot-bet\">" + esc(pot.extra || "") + "</span>";
+      html += "</div>";
+      return html;
+    }
+    function showTask(num) {
+      currentTask = num;
+      for (var i = 0; i < taskTables.length; i++) {
+        taskTables[i].classList.toggle("poker-task-screen__table--hidden", i !== num - 1);
+      }
+      var task = typeof POKER_TASKS !== "undefined" && POKER_TASKS[num - 1] ? POKER_TASKS[num - 1] : null;
+      if (task && task.actions) {
+        var foldBtn = document.getElementById("pokerTaskActionFold");
+        var callBtn = document.getElementById("pokerTaskActionCall");
+        var raiseBtn = document.getElementById("pokerTaskActionRaise");
+        var allinBtn = document.getElementById("pokerTaskActionAllin");
+        if (foldBtn) foldBtn.textContent = task.actions.fold || "FOLD";
+        if (callBtn) callBtn.textContent = task.actions.call || "CALL";
+        if (raiseBtn) raiseBtn.textContent = task.actions.raise || "";
+        if (allinBtn) allinBtn.textContent = task.actions.allin || "ALLIN 25";
+      }
+    }
+    if (!startScreen || !taskScreen || !sprBtn || !backBtn || !tableWrap) return;
+    if (typeof POKER_TASKS !== "undefined" && POKER_TASKS.length) {
+      totalTasks = POKER_TASKS.length;
+      tableWrap.innerHTML = "";
+      for (var t = 0; t < POKER_TASKS.length; t++) {
+        var task = POKER_TASKS[t];
+        var tableEl = document.createElement("div");
+        tableEl.className = "poker-task-screen__table poker-task-screen__table--task";
+        if (task.blueChips) tableEl.classList.add("poker-task-screen__table--blue-chips");
+        if (t > 0) tableEl.classList.add("poker-task-screen__table--hidden");
+        tableEl.setAttribute("data-task", String(t + 1));
+        tableEl.innerHTML = buildPokerTaskTableHTML(task);
+        tableWrap.appendChild(tableEl);
+        taskTables.push(tableEl);
+      }
+    }
+    sprBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      startScreen.style.display = "none";
+      taskScreen.classList.remove("poker-task-screen--hidden");
+      taskScreen.style.display = "flex";
+      if (view) view.classList.add("poker-tasks--task-visible");
+      showTask(1);
+    });
+    backBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      taskScreen.classList.add("poker-task-screen--hidden");
+      taskScreen.style.display = "none";
+      startScreen.style.display = "";
+      if (view) view.classList.remove("poker-tasks--task-visible");
+    });
+    if (prevBtn) prevBtn.addEventListener("click", function (e) { e.preventDefault(); if (currentTask > 1) showTask(currentTask - 1); });
+    if (nextBtn) nextBtn.addEventListener("click", function (e) { e.preventDefault(); if (currentTask < totalTasks) showTask(currentTask + 1); });
+    var shareBtn = document.getElementById("pokerTaskShareBtn");
+    if (shareBtn) {
+      shareBtn.addEventListener("click", function () {
+        var task = typeof POKER_TASKS !== "undefined" && POKER_TASKS[currentTask - 1] ? POKER_TASKS[currentTask - 1] : null;
+        var taskId = task && task.id != null ? String(task.id) : String(currentTask);
+        var appEl = document.getElementById("app");
+        var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || (typeof location !== "undefined" && location.origin) ? (location.origin + (location.pathname || "")) : "";
+        appUrl = (appUrl || "").replace(/\/$/, "");
+        var link = appUrl + "?startapp=poker_task_" + encodeURIComponent(taskId);
+        var msg = "Ссылка скопирована. Отправьте другу — откроется эта задача.";
+        if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(function () {
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+          }).catch(function () {
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+          });
+        } else {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        }
+      });
+    }
+    window.openPokerTaskScreenWithTask = function (taskId) {
+      if (!startScreen || !taskScreen) return;
+      startScreen.style.display = "none";
+      taskScreen.classList.remove("poker-task-screen--hidden");
+      taskScreen.style.display = "flex";
+      if (view) view.classList.add("poker-tasks--task-visible");
+      var id = taskId == null ? "1" : String(taskId);
+      var num = 1;
+      if (typeof POKER_TASKS !== "undefined" && POKER_TASKS.length) {
+        for (var i = 0; i < POKER_TASKS.length; i++) {
+          if (String(POKER_TASKS[i].id) === id) { num = i + 1; break; }
+        }
+        if (num > totalTasks) num = 1;
+      }
+      showTask(num);
+    };
+  })();
+
   (function initRatingSubscribe() {
     var ratingSubscribeBtn = document.getElementById("ratingSubscribeBtn");
     var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
@@ -541,6 +718,15 @@ function getTopByDates(dates) {
   if (startParam === "spring_rating") {
     setTimeout(function () { if (typeof setView === "function") setView("spring-rating"); }, 0);
   }
+  if (startParam === "spring_rating_league_1" || startParam === "spring_rating_league_2") {
+    var leagueNum = startParam === "spring_rating_league_1" ? "1" : "2";
+    setTimeout(function () {
+      if (typeof setView === "function") setView("spring-rating");
+      setTimeout(function () {
+        if (typeof window.switchSpringRatingMainTab === "function") window.switchSpringRatingMainTab(leagueNum);
+      }, 400);
+    }, 0);
+  }
   if (startParam && startParam.indexOf("winter_rating_player_") === 0) {
     var playerNick = decodeURIComponent(startParam.replace("winter_rating_player_", "").replace(/\+/g, " "));
     if (playerNick) {
@@ -588,6 +774,24 @@ function getTopByDates(dates) {
       if (typeof setView === "function") setView("streams");
     }, 0);
   }
+  if (startParam && startParam.indexOf("poker_task_") === 0) {
+    var pokerTaskId = startParam.replace("poker_task_", "").split("_")[0];
+    setTimeout(function () {
+      if (typeof setView === "function") setView("poker-tasks");
+      setTimeout(function () {
+        if (typeof window.openPokerTaskScreenWithTask === "function") window.openPokerTaskScreenWithTask(pokerTaskId);
+      }, 400);
+    }, 0);
+  }
+  if (window.location.hash && window.location.hash.indexOf("#poker_task_") === 0) {
+    var hashTaskId = window.location.hash.replace("#poker_task_", "").split("_")[0];
+    setTimeout(function () {
+      if (typeof setView === "function") setView("poker-tasks");
+      setTimeout(function () {
+        if (typeof window.openPokerTaskScreenWithTask === "function") window.openPokerTaskScreenWithTask(hashTaskId);
+      }, 400);
+    }, 0);
+  }
 })();
 
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
@@ -600,8 +804,6 @@ function getTopByDates(dates) {
   var febPreview = document.getElementById("winterRatingTopFebruaryPreview");
   var singleTopSummary = document.getElementById("winterRatingSingleTopSummary");
   var singleTopList = document.getElementById("winterRatingSingleTopList");
-  var singleTopFebSummary = document.getElementById("winterRatingSingleTopFebruarySummary");
-  var singleTopFebList = document.getElementById("winterRatingSingleTopFebruaryList");
   var modal = document.getElementById("winterRatingWeekTopModal");
   var modalTitle = document.getElementById("winterRatingWeekTopModalTitle");
   var listEl = document.getElementById("winterRatingWeekTopList");
@@ -694,19 +896,32 @@ function getTopByDates(dates) {
         singleTopList.innerHTML = "";
       }
     }
-    if (singleTopFebSummary && singleTopFebList) {
-      var febDatesForSingle = febDates && febDates.length ? febDates : [];
-      var singleTopFeb = getSingleTopWins(febDatesForSingle, 3);
-      if (singleTopFeb.length) {
-        singleTopFebSummary.textContent = "Самый большой выигрыш за один турнир за Февраль: ";
-        singleTopFebList.innerHTML = singleTopFeb.map(function (r, i) {
-          var sum = r.reward.toLocaleString("ru-RU");
-          return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " +
-            escapePreview(r.nick) + " — " + sum + " ₽</li>";
-        }).join("");
+    var marchWrap = document.getElementById("winterRatingMarchWinsWrap");
+    var marchSummary = document.getElementById("winterRatingMarchWinsSummary");
+    var marchTop3Caption = document.getElementById("winterRatingMarchWinsTop3Caption");
+    var marchList = document.getElementById("winterRatingMarchWinsList");
+    if (marchWrap && marchSummary && marchList) {
+      if (isSpringRatingMode()) {
+        var marchData = getSpringRatingMarchTopWins();
+        marchWrap.removeAttribute("hidden");
+        marchWrap.style.display = "";
+        if (marchData.max) {
+          marchSummary.textContent = "Самый большой выигрыш за март: " + escapePreview(marchData.max.nick) + " — " + marchData.max.reward.toLocaleString("ru-RU") + " ₽";
+        } else {
+          marchSummary.textContent = "Самый большой выигрыш за март: —";
+        }
+        if (marchTop3Caption) marchTop3Caption.textContent = marchData.top3 && marchData.top3.length ? "Топ-3 выигрыша за март:" : "";
+        if (marchData.top3 && marchData.top3.length) {
+          marchList.innerHTML = marchData.top3.map(function (r, i) {
+            var sum = r.reward.toLocaleString("ru-RU");
+            return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
+          }).join("");
+        } else {
+          marchList.innerHTML = "";
+        }
       } else {
-        singleTopFebSummary.textContent = "";
-        singleTopFebList.innerHTML = "";
+        marchWrap.setAttribute("hidden", "");
+        marchWrap.style.display = "none";
       }
     }
   }
@@ -1127,6 +1342,17 @@ function setView(viewName) {
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
   if (viewName === "raffles") initRaffles();
+  if (viewName === "poker-tasks") {
+    var startScreen = document.getElementById("pokerTasksStartScreen");
+    var taskScreen = document.getElementById("pokerTaskScreen");
+    var pokerTasksView = document.querySelector('[data-view="poker-tasks"]');
+    if (startScreen) startScreen.style.display = "";
+    if (taskScreen) {
+      taskScreen.classList.add("poker-task-screen--hidden");
+      taskScreen.style.display = "none";
+    }
+    if (pokerTasksView) pokerTasksView.classList.remove("poker-tasks--task-visible");
+  }
   var headerGreeting = document.getElementById("headerGreeting");
   var headerSwitcherWrap = document.getElementById("headerChatSwitcherWrap");
   if (headerGreeting) headerGreeting.classList.toggle("header-greeting--hidden", viewName === "chat");
@@ -3266,22 +3492,111 @@ function isSpringRatingMode() {
   return document.body && document.body.getAttribute("data-view") === "spring-rating";
 }
 function getRatingByDate() {
+  if (isSpringRatingMode() && typeof SPRING_RATING_TOURNAMENTS_BY_DATE !== "undefined" && SPRING_RATING_TOURNAMENTS_BY_DATE && Object.keys(SPRING_RATING_TOURNAMENTS_BY_DATE).length) {
+    var byDate = {};
+    var dates = Object.keys(SPRING_RATING_TOURNAMENTS_BY_DATE);
+    for (var di = 0; di < dates.length; di++) {
+      var dateStr = dates[di];
+      var byNick = {};
+      var list = SPRING_RATING_TOURNAMENTS_BY_DATE[dateStr];
+      if (!Array.isArray(list)) continue;
+      for (var ti = 0; ti < list.length; ti++) {
+        var t = list[ti];
+        var players = t.players || [];
+        for (var pi = 0; pi < players.length; pi++) {
+          var p = players[pi];
+          var n = normalizeWinterNick(p && p.nick);
+          if (!n) continue;
+          var pts = winterRatingPointsForPlace(p.place, p.reward);
+          var rew = p.reward != null ? Number(p.reward) : 0;
+          if (rew !== rew) rew = 0;
+          if (!byNick[n]) byNick[n] = { nick: n, points: 0, reward: 0 };
+          byNick[n].points += pts;
+          byNick[n].reward += rew;
+        }
+      }
+      byDate[dateStr] = Object.keys(byNick).map(function (k) { return byNick[k]; }).filter(function (r) { return (r.points || 0) !== 0 || (r.reward || 0) !== 0; }).sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
+    }
+    return byDate;
+  }
   return typeof WINTER_RATING_BY_DATE !== "undefined" ? WINTER_RATING_BY_DATE : {};
 }
 function getRatingTournamentsByDate() {
   return typeof WINTER_RATING_TOURNAMENTS_BY_DATE !== "undefined" ? WINTER_RATING_TOURNAMENTS_BY_DATE : {};
 }
+function getSpringRatingTournamentsByDate() {
+  return typeof SPRING_RATING_TOURNAMENTS_BY_DATE !== "undefined" ? SPRING_RATING_TOURNAMENTS_BY_DATE : {};
+}
+function getSpringRatingMarchTopWins() {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var allWins = [];
+  Object.keys(tournamentsByDate).forEach(function (dateStr) {
+    if (!/\.03\./.test(dateStr)) return;
+    var list = tournamentsByDate[dateStr];
+    if (!Array.isArray(list)) return;
+    list.forEach(function (t) {
+      var players = t.players || [];
+      players.forEach(function (p) {
+        var rew = p.reward != null ? Number(p.reward) : 0;
+        if (rew !== rew || rew <= 0) return;
+        var nick = normalizeWinterNick(p && p.nick);
+        if (!nick) return;
+        allWins.push({ nick: nick, reward: rew });
+      });
+    });
+  });
+  allWins.sort(function (a, b) { return b.reward - a.reward; });
+  var max = allWins.length ? allWins[0] : null;
+  var top3 = allWins.slice(0, 3);
+  return { max: max, top3: top3 };
+}
 function getRatingImages() {
+  if (isSpringRatingMode() && typeof SPRING_RATING_IMAGES_LEAGUE1 !== "undefined" && SPRING_RATING_IMAGES_LEAGUE1) return SPRING_RATING_IMAGES_LEAGUE1;
   return typeof WINTER_RATING_IMAGES !== "undefined" ? WINTER_RATING_IMAGES : {};
 }
+function getSpringRatingImagesByLeague(leagueNum) {
+  if (leagueNum === 1 && typeof SPRING_RATING_IMAGES_LEAGUE1 !== "undefined") return SPRING_RATING_IMAGES_LEAGUE1 || {};
+  if (leagueNum === 2 && typeof SPRING_RATING_IMAGES_LEAGUE2 !== "undefined") return SPRING_RATING_IMAGES_LEAGUE2 || {};
+  return {};
+}
+function getSpringRatingRowsForDateLeague(dateStr, leagueNum) {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var list = tournamentsByDate[dateStr];
+  if (!Array.isArray(list) || !list.length) return [];
+  var byNick = {};
+  for (var j = 0; j < list.length; j++) {
+    var t = list[j];
+    var buyin = t.buyin != null ? Number(t.buyin) : NaN;
+    var inLeague1 = buyin >= 500 || (buyin !== buyin);
+    var inLeague2 = buyin >= 100 && buyin < 500;
+    var include = (leagueNum === 1 && inLeague1) || (leagueNum === 2 && inLeague2);
+    if (!include) continue;
+    var players = t.players || [];
+    for (var k = 0; k < players.length; k++) {
+      var p = players[k];
+      var n = normalizeWinterNick(p && p.nick);
+      if (!n) continue;
+      var pts = winterRatingPointsForPlace(p.place, p.reward);
+      var rew = p.reward != null ? Number(p.reward) : 0;
+      if (rew !== rew) rew = 0;
+      if (!byNick[n]) byNick[n] = { nick: n, points: 0, reward: 0 };
+      byNick[n].points += pts;
+      byNick[n].reward += rew;
+    }
+  }
+  return Object.keys(byNick).map(function (n) { return byNick[n]; });
+}
 
-function openWinterRatingLightbox(dateStr, index) {
+function openWinterRatingLightbox(dateStr, index, leagueNum) {
   var box = document.getElementById("winterRatingLightbox");
   var img = box && box.querySelector(".winter-rating-lightbox__img");
-  var files = dateStr && getRatingImages()[dateStr];
+  var files = dateStr && (leagueNum != null && isSpringRatingMode()
+    ? (getSpringRatingImagesByLeague(leagueNum)[dateStr] || [])
+    : getRatingImages()[dateStr]);
   if (!box || !img || !files || !files.length || index < 0 || index >= files.length) return;
   box.dataset.lightboxDate = dateStr;
   box.dataset.lightboxIndex = String(index);
+  box.dataset.lightboxLeague = leagueNum != null ? String(leagueNum) : "";
   img.src = getAssetUrl(files[index]);
   img.alt = "Скрин рейтинга " + dateStr + " (" + (index + 1) + ")";
   box.setAttribute("aria-hidden", "false");
@@ -3289,12 +3604,21 @@ function openWinterRatingLightbox(dateStr, index) {
   updateWinterRatingLightboxArrows();
 }
 
+function getWinterRatingLightboxFiles(box) {
+  if (!box || !box.dataset.lightboxDate) return null;
+  var dateStr = box.dataset.lightboxDate;
+  var leagueStr = box.dataset.lightboxLeague;
+  var leagueNum = leagueStr === "1" || leagueStr === "2" ? parseInt(leagueStr, 10) : null;
+  return leagueNum != null && isSpringRatingMode()
+    ? (getSpringRatingImagesByLeague(leagueNum)[dateStr] || [])
+    : getRatingImages()[dateStr];
+}
 function updateWinterRatingLightboxArrows() {
   var box = document.getElementById("winterRatingLightbox");
   if (!box || box.getAttribute("aria-hidden") === "true") return;
   var dateStr = box.dataset.lightboxDate;
   var index = parseInt(box.dataset.lightboxIndex, 10) || 0;
-  var files = dateStr && getRatingImages()[dateStr];
+  var files = getWinterRatingLightboxFiles(box);
   var prevBtn = box.querySelector(".winter-rating-lightbox__prev");
   var nextBtn = box.querySelector(".winter-rating-lightbox__next");
   var counter = box.querySelector(".winter-rating-lightbox__counter");
@@ -3323,14 +3647,18 @@ function initWinterRatingLightbox() {
     e.stopPropagation();
     var dateStr = box.dataset.lightboxDate;
     var index = parseInt(box.dataset.lightboxIndex, 10) || 0;
-    if (index > 0) openWinterRatingLightbox(dateStr, index - 1);
+    var leagueStr = box.dataset.lightboxLeague;
+    var leagueNum = leagueStr === "1" || leagueStr === "2" ? parseInt(leagueStr, 10) : undefined;
+    if (index > 0) openWinterRatingLightbox(dateStr, index - 1, leagueNum);
   });
   if (nextBtn) nextBtn.addEventListener("click", function (e) {
     e.stopPropagation();
     var dateStr = box.dataset.lightboxDate;
     var index = parseInt(box.dataset.lightboxIndex, 10) || 0;
-    var files = getRatingImages()[dateStr];
-    if (files && index < files.length - 1) openWinterRatingLightbox(dateStr, index + 1);
+    var leagueStr = box.dataset.lightboxLeague;
+    var leagueNum = leagueStr === "1" || leagueStr === "2" ? parseInt(leagueStr, 10) : undefined;
+    var files = getWinterRatingLightboxFiles(box);
+    if (files && index < files.length - 1) openWinterRatingLightbox(dateStr, index + 1, leagueNum);
   });
   box.addEventListener("click", function (e) {
     if (e.target === box) closeWinterRatingLightbox();
@@ -3341,12 +3669,16 @@ function initWinterRatingLightbox() {
     else if (e.key === "ArrowLeft") {
       var dateStr = box.dataset.lightboxDate;
       var idx = parseInt(box.dataset.lightboxIndex, 10) || 0;
-      if (idx > 0) openWinterRatingLightbox(dateStr, idx - 1);
+      var leagueStr = box.dataset.lightboxLeague;
+      var leagueNum = leagueStr === "1" || leagueStr === "2" ? parseInt(leagueStr, 10) : undefined;
+      if (idx > 0) openWinterRatingLightbox(dateStr, idx - 1, leagueNum);
     } else if (e.key === "ArrowRight") {
       var dateStr = box.dataset.lightboxDate;
       var idx = parseInt(box.dataset.lightboxIndex, 10) || 0;
-      var files = getRatingImages()[dateStr];
-      if (files && idx < files.length - 1) openWinterRatingLightbox(dateStr, idx + 1);
+      var leagueStr = box.dataset.lightboxLeague;
+      var leagueNum = leagueStr === "1" || leagueStr === "2" ? parseInt(leagueStr, 10) : undefined;
+      var files = getWinterRatingLightboxFiles(box);
+      if (files && idx < files.length - 1) openWinterRatingLightbox(dateStr, idx + 1, leagueNum);
     }
   });
 }
@@ -3423,8 +3755,23 @@ function winterRatingDateKeyToStamp(dateStr) {
 function getWinterRatingPlayerSummary(nick) {
   nick = normalizeWinterNick(nick);
   var dateSet = {};
-  var tournamentsByDate = getRatingTournamentsByDate();
+  var tournamentsByDate;
+  if (isSpringRatingMode()) {
+    tournamentsByDate = {};
+    var winterT = typeof WINTER_RATING_TOURNAMENTS_BY_DATE !== "undefined" ? WINTER_RATING_TOURNAMENTS_BY_DATE : {};
+    var springT = getSpringRatingTournamentsByDate() || {};
+    Object.keys(winterT).forEach(function (k) { tournamentsByDate[k] = winterT[k]; });
+    Object.keys(springT).forEach(function (k) { tournamentsByDate[k] = springT[k]; });
+  } else {
+    tournamentsByDate = getRatingTournamentsByDate();
+  }
   var byDate = getRatingByDate();
+  if (isSpringRatingMode() && typeof WINTER_RATING_BY_DATE !== "undefined") {
+    var mergedByDate = {};
+    Object.keys(WINTER_RATING_BY_DATE || {}).forEach(function (k) { mergedByDate[k] = WINTER_RATING_BY_DATE[k]; });
+    Object.keys(byDate || {}).forEach(function (k) { mergedByDate[k] = byDate[k]; });
+    byDate = mergedByDate;
+  }
   if (typeof tournamentsByDate === "object") {
     Object.keys(tournamentsByDate).forEach(function (k) { dateSet[k] = true; });
   }
@@ -3436,7 +3783,7 @@ function getWinterRatingPlayerSummary(nick) {
   });
   var out = [];
   dates.forEach(function (dateStr) {
-    var tournaments = getRatingTournamentsByDate() && getRatingTournamentsByDate()[dateStr];
+    var tournaments = tournamentsByDate && tournamentsByDate[dateStr];
     if (tournaments && tournaments.length) {
       tournaments.forEach(function (t) {
         var p = t.players && t.players.find(function (r) { return normalizeWinterNick(r.nick) === nick; });
@@ -3454,7 +3801,7 @@ function getWinterRatingPlayerSummary(nick) {
       });
       return;
     }
-    var list = getRatingByDate()[dateStr];
+    var list = byDate && byDate[dateStr];
     if (!list || !list.length) return;
     var filtered = list.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
     var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
@@ -3542,7 +3889,7 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
     var thirdsRewardStr = thirdsReward ? thirdsReward.toLocaleString("ru-RU") : "0";
     var totalReward = 0;
     for (var i = 0; i < list.length; i++) { totalReward += Number(list[i].reward) || 0; }
-    if (monthVal === "all" && modal._winterPlayerModalNick === "Waaar") totalReward += 588225;
+    if (monthVal === "all" && modal._winterPlayerModalNick === "Waaar" && !isSpringRatingMode()) totalReward += 588225;
     var totalStr = totalReward ? totalReward.toLocaleString("ru-RU") : "0";
     var topReward = 0;
     for (var ri = 0; ri < list.length; ri++) {
@@ -3784,6 +4131,56 @@ function getWinterRatingOverall() {
   return arr;
 }
 
+function getSpringRatingOverallByLeague(leagueNum) {
+  if (!isSpringRatingMode()) return [];
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var byNick = {};
+  var marchRegex = /\.03\.2026$/;
+  var dateStrs = Object.keys(tournamentsByDate).filter(function (d) { return marchRegex.test(d); });
+  for (var i = 0; i < dateStrs.length; i++) {
+    var list = tournamentsByDate[dateStrs[i]];
+    if (!Array.isArray(list) || !list.length) continue;
+    for (var j = 0; j < list.length; j++) {
+      var t = list[j];
+      var buyin = t.buyin != null ? Number(t.buyin) : NaN;
+      var inLeague1 = buyin >= 500 || (buyin !== buyin);
+      var inLeague2 = buyin >= 100 && buyin < 500;
+      var include = (leagueNum === 1 && inLeague1) || (leagueNum === 2 && inLeague2);
+      if (!include) continue;
+      var players = t.players || [];
+      for (var k = 0; k < players.length; k++) {
+        var p = players[k];
+        var n = normalizeWinterNick(p && p.nick);
+        if (!n) continue;
+        var pts = winterRatingPointsForPlace(p.place, p.reward);
+        var rew = p.reward != null ? Number(p.reward) : 0;
+        if (rew !== rew) rew = 0;
+        if (!byNick[n]) byNick[n] = { nick: n, points: 0, reward: 0 };
+        byNick[n].points += pts;
+        byNick[n].reward += rew;
+      }
+    }
+  }
+  var arr = Object.keys(byNick).map(function (n) { return byNick[n]; });
+  arr = arr.filter(function (r) {
+    var p = Number(r.points);
+    var w = Number(r.reward);
+    return (p === p && p !== 0) || (w === w && w !== 0);
+  });
+  arr.sort(function (a, b) {
+    var ap = Number(a.points);
+    var bp = Number(b.points);
+    var aw = Number(a.reward);
+    var bw = Number(b.reward);
+    if (ap !== ap) ap = 0;
+    if (bp !== bp) bp = 0;
+    if (aw !== aw) aw = 0;
+    if (bw !== bw) bw = 0;
+    return (bp - ap) || (bw - aw);
+  });
+  return arr;
+}
+
 function initWinterRating() {
   try {
     if (typeof window.updateWinterRatingWeekTopPreviews === "function") window.updateWinterRatingWeekTopPreviews();
@@ -3839,6 +4236,65 @@ function initWinterRating() {
       ? "<span class=\"winter-rating__caption-icon\" aria-hidden=\"true\">🌿</span> Весна 2026"
       : "<span class=\"winter-rating__caption-icon\" aria-hidden=\"true\">❄</span> Итоговая таблица";
   }
+  var tableCaptionRow = document.querySelector("#winterRatingSection .winter-rating__table-caption-row");
+  var springLeaguesEl = document.getElementById("winterRatingSpringLeagues");
+  var springMainTabsEl = document.getElementById("winterRatingSpringMainTabs");
+  var winterRatingShareBtn = document.getElementById("winterRatingShareBtn");
+  if (isSpringRatingMode()) {
+    if (tableCaptionRow) tableCaptionRow.style.display = "none";
+    if (document.getElementById("winterRatingTableWrap")) document.getElementById("winterRatingTableWrap").style.display = "none";
+    if (springLeaguesEl) { springLeaguesEl.removeAttribute("hidden"); springLeaguesEl.style.display = ""; }
+    if (springMainTabsEl) { springMainTabsEl.removeAttribute("hidden"); springMainTabsEl.style.display = ""; }
+    if (winterRatingShareBtn) { winterRatingShareBtn.style.display = "none"; }
+  } else {
+    if (tableCaptionRow) tableCaptionRow.style.display = "";
+    if (document.getElementById("winterRatingTableWrap")) document.getElementById("winterRatingTableWrap").style.display = "";
+    if (springLeaguesEl) { springLeaguesEl.setAttribute("hidden", ""); springLeaguesEl.style.display = "none"; }
+    if (springMainTabsEl) { springMainTabsEl.setAttribute("hidden", ""); springMainTabsEl.style.display = "none"; }
+    if (winterRatingShareBtn) { winterRatingShareBtn.style.display = ""; }
+  }
+  function switchSpringRatingMainTab(league) {
+    if (!springMainTabsEl || !springLeaguesEl) return;
+    var tabs = springMainTabsEl.querySelectorAll(".winter-rating__spring-main-tab");
+    var leagues = springLeaguesEl.querySelectorAll(".winter-rating__spring-league--main");
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle("winter-rating__spring-main-tab--active", tabs[i].dataset.springMainLeague === league);
+    for (var j = 0; j < leagues.length; j++) leagues[j].style.display = leagues[j].getAttribute("data-spring-league") === league ? "" : "none";
+  }
+  window.switchSpringRatingMainTab = switchSpringRatingMainTab;
+  if (springMainTabsEl && springMainTabsEl.getAttribute("data-inited") !== "1") {
+    springMainTabsEl.setAttribute("data-inited", "1");
+    springMainTabsEl.addEventListener("click", function (e) {
+      var tab = e.target && e.target.closest ? e.target.closest(".winter-rating__spring-main-tab") : null;
+      if (!tab || !tab.dataset.springMainLeague) return;
+      var league = tab.dataset.springMainLeague;
+      switchSpringRatingMainTab(league);
+    });
+  }
+  if (document.body.getAttribute("data-spring-league-share-bound") !== "1") {
+    document.body.setAttribute("data-spring-league-share-bound", "1");
+    document.body.addEventListener("click", function (e) {
+      var shareBtn = e.target && e.target.closest ? e.target.closest(".winter-rating__spring-league-share") : null;
+      if (!shareBtn || !shareBtn.dataset.springLeague) return;
+      e.preventDefault();
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=spring_rating_league_" + shareBtn.dataset.springLeague;
+      var msg = shareBtn.dataset.springLeague === "1" ? "Ссылка скопирована. Отправьте другу — откроется рейтинг Лиги 1." : "Ссылка скопирована. Отправьте другу — откроется рейтинг Лиги 2.";
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    });
+  }
   var allRows = [];
   try {
     allRows = getWinterRatingOverall();
@@ -3874,8 +4330,74 @@ function initWinterRating() {
   } catch (e) {
     if (typeof console !== "undefined" && console.error) console.error("winter rating rows map", e);
   }
+  if (isSpringRatingMode()) {
+    var league1Body = document.getElementById("winterRatingLeague1Body");
+    var league2Body = document.getElementById("winterRatingLeague2Body");
+    function renderLeagueRows(leagueNum, bodyEl) {
+      if (!bodyEl) return;
+      var raw = [];
+      try { raw = getSpringRatingOverallByLeague(leagueNum); } catch (e) {}
+      if (!Array.isArray(raw)) raw = [];
+      var leagueRows = [];
+      for (var ri = 0; ri < raw.length; ri++) {
+        var r = raw[ri];
+        var rewardVal = r && r.reward != null ? Number(r.reward) : 0;
+        if (rewardVal !== rewardVal || !isFinite(rewardVal)) rewardVal = 0;
+        var rewardStr = rewardVal ? rewardVal.toLocaleString("ru-RU") : "0";
+        var pointsVal = r && r.points != null ? Number(r.points) : 0;
+        if (pointsVal !== pointsVal || !isFinite(pointsVal)) pointsVal = 0;
+        if (pointsVal === 0 && rewardVal === 0) continue;
+        leagueRows.push({ place: leagueRows.length + 1, nick: r && r.nick != null ? String(r.nick) : "", points: pointsVal, reward: rewardStr });
+      }
+      var parts = [];
+      for (var wi = 0; wi < leagueRows.length; wi++) {
+        var row = leagueRows[wi];
+        var place = row.place != null ? parseInt(row.place, 10) : wi + 1;
+        if (place !== place) place = wi + 1;
+        var trClass = winterRatingRowClass(place);
+        var placeCell = winterRatingPlaceCell(place);
+        var nickStr = row.nick != null ? String(row.nick) : "";
+        var nickEsc = escapeHtmlRating(nickStr);
+        var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        parts.push("<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + (row.points != null ? row.points : "") + "</td><td>" + (row.reward != null ? row.reward : "0") + "</td></tr>");
+      }
+      bodyEl.innerHTML = parts.length ? parts.join("") : "<tr><td colspan=\"4\" class=\"winter-rating__spring-placeholder\">Данные с 1 марта</td></tr>";
+      bodyEl.removeEventListener("click", bodyEl._leagueNickClick);
+      bodyEl._leagueNickClick = function (e) {
+        var btn = e.target && e.target.closest && e.target.closest(".winter-rating__nick-btn");
+        if (btn && btn.dataset.nick && typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick);
+      };
+      bodyEl.addEventListener("click", bodyEl._leagueNickClick);
+    }
+    renderLeagueRows(1, league1Body);
+    renderLeagueRows(2, league2Body);
+  }
+  function buildSpringTop3PodiumHtml(rowsForPodium, titleText) {
+    if (!rowsForPodium || rowsForPodium.length < 3) return "";
+    var top3 = [rowsForPodium[1], rowsForPodium[0], rowsForPodium[2]];
+    var places = [2, 1, 3];
+    var podiumHtml = titleText ? "<div class=\"spring-rating-top3__title\">" + escapeHtmlRating(titleText) + "</div>" : "";
+    podiumHtml += "<div class=\"spring-rating-top3__podium\">";
+    for (var pj = 0; pj < 3; pj++) {
+      var r = top3[pj];
+      var place = places[pj];
+      var nickStr = r && r.nick != null ? String(r.nick) : "";
+      var nickEsc = escapeHtmlRating(nickStr);
+      var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      var initial = nickStr.length ? nickStr.charAt(0).toUpperCase() : "?";
+      var pointsStr = r && r.points != null ? String(r.points) : "0";
+      var rewardStr = r && r.reward != null ? String(r.reward) : "0";
+      var rewardFormatted = rewardStr + " ₽";
+      var placeClass = place === 1 ? "spring-rating-top3__card--first" : "";
+      podiumHtml += "<div class=\"spring-rating-top3__card " + placeClass + "\"><span class=\"spring-rating-top3__rank\">#" + place + "</span><div class=\"spring-rating-top3__avatar\" aria-hidden=\"true\">" + initial + "</div><span class=\"spring-rating-top3__nick\">" + nickEsc + "</span><div class=\"spring-rating-top3__stats\"><span class=\"spring-rating-top3__points\">" + pointsStr + " баллов</span><span class=\"spring-rating-top3__reward\">" + rewardFormatted + "</span></div><button type=\"button\" class=\"spring-rating-top3__nick-btn\" data-nick=\"" + nickAttr + "\" aria-label=\"Подробнее: " + nickEsc + "\"></button></div>";
+    }
+    podiumHtml += "</div>";
+    return podiumHtml;
+  }
   var podiumEl = document.getElementById("springRatingTop3Podium");
-  if (podiumEl) {
+  var podiumLeague1El = document.getElementById("springRatingTop3PodiumLeague1");
+  var podiumLeague2El = document.getElementById("springRatingTop3PodiumLeague2");
+  if (podiumEl || podiumLeague1El || podiumLeague2El) {
     var sectionEl = document.getElementById("winterRatingSection");
     if (sectionEl && sectionEl.getAttribute("data-spring-top3-inited") !== "1") {
       sectionEl.setAttribute("data-spring-top3-inited", "1");
@@ -3884,30 +4406,42 @@ function initWinterRating() {
         if (btn && btn.dataset.nick && typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(btn.dataset.nick);
       });
     }
-    if (rows.length >= 3) {
-      podiumEl.removeAttribute("hidden");
-      var top3 = [rows[1], rows[0], rows[2]];
-      var places = [2, 1, 3];
-      var podiumTitle = isSpringRatingMode() ? "Рейтинг Весны" : "Рейтинг Зимы";
-      var podiumHtml = "<div class=\"spring-rating-top3__title\">" + podiumTitle + "</div><div class=\"spring-rating-top3__podium\">";
-      for (var pi = 0; pi < 3; pi++) {
-        var r = top3[pi];
-        var place = places[pi];
-        var nickStr = r && r.nick != null ? String(r.nick) : "";
-        var nickEsc = escapeHtmlRating(nickStr);
-        var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        var initial = nickStr.length ? nickStr.charAt(0).toUpperCase() : "?";
-        var pointsStr = r && r.points != null ? String(r.points) : "0";
-        var rewardStr = r && r.reward != null ? String(r.reward) : "0";
-        var rewardFormatted = rewardStr + " ₽";
-        var placeClass = place === 1 ? "spring-rating-top3__card--first" : "";
-        podiumHtml += "<div class=\"spring-rating-top3__card " + placeClass + "\"><span class=\"spring-rating-top3__rank\">#" + place + "</span><div class=\"spring-rating-top3__avatar\" aria-hidden=\"true\">" + initial + "</div><span class=\"spring-rating-top3__nick\">" + nickEsc + "</span><div class=\"spring-rating-top3__stats\"><span class=\"spring-rating-top3__points\">" + pointsStr + " баллов</span><span class=\"spring-rating-top3__reward\">" + rewardFormatted + "</span></div><button type=\"button\" class=\"spring-rating-top3__nick-btn\" data-nick=\"" + nickAttr + "\" aria-label=\"Подробнее: " + nickEsc + "\"></button></div>";
+    if (isSpringRatingMode()) {
+      if (podiumEl) { podiumEl.setAttribute("hidden", ""); podiumEl.innerHTML = ""; }
+      var league1Raw = [], league2Raw = [];
+      try { league1Raw = getSpringRatingOverallByLeague(1); } catch (e) {}
+      try { league2Raw = getSpringRatingOverallByLeague(2); } catch (e) {}
+      var toPodiumRows = function (raw) {
+        var list = [];
+        for (var pi = 0; pi < raw.length && pi < 3; pi++) {
+          var r = raw[pi];
+          var rewardVal = r && r.reward != null ? Number(r.reward) : 0;
+          list.push({ place: pi + 1, nick: r && r.nick != null ? String(r.nick) : "", points: r && r.points != null ? r.points : 0, reward: rewardVal ? rewardVal.toLocaleString("ru-RU") : "0" });
+        }
+        return list;
+      };
+      var rows1 = toPodiumRows(league1Raw), rows2 = toPodiumRows(league2Raw);
+      if (podiumLeague1El) {
+        if (rows1.length >= 3) {
+          podiumLeague1El.removeAttribute("hidden");
+          podiumLeague1El.innerHTML = buildSpringTop3PodiumHtml(rows1, "");
+        } else { podiumLeague1El.setAttribute("hidden", ""); podiumLeague1El.innerHTML = ""; }
       }
-      podiumHtml += "</div>";
-      podiumEl.innerHTML = podiumHtml;
+      if (podiumLeague2El) {
+        if (rows2.length >= 3) {
+          podiumLeague2El.removeAttribute("hidden");
+          podiumLeague2El.innerHTML = buildSpringTop3PodiumHtml(rows2, "");
+        } else { podiumLeague2El.setAttribute("hidden", ""); podiumLeague2El.innerHTML = ""; }
+      }
     } else {
-      podiumEl.setAttribute("hidden", "");
-      podiumEl.innerHTML = "";
+      var rowsForPodium = rows;
+      if (rowsForPodium.length >= 3 && podiumEl) {
+        podiumEl.removeAttribute("hidden");
+        podiumEl.innerHTML = buildSpringTop3PodiumHtml(rowsForPodium, "Рейтинг Зимы");
+      } else if (podiumEl) {
+        podiumEl.setAttribute("hidden", "");
+        podiumEl.innerHTML = "";
+      }
     }
   }
   if (tbody) {
@@ -3986,6 +4520,21 @@ function initWinterRating() {
         if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
       }
     });
+    datesContainer.addEventListener("click", function (e) {
+      var cell = e.target && e.target.closest ? e.target.closest(".winter-rating__screenshot") : null;
+      if (!cell) return;
+      var screensWrap = cell.parentElement;
+      if (!screensWrap || !screensWrap.classList || !screensWrap.classList.contains("winter-rating__screenshots")) return;
+      var dateStr = screensWrap.getAttribute("data-rating-date");
+      if (!dateStr) return;
+      var leagueAttr = screensWrap.getAttribute("data-league");
+      var leagueNum = leagueAttr === "1" || leagueAttr === "2" ? parseInt(leagueAttr, 10) : undefined;
+      var siblings = screensWrap.querySelectorAll(".winter-rating__screenshot");
+      var idx = Array.prototype.indexOf.call(siblings, cell);
+      if (idx < 0) return;
+      e.preventDefault();
+      if (typeof openWinterRatingLightbox === "function") openWinterRatingLightbox(dateStr, idx, leagueNum);
+    });
   }
   var dateItems = datesContainer.querySelectorAll(".winter-rating__date-item");
   var byDate = getRatingByDate();
@@ -4006,10 +4555,18 @@ function initWinterRating() {
         var item = document.createElement("div");
         item.className = "winter-rating__date-item";
         item.setAttribute("data-rating-date", dateStr);
+        var panelInner = isSpringRatingMode()
+          ? "<div class=\"spring-rating-date-leagues\">" +
+            "<div class=\"spring-rating-date-league-tabs\"><button type=\"button\" class=\"spring-rating-date-league-tab spring-rating-date-league-tab--active\" data-league=\"1\">Лига 1</button><button type=\"button\" class=\"spring-rating-date-league-tab\" data-league=\"2\">Лига 2</button></div>" +
+            "<div class=\"spring-rating-date-league spring-rating-date-league--1\" data-league=\"1\">" +
+            "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\" data-league=\"1\"></div>" +
+            "<div class=\"winter-rating__date-table-wrap spring-rating-date-table\" data-rating-date=\"" + dateStr + "\" data-league=\"1\"></div></div>" +
+            "<div class=\"spring-rating-date-league spring-rating-date-league--2\" data-league=\"2\" style=\"display:none\">" +
+            "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div>" +
+            "<div class=\"winter-rating__date-table-wrap spring-rating-date-table\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div></div></div>"
+          : "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div><div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div>";
         item.innerHTML = "<button type=\"button\" class=\"winter-rating__date-btn\" aria-expanded=\"false\" aria-controls=\"winterRatingPanel" + slug + "\">" + dateStr + "</button>" +
-          "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" +
-          "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div>" +
-          "<div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div></div>";
+          "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" + panelInner + "</div>";
         var insertBefore = null;
         for (var i = 0; i < dates.length; i++) {
           if (dates[i] === dateStr && i + 1 < dates.length) {
@@ -4029,16 +4586,13 @@ function initWinterRating() {
       var dateStr = item.getAttribute("data-rating-date");
       var btn = item.querySelector(".winter-rating__date-btn");
       var panel = item.querySelector(".winter-rating__date-panel");
-      var tableWrap = item.querySelector(".winter-rating__date-table-wrap");
-      var screensContainer = item.querySelector(".winter-rating__screenshots");
+      var leaguesWrap = panel && panel.querySelector(".spring-rating-date-leagues");
+      var tableWrap = item.querySelector(".winter-rating__date-table-wrap:not(.spring-rating-date-table)");
+      var screensContainer = item.querySelector(".winter-rating__screenshots:not([data-league])");
       if (!btn || !panel) return;
-      var data = getRatingByDate()[dateStr];
-      if (data && data.length && tableWrap && !tableWrap.innerHTML) {
-        tableWrap.innerHTML = renderWinterRatingTable(data);
-      }
-      function fillScreensForDate(container, dStr) {
+      function fillScreensForDate(container, dStr, leagueNum) {
         if (!container) return;
-        var files = getRatingImages()[dStr];
+        var files = (leagueNum != null && isSpringRatingMode()) ? (getSpringRatingImagesByLeague(leagueNum)[dStr] || []) : getRatingImages()[dStr];
         if (!files || !files.length) return;
         var cacheV = "v=2";
         container.innerHTML = files.map(function (f, i) {
@@ -4047,19 +4601,44 @@ function initWinterRating() {
         container.querySelectorAll(".winter-rating__screenshot").forEach(function (cell, idx) {
           var openLightbox = function (e) {
             if (e) e.preventDefault();
-            openWinterRatingLightbox(dStr, idx);
+            openWinterRatingLightbox(dStr, idx, leagueNum);
           };
           cell.addEventListener("click", openLightbox);
           cell.addEventListener("keydown", function (e) {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              openLightbox();
-            }
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(); }
           });
         });
       }
-      if (screensContainer) {
-        fillScreensForDate(screensContainer, dateStr);
+      if (leaguesWrap) {
+        var tabs = leaguesWrap.querySelectorAll(".spring-rating-date-league-tab");
+        var leagueBlocks = leaguesWrap.querySelectorAll(".spring-rating-date-league");
+        [1, 2].forEach(function (leagueNum) {
+          var block = leaguesWrap.querySelector(".spring-rating-date-league--" + leagueNum);
+          if (!block) return;
+          var screensEl = block.querySelector(".winter-rating__screenshots[data-league=\"" + leagueNum + "\"]");
+          var tableEl = block.querySelector(".winter-rating__date-table-wrap[data-league=\"" + leagueNum + "\"]");
+          if (screensEl) fillScreensForDate(screensEl, dateStr, leagueNum);
+          if (tableEl) {
+            var rows = getSpringRatingRowsForDateLeague(dateStr, leagueNum);
+            tableEl.innerHTML = rows && rows.length ? renderWinterRatingTable(rows) : "<p class=\"winter-rating__spring-placeholder\">Нет данных за эту дату</p>";
+          }
+        });
+        if (leaguesWrap.getAttribute("data-tabs-bound") !== "1") {
+          leaguesWrap.setAttribute("data-tabs-bound", "1");
+          leaguesWrap.addEventListener("click", function (e) {
+            var tab = e.target && e.target.closest ? e.target.closest(".spring-rating-date-league-tab") : null;
+            if (!tab) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var league = tab.getAttribute("data-league");
+            leaguesWrap.querySelectorAll(".spring-rating-date-league-tab").forEach(function (t) { t.classList.toggle("spring-rating-date-league-tab--active", t.getAttribute("data-league") === league); });
+            leaguesWrap.querySelectorAll(".spring-rating-date-league").forEach(function (b) { b.style.display = b.getAttribute("data-league") === league ? "" : "none"; });
+          });
+        }
+      } else {
+        var data = getRatingByDate()[dateStr];
+        if (data && data.length && tableWrap && !tableWrap.innerHTML) tableWrap.innerHTML = renderWinterRatingTable(data);
+        if (screensContainer) fillScreensForDate(screensContainer, dateStr);
       }
       var shareWrap = panel.querySelector(".winter-rating__date-share");
       if (!shareWrap) {
@@ -4077,8 +4656,15 @@ function initWinterRating() {
           panel.classList.toggle("winter-rating__date-panel--hidden");
           var open = !panel.classList.contains("winter-rating__date-panel--hidden");
           btn.setAttribute("aria-expanded", open ? "true" : "false");
-          if (open && screensContainer) {
-            fillScreensForDate(screensContainer, dateStr);
+          if (open) {
+            if (leaguesWrap) {
+              [1, 2].forEach(function (leagueNum) {
+                var block = leaguesWrap.querySelector(".spring-rating-date-league--" + leagueNum);
+                if (!block) return;
+                var screensEl = block.querySelector(".winter-rating__screenshots[data-league=\"" + leagueNum + "\"]");
+                if (screensEl) fillScreensForDate(screensEl, dateStr, leagueNum);
+              });
+            } else if (screensContainer) fillScreensForDate(screensContainer, dateStr);
           }
           requestAnimationFrame(function () { window.scrollTo(0, scrollY); });
         });
@@ -4105,7 +4691,8 @@ function initWinterRating() {
     }).map(function (k) { return monthSet[k]; });
     if (isSpringRatingMode()) {
       availableMonths = [{ year: 2026, month: 3 }];
-      availableDates = [];
+      var springByDate = getSpringRatingTournamentsByDate();
+      availableDates = typeof springByDate === "object" ? Object.keys(springByDate).filter(function (d) { return /\.03\.2026$/.test(d); }).sort(function (a, b) { return winterRatingDateKeyToStamp(b) - winterRatingDateKeyToStamp(a); }) : [];
     }
     if (!availableMonths.length) return;
     calendarWrap._availableMonths = availableMonths;
@@ -4124,22 +4711,36 @@ function initWinterRating() {
       var clone = panel.cloneNode(true);
       clone.classList.remove("winter-rating__date-panel--hidden");
       dateModalBody.appendChild(clone);
-      var screens = dateModalBody.querySelectorAll(".winter-rating__screenshot");
-      if (screens && screens.length && typeof openWinterRatingLightbox === "function") {
-        screens.forEach(function (cell, idx) {
-          var handler = function (e) {
-            if (e) e.preventDefault();
-            openWinterRatingLightbox(dateStr, idx);
-          };
-          cell.addEventListener("click", handler);
-          cell.addEventListener("keydown", function (e) {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handler();
-            }
-          });
+      var cloneLeaguesWrap = clone.querySelector(".spring-rating-date-leagues");
+      if (cloneLeaguesWrap) {
+        cloneLeaguesWrap.addEventListener("click", function (e) {
+          var tab = e.target && e.target.closest ? e.target.closest(".spring-rating-date-league-tab") : null;
+          if (!tab) return;
+          e.preventDefault();
+          e.stopPropagation();
+          var league = tab.getAttribute("data-league");
+          cloneLeaguesWrap.querySelectorAll(".spring-rating-date-league-tab").forEach(function (t) { t.classList.toggle("spring-rating-date-league-tab--active", t.getAttribute("data-league") === league); });
+          cloneLeaguesWrap.querySelectorAll(".spring-rating-date-league").forEach(function (b) { b.style.display = b.getAttribute("data-league") === league ? "" : "none"; });
         });
       }
+      dateModalBody.querySelectorAll(".winter-rating__screenshot").forEach(function (cell) {
+        var screensWrap = cell.parentElement;
+        if (!screensWrap || !screensWrap.classList || !screensWrap.classList.contains("winter-rating__screenshots")) return;
+        var dStr = screensWrap.getAttribute("data-rating-date") || dateStr;
+        var leagueAttr = screensWrap.getAttribute("data-league");
+        var leagueNum = leagueAttr === "1" || leagueAttr === "2" ? parseInt(leagueAttr, 10) : undefined;
+        var siblings = screensWrap.querySelectorAll(".winter-rating__screenshot");
+        var idx = Array.prototype.indexOf.call(siblings, cell);
+        if (idx < 0 || typeof openWinterRatingLightbox !== "function") return;
+        var handler = function (e) {
+          if (e) e.preventDefault();
+          openWinterRatingLightbox(dStr, idx, leagueNum);
+        };
+        cell.addEventListener("click", handler);
+        cell.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler(); }
+        });
+      });
       if (dateModalTitle) dateModalTitle.textContent = "Рейтинг на " + dateStr;
       dateModal.setAttribute("aria-hidden", "false");
       if (document.body) document.body.style.overflow = "hidden";

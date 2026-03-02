@@ -1518,6 +1518,7 @@ var WINTER_RATING_IMAGES = {
   "07.12.2025": ["rating-07-12-2025.png", "rating-07-12-2025-2.png", "rating-07-12-2025-3.png", "rating-07-12-2025-4.png", "rating-07-12-2025-5.png"]
 };
 // По дате — массив турниров (время + игроки). Для модалки «все турниры дня» по игроку. Учитывать турниры и с синих, и с красных скринов. Призовые = выигрыш × 100.
+// Для дат марта (рейтинг весны) у турнира можно указать buyin (число, рубли): от 500 — Лига 1, от 100 до 500 — Лига 2.
 var WINTER_RATING_TOURNAMENTS_BY_DATE = {
   "31.01.2026": [
     { time: "19:30", players: [{ nick: "ПокерМанки", place: 1, points: 135, reward: 24528 }, { nick: "Prokopenya", place: 2, points: 110, reward: 13063 }, { nick: "Shkarubo", place: 3, points: 90, reward: 7917 }, { nick: "Аспирин", place: 4, points: 70, reward: 4914 }, { nick: "Playerx6a7nB", place: 5, points: 60, reward: 4930 }] },
@@ -1991,4 +1992,27 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
   "08.02.2026": [
     { time: "18:00", players: [{ nick: "WiNifly", place: 1, points: 60, reward: 20700 }, { nick: "vnukshtukatura", place: 2, points: 0, reward: 15500 }, { nick: "Аспирин", place: 0, points: 0, reward: 0 }, { nick: "ПокерМанки", place: 0, points: 0, reward: 0 }, { nick: "king00001", place: 0, points: 0, reward: 0 }] },
   ],
+};
+
+// Рейтинг ВЕСНЫ: только март, не смешивается с зимой. Календарь и итоговые таблицы Лига 1/2.
+// Скрины за дату по лигам — Лига 1 (то, что скидывали), Лига 2 отдельно.
+var SPRING_RATING_IMAGES_LEAGUE1 = {
+  "01.03.2026": ["rating-01-03-2026.png", "rating-01-03-2026-2.png", "rating-01-03-2026-3.png", "rating-01-03-2026-4.png", "rating-01-03-2026-5.png", "rating-01-03-2026-6.png", "rating-01-03-2026-7.png", "rating-01-03-2026-8.png"]
+};
+var SPRING_RATING_IMAGES_LEAGUE2 = {
+  "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"]
+};
+var SPRING_RATING_TOURNAMENTS_BY_DATE = {
+  "01.03.2026": [
+    { time: "10:00", buyin: 500, players: [{ nick: "asianflushie", place: 0, reward: 4989 }] },
+    { time: "11:00", buyin: 200, players: [{ nick: "Лёха", place: 0, reward: 939 }] },
+    { time: "12:00", buyin: 19200, players: [{ nick: "FrankL", place: 1, reward: 17300 }, { nick: "ШАХИМАТ", place: 2, reward: 10360 }, { nick: "king00001", place: 3, reward: 6900 }, { nick: "Malek3084", place: 4, reward: 0 }, { nick: "Waaar", place: 13, reward: 0 }] },
+    { time: "15:00", buyin: 500, players: [{ nick: "я автор", place: 4, reward: 1133 }] },
+    { time: "18:00", buyin: 174000, players: [{ nick: "Waaar", place: 3, reward: 14200 }, { nick: "ПокерМанки", place: 4, reward: 58800 }, { nick: "@Felix", place: 5, reward: 58700 }, { nick: "nikola233", place: 6, reward: 12700 }, { nick: "Рамиль01fan", place: 7, reward: 7500 }, { nick: "Рыбнадзор", place: 0, reward: 1549 }, { nick: "XP3952131", place: 0, reward: 1252 }] },
+    { time: "20:00", buyin: 50000, players: [{ nick: "Waaar", place: 1, reward: 37641 }, { nick: "F001", place: 5, reward: 5075 }, { nick: "ПокерМанки", place: 6, reward: 225 }, { nick: "JinDaniels", place: 7, reward: 2306 }, { nick: "WiNifly", place: 8, reward: 225 }] },
+    { time: "21:00", buyin: 300, players: [{ nick: "Jkeyx", place: 2, reward: 8185 }, { nick: "TonniHalf", place: 3, reward: 1680 }, { nick: "WiNifly", place: 5, reward: 1230 }, { nick: "@Felix", place: 6, reward: 0 }, { nick: "ШЛЯПАУСАТ", place: 7, reward: 0 }] },
+    { time: "21:00", buyin: 500, players: [{ nick: "Рыбнадзор", place: 0, reward: 5138 }, { nick: "comotd", place: 0, reward: 2622 }] },
+    { time: "21:59", buyin: 500, players: [{ nick: "Откотика_Я", place: 0, reward: 9151 }, { nick: "MEVRIK", place: 0, reward: 4791 }] },
+    { time: "22:00", buyin: 200, players: [{ nick: "XORTYRETSKOGO", place: 1, reward: 6400 }, { nick: "pitbulltip", place: 2, reward: 3830 }, { nick: "JinDaniels", place: 4, reward: 0 }, { nick: "ШЛЯПАУСАТ", place: 7, reward: 0 }, { nick: "Walker", place: 9, reward: 0 }] }
+  ]
 };

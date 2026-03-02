@@ -272,13 +272,17 @@
               <div class="winter-rating__spring-conditions-wrap" id="springRatingConditionsWrap">
                 <button type="button" class="winter-rating__spring-conditions-btn" id="springRatingConditionsBtn">Условия и призы</button>
               </div>
-              <div class="spring-rating-top3" id="springRatingTop3Podium" aria-label="Топ-3 рейтинга весны" hidden></div>
-              <div class="winter-rating__table-caption-row">
+              <div class="winter-rating__spring-main-tabs" id="winterRatingSpringMainTabs" aria-label="Лиги рейтинга весны" hidden>
+                <button type="button" class="winter-rating__spring-main-tab winter-rating__spring-main-tab--active" data-spring-main-league="1">Лига 1</button>
+                <button type="button" class="winter-rating__spring-main-tab" data-spring-main-league="2">Лига 2</button>
+              </div>
+              <div class="winter-rating__table-caption-row" id="winterRatingTableCaptionRow">
                 <h3 class="winter-rating__table-caption"><span class="winter-rating__caption-icon" aria-hidden="true">❄</span> Итоговая таблица</h3>
                 <div class="winter-rating__counters-block">
                   <div class="winter-rating__counters" id="winterRatingCounters" aria-live="polite">Рейтинг до 28 февраля. Загрузка…</div>
                 </div>
               </div>
+              <div class="spring-rating-top3" id="springRatingTop3Podium" aria-label="Топ-3 рейтинга весны" hidden></div>
               <div class="winter-rating__table-wrap" id="winterRatingTableWrap">
                 <table class="winter-rating__table" id="winterRatingTableOverall">
                   <thead>
@@ -291,6 +295,48 @@
                   </thead>
                   <tbody id="winterRatingTableBody"></tbody>
                 </table>
+              </div>
+              <div class="winter-rating__spring-leagues" id="winterRatingSpringLeagues" aria-label="Итоговые таблицы рейтинга весны по лигам" hidden>
+                <div class="winter-rating__spring-league winter-rating__spring-league--main" data-spring-league="1">
+                  <h3 class="winter-rating__spring-league-caption">Лига 1. Турниры от 500₽</h3>
+                  <div class="spring-rating-top3 spring-rating-top3--league" id="springRatingTop3PodiumLeague1" aria-label="Топ-3 Лига 1" hidden></div>
+                  <div class="winter-rating__table-wrap winter-rating__table-wrap--league">
+                    <table class="winter-rating__table">
+                      <thead>
+                        <tr>
+                          <th>Место</th>
+                          <th>Ник</th>
+                          <th>Баллы</th>
+                          <th>Выигрыш в<br>турнирах</th>
+                        </tr>
+                      </thead>
+                      <tbody id="winterRatingLeague1Body"></tbody>
+                    </table>
+                  </div>
+                  <p class="winter-rating__spring-league-share-wrap">
+                    <button type="button" class="winter-rating__share-btn winter-rating__spring-league-share" data-spring-league="1" aria-label="Поделиться ссылкой на рейтинг Лига 1">Поделиться</button>
+                  </p>
+                </div>
+                <div class="winter-rating__spring-league winter-rating__spring-league--main" data-spring-league="2" style="display:none">
+                  <h3 class="winter-rating__spring-league-caption">Лига 2. Турниры от 100₽ до 500₽</h3>
+                  <div class="spring-rating-top3 spring-rating-top3--league" id="springRatingTop3PodiumLeague2" aria-label="Топ-3 Лига 2" hidden></div>
+                  <div class="winter-rating__table-wrap winter-rating__table-wrap--league">
+                    <table class="winter-rating__table">
+                      <thead>
+                        <tr>
+                          <th>Место</th>
+                          <th>Ник</th>
+                          <th>Баллы</th>
+                          <th>Выигрыш в<br>турнирах</th>
+                        </tr>
+                      </thead>
+                      <tbody id="winterRatingLeague2Body"></tbody>
+                    </table>
+                  </div>
+                  <p class="winter-rating__spring-league-share-wrap">
+                    <button type="button" class="winter-rating__share-btn winter-rating__spring-league-share" data-spring-league="2" aria-label="Поделиться ссылкой на рейтинг Лига 2">Поделиться</button>
+                  </p>
+                </div>
               </div>
               <p class="winter-rating__show-all-wrap" id="winterRatingShowAllWrap">
                 <button type="button" class="winter-rating__show-all-btn" id="winterRatingShowAllBtn">Показать всех</button>
@@ -328,9 +374,10 @@
                     <p class="winter-rating__single-top" id="winterRatingSingleTopSummary"></p>
                     <ul class="winter-rating__single-top-list" id="winterRatingSingleTopList"></ul>
                   </div>
-                  <div class="winter-rating__single-top-wrap winter-rating__single-top-wrap--feb">
-                    <p class="winter-rating__single-top" id="winterRatingSingleTopFebruarySummary"></p>
-                    <ul class="winter-rating__single-top-list" id="winterRatingSingleTopFebruaryList"></ul>
+                  <div class="winter-rating__single-top-wrap winter-rating__single-top-wrap--march" id="winterRatingMarchWinsWrap" hidden>
+                    <p class="winter-rating__single-top" id="winterRatingMarchWinsSummary"></p>
+                    <p class="winter-rating__single-top winter-rating__single-top--sublabel" id="winterRatingMarchWinsTop3Caption"></p>
+                    <ul class="winter-rating__single-top-list" id="winterRatingMarchWinsList"></ul>
                   </div>
                 </div>
                 <!-- 28.02, 27.02, 25.02, 24.02, 23.02… -->
@@ -1363,9 +1410,26 @@
 
           <!-- Научиться играть -->
           <div class="view" data-view="poker-tasks">
-            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
-            <h1 class="title">Научиться играть</h1>
-            <p class="randomizer-desc">Скоро здесь появятся задачи.</p>
+            <div class="poker-tasks__start" id="pokerTasksStartScreen">
+              <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+              <h1 class="title">Научиться играть</h1>
+              <button type="button" class="poker-tasks__spr-btn" id="pokerTasksSprBtn">SPR</button>
+            </div>
+            <div class="poker-task-screen poker-task-screen--hidden" id="pokerTaskScreen" aria-label="Задача">
+              <button type="button" class="poker-task-screen__back" id="pokerTaskScreenBack" aria-label="Назад к списку">←</button>
+              <div class="poker-task-screen__table-wrap" id="pokerTaskTableWrap"></div>
+              <div class="poker-task-screen__actions" id="pokerTaskActions">
+                <button type="button" class="poker-task-screen__action poker-task-screen__action--fold" data-action="fold" id="pokerTaskActionFold">FOLD</button>
+                <button type="button" class="poker-task-screen__action poker-task-screen__action--call" data-action="call" id="pokerTaskActionCall">CALL</button>
+                <button type="button" class="poker-task-screen__action poker-task-screen__action--raise" data-action="raise" id="pokerTaskActionRaise">RAISE 7.1</button>
+                <button type="button" class="poker-task-screen__action poker-task-screen__action--allin" data-action="allin" id="pokerTaskActionAllin">ALLIN 25</button>
+              </div>
+              <div class="poker-task-screen__nav">
+                <button type="button" class="poker-task-screen__task-prev" id="pokerTaskPrevBtn" aria-label="Предыдущая задача" title="Предыдущая задача">←</button>
+                <button type="button" class="poker-task-screen__share" id="pokerTaskShareBtn" aria-label="Поделиться задачей">Поделиться</button>
+                <button type="button" class="poker-task-screen__task-next" id="pokerTaskNextBtn" aria-label="Следующая задача" title="Следующая задача">→</button>
+              </div>
+            </div>
           </div>
 
           <!-- Зал славы -->
@@ -2029,6 +2093,7 @@
                 <option value="12.2025">Декабрь</option>
                 <option value="01.2026">Январь</option>
                 <option value="02.2026">Февраль</option>
+                <option value="03.2026">Март</option>
               </select>
             </div>
             <div class="winter-rating-player-modal__sort">
@@ -2100,6 +2165,7 @@
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="./updates-data.js"></script>
     <script src="./winter-rating-data.js?v=28"></script>
+    <script src="./poker-tasks-data.js"></script>
     <script src="./app.js?v=34"></script>
   </body>
 </html>
