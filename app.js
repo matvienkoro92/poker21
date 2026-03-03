@@ -6684,6 +6684,15 @@ function initRaffles() {
     return m ? parseFloat(m[0].replace(",", ".")) : 0;
   }
 
+  function getRaffleTotalPrize(raffle) {
+    if (!raffle || !raffle.groups) return 0;
+    return raffle.groups.reduce(function (sum, g) {
+      var count = Math.max(0, parseInt(g.count, 10) || 0);
+      var nominal = parsePrizeValue(g.prize);
+      return sum + (nominal > 0 ? nominal * count : 0);
+    }, 0);
+  }
+
   function getMyUserId() {
     if (myRaffleUserId) return myRaffleUserId;
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
@@ -6708,10 +6717,14 @@ function initRaffles() {
     currentRaffleId = raffle.id;
     var total = raffle.totalWinners || 0;
     var groups = raffle.groups || [];
+    var totalPrize = getRaffleTotalPrize(raffle);
     var endDate = raffle.endDate ? new Date(raffle.endDate) : null;
     var isActive = raffle.status === "active";
     currentRaffleEndDate = isActive && endDate ? endDate : null;
-    raffleMeta.textContent = "Победителей: " + total + (groups.length > 0 ? " · Групп призов: " + groups.length : "");
+    raffleMeta.textContent =
+      "Победителей: " + total +
+      (totalPrize > 0 ? " · Сумма приза: " + totalPrize + " р" : "") +
+      (groups.length > 0 ? " · Групп призов: " + groups.length : "");
     if (currentRaffleEndDate) {
       updateRaffleEndText();
       raffleTimerInterval = setInterval(updateRaffleEndText, 1000);
@@ -6890,7 +6903,12 @@ function initRaffles() {
                 });
                 winHtml += "</ul></li>";
               });
+              var deleteHtml = rafflesIsAdmin
+                ? "<div class=\"raffle-completed-card__actions\"><button type=\"button\" class=\"raffle-completed-card__delete-btn\" data-raffle-id=\"" +
+                  escapeHtml(raffle.id || "") + "\">Удалить розыгрыш (админ)</button></div>"
+                : "";
               return "<div class=\"raffle-completed-card\"><p class=\"raffle-completed-card__meta\">" + escapeHtml(meta) + "</p>" +
+                deleteHtml +
                 (winHtml ? "<p class=\"raffle-completed-card__winners-title\">Победители</p><ul class=\"raffle-completed-card__winners\">" + winHtml + "</ul>" : "") + "</div>";
               }).join("");
           } else {
@@ -7063,6 +7081,48 @@ function initRaffles() {
         });
       } else {
         var sure = window.confirm("Точно удалить этот розыгрыш окончательно?");
+        if (sure) doDelete();
+      }
+    });
+  }
+
+  if (rafflesCompleted && base && initData) {
+    rafflesCompleted.addEventListener("click", function (e) {
+      if (!rafflesIsAdmin) return;
+      var btn = e.target.closest(".raffle-completed-card__delete-btn");
+      if (!btn) return;
+      var raffleId = btn.getAttribute("data-raffle-id") || "";
+      if (!raffleId) return;
+      var doDelete = function () {
+        btn.disabled = true;
+        fetch(base + "/api/raffles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, action: "delete", raffleId: raffleId }),
+        })
+          .then(function (r) {
+            return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
+          })
+          .then(function (data) {
+            btn.disabled = false;
+            if (data && data.ok) {
+              if (tg && tg.showAlert) tg.showAlert("Розыгрыш удалён");
+              loadRaffles();
+            } else if (tg && tg.showAlert) {
+              tg.showAlert((data && data.error) || "Ошибка удаления розыгрыша");
+            }
+          })
+          .catch(function () {
+            btn.disabled = false;
+            if (tg && tg.showAlert) tg.showAlert("Ошибка сети при удалении розыгрыша");
+          });
+      };
+      if (tg && tg.showConfirm) {
+        tg.showConfirm("Удалить этот завершённый розыгрыш окончательно?", function (ok) {
+          if (ok) doDelete();
+        });
+      } else {
+        var sure = window.confirm("Точно удалить этот завершённый розыгрыш окончательно?");
         if (sure) doDelete();
       }
     });

@@ -4316,6 +4316,20 @@ html.app-view-home .feature--rating-spring-promo:hover,
   border-radius: 12px;
 }
 .raffle-completed-card__meta { margin: 0 0 6px; font-size: 13px; color: var(--text-muted); }
+.raffle-completed-card__actions {
+  margin: 6px 0;
+  display: flex;
+  gap: 8px;
+}
+.raffle-completed-card__delete-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 999px;
+  cursor: pointer;
+}
 .raffle-completed-card__winners { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text); }
 .raffle-completed-card__winners-title { margin: 8px 0 4px; font-size: 13px; font-weight: 600; color: var(--accent-2); }
 
