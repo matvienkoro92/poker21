@@ -6675,6 +6675,21 @@ function initRaffles() {
     var str = String(s);
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
+  function parsePrizeValue(prizeStr) {
+    if (prizeStr == null || prizeStr === "") return 0;
+    var m = String(prizeStr).trim().match(/\d+(?:[.,]\d+)?/);
+    return m ? parseFloat(m[0].replace(",", ".")) : 0;
+  }
+  function rafflePrizesSum(raffle) {
+    var groups = raffle && raffle.groups ? raffle.groups : [];
+    var sum = 0;
+    groups.forEach(function (g) {
+      var count = Math.max(0, parseInt(g.count, 10) || 0);
+      var value = parsePrizeValue(g.prize);
+      sum += count * value;
+    });
+    return sum;
+  }
 
   function getMyUserId() {
     if (myRaffleUserId) return myRaffleUserId;
@@ -6812,11 +6827,11 @@ function initRaffles() {
         }
         updateRaffleBadge(!!active);
 
-        // Вкладка «Завершённые»: только завершённые розыгрыши
+        // Вкладка «Завершённые»: сумма всех разыгранных призов (по группам: count × номинал из названия приза)
         var completedCount = completed.length;
-        var completedSum = completed.reduce(function (s, r) { return s + ((r.winners && r.winners.length) || 0); }, 0);
+        var completedSum = completed.reduce(function (s, r) { return s + rafflePrizesSum(r); }, 0);
         if (rafflesTabCompletedCount) rafflesTabCompletedCount.textContent = String(completedCount);
-        if (rafflesTabCompletedSum) rafflesTabCompletedSum.textContent = String(completedSum);
+        if (rafflesTabCompletedSum) rafflesTabCompletedSum.textContent = completedSum > 0 ? completedSum + " р" : "0";
 
         if (rafflesCompleted) {
           if (completed.length > 0) {
@@ -6842,7 +6857,10 @@ function initRaffles() {
                 });
                 winHtml += "</ul></li>";
               });
+              var prizesSum = rafflePrizesSum(raffle);
+              var sumBlock = prizesSum > 0 ? "<p class=\"raffle-completed-card__sum\">Сумма призов: " + prizesSum + " р</p>" : "";
               return "<div class=\"raffle-completed-card\"><p class=\"raffle-completed-card__meta\">" + escapeHtml(meta) + "</p>" +
+                sumBlock +
                 (winHtml ? "<p class=\"raffle-completed-card__winners-title\">Победители</p><ul class=\"raffle-completed-card__winners\">" + winHtml + "</ul>" : "") + "</div>";
               }).join("");
           } else {
