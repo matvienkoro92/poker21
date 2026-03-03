@@ -6724,7 +6724,11 @@ function initRaffles() {
     }
     var prizesHtml = "";
     groups.forEach(function (g, i) {
-      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") + " (мест: " + (g.count || 0) + ")</div>";
+      var count = Math.max(0, parseInt(g.count, 10) || 0);
+      var value = parsePrizeValue(g.prize);
+      var sum = value > 0 ? count * value : 0;
+      var extra = sum > 0 ? " , сумма приза: " + sum + " р" : "";
+      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") + " (мест: " + count + extra + ")</div>";
     });
     rafflePrizes.innerHTML = prizesHtml || "<p class=\"raffle-no-prizes\">Призы не указаны</p>";
     if (raffleCancelBtn) {
