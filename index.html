@@ -1363,6 +1363,7 @@
           <div class="view" data-view="raffles">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <header class="raffles-hero" aria-hidden="true">
+              <img src="./assets/raffles-hero.png" alt="" class="raffles-hero__img" width="720" height="288" />
               <div class="raffles-hero__suits">
                 <span class="raffles-hero__suit" aria-hidden="true">♠</span>
                 <span class="raffles-hero__suit" aria-hidden="true">♥</span>
@@ -1371,14 +1372,6 @@
               </div>
               <p class="raffles-hero__club">TWO ACES</p>
               <p class="raffles-hero__tagline">Розыгрыши билетов на турниры клуба</p>
-              <div class="raffles-hero__ticket-icon" aria-hidden="true">
-                <svg viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="28">
-                  <rect x="2" y="4" width="44" height="16" rx="2" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.9"/>
-                  <path d="M12 4v16M24 4v16M36 4v16" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.6"/>
-                  <circle cx="8" cy="12" r="2" fill="currentColor" opacity="0.5"/>
-                  <circle cx="40" cy="12" r="2" fill="currentColor" opacity="0.5"/>
-                </svg>
-              </div>
             </header>
 
             <div class="raffles-admin-wrap raffles-admin-wrap--hidden" id="rafflesAdminWrap">
@@ -1742,11 +1735,59 @@
             </div>
           </div>
 
-          <!-- Эквилятор (пока пустой) -->
+          <!-- Эквилятор: расчёт эквити -->
           <div class="view" data-view="equilator">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <h1 class="title">Эквилятор</h1>
-            <p class="streams-intro">Скоро здесь появится контент.</p>
+            <p class="equilator-intro">Выберите ваши карты и все 5 карт борда (флоп, терн, ривер). Эквити считается методом Монте-Карло.</p>
+            <div class="equilator-form">
+              <div class="equilator-section">
+                <h2 class="equilator-section__title">Ваши карты</h2>
+                <div class="equilator-cards" id="equilatorHeroCards">
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotHero1" data-equilator-slot="hero1" aria-label="Карта 1 — нажмите для выбора"><span class="equilator-card-slot__text">—</span></button>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotHero2" data-equilator-slot="hero2" aria-label="Карта 2 — нажмите для выбора"><span class="equilator-card-slot__text">—</span></button>
+                </div>
+              </div>
+              <div class="equilator-section">
+                <h2 class="equilator-section__title">Борд</h2>
+                <div class="equilator-board-row">
+                  <span class="equilator-board-label">Борд</span>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotBoard1" data-equilator-slot="board1" aria-label="Борд карта 1"><span class="equilator-card-slot__text">—</span></button>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotBoard2" data-equilator-slot="board2" aria-label="Борд карта 2"><span class="equilator-card-slot__text">—</span></button>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotBoard3" data-equilator-slot="board3" aria-label="Борд карта 3"><span class="equilator-card-slot__text">—</span></button>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotBoard4" data-equilator-slot="board4" aria-label="Борд карта 4"><span class="equilator-card-slot__text">—</span></button>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotBoard5" data-equilator-slot="board5" aria-label="Борд карта 5"><span class="equilator-card-slot__text">—</span></button>
+                </div>
+              </div>
+              <div class="equilator-picker-wrap equilator-picker-wrap--hidden" id="equilatorPickerWrap" aria-hidden="true">
+                <p class="equilator-picker-title" id="equilatorPickerTitle">Выберите карту</p>
+                <div class="equilator-picker-grid" id="equilatorPickerGrid"></div>
+                <button type="button" class="equilator-picker-close" id="equilatorPickerClose">Закрыть</button>
+              </div>
+              <div class="equilator-section">
+                <h2 class="equilator-section__title">Карты оппонента (опционально)</h2>
+                <p class="equilator-hint">Если указать руку одного оппонента, эквити посчитается против неё (и при 2+ оппонентах — остальные случайные).</p>
+                <div class="equilator-cards" id="equilatorOppCards">
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotOpp1" data-equilator-slot="opp1" aria-label="Оппонент карта 1"><span class="equilator-card-slot__text">—</span></button>
+                  <button type="button" class="equilator-card-slot" id="equilatorSlotOpp2" data-equilator-slot="opp2" aria-label="Оппонент карта 2"><span class="equilator-card-slot__text">—</span></button>
+                </div>
+              </div>
+              <div class="equilator-section">
+                <label class="equilator-label">Количество оппонентов</label>
+                <select id="equilatorOpponents" class="equilator-select equilator-select--wide" aria-label="Количество оппонентов">
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                  <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                </select>
+              </div>
+              <button type="button" class="primary-button" id="equilatorCalcBtn">Рассчитать эквити</button>
+            </div>
+            <div class="equilator-result equilator-result--hidden" id="equilatorResult">
+              <h2 class="equilator-result__title">Результат</h2>
+              <p class="equilator-result__line"><span class="equilator-result__label">Победа:</span> <strong id="equilatorWinPct">—</strong></p>
+              <p class="equilator-result__line"><span class="equilator-result__label">Ничья:</span> <strong id="equilatorTiePct">—</strong></p>
+              <p class="equilator-result__line"><span class="equilator-result__label">Эквити (доля банка):</span> <strong id="equilatorEquityPct">—</strong></p>
+              <p class="equilator-result__meta" id="equilatorResultMeta">—</p>
+            </div>
           </div>
         </section>
 

@@ -167,12 +167,11 @@ body::-webkit-scrollbar,
     0 6px 20px rgba(0, 0, 0, 0.18);
 }
 [data-theme="light"] .bonus-card {
-  background: #2d3748;
   border-color: rgba(100, 116, 139, 0.4);
 }
 [data-theme="light"] .bonus-card__face,
 [data-theme="light"] .bonus-card--lose .bonus-card__face {
-  background: linear-gradient(145deg, #4a5568, #2d3748);
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
 }
 [data-theme="light"] .plasterer-table {
   background: linear-gradient(145deg, #c5d9d4, #b8d0ca);
@@ -4204,7 +4203,7 @@ html.app-view-home .feature--rating-spring-promo:hover,
 /* Шапка раздела розыгрышей: TWO ACES, масти, билеты */
 .raffles-hero {
   margin: 0 0 20px;
-  padding: 20px 16px 24px;
+  padding: 0 0 20px;
   background: linear-gradient(145deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.7));
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
@@ -4212,6 +4211,15 @@ html.app-view-home .feature--rating-spring-promo:hover,
   position: relative;
   overflow: hidden;
 }
+.raffles-hero__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px 14px 0 0;
+  margin-bottom: 16px;
+  object-fit: cover;
+}
+.raffles-hero__suits { margin-top: 0; }
 .raffles-hero::before {
   content: "";
   position: absolute;
@@ -4247,12 +4255,6 @@ html.app-view-home .feature--rating-spring-promo:hover,
   color: var(--text-muted);
   position: relative;
 }
-.raffles-hero__ticket-icon {
-  color: var(--accent);
-  opacity: 0.7;
-  position: relative;
-}
-
 /* Карточка розыгрыша в виде билета */
 .raffle-card--ticket {
   position: relative;
@@ -8789,21 +8791,25 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   max-height: 56px;
   min-height: 44px;
   border-radius: 8px;
-  border: 2px solid rgba(0, 0, 0, 0.4);
-  background: #0a0a0a;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  background-image: url("./assets/equilator-back.png");
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a2e;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
 .bonus-card:hover:not(.bonus-card--revealed):not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
-  border-color: rgba(239, 68, 68, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  border-color: var(--accent);
 }
 
 .bonus-card:disabled {
@@ -8834,8 +8840,8 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   line-height: 1.1;
   text-align: center;
   padding: 4px;
-  background: linear-gradient(145deg, #1e293b, #0f172a);
-  color: var(--text);
+  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+  color: #1e293b;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -8865,7 +8871,7 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 }
 
 .bonus-card__suit--spade {
-  color: #94a3b8;
+  color: #1e293b;
 }
 
 .bonus-card__face-text.bonus-card__face--joker {
@@ -9030,20 +9036,26 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 }
 
 .plasterer-board-slot {
-  width: 40px;
-  height: 52px;
+  width: 48px;
+  height: 68px;
   border-radius: 6px;
-  background: rgba(30, 41, 59, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   color: var(--text);
-  transition: background 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.plasterer-board-slot.has-card {
-  background: linear-gradient(145deg, #1e293b, #0f172a);
+.plasterer-board-slot:not(.has-card) {
+  background-image: url("./assets/equilator-back.png");
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a2e;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .plasterer-player {
@@ -9054,26 +9066,28 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 }
 
 .plasterer-card {
-  width: 40px;
-  height: 52px;
+  width: 48px;
+  height: 68px;
   border-radius: 6px;
-  background: linear-gradient(145deg, #1e293b, #0f172a);
+  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--text);
   line-height: 1.1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
 img.plasterer-card {
-  width: 40px;
-  height: 52px;
+  width: 48px;
+  height: 68px;
   object-fit: cover;
   border-radius: 6px;
   display: block;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
 /* Цвета мастей: трефы — зелёный, буби — синий, пики и черви — чёрный */
@@ -9608,6 +9622,213 @@ img.plasterer-card {
   color: var(--text-muted);
   line-height: 1.45;
 }
+
+/* Эквилятор */
+.equilator-intro {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.equilator-form {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.equilator-section__title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.equilator-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+.equilator-cards,
+.equilator-board {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+.equilator-card-pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.equilator-label {
+  display: block;
+  width: 100%;
+  margin: 0 0 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.equilator-select {
+  padding: 8px 10px;
+  font-size: 14px;
+  color: var(--text);
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  min-width: 52px;
+}
+.equilator-select--wide {
+  min-width: 80px;
+}
+.equilator-result--hidden {
+  display: none;
+}
+.equilator-result {
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  margin-top: 8px;
+}
+.equilator-result__title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.equilator-result__line {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--text);
+}
+.equilator-result__label {
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+.equilator-result__meta {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.equilator-card-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 68px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+.equilator-card-slot:not([data-rank]) {
+  background-image: url("./assets/equilator-back.png");
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a2e;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: transparent;
+}
+.equilator-card-slot:not([data-rank]) .equilator-card-slot__text { visibility: hidden; }
+.equilator-card-slot:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+.equilator-card-slot[data-rank]:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2), 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.equilator-card-slot--spade { color: #1e293b; }
+.equilator-card-slot--heart { color: #dc2626; }
+.equilator-card-slot--diamond { color: #2563eb; }
+.equilator-card-slot--club { color: #16a34a; }
+.equilator-card-slot__text { font-variant-numeric: tabular-nums; }
+.equilator-board-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.equilator-board-row:last-of-type { margin-bottom: 0; }
+.equilator-board-label {
+  min-width: 52px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.equilator-picker-wrap {
+  margin: 12px 0;
+  padding: 14px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  z-index: 100;
+}
+.equilator-picker-wrap--hidden { display: none; }
+.equilator-picker-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.equilator-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.equilator-picker-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 4px 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.equilator-picker-card:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px var(--accent);
+}
+.equilator-picker-card--spade { color: #1e293b; }
+.equilator-picker-card--heart { color: #dc2626; }
+.equilator-picker-card--diamond { color: #2563eb; }
+.equilator-picker-card--club { color: #16a34a; }
+.equilator-picker-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.equilator-picker-close {
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.equilator-picker-close:hover { color: var(--text); border-color: var(--text-muted); }
+
 .streams-open-in-browser {
   margin-bottom: 20px;
   padding: 12px 14px;

@@ -1342,6 +1342,7 @@ function setView(viewName) {
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
   if (viewName === "raffles") initRaffles();
+  if (viewName === "equilator") initEquilator();
   if (viewName === "poker-tasks") {
     var startScreen = document.getElementById("pokerTasksStartScreen");
     var taskScreen = document.getElementById("pokerTaskScreen");
@@ -7393,6 +7394,365 @@ function getVisitorId() {
   } catch (e) {
     return "w_" + Date.now() + "_" + Math.random().toString(36).slice(2, 12);
   }
+}
+
+// Эквилятор: расчёт эквити (Монте-Карло + оценка руки)
+(function equilatorHandEval() {
+  var RANKS = "23456789TJQKA";
+  var SUITS = "shdc";
+  function cardToStr(c) { return (c && RANKS[c.r - 2] != null && SUITS[c.s] != null) ? RANKS[c.r - 2] + SUITS[c.s] : null; }
+  function parseCard(str) {
+    if (!str || str.length < 2) return null;
+    var r = String(str).toUpperCase();
+    var rankCh = r.charAt(0);
+    var suitCh = r.charAt(1).toLowerCase();
+    var ri = RANKS.indexOf(rankCh);
+    var si = SUITS.indexOf(suitCh);
+    if (ri < 0 || si < 0) return null;
+    return { r: ri + 2, s: si };
+  }
+  function makeDeck() {
+    var d = [];
+    for (var s = 0; s < 4; s++) for (var r = 2; r <= 14; r++) d.push({ r: r, s: s });
+    return d;
+  }
+  function cloneCards(arr) { return arr.map(function (c) { return { r: c.r, s: c.s }; }); }
+  function rankCounts(cards) {
+    var cnt = {};
+    for (var i = 0; i < cards.length; i++) { var r = cards[i].r; cnt[r] = (cnt[r] || 0) + 1; }
+    return cnt;
+  }
+  function suitCounts(cards) {
+    var cnt = {};
+    for (var i = 0; i < cards.length; i++) { var s = cards[i].s; cnt[s] = (cnt[s] || 0) + 1; }
+    return cnt;
+  }
+  function sortRanksDesc(cards) {
+    var r = cards.map(function (c) { return c.r; }).sort(function (a, b) { return b - a; });
+    return r;
+  }
+  function isStraight(ranks) {
+    var uniq = [];
+    for (var i = 0; i < ranks.length; i++) if (uniq.indexOf(ranks[i]) < 0) uniq.push(ranks[i]);
+    uniq.sort(function (a, b) { return b - a; });
+    if (uniq.length < 5) return null;
+    for (var j = 0; j <= uniq.length - 5; j++) {
+      var a = uniq[j];
+      if (uniq[j + 1] === a - 1 && uniq[j + 2] === a - 2 && uniq[j + 3] === a - 3 && uniq[j + 4] === a - 4) return a;
+    }
+    if (uniq.indexOf(14) >= 0 && uniq.indexOf(5) >= 0 && uniq.indexOf(4) >= 0 && uniq.indexOf(3) >= 0 && uniq.indexOf(2) >= 0) return 5;
+    return null;
+  }
+  function eval5(cards) {
+    if (cards.length !== 5) return [0, 0, 0, 0, 0, 0];
+    var ranks = sortRanksDesc(cards);
+    var rc = rankCounts(cards);
+    var sc = suitCounts(cards);
+    var flush = false;
+    for (var s in sc) if (sc[s] >= 5) { flush = true; break; }
+    var straightHigh = isStraight(ranks);
+    var values = Object.keys(rc).map(Number);
+    var byCount = {};
+    for (var v in rc) { var n = rc[v]; if (!byCount[n]) byCount[n] = []; byCount[n].push(parseInt(v, 10)); }
+    for (var n in byCount) byCount[n].sort(function (a, b) { return b - a; });
+    if (flush && straightHigh !== null) return [8, straightHigh, 0, 0, 0, 0];
+    if (byCount[4]) return [7, byCount[4][0], values.filter(function (x) { return x !== byCount[4][0]; }).sort(function (a, b) { return b - a; })[0] || 0, 0, 0, 0];
+    if (byCount[3] && byCount[2]) return [6, byCount[3][0], byCount[2][0], 0, 0, 0];
+    if (flush) { var fr = sortRanksDesc(cards); return [5, fr[0], fr[1], fr[2], fr[3], fr[4]]; }
+    if (straightHigh !== null) return [4, straightHigh, 0, 0, 0, 0];
+    if (byCount[3]) { var tk = byCount[3][0]; var kickers = values.filter(function (x) { return x !== tk; }).sort(function (a, b) { return b - a; }).slice(0, 2); return [3, tk, kickers[0] || 0, kickers[1] || 0, 0, 0]; }
+    if (byCount[2] && byCount[2].length >= 2) { var p2 = byCount[2].slice(0, 2).sort(function (a, b) { return b - a; }); var k = values.filter(function (x) { return p2.indexOf(x) < 0; }).sort(function (a, b) { return b - a; })[0]; return [2, p2[0], p2[1], k, 0, 0]; }
+    if (byCount[2]) { var p = byCount[2][0]; var k2 = values.filter(function (x) { return x !== p; }).sort(function (a, b) { return b - a; }).slice(0, 3); return [1, p, k2[0] || 0, k2[1] || 0, k2[2] || 0, 0]; }
+    return [0, ranks[0], ranks[1], ranks[2], ranks[3], ranks[4]];
+  }
+  function comb5from7(cards) {
+    var out = [];
+    for (var i = 0; i < 7; i++) for (var j = i + 1; j < 7; j++) for (var k = j + 1; k < 7; k++) for (var l = k + 1; l < 7; l++) for (var m = l + 1; m < 7; m++) out.push([cards[i], cards[j], cards[k], cards[l], cards[m]]);
+    return out;
+  }
+  function bestHandValue(cards7) {
+    if (cards7.length < 5) return [0, 0, 0, 0, 0, 0];
+    var fives = cards7.length === 5 ? [cards7] : (cards7.length === 7 ? comb5from7(cards7) : []);
+    var best = [0, 0, 0, 0, 0, 0];
+    for (var i = 0; i < fives.length; i++) {
+      var v = eval5(fives[i]);
+      for (var t = 0; t < 6; t++) {
+        if (v[t] > best[t]) { best = v; break; }
+        if (v[t] < best[t]) break;
+      }
+    }
+    return best;
+  }
+  function handCompare(a, b) {
+    for (var i = 0; i < 6; i++) {
+      if (a[i] > b[i]) return 1;
+      if (a[i] < b[i]) return -1;
+    }
+    return 0;
+  }
+  window.equilatorEvalHand = function (cards7) { return bestHandValue(cards7); };
+  window.equilatorCompareHands = function (a7, b7) { return handCompare(bestHandValue(a7), bestHandValue(b7)); };
+  window.equilatorParseCard = parseCard;
+  window.equilatorMakeDeck = makeDeck;
+  window.equilatorCloneCards = cloneCards;
+})();
+
+function initEquilator() {
+  var RANKS = "23456789TJQKA";
+  var RANKS_DISPLAY = { "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "T": "10", "J": "J", "Q": "Q", "K": "K", "A": "A" };
+  var SUITS = "shdc";
+  var SUITS_SYM = { "s": "♠", "h": "♥", "d": "♦", "c": "♣" };
+  var SLOT_IDS = ["hero1", "hero2", "board1", "board2", "board3", "board4", "board5", "opp1", "opp2"];
+  var calcBtn = document.getElementById("equilatorCalcBtn");
+  var resultBlock = document.getElementById("equilatorResult");
+  var winPct = document.getElementById("equilatorWinPct");
+  var tiePct = document.getElementById("equilatorTiePct");
+  var equityPct = document.getElementById("equilatorEquityPct");
+  var resultMeta = document.getElementById("equilatorResultMeta");
+  var pickerWrap = document.getElementById("equilatorPickerWrap");
+  var pickerGrid = document.getElementById("equilatorPickerGrid");
+  var pickerTitle = document.getElementById("equilatorPickerTitle");
+  var pickerClose = document.getElementById("equilatorPickerClose");
+  var activeSlotId = null;
+  function slotEl(slotId) { return document.querySelector(".equilator-card-slot[data-equilator-slot=\"" + slotId + "\"]"); }
+  function getSlotCard(slotId) {
+    var el = slotEl(slotId);
+    if (!el) return null;
+    var r = el.getAttribute("data-rank");
+    var s = el.getAttribute("data-suit");
+    if (!r || !s) return null;
+    return window.equilatorParseCard(r + s);
+  }
+  function getUsedCards(excludeSlotId) {
+    var used = {};
+    SLOT_IDS.forEach(function (id) {
+    if (id === excludeSlotId) return;
+      var c = getSlotCard(id);
+      if (c) used[c.r + "_" + c.s] = true;
+    });
+    return used;
+  }
+  function setSlotCard(slotId, rank, suit) {
+    var el = slotEl(slotId);
+    if (!el) return;
+    el.setAttribute("data-rank", rank);
+    el.setAttribute("data-suit", suit);
+    var label = (RANKS_DISPLAY[rank] || rank) + (SUITS_SYM[suit] || suit);
+    var textEl = el.querySelector(".equilator-card-slot__text");
+    if (textEl) textEl.textContent = label;
+    el.classList.remove("equilator-card-slot--spade", "equilator-card-slot--heart", "equilator-card-slot--diamond", "equilator-card-slot--club");
+    if (suit) el.classList.add("equilator-card-slot--" + (suit === "s" ? "spade" : suit === "h" ? "heart" : suit === "d" ? "diamond" : "club"));
+  }
+  function openPicker(forSlotId) {
+    activeSlotId = forSlotId;
+    var used = getUsedCards(forSlotId);
+    if (pickerTitle) pickerTitle.textContent = "Выберите карту";
+    if (pickerGrid) {
+      pickerGrid.innerHTML = "";
+      for (var si = 0; si < SUITS.length; si++) {
+        for (var ri = 0; ri < RANKS.length; ri++) {
+          var r = RANKS[ri];
+          var s = SUITS[si];
+          var key = (window.equilatorParseCard(r + s).r) + "_" + (window.equilatorParseCard(r + s).s);
+          var disabled = !!used[key];
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "equilator-picker-card equilator-picker-card--" + (s === "s" ? "spade" : s === "h" ? "heart" : s === "d" ? "diamond" : "club");
+          if (disabled) btn.disabled = true;
+          btn.textContent = (RANKS_DISPLAY[r] || r) + (SUITS_SYM[s] || s);
+          btn.setAttribute("data-rank", r);
+          btn.setAttribute("data-suit", s);
+          btn.addEventListener("click", function () {
+            if (activeSlotId && !this.disabled) {
+              setSlotCard(activeSlotId, this.getAttribute("data-rank"), this.getAttribute("data-suit"));
+              closePicker();
+            }
+          });
+          pickerGrid.appendChild(btn);
+        }
+      }
+    }
+    var slot = slotEl(forSlotId);
+    if (pickerWrap && slot) {
+      var rect = slot.getBoundingClientRect();
+      var gap = 8;
+      var top = rect.bottom + gap;
+      var left = rect.left;
+      if (left < 8) left = 8;
+      pickerWrap.style.position = "fixed";
+      pickerWrap.style.top = top + "px";
+      pickerWrap.style.left = left + "px";
+      pickerWrap.style.right = "auto";
+      pickerWrap.style.maxWidth = (window.innerWidth - left - 16) + "px";
+    }
+    pickerWrap.classList.remove("equilator-picker-wrap--hidden");
+    pickerWrap.setAttribute("aria-hidden", "false");
+  }
+  function closePicker() {
+    pickerWrap.classList.add("equilator-picker-wrap--hidden");
+    pickerWrap.setAttribute("aria-hidden", "true");
+    pickerWrap.style.position = "";
+    pickerWrap.style.top = "";
+    pickerWrap.style.left = "";
+    pickerWrap.style.right = "";
+    pickerWrap.style.maxWidth = "";
+    activeSlotId = null;
+  }
+  SLOT_IDS.forEach(function (id) {
+    var el = slotEl(id);
+    if (el) el.addEventListener("click", function (e) { e.preventDefault(); openPicker(id); });
+  });
+  if (pickerClose) pickerClose.addEventListener("click", closePicker);
+  var getHero = function () {
+    var c1 = getSlotCard("hero1");
+    var c2 = getSlotCard("hero2");
+    if (!c1 || !c2 || (c1.r === c2.r && c1.s === c2.s)) return null;
+    return [c1, c2];
+  };
+  var getBoard = function () {
+    var out = [];
+    for (var i = 1; i <= 5; i++) {
+      var c = getSlotCard("board" + i);
+      if (c) out.push(c);
+    }
+    return out;
+  };
+  var getFixedOpp = function () {
+    var c1 = getSlotCard("opp1");
+    var c2 = getSlotCard("opp2");
+    if (!c1 || !c2 || (c1.r === c2.r && c1.s === c2.s)) return null;
+    return [c1, c2];
+  };
+  var getUsed = function (hero, board, fixedOpp) {
+    var used = {};
+    hero.forEach(function (c) { used[c.r + "_" + c.s] = true; });
+    if (board) board.forEach(function (c) { used[c.r + "_" + c.s] = true; });
+    if (fixedOpp) fixedOpp.forEach(function (c) { used[c.r + "_" + c.s] = true; });
+    return used;
+  };
+  var deckWithout = function (used) {
+    var d = window.equilatorMakeDeck();
+    return d.filter(function (c) { return !used[c.r + "_" + c.s]; });
+  };
+  var shuffle = function (arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  };
+  if (!calcBtn) return;
+  calcBtn.addEventListener("click", function () {
+    var errMsg = null;
+    try {
+      if (resultBlock) resultBlock.classList.remove("equilator-result--hidden");
+      if (resultMeta) resultMeta.textContent = "Проверка…";
+      var hero = getHero();
+      if (!hero) {
+        errMsg = "Выберите две разные карты в руку.";
+        if (winPct) winPct.textContent = "—";
+        if (tiePct) tiePct.textContent = "—";
+        if (equityPct) equityPct.textContent = "—";
+        if (resultMeta) resultMeta.textContent = errMsg;
+        return;
+      }
+      var board = getBoard();
+      var fixedOpp = getFixedOpp();
+      var numOpp = parseInt(document.getElementById("equilatorOpponents") && document.getElementById("equilatorOpponents").value, 10) || 1;
+      var used = getUsed(hero, board, fixedOpp);
+      var deck = deckWithout(used);
+      var needBoard = Math.max(0, 5 - board.length);
+      var randomOppCount = fixedOpp ? Math.max(0, numOpp - 1) : numOpp;
+      var needRandomCards = needBoard + randomOppCount * 2;
+      if (needRandomCards > 0 && deck.length < needRandomCards) {
+        errMsg = "Недостаточно карт в колоде.";
+        if (winPct) winPct.textContent = "—";
+        if (tiePct) tiePct.textContent = "—";
+        if (equityPct) equityPct.textContent = "—";
+        if (resultMeta) resultMeta.textContent = errMsg;
+        return;
+      }
+      calcBtn.disabled = true;
+      if (winPct) winPct.textContent = "…";
+      if (tiePct) tiePct.textContent = "…";
+      if (equityPct) equityPct.textContent = "…";
+      if (resultMeta) resultMeta.textContent = "Считаем…";
+      var showResult = function (wins, ties, trials) {
+        var winP = (100 * wins / trials).toFixed(1);
+        var tieP = (100 * ties / trials).toFixed(1);
+        var equity = (100 * (wins + ties / 2) / trials).toFixed(1);
+        if (winPct) winPct.textContent = winP + "%";
+        if (tiePct) tiePct.textContent = tieP + "%";
+        if (equityPct) equityPct.textContent = equity + "%";
+        if (resultMeta) resultMeta.textContent = trials === 1 ? "Точный расчёт (известна рука оппонента)." : "По " + trials + " симуляциям.";
+        calcBtn.disabled = false;
+      };
+      if (fixedOpp && numOpp === 1 && board.length === 5) {
+        var boardCardsExact = window.equilatorCloneCards(board);
+        var heroValExact = window.equilatorEvalHand(hero.concat(boardCardsExact));
+        var oppValExact = window.equilatorEvalHand(fixedOpp.concat(boardCardsExact));
+        var cmpExact = 0;
+        for (var tt = 0; tt < 6; tt++) {
+          if (heroValExact[tt] > oppValExact[tt]) { cmpExact = 1; break; }
+          if (heroValExact[tt] < oppValExact[tt]) { cmpExact = -1; break; }
+        }
+        showResult(cmpExact > 0 ? 1 : 0, cmpExact === 0 ? 1 : 0, 1);
+        return;
+      }
+      var trials = 8000;
+      var wins = 0;
+      var ties = 0;
+      var run = function (done) {
+        var next = 0;
+        function step() {
+          var batch = 200;
+          for (var b = 0; b < batch && next < trials; b++, next++) {
+            var sh = shuffle(deck);
+            var boardCards = window.equilatorCloneCards(board);
+            for (var bi = 0; bi < needBoard; bi++) {
+              boardCards.push(sh[bi]);
+            }
+            var heroHand = hero.concat(boardCards);
+            var heroVal = window.equilatorEvalHand(heroHand);
+            var anyLoss = false;
+            var anyTie = false;
+            for (var o = 0; o < numOpp; o++) {
+              var o1, o2;
+              if (fixedOpp && o === 0) {
+                o1 = fixedOpp[0];
+                o2 = fixedOpp[1];
+              } else {
+                var offset = needBoard + (fixedOpp ? (o - 1) * 2 : o * 2);
+                o1 = sh[offset];
+                o2 = sh[offset + 1];
+              }
+              var oppHand = [o1, o2].concat(boardCards);
+              var oppVal = window.equilatorEvalHand(oppHand);
+              var cmp = 0;
+              for (var t = 0; t < 6; t++) {
+                if (heroVal[t] > oppVal[t]) { cmp = 1; break; }
+                if (heroVal[t] < oppVal[t]) { cmp = -1; break; }
+              }
+              if (cmp < 0) anyLoss = true;
+              if (cmp === 0) anyTie = true;
+            }
+            if (!anyLoss && anyTie) ties++;
+            else if (!anyLoss) wins++;
+          }
+          if (next < trials) setTimeout(step, 0);
+          else done();
+        }
+        step();
+      };
+      run(function () {
+        showResult(wins, ties, trials);
+      });
+    } catch (e) {
+      calcBtn.disabled = false;
+      if (resultMeta) resultMeta.textContent = "Ошибка: " + (e && e.message ? e.message : String(e));
+      if (winPct) winPct.textContent = "—";
+      if (tiePct) tiePct.textContent = "—";
+      if (equityPct) equityPct.textContent = "—";
+    }
+  });
 }
 
 // Чат: общий + личные сообщения
