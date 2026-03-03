@@ -6870,14 +6870,10 @@ function initRaffles() {
           var end = r.endDate ? new Date(r.endDate) : null;
           return end && end <= now;
         });
-        // Убираем старые завершённые розыгрыши: показываем только те, что созданы сегодня и позже
-        var today = new Date();
-        today.setHours(0, 0, 0, 0);
-        completed = completed.filter(function (r) {
-          if (!r.createdAt) return true;
-          var created = new Date(r.createdAt);
-          if (isNaN(created.getTime())) return true;
-          return created.getTime() >= today.getTime();
+        completed.sort(function (a, b) {
+          var endA = a.endDate ? new Date(a.endDate).getTime() : 0;
+          var endB = b.endDate ? new Date(b.endDate).getTime() : 0;
+          return endB - endA;
         });
 
         // Вкладка «Активные»: количество розыгрышей и сумма разыгрываемая сейчас (₽)
@@ -7502,18 +7498,58 @@ function initEquilator() {
   var RANKS_DISPLAY = { "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "T": "10", "J": "J", "Q": "Q", "K": "K", "A": "A" };
   var SUITS = "shdc";
   var SUITS_SYM = { "s": "♠", "h": "♥", "d": "♦", "c": "♣" };
-  var SLOT_IDS = ["hero1", "hero2", "board1", "board2", "board3", "board4", "board5", "opp1", "opp2"];
+  var BASE_SLOT_IDS = ["hero1", "hero2", "board1", "board2", "board3", "board4", "board5"];
   var calcBtn = document.getElementById("equilatorCalcBtn");
   var resultBlock = document.getElementById("equilatorResult");
   var winPct = document.getElementById("equilatorWinPct");
   var tiePct = document.getElementById("equilatorTiePct");
-  var equityPct = document.getElementById("equilatorEquityPct");
+  var oppEquityLines = document.getElementById("equilatorOppEquityLines");
   var resultMeta = document.getElementById("equilatorResultMeta");
   var pickerWrap = document.getElementById("equilatorPickerWrap");
   var pickerGrid = document.getElementById("equilatorPickerGrid");
   var pickerTitle = document.getElementById("equilatorPickerTitle");
   var pickerClose = document.getElementById("equilatorPickerClose");
+  var oppCardsContainer = document.getElementById("equilatorOppCards");
+  var opponentsSelect = document.getElementById("equilatorOpponents");
   var activeSlotId = null;
+  function getNumOpp() { return parseInt(opponentsSelect && opponentsSelect.value, 10) || 1; }
+  function getOppSlotIds() {
+    var n = getNumOpp();
+    var ids = [];
+    for (var i = 1; i <= n * 2; i++) ids.push("opp" + i);
+    return ids;
+  }
+  function getSlotIds() { return BASE_SLOT_IDS.concat(getOppSlotIds()); }
+  function buildOppSlots() {
+    if (!oppCardsContainer) return;
+    var n = getNumOpp();
+    oppCardsContainer.innerHTML = "";
+    for (var o = 0; o < n; o++) {
+      var row = document.createElement("div");
+      row.className = "equilator-opp-row";
+      var label = document.createElement("span");
+      label.className = "equilator-opp-label";
+      label.textContent = "Оппонент " + (o + 1);
+      row.appendChild(label);
+      var cardsWrap = document.createElement("div");
+      cardsWrap.className = "equilator-cards";
+      for (var c = 0; c < 2; c++) {
+        var slotId = "opp" + (o * 2 + c + 1);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "equilator-card-slot";
+        btn.setAttribute("data-equilator-slot", slotId);
+        btn.setAttribute("aria-label", "Оппонент " + (o + 1) + " карта " + (c + 1));
+        btn.innerHTML = "<span class=\"equilator-card-slot__text\">—</span>";
+        btn.addEventListener("click", function (e) { e.preventDefault(); openPicker(this.getAttribute("data-equilator-slot")); });
+        cardsWrap.appendChild(btn);
+      }
+      row.appendChild(cardsWrap);
+      oppCardsContainer.appendChild(row);
+    }
+  }
+  if (opponentsSelect) opponentsSelect.addEventListener("change", buildOppSlots);
+  buildOppSlots();
   function slotEl(slotId) { return document.querySelector(".equilator-card-slot[data-equilator-slot=\"" + slotId + "\"]"); }
   function getSlotCard(slotId) {
     var el = slotEl(slotId);
@@ -7525,8 +7561,8 @@ function initEquilator() {
   }
   function getUsedCards(excludeSlotId) {
     var used = {};
-    SLOT_IDS.forEach(function (id) {
-    if (id === excludeSlotId) return;
+    getSlotIds().forEach(function (id) {
+      if (id === excludeSlotId) return;
       var c = getSlotCard(id);
       if (c) used[c.r + "_" + c.s] = true;
     });
@@ -7572,21 +7608,38 @@ function initEquilator() {
         }
       }
     }
+    if (!pickerWrap) return;
     var slot = slotEl(forSlotId);
-    if (pickerWrap && slot) {
-      var rect = slot.getBoundingClientRect();
-      var gap = 8;
-      var top = rect.bottom + gap;
-      var left = rect.left;
-      if (left < 8) left = 8;
-      pickerWrap.style.position = "fixed";
-      pickerWrap.style.top = top + "px";
-      pickerWrap.style.left = left + "px";
-      pickerWrap.style.right = "auto";
-      pickerWrap.style.maxWidth = (window.innerWidth - left - 16) + "px";
+    if (!slot) {
+      pickerWrap.classList.remove("equilator-picker-wrap--hidden");
+      pickerWrap.setAttribute("aria-hidden", "false");
+      return;
     }
+    var rect = slot.getBoundingClientRect();
+    var gap = 8;
+    pickerWrap.style.position = "fixed";
+    pickerWrap.style.visibility = "hidden";
     pickerWrap.classList.remove("equilator-picker-wrap--hidden");
     pickerWrap.setAttribute("aria-hidden", "false");
+    var top = rect.bottom + gap;
+    var left = rect.left;
+    var width = pickerWrap.offsetWidth || 260;
+    var height = pickerWrap.offsetHeight || 220;
+    if (left + width + 8 > window.innerWidth) {
+      left = Math.max(8, window.innerWidth - width - 8);
+    }
+    if (top + height + 8 > window.innerHeight) {
+      top = rect.top - gap - height;
+      if (top < 8) {
+        top = Math.max(8, window.innerHeight - height - 8);
+      }
+    }
+    if (left < 8) left = 8;
+    pickerWrap.style.top = top + "px";
+    pickerWrap.style.left = left + "px";
+    pickerWrap.style.right = "auto";
+    pickerWrap.style.maxWidth = "";
+    pickerWrap.style.visibility = "";
   }
   function closePicker() {
     pickerWrap.classList.add("equilator-picker-wrap--hidden");
@@ -7598,7 +7651,7 @@ function initEquilator() {
     pickerWrap.style.maxWidth = "";
     activeSlotId = null;
   }
-  SLOT_IDS.forEach(function (id) {
+  BASE_SLOT_IDS.forEach(function (id) {
     var el = slotEl(id);
     if (el) el.addEventListener("click", function (e) { e.preventDefault(); openPicker(id); });
   });
@@ -7617,17 +7670,22 @@ function initEquilator() {
     }
     return out;
   };
-  var getFixedOpp = function () {
-    var c1 = getSlotCard("opp1");
-    var c2 = getSlotCard("opp2");
-    if (!c1 || !c2 || (c1.r === c2.r && c1.s === c2.s)) return null;
-    return [c1, c2];
+  var getFixedOpps = function () {
+    var numOpp = getNumOpp();
+    var out = [];
+    for (var o = 0; o < numOpp; o++) {
+      var c1 = getSlotCard("opp" + (o * 2 + 1));
+      var c2 = getSlotCard("opp" + (o * 2 + 2));
+      if (!c1 || !c2 || (c1.r === c2.r && c1.s === c2.s)) out.push(null);
+      else out.push([c1, c2]);
+    }
+    return out;
   };
-  var getUsed = function (hero, board, fixedOpp) {
+  var getUsed = function (hero, board, fixedOpps) {
     var used = {};
     hero.forEach(function (c) { used[c.r + "_" + c.s] = true; });
     if (board) board.forEach(function (c) { used[c.r + "_" + c.s] = true; });
-    if (fixedOpp) fixedOpp.forEach(function (c) { used[c.r + "_" + c.s] = true; });
+    if (fixedOpps) fixedOpps.forEach(function (pair) { if (pair) pair.forEach(function (c) { used[c.r + "_" + c.s] = true; }); });
     return used;
   };
   var deckWithout = function (used) {
@@ -7650,56 +7708,95 @@ function initEquilator() {
         errMsg = "Выберите две разные карты в руку.";
         if (winPct) winPct.textContent = "—";
         if (tiePct) tiePct.textContent = "—";
-        if (equityPct) equityPct.textContent = "—";
+        if (oppEquityLines) oppEquityLines.innerHTML = "";
         if (resultMeta) resultMeta.textContent = errMsg;
         return;
       }
       var board = getBoard();
-      var fixedOpp = getFixedOpp();
-      var numOpp = parseInt(document.getElementById("equilatorOpponents") && document.getElementById("equilatorOpponents").value, 10) || 1;
-      var used = getUsed(hero, board, fixedOpp);
+      var fixedOpps = getFixedOpps();
+      var numOpp = getNumOpp();
+      var used = getUsed(hero, board, fixedOpps);
       var deck = deckWithout(used);
       var needBoard = Math.max(0, 5 - board.length);
-      var randomOppCount = fixedOpp ? Math.max(0, numOpp - 1) : numOpp;
+      var randomOppCount = 0;
+      for (var ro = 0; ro < numOpp; ro++) { if (!fixedOpps[ro]) randomOppCount++; }
       var needRandomCards = needBoard + randomOppCount * 2;
       if (needRandomCards > 0 && deck.length < needRandomCards) {
         errMsg = "Недостаточно карт в колоде.";
         if (winPct) winPct.textContent = "—";
         if (tiePct) tiePct.textContent = "—";
-        if (equityPct) equityPct.textContent = "—";
+        if (oppEquityLines) oppEquityLines.innerHTML = "";
         if (resultMeta) resultMeta.textContent = errMsg;
         return;
       }
       calcBtn.disabled = true;
       if (winPct) winPct.textContent = "…";
       if (tiePct) tiePct.textContent = "…";
-      if (equityPct) equityPct.textContent = "…";
+      if (oppEquityLines) oppEquityLines.innerHTML = "<p class=\"equilator-result__line\"><span class=\"equilator-result__label\">…</span></p>";
       if (resultMeta) resultMeta.textContent = "Считаем…";
-      var showResult = function (wins, ties, trials) {
-        var winP = (100 * wins / trials).toFixed(1);
-        var tieP = (100 * ties / trials).toFixed(1);
-        var equity = (100 * (wins + ties / 2) / trials).toFixed(1);
-        if (winPct) winPct.textContent = winP + "%";
-        if (tiePct) tiePct.textContent = tieP + "%";
-        if (equityPct) equityPct.textContent = equity + "%";
+      var showResult = function (wins, ties, trials, oppWins) {
+        var winRaw = (100 * wins / trials);
+        var tieRaw = (100 * ties / trials);
+        if (winPct) winPct.textContent = winRaw.toFixed(1) + "%";
+        if (tiePct) tiePct.textContent = tieRaw.toFixed(1) + "%";
+        if (oppEquityLines) {
+          var html = "";
+          if (oppWins && oppWins.length > 0) {
+            for (var i = 0; i < oppWins.length; i++) {
+              var pct = (100 * oppWins[i] / trials).toFixed(1);
+              var label = oppWins.length === 1 ? "Эквити оппонента на победу:" : "Эквити оппонента " + (i + 1) + " на победу:";
+              html += "<p class=\"equilator-result__line\"><span class=\"equilator-result__label\">" + label + "</span> <strong>" + pct + "%</strong></p>";
+            }
+          } else {
+            var oppRaw = 100 - winRaw - tieRaw;
+            if (oppRaw < 0) oppRaw = 0;
+            html = "<p class=\"equilator-result__line\"><span class=\"equilator-result__label\">Эквити оппонента на победу:</span> <strong>" + oppRaw.toFixed(1) + "%</strong></p>";
+          }
+          oppEquityLines.innerHTML = html;
+        }
         if (resultMeta) resultMeta.textContent = trials === 1 ? "Точный расчёт (известна рука оппонента)." : "По " + trials + " симуляциям.";
         calcBtn.disabled = false;
       };
-      if (fixedOpp && numOpp === 1 && board.length === 5) {
+      var allFixed = board.length === 5 && fixedOpps.every(function (p) { return p !== null; });
+      if (allFixed) {
         var boardCardsExact = window.equilatorCloneCards(board);
-        var heroValExact = window.equilatorEvalHand(hero.concat(boardCardsExact));
-        var oppValExact = window.equilatorEvalHand(fixedOpp.concat(boardCardsExact));
-        var cmpExact = 0;
-        for (var tt = 0; tt < 6; tt++) {
-          if (heroValExact[tt] > oppValExact[tt]) { cmpExact = 1; break; }
-          if (heroValExact[tt] < oppValExact[tt]) { cmpExact = -1; break; }
+        var heroHandExact = hero.concat(boardCardsExact);
+        var oppHandsExact = fixedOpps.map(function (p) { return p.concat(boardCardsExact); });
+        var winsExact = 0, tiesExact = 0;
+        var oppWinsExact = [];
+        for (var eo = 0; eo < numOpp; eo++) oppWinsExact.push(0);
+        if (numOpp === 1) {
+          var cmp01 = window.equilatorCompareHands(heroHandExact, oppHandsExact[0]);
+          if (cmp01 > 0) winsExact = 1;
+          else if (cmp01 < 0) oppWinsExact[0] = 1;
+          else tiesExact = 1;
+        } else if (numOpp === 2) {
+          var cmpHero1 = window.equilatorCompareHands(heroHandExact, oppHandsExact[0]);
+          var cmpHero2 = window.equilatorCompareHands(heroHandExact, oppHandsExact[1]);
+          var cmp12 = window.equilatorCompareHands(oppHandsExact[0], oppHandsExact[1]);
+          if (cmpHero1 > 0 && cmpHero2 > 0) winsExact = 1;
+          else if (cmpHero1 < 0 && cmp12 > 0) oppWinsExact[0] = 1;
+          else if (cmpHero2 < 0 && cmp12 < 0) oppWinsExact[1] = 1;
+          else tiesExact = 1;
+        } else {
+          var anyLossExact = false;
+          var anyTieExact = false;
+          for (var eo = 0; eo < numOpp; eo++) {
+            var c = window.equilatorCompareHands(heroHandExact, oppHandsExact[eo]);
+            if (c < 0) anyLossExact = true;
+            if (c === 0) anyTieExact = true;
+          }
+          winsExact = anyLossExact ? 0 : (anyTieExact ? 0 : 1);
+          tiesExact = anyLossExact ? 0 : (anyTieExact ? 1 : 0);
         }
-        showResult(cmpExact > 0 ? 1 : 0, cmpExact === 0 ? 1 : 0, 1);
+        showResult(winsExact, tiesExact, 1, numOpp <= 2 ? oppWinsExact : null);
         return;
       }
       var trials = 8000;
       var wins = 0;
       var ties = 0;
+      var oppWins = [];
+      for (var ow = 0; ow < numOpp; ow++) oppWins.push(0);
       var run = function (done) {
         var next = 0;
         function step() {
@@ -7712,30 +7809,44 @@ function initEquilator() {
             }
             var heroHand = hero.concat(boardCards);
             var heroVal = window.equilatorEvalHand(heroHand);
-            var anyLoss = false;
-            var anyTie = false;
+            var oppHands = [];
+            var shOffset = needBoard;
             for (var o = 0; o < numOpp; o++) {
               var o1, o2;
-              if (fixedOpp && o === 0) {
-                o1 = fixedOpp[0];
-                o2 = fixedOpp[1];
+              if (fixedOpps[o]) {
+                o1 = fixedOpps[o][0];
+                o2 = fixedOpps[o][1];
               } else {
-                var offset = needBoard + (fixedOpp ? (o - 1) * 2 : o * 2);
-                o1 = sh[offset];
-                o2 = sh[offset + 1];
+                o1 = sh[shOffset];
+                o2 = sh[shOffset + 1];
+                shOffset += 2;
               }
-              var oppHand = [o1, o2].concat(boardCards);
-              var oppVal = window.equilatorEvalHand(oppHand);
-              var cmp = 0;
-              for (var t = 0; t < 6; t++) {
-                if (heroVal[t] > oppVal[t]) { cmp = 1; break; }
-                if (heroVal[t] < oppVal[t]) { cmp = -1; break; }
-              }
-              if (cmp < 0) anyLoss = true;
-              if (cmp === 0) anyTie = true;
+              oppHands.push([o1, o2].concat(boardCards));
             }
-            if (!anyLoss && anyTie) ties++;
-            else if (!anyLoss) wins++;
+            if (numOpp === 1) {
+              var cmp = window.equilatorCompareHands(heroHand, oppHands[0]);
+              if (cmp > 0) wins++;
+              else if (cmp < 0) oppWins[0]++;
+              else ties++;
+            } else if (numOpp === 2) {
+              var cmpHero1 = window.equilatorCompareHands(heroHand, oppHands[0]);
+              var cmpHero2 = window.equilatorCompareHands(heroHand, oppHands[1]);
+              var cmp12 = window.equilatorCompareHands(oppHands[0], oppHands[1]);
+              if (cmpHero1 > 0 && cmpHero2 > 0) wins++;
+              else if (cmpHero1 < 0 && cmp12 > 0) oppWins[0]++;
+              else if (cmpHero2 < 0 && cmp12 < 0) oppWins[1]++;
+              else ties++;
+            } else {
+              var anyLoss = false;
+              var anyTie = false;
+              for (var o = 0; o < numOpp; o++) {
+                var c = window.equilatorCompareHands(heroHand, oppHands[o]);
+                if (c < 0) anyLoss = true;
+                if (c === 0) anyTie = true;
+              }
+              if (!anyLoss && anyTie) ties++;
+              else if (!anyLoss) wins++;
+            }
           }
           if (next < trials) setTimeout(step, 0);
           else done();
@@ -7743,14 +7854,14 @@ function initEquilator() {
         step();
       };
       run(function () {
-        showResult(wins, ties, trials);
+        showResult(wins, ties, trials, numOpp <= 2 ? oppWins : null);
       });
     } catch (e) {
       calcBtn.disabled = false;
       if (resultMeta) resultMeta.textContent = "Ошибка: " + (e && e.message ? e.message : String(e));
       if (winPct) winPct.textContent = "—";
       if (tiePct) tiePct.textContent = "—";
-      if (equityPct) equityPct.textContent = "—";
+      if (oppEquityLines) oppEquityLines.innerHTML = "";
     }
   });
 }

@@ -1765,27 +1765,23 @@
                 <button type="button" class="equilator-picker-close" id="equilatorPickerClose">Закрыть</button>
               </div>
               <div class="equilator-section">
-                <h2 class="equilator-section__title">Карты оппонента (опционально)</h2>
-                <p class="equilator-hint">Если указать руку одного оппонента, эквити посчитается против неё (и при 2+ оппонентах — остальные случайные).</p>
-                <div class="equilator-cards" id="equilatorOppCards">
-                  <button type="button" class="equilator-card-slot" id="equilatorSlotOpp1" data-equilator-slot="opp1" aria-label="Оппонент карта 1"><span class="equilator-card-slot__text">—</span></button>
-                  <button type="button" class="equilator-card-slot" id="equilatorSlotOpp2" data-equilator-slot="opp2" aria-label="Оппонент карта 2"><span class="equilator-card-slot__text">—</span></button>
-                </div>
-              </div>
-              <div class="equilator-section">
                 <label class="equilator-label">Количество оппонентов</label>
                 <select id="equilatorOpponents" class="equilator-select equilator-select--wide" aria-label="Количество оппонентов">
                   <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
                   <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
                 </select>
               </div>
+              <div class="equilator-section">
+                <h2 class="equilator-section__title">Карты оппонентов (опционально)</h2>
+                <div id="equilatorOppCards"></div>
+              </div>
               <button type="button" class="primary-button" id="equilatorCalcBtn">Рассчитать эквити</button>
             </div>
             <div class="equilator-result equilator-result--hidden" id="equilatorResult">
               <h2 class="equilator-result__title">Результат</h2>
-              <p class="equilator-result__line"><span class="equilator-result__label">Победа:</span> <strong id="equilatorWinPct">—</strong></p>
+              <p class="equilator-result__line"><span class="equilator-result__label">Моё эквити на победу:</span> <strong id="equilatorWinPct">—</strong></p>
+              <div id="equilatorOppEquityLines"></div>
               <p class="equilator-result__line"><span class="equilator-result__label">Ничья:</span> <strong id="equilatorTiePct">—</strong></p>
-              <p class="equilator-result__line"><span class="equilator-result__label">Эквити (доля банка):</span> <strong id="equilatorEquityPct">—</strong></p>
               <p class="equilator-result__meta" id="equilatorResultMeta">—</p>
             </div>
           </div>
