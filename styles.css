@@ -4255,6 +4255,18 @@ html.app-view-home .feature--rating-spring-promo:hover,
   cursor: pointer;
 }
 .raffle-leave-btn:hover { background: rgba(239, 68, 68, 0.15); color: var(--text); border-color: rgba(239, 68, 68, 0.4); }
+.raffle-cancel-btn--hidden { display: none; }
+.raffle-cancel-btn {
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-block;
+}
 .raffle-joined-msg--hidden { display: none; }
 .raffle-joined-msg { margin: 0 0 12px; font-weight: 600; color: var(--accent-2); }
 .raffle-participants-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--text); }
