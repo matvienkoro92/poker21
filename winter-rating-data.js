@@ -1997,10 +1997,12 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
 // Рейтинг ВЕСНЫ: только март, не смешивается с зимой. Календарь и итоговые таблицы Лига 1/2.
 // Скрины за дату по лигам — Лига 1 (то, что скидывали), Лига 2 отдельно.
 var SPRING_RATING_IMAGES_LEAGUE1 = {
-  "01.03.2026": ["rating-01-03-2026.png", "rating-01-03-2026-2.png", "rating-01-03-2026-3.png", "rating-01-03-2026-4.png", "rating-01-03-2026-5.png", "rating-01-03-2026-6.png", "rating-01-03-2026-7.png", "rating-01-03-2026-8.png"]
+  "01.03.2026": ["rating-01-03-2026.png", "rating-01-03-2026-2.png", "rating-01-03-2026-3.png", "rating-01-03-2026-4.png", "rating-01-03-2026-5.png", "rating-01-03-2026-6.png", "rating-01-03-2026-7.png", "rating-01-03-2026-8.png"],
+  "02.03.2026": ["rating-02-03-2026.png", "rating-02-03-2026-2.png", "rating-02-03-2026-3.png", "rating-02-03-2026-4.png", "rating-02-03-2026-5.png", "rating-02-03-2026-6.png", "rating-02-03-2026-7.png", "rating-02-03-2026-8.png", "rating-02-03-2026-9.png"]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
-  "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"]
+  "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
+  "02.03.2026": ["rating-02-03-2026-league2-1.png", "rating-02-03-2026-league2-2.png", "rating-02-03-2026-league2-3.png"]
 };
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "01.03.2026": [
@@ -2014,5 +2016,19 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "21:00", buyin: 500, players: [{ nick: "Рыбнадзор", place: 0, reward: 5138 }, { nick: "comotd", place: 0, reward: 2622 }] },
     { time: "21:59", buyin: 500, players: [{ nick: "Откотика_Я", place: 0, reward: 9151 }, { nick: "MEVRIK", place: 0, reward: 4791 }] },
     { time: "22:00", buyin: 200, players: [{ nick: "XORTYRETSKOGO", place: 1, reward: 6400 }, { nick: "pitbulltip", place: 2, reward: 3830 }, { nick: "JinDaniels", place: 4, reward: 0 }, { nick: "ШЛЯПАУСАТ", place: 7, reward: 0 }, { nick: "Walker", place: 9, reward: 0 }] }
+  ],
+  "02.03.2026": [
+    { time: "08:00", name: "Bali Yana 30k", buyin: 30000, players: [{ nick: "comotd", place: 2, reward: 2553 }, { nick: "Sukmanov1", place: 13, reward: 0 }, { nick: "nikola233", place: 0, reward: 0 }] },
+    { time: "12:00", name: "DV Rebuy", buyin: 800, players: [{ nick: "|---777---|", place: 1, reward: 20800 }, { nick: "ПокерМанки", place: 2, reward: 14100 }, { nick: "FishKopcheny", place: 4, reward: 6700 }, { nick: "nikola233", place: 7, reward: 0 }, { nick: "Waaar", place: 8, reward: 0 }] },
+    { time: "13:00", name: "DV Bounty 150k PKO", buyin: 10000, players: [{ nick: "АршакМкртчян", place: 8, reward: 6954 }, { nick: "NINT3NDO", place: 24, reward: 488 }, { nick: "Proxor", place: 0, reward: 0 }, { nick: "Monfokon", place: 0, reward: 0 }, { nick: "AndrushaMorf", place: 30, reward: 0 }] },
+    { time: "14:00", name: "Tournament Rebuy", buyin: 200, players: [{ nick: "FeraPont", place: 1, reward: 3970 }, { nick: "MiracleDivice", place: 2, reward: 2500 }, { nick: "Че643", place: 3, reward: 1710 }, { nick: "Shtill180", place: 5, reward: 1020 }, { nick: "VOSOvec", place: 7, reward: 0 }] },
+    { time: "15:00", name: "New - Hot PKO 2/3", buyin: 10000, players: [{ nick: "Рыбнадзор", place: 7, reward: 4944 }, { nick: "Откотика_Я", place: 13, reward: 2070 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }, { nick: "Em13!!", place: 0, reward: 0 }] },
+    { time: "17:00", name: "Rebuy MTT", buyin: 45600, players: [{ nick: "Nuts", place: 1, reward: 25900 }, { nick: "FishKopcheny", place: 2, reward: 17500 }, { nick: "FeraPont", place: 6, reward: 0 }, { nick: "king00001", place: 7, reward: 0 }, { nick: "Пряник", place: 8, reward: 0 }] },
+    { time: "18:00", name: "Monday 250k GT", buyin: 5000, players: [{ nick: "АршакМкртчян", place: 9, reward: 6144 }, { nick: "Пряник", place: 26, reward: 936 }, { nick: "outsider", place: 171, reward: 0 }, { nick: "AndrushaMorf", place: 69, reward: 0 }, { nick: "Фокс", place: 113, reward: 0 }] },
+    { time: "20:00", name: "HOK", buyin: 37000, players: [{ nick: "Waaar", place: 1, reward: 25275 }, { nick: "WiNifly", place: 2, reward: 14938 }, { nick: "|---777---|", place: 5, reward: 4697 }, { nick: "FrankL", place: 7, reward: 0 }, { nick: "FishKopcheny", place: 8, reward: 225 }] },
+    { time: "21:00", name: "NLH KNOCKOUT 250k", buyin: 20000, players: [{ nick: "siropchik", place: 2, reward: 31575 }, { nick: "АршакМкртчян", place: 11, reward: 6974 }, { nick: "Waaarr", place: 19, reward: 1746 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "Пряник", place: 31, reward: 0 }] },
+    { time: "21:00", name: "MOK", buyin: 300, players: [{ nick: "Аспирин", place: 1, reward: 10000 }, { nick: "Рамиль01fan", place: 2, reward: 9860 }, { nick: "pitbulltip", place: 3, reward: 4040 }, { nick: "Mier", place: 5, reward: 1480 }, { nick: "vitalyan088", place: 6, reward: 0 }] },
+    { time: "22:00", name: "Energetik Tournament", buyin: 200, players: [{ nick: "Рамиль01fan", place: 1, reward: 6930 }, { nick: "Shkarubo", place: 2, reward: 4690 }, { nick: "ЧУРменя", place: 4, reward: 2240 }, { nick: "WiNifly", place: 5, reward: 2050 }, { nick: "|---777---|", place: 7, reward: 0 }] },
+    { time: "22:00", name: "Magic", buyin: 500, players: [{ nick: "Proxor", place: 9, reward: 8818 }, { nick: "Рыбнадзор", place: 23, reward: 0 }, { nick: "AndrushaMorf", place: 65, reward: 0 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }] }
   ]
 };
