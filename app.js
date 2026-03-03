@@ -6790,6 +6790,11 @@ function initRaffles() {
         if (!data || !data.ok) return;
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
+        if (raffleCancelBtn) {
+          // Для не-админа кнопка отмены всегда скрыта
+          raffleCancelBtn.classList.toggle("raffle-cancel-btn--hidden", !rafflesIsAdmin);
+          raffleCancelBtn.disabled = !rafflesIsAdmin;
+        }
         var raw = data.raffles || [];
         var seen = {};
         var allRaffles = raw.filter(function (r) {
@@ -6811,7 +6816,9 @@ function initRaffles() {
           }
           return true;
         });
-        var completedDrawn = completed.filter(function (r) { return r.status === "drawn"; });
+        // Показываем только последние 10 завершённых/отменённых розыгрышей
+        var completedVisible = completed.slice(0, 10);
+        var completedDrawn = completedVisible.filter(function (r) { return r.status === "drawn"; });
 
         // Вкладка «Активные»: только активные розыгрыши
         var activeCount = activeList.length;
@@ -6837,15 +6844,15 @@ function initRaffles() {
         updateRaffleBadge(!!active);
 
         // Вкладка «Завершённые»: сумма всех разыгранных призов (учитываем только розыгрыши со статусом drawn)
-        var completedCount = completed.length;
+        var completedCount = completedVisible.length;
         var completedSum = completedDrawn.reduce(function (s, r) { return s + rafflePrizesSum(r); }, 0);
         if (rafflesTabCompletedCount) rafflesTabCompletedCount.textContent = String(completedCount);
         if (rafflesTabCompletedSum) rafflesTabCompletedSum.textContent = completedSum > 0 ? completedSum + " р" : "0";
 
         if (rafflesCompleted) {
-          if (completed.length > 0) {
+          if (completedVisible.length > 0) {
             if (rafflesCompletedEmpty) rafflesCompletedEmpty.classList.add("raffle-empty--hidden");
-            rafflesCompleted.innerHTML = completed.map(function (raffle) {
+            rafflesCompleted.innerHTML = completedVisible.map(function (raffle) {
               var created = raffle.createdAt ? new Date(raffle.createdAt).toLocaleDateString("ru-RU") : "";
               var end = raffle.endDate ? new Date(raffle.endDate).toLocaleString("ru-RU") : "";
               var baseTitle = raffle.title ? raffle.title : "Розыгрыш";
@@ -7017,6 +7024,20 @@ function initRaffles() {
         if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
         return;
       }
+      if (tg && tg.showConfirm) {
+        tg.showConfirm("Отменить розыгрыш? Это действие нельзя будет отменить.", function (ok) {
+          if (ok) performRaffleCancel();
+        });
+      } else {
+        var sure = window.confirm("Точно отменить этот розыгрыш? Это действие нельзя будет отменить.");
+        if (!sure) return;
+        performRaffleCancel();
+      }
+    });
+  }
+
+  function performRaffleCancel() {
+    if (!raffleCancelBtn) return;
       raffleCancelBtn.disabled = true;
       fetch(base + "/api/raffles", {
         method: "POST",
