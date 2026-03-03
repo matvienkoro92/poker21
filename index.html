@@ -237,7 +237,7 @@
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
-                  <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш"></span>
+                  <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш">1</span>
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Розыгрыши</div>
@@ -253,6 +253,12 @@
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📺</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Стримы</div>
+                  </div>
+                </a>
+                <a href="#" class="feature feature--link feature--app" data-view-target="equilator" aria-label="Эквилятор">
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📊</span></div>
+                  <div class="feature__body">
+                    <div class="feature__title">Эквилятор</div>
                   </div>
                 </a>
               </div>
@@ -1356,28 +1362,81 @@
           <!-- Розыгрыши -->
           <div class="view" data-view="raffles">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
-            <h1 class="title">Розыгрыши</h1>
+            <header class="raffles-hero" aria-hidden="true">
+              <div class="raffles-hero__suits">
+                <span class="raffles-hero__suit" aria-hidden="true">♠</span>
+                <span class="raffles-hero__suit" aria-hidden="true">♥</span>
+                <span class="raffles-hero__suit raffles-hero__suit--red" aria-hidden="true">♦</span>
+                <span class="raffles-hero__suit raffles-hero__suit--red" aria-hidden="true">♣</span>
+              </div>
+              <p class="raffles-hero__club">TWO ACES</p>
+              <p class="raffles-hero__tagline">Розыгрыши билетов на турниры клуба</p>
+              <div class="raffles-hero__ticket-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="56" height="28">
+                  <rect x="2" y="4" width="44" height="16" rx="2" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.9"/>
+                  <path d="M12 4v16M24 4v16M36 4v16" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.6"/>
+                  <circle cx="8" cy="12" r="2" fill="currentColor" opacity="0.5"/>
+                  <circle cx="40" cy="12" r="2" fill="currentColor" opacity="0.5"/>
+                </svg>
+              </div>
+            </header>
 
             <div class="raffles-admin-wrap raffles-admin-wrap--hidden" id="rafflesAdminWrap">
               <button type="button" class="raffles-create-toggle" id="rafflesCreateToggle">Создать розыгрыш</button>
               <div class="raffle-create-form raffle-create-form--hidden" id="raffleCreateForm">
-                <label class="randomizer-label">
-                  <span class="randomizer-label__text">Всего победителей:</span>
-                  <input type="number" id="raffleTotalWinners" class="randomizer-input" min="1" max="100" value="3" />
-                </label>
-                <label class="randomizer-label">
-                  <span class="randomizer-label__text">Название приза / розыгрыша:</span>
-                  <input type="text" id="raffleTitle" class="randomizer-input" placeholder="Например: билеты на турнир" maxlength="200" />
-                </label>
-                <label class="randomizer-label">
-                  <span class="randomizer-label__text">Количество групп призов:</span>
-                  <input type="number" id="raffleGroupCount" class="randomizer-input" min="1" max="10" value="1" />
-                </label>
-                <div class="raffle-groups" id="raffleGroups"></div>
-                <label class="randomizer-label">
-                  <span class="randomizer-label__text">Дата и время завершения (МСК):</span>
-                  <input type="datetime-local" id="raffleEndDate" class="randomizer-input" />
-                </label>
+                <p class="raffle-create-form__type-label">Вид розыгрыша</p>
+                <div class="raffle-create-form__type-row" role="group" aria-label="Тип розыгрыша">
+                  <label class="raffle-create-form__type-option">
+                    <input type="radio" name="raffleType" value="tickets" id="raffleTypeTickets" checked />
+                    <span>Розыгрыш билетов на турниры</span>
+                  </label>
+                  <label class="raffle-create-form__type-option">
+                    <input type="radio" name="raffleType" value="other" id="raffleTypeOther" />
+                    <span>Розыгрыш на кеш. Столы Бонус гейм на Poker21</span>
+                  </label>
+                </div>
+
+                <!-- Форма: Розыгрыш билетов на турниры -->
+                <div class="raffle-create-form__panel raffle-create-form__panel--tickets" id="raffleCreatePanelTickets">
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Сколько групп победителей:</span>
+                    <input type="number" id="raffleTicketGroupCount" class="randomizer-input" min="1" max="10" value="1" />
+                  </label>
+                  <div class="raffle-ticket-winners-wrap raffle-ticket-winners-wrap--single" id="raffleTicketWinnersWrap">
+                    <label class="randomizer-label raffle-ticket-single-winners" id="raffleTicketSingleWinnersLabel">
+                      <span class="randomizer-label__text">Сколько победителей:</span>
+                      <input type="number" id="raffleTicketWinnersCount" class="randomizer-input" min="1" max="100" value="3" />
+                    </label>
+                    <div class="raffle-ticket-groups" id="raffleTicketGroups"></div>
+                  </div>
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Сумма каждого билета (₽):</span>
+                    <input type="number" id="raffleTicketAmount" class="randomizer-input" min="0" step="1" value="0" />
+                  </label>
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Дата и время завершения (МСК):</span>
+                    <input type="datetime-local" id="raffleEndDate" class="randomizer-input" />
+                  </label>
+                  <p class="raffle-create-form__total" id="raffleCreateTotal">Итого: 0 ₽</p>
+                </div>
+
+                <!-- Форма: Розыгрыш на кеш. Столы Бонус гейм на Poker21 -->
+                <div class="raffle-create-form__panel raffle-create-form__panel--hidden" id="raffleCreatePanelOther">
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Название приза / розыгрыша:</span>
+                    <input type="text" id="raffleTitle" class="randomizer-input" placeholder="Например: билеты на турнир" maxlength="200" />
+                  </label>
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Количество групп призов:</span>
+                    <input type="number" id="raffleGroupCount" class="randomizer-input" min="1" max="10" value="1" />
+                  </label>
+                  <div class="raffle-groups" id="raffleGroups"></div>
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Дата и время завершения (МСК):</span>
+                    <input type="datetime-local" id="raffleEndDateOther" class="randomizer-input" />
+                  </label>
+                </div>
+
                 <button type="button" class="primary-button" id="raffleCreateBtn">Создать</button>
               </div>
             </div>
@@ -1389,14 +1448,16 @@
 
             <div class="raffles-panel raffles-panel--active" id="rafflesPanelActive" data-raffle-panel="active">
               <div class="raffle-current raffle-current--hidden" id="raffleCurrent">
-                <div class="raffle-card" id="raffleCard">
+                <div class="raffle-card raffle-card--ticket" id="raffleCard">
                   <p class="raffle-meta" id="raffleMeta"></p>
                   <p class="raffle-end" id="raffleEnd"></p>
                   <div class="raffle-prizes" id="rafflePrizes"></div>
                   <button type="button" class="primary-button raffle-join-btn" id="raffleJoinBtn">Участвую</button>
                   <button type="button" class="raffle-leave-btn raffle-leave-btn--hidden" id="raffleLeaveBtn">Отменить участие</button>
-                  <button type="button" class="raffle-cancel-btn raffle-cancel-btn--hidden" id="raffleCancelBtn">Отменить розыгрыш (админ)</button>
-                  <button type="button" class="raffle-cancel-btn raffle-cancel-btn--hidden" id="raffleDeleteBtn">Удалить розыгрыш (админ)</button>
+                  <div class="raffle-admin-actions raffle-admin-actions--hidden" id="raffleAdminActions" aria-hidden="true">
+                    <button type="button" class="raffle-cancel-btn" id="raffleCancelBtn">Отменить розыгрыш (админ)</button>
+                    <button type="button" class="raffle-cancel-btn" id="raffleDeleteBtn">Удалить розыгрыш (админ)</button>
+                  </div>
                   <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
                   <h3 class="raffle-participants-title">Участники</h3>
                   <ul class="raffle-participants" id="raffleParticipants"></ul>
@@ -1679,6 +1740,13 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Эквилятор (пока пустой) -->
+          <div class="view" data-view="equilator">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Эквилятор</h1>
+            <p class="streams-intro">Скоро здесь появится контент.</p>
           </div>
         </section>
 

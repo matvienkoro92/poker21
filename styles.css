@@ -4201,6 +4201,109 @@ html.app-view-home .feature--rating-spring-promo:hover,
 }
 
 /* Розыгрыши */
+/* Шапка раздела розыгрышей: TWO ACES, масти, билеты */
+.raffles-hero {
+  margin: 0 0 20px;
+  padding: 20px 16px 24px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.7));
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.raffles-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.15), transparent 60%);
+  pointer-events: none;
+}
+.raffles-hero__suits {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+.raffles-hero__suit {
+  font-size: 20px;
+  color: var(--text);
+  opacity: 0.9;
+}
+.raffles-hero__suit--red { color: #f87171; }
+.raffles-hero__club {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  position: relative;
+}
+.raffles-hero__tagline {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  position: relative;
+}
+.raffles-hero__ticket-icon {
+  color: var(--accent);
+  opacity: 0.7;
+  position: relative;
+}
+
+/* Карточка розыгрыша в виде билета */
+.raffle-card--ticket {
+  position: relative;
+  margin-bottom: 24px;
+  padding: 20px 18px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.75));
+  border: 2px solid var(--border-subtle);
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.raffle-card--ticket::before,
+.raffle-card--ticket::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border-subtle);
+  border-radius: 50%;
+  background: var(--bg-color);
+  transform: translateY(-50%);
+}
+.raffle-card--ticket::before { left: -7px; }
+.raffle-card--ticket::after { right: -7px; }
+.raffle-card--ticket .raffle-meta { font-size: 14px; color: var(--text); }
+.raffle-card--ticket .raffle-end { color: var(--accent-2); font-weight: 500; }
+.raffle-card--ticket .raffle-prizes { margin-bottom: 16px; padding-left: 0; }
+.raffle-card--ticket .raffle-prize {
+  padding: 6px 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.raffle-card--ticket .primary-button.raffle-join-btn {
+  background: linear-gradient(135deg, var(--accent), #ea580c);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 2px 12px rgba(249, 115, 22, 0.35);
+}
+.raffle-card--ticket .primary-button.raffle-join-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.4);
+}
+
+/* Завершённые розыгрыши — акцент «билет разыгран» */
+.raffle-completed-card { border-left: 4px solid var(--accent-2); }
+.raffle-completed-card__winners-title { color: var(--accent-2); }
+
 .raffles-admin-wrap--hidden { display: none; }
 .raffles-create-toggle {
   margin-bottom: 12px;
@@ -4224,6 +4327,24 @@ html.app-view-home .feature--rating-spring-promo:hover,
   flex-direction: column;
   gap: 12px;
 }
+.raffle-create-form__type-label { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--text); }
+.raffle-create-form__type-row { display: flex; flex-direction: column; gap: 8px; }
+.raffle-create-form__type-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+.raffle-create-form__type-option input { accent-color: var(--accent); }
+.raffle-create-form__panel--hidden { display: none !important; }
+.raffle-create-form__panel { display: flex; flex-direction: column; gap: 12px; }
+.raffle-ticket-winners-wrap--single .raffle-ticket-groups { display: none; }
+.raffle-ticket-winners-wrap:not(.raffle-ticket-winners-wrap--single) .raffle-ticket-single-winners { display: none; }
+.raffle-ticket-groups { display: flex; flex-direction: column; gap: 8px; }
+.raffle-ticket-group-row { display: flex; align-items: center; gap: 8px; }
+.raffle-create-form__total { margin: 8px 0 0; font-size: 15px; font-weight: 600; color: var(--accent-2); }
 .raffle-groups { display: flex; flex-direction: column; gap: 8px; }
 .raffle-group-row { display: flex; flex-direction: column; gap: 4px; }
 .raffle-current--hidden { display: none; }
@@ -4255,6 +4376,8 @@ html.app-view-home .feature--rating-spring-promo:hover,
   cursor: pointer;
 }
 .raffle-leave-btn:hover { background: rgba(239, 68, 68, 0.15); color: var(--text); border-color: rgba(239, 68, 68, 0.4); }
+.raffle-admin-actions--hidden { display: none !important; }
+.raffle-admin-actions { margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .raffle-cancel-btn--hidden { display: none; }
 .raffle-cancel-btn {
   margin: 0 0 12px 10px;
@@ -4333,6 +4456,11 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffle-completed-card__winners { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text); }
 .raffle-completed-card__winners-title { margin: 8px 0 4px; font-size: 13px; font-weight: 600; color: var(--accent-2); }
 
+[data-theme="light"] .raffles-hero {
+  background: linear-gradient(145deg, rgba(255, 251, 247, 0.95), rgba(255, 243, 230, 0.9));
+  border-color: rgba(249, 115, 22, 0.35);
+}
+[data-theme="light"] .raffles-hero__suit--red { color: #dc2626; }
 [data-theme="light"] .raffle-create-form,
 [data-theme="light"] .raffle-card,
 [data-theme="light"] .raffles-tabs,
@@ -5058,13 +5186,22 @@ a.home-mini-icon-item {
 
 .feature__badge {
   position: absolute;
-  top: 8px;
+  top: 6px;
   right: 8px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
   background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
   box-shadow: 0 0 0 2px var(--card-bg, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .feature__badge--hidden {
   display: none;

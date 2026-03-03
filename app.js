@@ -6608,12 +6608,24 @@ function initRaffles() {
   var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var adminWrap = document.getElementById("rafflesAdminWrap");
+  var raffleAdminActions = document.getElementById("raffleAdminActions");
   var createToggle = document.getElementById("rafflesCreateToggle");
   var createForm = document.getElementById("raffleCreateForm");
+  var raffleTypeTickets = document.getElementById("raffleTypeTickets");
+  var raffleTypeOther = document.getElementById("raffleTypeOther");
+  var raffleCreatePanelTickets = document.getElementById("raffleCreatePanelTickets");
+  var raffleCreatePanelOther = document.getElementById("raffleCreatePanelOther");
+  var raffleTicketGroupCount = document.getElementById("raffleTicketGroupCount");
+  var raffleTicketWinnersWrap = document.getElementById("raffleTicketWinnersWrap");
+  var raffleTicketSingleWinnersLabel = document.getElementById("raffleTicketSingleWinnersLabel");
+  var raffleTicketWinnersCount = document.getElementById("raffleTicketWinnersCount");
+  var raffleTicketGroups = document.getElementById("raffleTicketGroups");
+  var raffleTicketAmount = document.getElementById("raffleTicketAmount");
+  var raffleCreateTotal = document.getElementById("raffleCreateTotal");
+  var raffleEndDateInput = document.getElementById("raffleEndDate");
   var groupCountInput = document.getElementById("raffleGroupCount");
   var raffleGroupsEl = document.getElementById("raffleGroups");
-  var totalWinnersInput = document.getElementById("raffleTotalWinners");
-  var endDateInput = document.getElementById("raffleEndDate");
+  var raffleEndDateOther = document.getElementById("raffleEndDateOther");
   var createBtn = document.getElementById("raffleCreateBtn");
   var raffleCurrent = document.getElementById("raffleCurrent");
   var raffleEmpty = document.getElementById("raffleEmpty");
@@ -6697,6 +6709,12 @@ function initRaffles() {
       var nominal = parsePrizeValue(g.prize);
       return sum + (nominal > 0 ? nominal * count : 0);
     }, 0);
+  }
+
+  function formatRaffleSum(rub) {
+    var n = Math.round(rub);
+    if (n === 0) return "0 ₽";
+    return (n < 0 ? "-" : "") + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f") + " ₽";
   }
 
   function getMyUserId() {
@@ -6827,6 +6845,10 @@ function initRaffles() {
         });
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
+        if (raffleAdminActions) {
+          raffleAdminActions.classList.toggle("raffle-admin-actions--hidden", !rafflesIsAdmin);
+          raffleAdminActions.setAttribute("aria-hidden", rafflesIsAdmin ? "false" : "true");
+        }
         if (raffleCancelBtn) {
           raffleCancelBtn.classList.toggle("raffle-cancel-btn--hidden", !rafflesIsAdmin);
           raffleCancelBtn.disabled = !rafflesIsAdmin;
@@ -6857,11 +6879,11 @@ function initRaffles() {
           return created.getTime() >= today.getTime();
         });
 
-        // Вкладка «Активные»: только активные розыгрыши
+        // Вкладка «Активные»: количество розыгрышей и сумма разыгрываемая сейчас (₽)
         var activeCount = activeList.length;
-        var activeSum = activeList.reduce(function (s, r) { return s + (r.totalWinners || 0); }, 0);
+        var activeSumRub = activeList.reduce(function (s, r) { return s + getRaffleTotalPrize(r); }, 0);
         if (rafflesTabActiveCount) rafflesTabActiveCount.textContent = String(activeCount);
-        if (rafflesTabActiveSum) rafflesTabActiveSum.textContent = String(activeSum);
+        if (rafflesTabActiveSum) rafflesTabActiveSum.textContent = formatRaffleSum(activeSumRub);
         var active = activeList[0] || null;
 
         if (active) {
@@ -6880,11 +6902,11 @@ function initRaffles() {
         }
         updateRaffleBadge(!!active);
 
-        // Вкладка «Завершённые»: только завершённые розыгрыши (без старых)
+        // Вкладка «Завершённые»: количество розыгрышей и сумма разыгранная за все время (₽)
         var completedCount = completed.length;
-        var completedSum = completed.reduce(function (s, r) { return s + ((r.winners && r.winners.length) || 0); }, 0);
+        var completedSumRub = completed.reduce(function (s, r) { return s + getRaffleTotalPrize(r); }, 0);
         if (rafflesTabCompletedCount) rafflesTabCompletedCount.textContent = String(completedCount);
-        if (rafflesTabCompletedSum) rafflesTabCompletedSum.textContent = String(completedSum);
+        if (rafflesTabCompletedSum) rafflesTabCompletedSum.textContent = formatRaffleSum(completedSumRub);
 
         if (rafflesCompleted) {
           if (completed.length > 0) {
@@ -6926,7 +6948,56 @@ function initRaffles() {
       .catch(function () {});
   }
 
+  function getRaffleCreateType() {
+    return raffleTypeTickets && raffleTypeTickets.checked ? "tickets" : "other";
+  }
+
+  function switchRaffleCreatePanel() {
+    var isTickets = getRaffleCreateType() === "tickets";
+    if (raffleCreatePanelTickets) raffleCreatePanelTickets.classList.toggle("raffle-create-form__panel--hidden", !isTickets);
+    if (raffleCreatePanelOther) raffleCreatePanelOther.classList.toggle("raffle-create-form__panel--hidden", isTickets);
+    if (isTickets) {
+      buildTicketGroupInputs();
+      updateRaffleCreateTotal();
+    } else {
+      buildGroupInputs();
+    }
+  }
+
+  function buildTicketGroupInputs() {
+    if (!raffleTicketGroupCount || !raffleTicketWinnersWrap || !raffleTicketGroups) return;
+    var n = Math.max(1, Math.min(10, parseInt(raffleTicketGroupCount.value, 10) || 1));
+    raffleTicketWinnersWrap.classList.toggle("raffle-ticket-winners-wrap--single", n === 1);
+    if (n === 1) {
+      raffleTicketGroups.innerHTML = "";
+      return;
+    }
+    raffleTicketGroups.innerHTML = "";
+    for (var i = 0; i < n; i++) {
+      var div = document.createElement("div");
+      div.className = "raffle-ticket-group-row";
+      div.innerHTML = "<label class=\"randomizer-label\"><span class=\"randomizer-label__text\">Группа " + (i + 1) + " — мест:</span><input type=\"number\" class=\"raffle-ticket-group-count randomizer-input\" min=\"0\" max=\"100\" value=\"1\" data-group-index=\"" + i + "\" /></label>";
+      raffleTicketGroups.appendChild(div);
+    }
+    updateRaffleCreateTotal();
+  }
+
+  function updateRaffleCreateTotal() {
+    if (!raffleCreateTotal || !raffleTicketAmount) return;
+    var amount = parseFloat(String(raffleTicketAmount.value).replace(",", ".")) || 0;
+    var totalWinners = 0;
+    if (raffleTicketGroupCount && parseInt(raffleTicketGroupCount.value, 10) === 1) {
+      totalWinners = Math.max(0, parseInt(raffleTicketWinnersCount.value, 10) || 0);
+    } else if (raffleTicketGroups) {
+      var inputs = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-count");
+      for (var i = 0; i < inputs.length; i++) totalWinners += Math.max(0, parseInt(inputs[i].value, 10) || 0);
+    }
+    var total = totalWinners * amount;
+    raffleCreateTotal.textContent = "Итого: " + (total % 1 === 0 ? total : total.toFixed(2)) + " ₽";
+  }
+
   function buildGroupInputs() {
+    if (!groupCountInput || !raffleGroupsEl) return;
     var n = Math.max(1, Math.min(10, parseInt(groupCountInput.value, 10) || 1));
     raffleGroupsEl.innerHTML = "";
     for (var i = 0; i < n; i++) {
@@ -6953,25 +7024,24 @@ function initRaffles() {
   if (createToggle && createForm) {
     createToggle.addEventListener("click", function () {
       createForm.classList.toggle("raffle-create-form--hidden");
-      if (!createForm.classList.contains("raffle-create-form--hidden")) buildGroupInputs();
+      if (!createForm.classList.contains("raffle-create-form--hidden")) switchRaffleCreatePanel();
     });
   }
+  if (raffleTypeTickets) raffleTypeTickets.addEventListener("change", switchRaffleCreatePanel);
+  if (raffleTypeOther) raffleTypeOther.addEventListener("change", switchRaffleCreatePanel);
+  if (raffleTicketGroupCount) raffleTicketGroupCount.addEventListener("change", buildTicketGroupInputs);
+  if (raffleTicketGroupCount) raffleTicketGroupCount.addEventListener("input", buildTicketGroupInputs);
+  if (raffleTicketWinnersCount) raffleTicketWinnersCount.addEventListener("input", updateRaffleCreateTotal);
+  if (raffleTicketAmount) raffleTicketAmount.addEventListener("input", updateRaffleCreateTotal);
+  if (raffleTicketGroups) raffleTicketGroups.addEventListener("input", function (e) { if (e.target && e.target.classList.contains("raffle-ticket-group-count")) updateRaffleCreateTotal(); });
   if (groupCountInput && raffleGroupsEl) {
     groupCountInput.addEventListener("change", buildGroupInputs);
   }
-  if (createBtn && totalWinnersInput && endDateInput) {
+  if (createBtn) {
     createBtn.addEventListener("click", function () {
-      var total = Math.max(1, Math.min(100, parseInt(totalWinnersInput.value, 10) || 1));
-      var groupInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-count") : [];
-      var prizeInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-prize") : [];
-      var groups = [];
-      for (var i = 0; i < groupInputs.length; i++) {
-        var count = Math.max(0, parseInt(groupInputs[i].value, 10) || 0);
-        var prize = prizeInputs[i] ? prizeInputs[i].value.trim().slice(0, 200) : "";
-        groups.push({ count: count, prize: prize });
-      }
-      if (groups.length === 0) groups = [{ count: total, prize: "Приз" }];
-      var endVal = endDateInput.value;
+      var isTickets = getRaffleCreateType() === "tickets";
+      var endDateEl = isTickets ? raffleEndDateInput : raffleEndDateOther;
+      var endVal = endDateEl ? endDateEl.value : "";
       if (!endVal) {
         if (tg && tg.showAlert) tg.showAlert("Укажите дату и время завершения");
         return;
@@ -6981,11 +7051,51 @@ function initRaffles() {
         if (tg && tg.showAlert) tg.showAlert("Некорректная дата");
         return;
       }
+      var totalWinners;
+      var groups;
+      var title = "";
+      if (isTickets) {
+        var amount = parseFloat(String(raffleTicketAmount.value).replace(",", ".")) || 0;
+        var prizeText = amount > 0 ? "Билет " + (amount % 1 === 0 ? amount : amount.toFixed(2)) + " ₽" : "Билет на турнир";
+        totalWinners = 0;
+        groups = [];
+        if (raffleTicketGroupCount && parseInt(raffleTicketGroupCount.value, 10) === 1) {
+          var c = Math.max(0, parseInt(raffleTicketWinnersCount.value, 10) || 0);
+          totalWinners = c;
+          if (c > 0) groups.push({ count: c, prize: prizeText });
+        } else if (raffleTicketGroups) {
+          var inputs = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-count");
+          for (var i = 0; i < inputs.length; i++) {
+            var cnt = Math.max(0, parseInt(inputs[i].value, 10) || 0);
+            totalWinners += cnt;
+            if (cnt > 0) groups.push({ count: cnt, prize: prizeText });
+          }
+        }
+        if (groups.length === 0) {
+          if (tg && tg.showAlert) tg.showAlert("Укажите количество победителей");
+          return;
+        }
+        title = "Розыгрыш билетов на турниры";
+      } else {
+        var groupInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-count") : [];
+        var prizeInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-prize") : [];
+        groups = [];
+        totalWinners = 0;
+        for (var j = 0; j < groupInputs.length; j++) {
+          var count = Math.max(0, parseInt(groupInputs[j].value, 10) || 0);
+          var prize = prizeInputs[j] ? prizeInputs[j].value.trim().slice(0, 200) : "";
+          totalWinners += count;
+          groups.push({ count: count, prize: prize });
+        }
+        if (groups.length === 0) groups = [{ count: 1, prize: "Приз" }];
+        totalWinners = Math.max(1, totalWinners);
+        title = document.getElementById("raffleTitle") ? document.getElementById("raffleTitle").value.trim().slice(0, 200) : "";
+      }
       createBtn.disabled = true;
       fetch(base + "/api/raffles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData, action: "create", totalWinners: total, groups: groups, endDate: endDate.toISOString() }),
+        body: JSON.stringify({ initData: initData, action: "create", totalWinners: totalWinners, groups: groups, endDate: endDate.toISOString(), title: title || undefined }),
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
