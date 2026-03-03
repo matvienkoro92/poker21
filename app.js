@@ -4520,16 +4520,22 @@ function initWinterRating() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=rating_" + String(dateStr).replace(/\./g, "_");
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      // В Telegram открываем стандартное окно шаринга, чтобы было явно видно действие
+      if (tg && tg.openTelegramLink) {
+        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) +
+          "&text=" + encodeURIComponent("Рейтинг клуба Два туза за " + dateStr);
+        tg.openTelegramLink(shareUrl);
+        return;
+      }
+      // Фоллбек: копирование в буфер обмена + алерт
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг за " + dateStr + "."); else alert("Ссылка скопирована.");
         }).catch(function () {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
         });
       } else {
-        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
       }
     });
