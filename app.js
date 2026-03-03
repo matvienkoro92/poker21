@@ -3731,13 +3731,15 @@ function renderWinterRatingTable(rows) {
   var filtered = rows.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
   var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
   var place = 0;
+  var totalReward = sorted.reduce(function (sum, r) { return sum + (Number(r.reward) || 0); }, 0);
+  var tfoot = "<tfoot><tr class=\"winter-rating__table-total-row\"><td colspan=\"3\">Сумма призовых за день</td><td>" + (totalReward ? totalReward.toLocaleString("ru-RU") : "0") + "</td></tr></tfoot>";
   return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Выигрыш в<br>турнирах</th></tr></thead><tbody>" +
     sorted.map(function (r) {
       place++;
       var trClass = winterRatingRowClass(place);
       var placeCell = winterRatingPlaceCell(place);
       return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? r.reward.toLocaleString("ru-RU") : "0") + "</td></tr>";
-    }).join("") + "</tbody></table>";
+    }).join("") + "</tbody>" + tfoot + "</table>";
 }
 
 function escapeHtmlRating(s) {
@@ -4333,6 +4335,8 @@ function initWinterRating() {
   if (isSpringRatingMode()) {
     var league1Body = document.getElementById("winterRatingLeague1Body");
     var league2Body = document.getElementById("winterRatingLeague2Body");
+    var league1PrizesByPlace = { 1: 100000, 2: 50000, 3: 25000, 4: 10000, 5: 5000 };
+    var league2PrizesByPlace = { 1: 30000, 2: 15000, 3: 7500, 4: 5000, 5: 2500 };
     function renderLeagueRows(leagueNum, bodyEl) {
       if (!bodyEl) return;
       var raw = [];
@@ -4349,6 +4353,9 @@ function initWinterRating() {
         if (pointsVal === 0 && rewardVal === 0) continue;
         leagueRows.push({ place: leagueRows.length + 1, nick: r && r.nick != null ? String(r.nick) : "", points: pointsVal, reward: rewardStr });
       }
+      var hasPrizeColumn = leagueNum === 1 || leagueNum === 2;
+      var colspan = hasPrizeColumn ? 5 : 4;
+      var prizesByPlace = leagueNum === 1 ? league1PrizesByPlace : leagueNum === 2 ? league2PrizesByPlace : null;
       var parts = [];
       for (var wi = 0; wi < leagueRows.length; wi++) {
         var row = leagueRows[wi];
@@ -4359,9 +4366,15 @@ function initWinterRating() {
         var nickStr = row.nick != null ? String(row.nick) : "";
         var nickEsc = escapeHtmlRating(nickStr);
         var nickAttr = nickStr.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        parts.push("<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + (row.points != null ? row.points : "") + "</td><td>" + (row.reward != null ? row.reward : "0") + "</td></tr>");
+        var prizeCell = "";
+        if (hasPrizeColumn) {
+          var prizeVal = prizesByPlace && prizesByPlace[place] != null ? prizesByPlace[place] : null;
+          var prizeStr = prizeVal != null && prizeVal >= 1000 ? (prizeVal / 1000) + "К₽" : (prizeVal != null && prizeVal > 0 ? prizeVal + "₽" : "—");
+          prizeCell = "<td class=\"winter-rating__td-prize\" title=\"" + (prizeVal ? prizeVal.toLocaleString("ru-RU") + " ₽" : "—") + "\">" + prizeStr + "</td>";
+        }
+        parts.push("<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + (row.points != null ? row.points : "") + "</td><td>" + (row.reward != null ? row.reward : "0") + "</td>" + prizeCell + "</tr>");
       }
-      bodyEl.innerHTML = parts.length ? parts.join("") : "<tr><td colspan=\"4\" class=\"winter-rating__spring-placeholder\">Данные с 1 марта</td></tr>";
+      bodyEl.innerHTML = parts.length ? parts.join("") : "<tr><td colspan=\"" + colspan + "\" class=\"winter-rating__spring-placeholder\">Данные с 1 марта</td></tr>";
       bodyEl.removeEventListener("click", bodyEl._leagueNickClick);
       bodyEl._leagueNickClick = function (e) {
         var btn = e.target && e.target.closest && e.target.closest(".winter-rating__nick-btn");

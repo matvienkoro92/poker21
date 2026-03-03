@@ -5509,6 +5509,65 @@ a.home-mini-icon-item {
 .winter-rating__table-wrap--league {
   margin-bottom: 0;
 }
+.winter-rating__table-wrap--league1 {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.winter-rating__table--league1-prizes {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 280px;
+}
+.winter-rating__table--league1-prizes .winter-rating__th-place,
+.winter-rating__table--league1-prizes td:nth-child(1) {
+  width: 4.2em;
+  min-width: 4.2em;
+  box-sizing: border-box;
+}
+.winter-rating__table--league1-prizes .winter-rating__th-nick,
+.winter-rating__table--league1-prizes td:nth-child(2) {
+  width: 7em;
+  min-width: 5em;
+  max-width: 10em;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.winter-rating__table--league1-prizes .winter-rating__th-points,
+.winter-rating__table--league1-prizes td:nth-child(3) {
+  width: 4.2em;
+  min-width: 4.2em;
+  text-align: right;
+  box-sizing: border-box;
+}
+.winter-rating__table--league1-prizes .winter-rating__th-reward,
+.winter-rating__table--league1-prizes td:nth-child(4) {
+  width: 6em;
+  min-width: 6em;
+  text-align: right;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.winter-rating__table--league1-prizes .winter-rating__th-prize,
+.winter-rating__table--league1-prizes .winter-rating__td-prize {
+  width: 4em;
+  min-width: 4em;
+  max-width: 4em;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 0.9em;
+  padding-left: 4px;
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+.winter-rating__table--league1-prizes th {
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.2;
+}
+.winter-rating__table--league1-prizes .winter-rating__th-prize {
+  white-space: nowrap;
+}
 .winter-rating__spring-league-share-wrap {
   margin: 12px 12px 0;
   text-align: center;
@@ -6588,6 +6647,12 @@ a.home-mini-icon-item {
 }
 .winter-rating__table tbody tr:last-child td {
   border-bottom: none;
+}
+.winter-rating__table-total-row td {
+  border-top: 1px solid var(--border-subtle);
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-top: 10px;
 }
 /* Итоговая таблица: последняя колонка «Приз» компактно */
 #winterRatingTableOverall th:last-child,
