@@ -1329,13 +1329,21 @@
             <h1 class="title">Переедь Штукатура</h1>
             <p class="plasterer-desc">Мы остались в ХУ против Штукатура, но у него как обычно всегда 2 туза на руках. Обыграйте его. Попытки безлимитные.</p>
             <div class="plasterer-table">
-              <div class="plasterer-opponent">
-                <div class="plasterer-opponent-head">
-                  <span class="plasterer-opponent-name">Штукатур</span>
+              <div class="plasterer-hands-row">
+                <div class="plasterer-player">
+                  <div class="plasterer-avatar plasterer-avatar--player" id="plastererPlayerName">Вы</div>
+                  <div class="plasterer-cards" id="plastererPlayerCards"></div>
+                  <div class="plasterer-equity" id="plastererPlayerEquity" aria-live="polite"></div>
+                  <div class="plasterer-hand-name" id="plastererPlayerHandName" aria-live="polite"></div>
                 </div>
-                <div class="plasterer-equity" id="plastererOpponentEquity" aria-live="polite"></div>
-                <div class="plasterer-hand-name" id="plastererOpponentHandName" aria-live="polite"></div>
-                <div class="plasterer-cards" id="plastererOpponentCards"></div>
+                <div class="plasterer-opponent">
+                  <div class="plasterer-opponent-head">
+                    <span class="plasterer-opponent-name">Штукатур</span>
+                  </div>
+                  <div class="plasterer-cards" id="plastererOpponentCards"></div>
+                  <div class="plasterer-equity" id="plastererOpponentEquity" aria-live="polite"></div>
+                  <div class="plasterer-hand-name" id="plastererOpponentHandName" aria-live="polite"></div>
+                </div>
               </div>
               <div class="plasterer-board" id="plastererBoard">
                 <div class="plasterer-board-slot" id="plastererFlop0"></div>
@@ -1343,12 +1351,6 @@
                 <div class="plasterer-board-slot" id="plastererFlop2"></div>
                 <div class="plasterer-board-slot" id="plastererTurn"></div>
                 <div class="plasterer-board-slot" id="plastererRiver"></div>
-              </div>
-              <div class="plasterer-player">
-                <div class="plasterer-cards" id="plastererPlayerCards"></div>
-                <div class="plasterer-avatar plasterer-avatar--player" id="plastererPlayerName">Вы</div>
-                <div class="plasterer-equity" id="plastererPlayerEquity" aria-live="polite"></div>
-                <div class="plasterer-hand-name" id="plastererPlayerHandName" aria-live="polite"></div>
               </div>
             </div>
             <p class="plasterer-result" id="plastererResult" aria-live="polite"></p>
@@ -1741,11 +1743,18 @@
             <h1 class="title">Эквилятор</h1>
             <p class="equilator-intro">Выберите ваши карты и все 5 карт борда (флоп, терн, ривер). Эквити считается методом Монте-Карло.</p>
             <div class="equilator-form">
-              <div class="equilator-section">
-                <h2 class="equilator-section__title">Ваши карты</h2>
-                <div class="equilator-cards" id="equilatorHeroCards">
-                  <button type="button" class="equilator-card-slot" id="equilatorSlotHero1" data-equilator-slot="hero1" aria-label="Карта 1 — нажмите для выбора"><span class="equilator-card-slot__text">—</span></button>
-                  <button type="button" class="equilator-card-slot" id="equilatorSlotHero2" data-equilator-slot="hero2" aria-label="Карта 2 — нажмите для выбора"><span class="equilator-card-slot__text">—</span></button>
+              <div class="equilator-section equilator-hands-section">
+                <div class="equilator-hands-row">
+                  <div class="equilator-hero-block">
+                    <h2 class="equilator-section__title equilator-hand-label">Вы</h2>
+                    <div class="equilator-cards" id="equilatorHeroCards">
+                      <button type="button" class="equilator-card-slot" id="equilatorSlotHero1" data-equilator-slot="hero1" aria-label="Карта 1 — нажмите для выбора"><span class="equilator-card-slot__text">—</span></button>
+                      <button type="button" class="equilator-card-slot" id="equilatorSlotHero2" data-equilator-slot="hero2" aria-label="Карта 2 — нажмите для выбора"><span class="equilator-card-slot__text">—</span></button>
+                    </div>
+                  </div>
+                  <div class="equilator-opp-block">
+                    <div class="equilator-opp-list" id="equilatorOppCards"></div>
+                  </div>
                 </div>
               </div>
               <div class="equilator-section">
@@ -1759,21 +1768,13 @@
                   <button type="button" class="equilator-card-slot" id="equilatorSlotBoard5" data-equilator-slot="board5" aria-label="Борд карта 5"><span class="equilator-card-slot__text">—</span></button>
                 </div>
               </div>
+              <div class="equilator-section">
+                <button type="button" class="equilator-add-player-btn" id="equilatorAddPlayerBtn">+ Добавить игрока</button>
+              </div>
               <div class="equilator-picker-wrap equilator-picker-wrap--hidden" id="equilatorPickerWrap" aria-hidden="true">
                 <p class="equilator-picker-title" id="equilatorPickerTitle">Выберите карту</p>
                 <div class="equilator-picker-grid" id="equilatorPickerGrid"></div>
                 <button type="button" class="equilator-picker-close" id="equilatorPickerClose">Закрыть</button>
-              </div>
-              <div class="equilator-section">
-                <label class="equilator-label">Количество оппонентов</label>
-                <select id="equilatorOpponents" class="equilator-select equilator-select--wide" aria-label="Количество оппонентов">
-                  <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                  <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
-                </select>
-              </div>
-              <div class="equilator-section">
-                <h2 class="equilator-section__title">Карты оппонентов (опционально)</h2>
-                <div id="equilatorOppCards"></div>
               </div>
               <button type="button" class="primary-button" id="equilatorCalcBtn">Рассчитать эквити</button>
             </div>

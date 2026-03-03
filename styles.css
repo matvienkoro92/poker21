@@ -233,10 +233,6 @@ body::-webkit-scrollbar,
   box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08);
   color: #e8f5e9;
 }
-[data-theme="light"] .plasterer-board-slot.has-card,
-[data-theme="light"] .plasterer-card {
-  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-}
 [data-theme="light"] .tournament-day-tooltip::after {
   border-top-color: rgba(168, 85, 247, 0.25);
 }
@@ -8977,34 +8973,43 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   border: 1px solid var(--border-subtle);
 }
 
+.plasterer-hands-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
+}
+
 .plasterer-opponent {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 0;
 }
 
 .plasterer-opponent .plasterer-equity,
 .plasterer-opponent .plasterer-hand-name {
-  margin-bottom: 4px;
+  margin-top: 4px;
 }
 
 .plasterer-opponent .plasterer-cards {
-  margin-top: 14px;
+  margin-top: 8px;
 }
 
 .plasterer-avatar {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
 }
 
 .plasterer-opponent-head {
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .plasterer-opponent-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -9061,54 +9066,12 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .plasterer-player {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
 }
 
 .plasterer-card {
-  width: 48px;
-  height: 68px;
-  border-radius: 6px;
-  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.1;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-}
-
-img.plasterer-card {
-  width: 48px;
-  height: 68px;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-}
-
-/* Цвета мастей: трефы — зелёный, буби — синий, пики и черви — чёрный */
-.plasterer-card--club {
-  color: #22c55e;
-}
-
-.plasterer-card--diamond {
-  color: #3b82f6;
-}
-
-.plasterer-card--spade {
-  color: #e2e8f0;
-}
-
-.plasterer-card--heart {
-  color: #f87171;
-}
-
-.plasterer-card--black {
-  color: #e2e8f0;
+  cursor: default;
 }
 
 .plasterer-result {
@@ -9646,6 +9609,9 @@ img.plasterer-card {
   font-weight: 600;
   color: var(--text);
 }
+.equilator-hand-label {
+  font-size: 16px;
+}
 .equilator-hint {
   margin: 0 0 8px;
   font-size: 12px;
@@ -9659,18 +9625,83 @@ img.plasterer-card {
   gap: 10px;
   align-items: flex-start;
 }
-.equilator-opp-row {
+.equilator-hands-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
 }
-.equilator-opp-row:last-child { margin-bottom: 0; }
-.equilator-opp-label {
-  min-width: 70px;
+.equilator-hero-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.equilator-opp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+.equilator-opp-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.equilator-add-player-btn {
+  padding: 6px 12px;
   font-size: 13px;
   color: var(--text-muted);
-  font-weight: 500;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.equilator-add-player-btn:hover {
+  background: rgba(51, 65, 85, 0.8);
+  color: var(--text);
+}
+.equilator-opp-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 0;
+}
+.equilator-opp-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.equilator-opp-remove-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.equilator-opp-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+.equilator-opp-label {
+  min-width: 70px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 .equilator-card-pick {
   display: flex;

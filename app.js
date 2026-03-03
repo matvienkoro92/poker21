@@ -6319,73 +6319,56 @@ function plastererOpponentBestHandName(knownBoardCount) {
   return bestFive ? plastererGetHandName5(bestFive) : "";
 }
 
-var PLASTERER_CARD_IMAGES_BASE = "./assets/карты%20бархат";
+var PLASTERER_RANK_DISPLAY = { "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "T": "10", "J": "J", "Q": "Q", "K": "K", "A": "A" };
 
-function plastererCardToFilename(card) {
-  if (!card || card.length < 2) return "";
-  var rankCh = card.charAt(0);
-  var suitCh = card.charAt(1);
-  var suit = suitCh === "\u2660" ? "s" : suitCh === "\u2665" ? "h" : suitCh === "\u2666" ? "d" : suitCh === "\u2663" ? "c" : "";
-  if (!suit) return "";
-  var rank = rankCh === "T" ? "10" : rankCh.toLowerCase();
-  return "common_" + suit + "_" + rank + ".png";
+function plastererSuitToKey(suitCh) {
+  return suitCh === "\u2660" ? "s" : suitCh === "\u2665" ? "h" : suitCh === "\u2666" ? "d" : suitCh === "\u2663" ? "c" : "";
 }
 
-function plastererPreloadCardImages() {
-  var ranks = "2 3 4 5 6 7 8 9 10 j q k a".split(" ");
-  var suits = ["s", "h", "d", "c"];
-  var base = PLASTERER_CARD_IMAGES_BASE + "/";
-  for (var s = 0; s < suits.length; s++) {
-    for (var r = 0; r < ranks.length; r++) {
-      var img = new Image();
-      img.src = base + "common_" + suits[s] + "_" + ranks[r] + ".png";
-    }
-  }
+function renderPlastererCardBack() {
+  return "<div class=\"equilator-card-slot plasterer-card\"><span class=\"equilator-card-slot__text\">—</span></div>";
 }
 
 function renderPlastererCard(card) {
-  if (!card) return "";
-  var suit = card.length >= 2 ? card.charAt(1) : "";
-  var cls = "plasterer-card";
-  if (suit === "\u2663") cls += " plasterer-card--club";
-  else if (suit === "\u2666") cls += " plasterer-card--diamond";
-  else if (suit === "\u2660") cls += " plasterer-card--spade";
-  else if (suit === "\u2665") cls += " plasterer-card--heart";
-  else cls += " plasterer-card--black";
-  var filename = plastererCardToFilename(card);
-  if (filename) {
-    var src = PLASTERER_CARD_IMAGES_BASE + "/" + filename;
-    return "<img class=\"" + cls + "\" src=\"" + src + "\" alt=\"" + card.replace(/"/g, "&quot;") + "\" loading=\"lazy\" />";
-  }
-  return "<div class=\"" + cls + "\">" + card + "</div>";
+  if (!card || card.length < 2) return "";
+  var rankCh = card.charAt(0);
+  var suitCh = card.charAt(1);
+  var suitKey = plastererSuitToKey(suitCh);
+  if (!suitKey) return "";
+  var rank = rankCh;
+  var label = (PLASTERER_RANK_DISPLAY[rank] || rank) + suitCh;
+  var suitClass = suitKey === "s" ? "equilator-card-slot--spade" : suitKey === "h" ? "equilator-card-slot--heart" : suitKey === "d" ? "equilator-card-slot--diamond" : "equilator-card-slot--club";
+  return "<div class=\"equilator-card-slot plasterer-card " + suitClass + "\" data-rank=\"" + rank.replace(/"/g, "&quot;") + "\" data-suit=\"" + suitKey + "\"><span class=\"equilator-card-slot__text\">" + label.replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</span></div>";
 }
 
-function renderPlastererCards(containerId, cards) {
+function renderPlastererCards(containerId, cards, showBacks) {
   var el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = cards.map(function (c) { return renderPlastererCard(c, false); }).join("");
+  if (showBacks && cards.length > 0) {
+    el.innerHTML = Array(cards.length).fill(0).map(function () { return renderPlastererCardBack(); }).join("");
+  } else {
+    el.innerHTML = cards.map(function (c) { return renderPlastererCard(c); }).join("");
+  }
 }
 
 function initPlastererGame() {
-  plastererPreloadCardImages();
   var nameEl = document.getElementById("plastererPlayerName");
   if (nameEl) {
     var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
     nameEl.textContent = user && user.first_name ? user.first_name : "Вы";
   }
-  plastererOpponentHand = [];
-  plastererPlayerHand = [];
-  plastererBoardCards = [];
-  renderPlastererCards("plastererOpponentCards", []);
-  renderPlastererCards("plastererPlayerCards", []);
+  plastererAttemptCount = 0;
+  dealPlastererHands();
+  renderPlastererCards("plastererOpponentCards", plastererOpponentHand, true);
+  renderPlastererCards("plastererPlayerCards", plastererPlayerHand, true);
+  plastererBoardStep = 0;
   ["plastererFlop0", "plastererFlop1", "plastererFlop2", "plastererTurn", "plastererRiver"].forEach(function (id) {
     var slot = document.getElementById(id);
     if (slot) { slot.innerHTML = ""; slot.classList.remove("has-card"); }
   });
   var resultEl = document.getElementById("plastererResult");
   if (resultEl) { resultEl.textContent = ""; resultEl.className = "plasterer-result"; }
-  plastererAttemptCount = 0;
   var oppEq = document.getElementById("plastererOpponentEquity");
   var plEq = document.getElementById("plastererPlayerEquity");
   if (oppEq) oppEq.textContent = "";
@@ -6476,8 +6459,8 @@ function showPlastererBoard() {
 function dealPlastererOnly() {
   plastererAttemptCount++;
   dealPlastererHands();
-  renderPlastererCards("plastererOpponentCards", plastererOpponentHand);
-  renderPlastererCards("plastererPlayerCards", plastererPlayerHand);
+  renderPlastererCards("plastererOpponentCards", plastererOpponentHand, false);
+  renderPlastererCards("plastererPlayerCards", plastererPlayerHand, false);
   ["plastererFlop0", "plastererFlop1", "plastererFlop2", "plastererTurn", "plastererRiver"].forEach(function (id) {
     var slot = document.getElementById(id);
     if (slot) { slot.innerHTML = ""; slot.classList.remove("has-card"); }
@@ -6532,6 +6515,8 @@ function runPlastererBoardStep() {
       riverSlot.innerHTML = renderPlastererCard(plastererBoardCards[4]);
       riverSlot.classList.add("has-card");
     }
+    renderPlastererCards("plastererOpponentCards", plastererOpponentHand, false);
+    renderPlastererCards("plastererPlayerCards", plastererPlayerHand, false);
     updatePlastererEquity(5);
     var oppScore = plastererBestHand(plastererOpponentHand.concat(plastererBoardCards));
     var plScore = plastererBestHand(plastererPlayerHand.concat(plastererBoardCards));
@@ -7510,29 +7495,62 @@ function initEquilator() {
   var pickerTitle = document.getElementById("equilatorPickerTitle");
   var pickerClose = document.getElementById("equilatorPickerClose");
   var oppCardsContainer = document.getElementById("equilatorOppCards");
-  var opponentsSelect = document.getElementById("equilatorOpponents");
+  var addPlayerBtn = document.getElementById("equilatorAddPlayerBtn");
   var activeSlotId = null;
-  function getNumOpp() { return parseInt(opponentsSelect && opponentsSelect.value, 10) || 1; }
+  var numOpponents = 1;
+  function getNumOpp() { return numOpponents; }
   function getOppSlotIds() {
-    var n = getNumOpp();
+    var n = numOpponents;
     var ids = [];
     for (var i = 1; i <= n * 2; i++) ids.push("opp" + i);
     return ids;
   }
   function getSlotIds() { return BASE_SLOT_IDS.concat(getOppSlotIds()); }
-  function buildOppSlots() {
+  function collectOppCards() {
+    var out = [];
+    for (var o = 0; o < numOpponents; o++) {
+      var c1 = getSlotCard("opp" + (o * 2 + 1));
+      var c2 = getSlotCard("opp" + (o * 2 + 2));
+      out.push([c1, c2]);
+    }
+    return out;
+  }
+  function removeOpponent(idx) {
+    if (numOpponents <= 1) return;
+    var preserved = collectOppCards();
+    preserved.splice(idx, 1);
+    numOpponents--;
+    buildOppSlots(preserved);
+  }
+  function buildOppSlots(preservedCards) {
     if (!oppCardsContainer) return;
-    var n = getNumOpp();
     oppCardsContainer.innerHTML = "";
-    for (var o = 0; o < n; o++) {
+    for (var o = 0; o < numOpponents; o++) {
       var row = document.createElement("div");
       row.className = "equilator-opp-row";
+      var head = document.createElement("div");
+      head.className = "equilator-opp-row-head";
+      if (numOpponents > 1) {
+        var minusBtn = document.createElement("button");
+        minusBtn.type = "button";
+        minusBtn.className = "equilator-opp-remove-btn";
+        minusBtn.setAttribute("aria-label", "Удалить оппонента " + (o + 1));
+        minusBtn.textContent = "−";
+        minusBtn.dataset.oppIdx = String(o);
+        minusBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          removeOpponent(parseInt(this.dataset.oppIdx, 10));
+        });
+        head.appendChild(minusBtn);
+      }
       var label = document.createElement("span");
       label.className = "equilator-opp-label";
       label.textContent = "Оппонент " + (o + 1);
-      row.appendChild(label);
+      head.appendChild(label);
+      row.appendChild(head);
       var cardsWrap = document.createElement("div");
       cardsWrap.className = "equilator-cards";
+      var prevCards = preservedCards && preservedCards[o] ? preservedCards[o] : [null, null];
       for (var c = 0; c < 2; c++) {
         var slotId = "opp" + (o * 2 + c + 1);
         var btn = document.createElement("button");
@@ -7540,7 +7558,15 @@ function initEquilator() {
         btn.className = "equilator-card-slot";
         btn.setAttribute("data-equilator-slot", slotId);
         btn.setAttribute("aria-label", "Оппонент " + (o + 1) + " карта " + (c + 1));
-        btn.innerHTML = "<span class=\"equilator-card-slot__text\">—</span>";
+        var card = prevCards[c];
+        if (card) {
+          btn.setAttribute("data-rank", card.r);
+          btn.setAttribute("data-suit", card.s);
+          btn.innerHTML = "<span class=\"equilator-card-slot__text\">" + ((RANKS_DISPLAY[card.r] || card.r) + (SUITS_SYM[card.s] || card.s)) + "</span>";
+          btn.classList.add("equilator-card-slot--" + (card.s === "s" ? "spade" : card.s === "h" ? "heart" : card.s === "d" ? "diamond" : "club"));
+        } else {
+          btn.innerHTML = "<span class=\"equilator-card-slot__text\">—</span>";
+        }
         btn.addEventListener("click", function (e) { e.preventDefault(); openPicker(this.getAttribute("data-equilator-slot")); });
         cardsWrap.appendChild(btn);
       }
@@ -7548,7 +7574,11 @@ function initEquilator() {
       oppCardsContainer.appendChild(row);
     }
   }
-  if (opponentsSelect) opponentsSelect.addEventListener("change", buildOppSlots);
+  if (addPlayerBtn) addPlayerBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    numOpponents++;
+    buildOppSlots();
+  });
   buildOppSlots();
   function slotEl(slotId) { return document.querySelector(".equilator-card-slot[data-equilator-slot=\"" + slotId + "\"]"); }
   function getSlotCard(slotId) {
@@ -7733,7 +7763,8 @@ function initEquilator() {
       if (winPct) winPct.textContent = "…";
       if (tiePct) tiePct.textContent = "…";
       if (oppEquityLines) oppEquityLines.innerHTML = "<p class=\"equilator-result__line\"><span class=\"equilator-result__label\">…</span></p>";
-      if (resultMeta) resultMeta.textContent = "Считаем…";
+      var trials = 10000;
+      if (resultMeta) resultMeta.textContent = "Прогоняем " + trials.toLocaleString("ru-RU") + " раз";
       var showResult = function (wins, ties, trials, oppWins) {
         var winRaw = (100 * wins / trials);
         var tieRaw = (100 * ties / trials);
@@ -7756,6 +7787,7 @@ function initEquilator() {
         }
         if (resultMeta) resultMeta.textContent = trials === 1 ? "Точный расчёт (известна рука оппонента)." : "По " + trials + " симуляциям.";
         calcBtn.disabled = false;
+        if (resultBlock) resultBlock.scrollIntoView({ behavior: "smooth", block: "start" });
       };
       var allFixed = board.length === 5 && fixedOpps.every(function (p) { return p !== null; });
       if (allFixed) {
@@ -7792,7 +7824,6 @@ function initEquilator() {
         showResult(winsExact, tiesExact, 1, numOpp <= 2 ? oppWinsExact : null);
         return;
       }
-      var trials = 8000;
       var wins = 0;
       var ties = 0;
       var oppWins = [];
@@ -7800,7 +7831,7 @@ function initEquilator() {
       var run = function (done) {
         var next = 0;
         function step() {
-          var batch = 200;
+          var batch = 1000;
           for (var b = 0; b < batch && next < trials; b++, next++) {
             var sh = shuffle(deck);
             var boardCards = window.equilatorCloneCards(board);
