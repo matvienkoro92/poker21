@@ -6728,9 +6728,9 @@ function initRaffles() {
       var count = Math.max(0, parseInt(g.count, 10) || 0);
       var nominal = parsePrizeValue(g.prize);
       var sum = nominal > 0 ? nominal * count : 0;
-      var sumText = sum > 0 ? " · сумма приза: " + sum + " р" : "";
+      var sumText = sum > 0 ? " · сумма группы: " + sum + " р" : "";
       prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") +
-        " (мест: " + count + ", номинал: " + (nominal || 0) + " р" + sumText + ")</div>";
+        " (мест: " + count + ", сумма каждого приза: " + (nominal || 0) + " р" + sumText + ")</div>";
     });
     rafflePrizes.innerHTML = prizesHtml || "<p class=\"raffle-no-prizes\">Призы не указаны</p>";
     var me = getMyUserId();
