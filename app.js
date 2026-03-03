@@ -6607,6 +6607,7 @@ function initRaffles() {
   var groupCountInput = document.getElementById("raffleGroupCount");
   var raffleGroupsEl = document.getElementById("raffleGroups");
   var totalWinnersInput = document.getElementById("raffleTotalWinners");
+  var raffleTitleInput = document.getElementById("raffleTitle");
   var endDateInput = document.getElementById("raffleEndDate");
   var createBtn = document.getElementById("raffleCreateBtn");
   var raffleCurrent = document.getElementById("raffleCurrent");
@@ -6696,7 +6697,9 @@ function initRaffles() {
     var endDate = raffle.endDate ? new Date(raffle.endDate) : null;
     var isActive = raffle.status === "active";
     currentRaffleEndDate = isActive && endDate ? endDate : null;
-    raffleMeta.textContent = "Победителей: " + total + (groups.length > 0 ? " · Групп призов: " + groups.length : "");
+    var titleText = raffle.title ? escapeHtml(raffle.title) : "";
+    var metaText = (titleText ? titleText + " · " : "") + "Победителей: " + total + (groups.length > 0 ? " · Групп призов: " + groups.length : "");
+    raffleMeta.innerHTML = metaText;
     if (currentRaffleEndDate) {
       updateRaffleEndText();
       raffleTimerInterval = setInterval(updateRaffleEndText, 1000);
@@ -6821,7 +6824,8 @@ function initRaffles() {
             rafflesCompleted.innerHTML = completed.map(function (raffle) {
               var created = raffle.createdAt ? new Date(raffle.createdAt).toLocaleDateString("ru-RU") : "";
               var end = raffle.endDate ? new Date(raffle.endDate).toLocaleString("ru-RU") : "";
-              var meta = "Розыгрыш" + (created ? " от " + created : "") + (end ? " · Завершён " + end : "");
+              var baseTitle = raffle.title ? raffle.title : "Розыгрыш";
+              var meta = baseTitle + (created ? " · от " + created : "") + (end ? " · Завершён " + end : "");
               var winners = raffle.winners || [];
               var byGroup = {};
               winners.forEach(function (w) {
@@ -6905,11 +6909,12 @@ function initRaffles() {
         if (tg && tg.showAlert) tg.showAlert("Некорректная дата");
         return;
       }
+      var titleVal = raffleTitleInput && raffleTitleInput.value ? raffleTitleInput.value.trim().slice(0, 200) : "";
       createBtn.disabled = true;
       fetch(base + "/api/raffles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData, action: "create", totalWinners: total, groups: groups, endDate: endDate.toISOString() }),
+        body: JSON.stringify({ initData: initData, action: "create", totalWinners: total, groups: groups, endDate: endDate.toISOString(), title: titleVal }),
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {

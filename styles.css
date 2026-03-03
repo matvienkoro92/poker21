@@ -5485,10 +5485,13 @@ a.home-mini-icon-item {
   margin: 0 0 20px;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 .winter-rating__spring-league {
   margin-bottom: 24px;
   width: 100%;
+  min-width: 0;
 }
 .winter-rating__spring-league.winter-rating__spring-league--main {
   margin-bottom: 0;
@@ -5512,11 +5515,20 @@ a.home-mini-icon-item {
 .winter-rating__table-wrap--league1 {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  min-width: 0;
 }
 .winter-rating__table--league1-prizes {
   table-layout: fixed;
   width: 100%;
   min-width: 280px;
+}
+/* На узких экранах таблица не сжимается — скролл по горизонтали внутри обёртки */
+@media (max-width: 400px) {
+  .winter-rating__table--league1-prizes {
+    width: auto;
+    min-width: 280px;
+  }
 }
 .winter-rating__table--league1-prizes .winter-rating__th-place,
 .winter-rating__table--league1-prizes td:nth-child(1) {
@@ -7606,6 +7618,9 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 }
 .winter-rating__date-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  min-width: 0;
 }
 .winter-rating__date-table-wrap .winter-rating__table {
   margin: 0;
