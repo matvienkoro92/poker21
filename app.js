@@ -794,6 +794,12 @@ function getTopByDates(dates) {
   }
 })();
 
+setTimeout(function () {
+  if (document.body && document.body.getAttribute("data-view") === "home" && typeof fetchRaffleBadge === "function") {
+    fetchRaffleBadge();
+  }
+}, 300);
+
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
 (function initWinterRatingWeekTops() {
   var pastBtn = document.getElementById("winterRatingTopPastWeekBtn");
