@@ -4467,6 +4467,7 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffle-joined-msg--hidden { display: none; }
 .raffle-joined-msg { margin: 0 0 12px; font-weight: 600; color: var(--accent-2); }
 .raffle-participants-note { margin: 0 0 12px; font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+.raffle-participants-note__highlight { font-weight: 700; text-decoration: underline; }
 .raffle-participants-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--text); }
 .raffle-participants-chance { margin: 0 0 8px; font-size: 12px; color: var(--text-muted); }
 .raffle-participants { margin: 0 0 12px; padding-left: 20px; font-size: 13px; color: var(--text); }

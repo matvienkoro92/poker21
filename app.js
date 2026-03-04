@@ -4415,6 +4415,35 @@ function initWinterRating() {
       switchSpringRatingMainTab(league);
     });
   }
+  if (document.body.getAttribute("data-rating-date-share-bound") !== "1") {
+    document.body.setAttribute("data-rating-date-share-bound", "1");
+    document.body.addEventListener("click", function (e) {
+      var shareBtn = e.target && e.target.closest ? e.target.closest(".winter-rating__date-share-btn") : null;
+      if (!shareBtn) return;
+      var wrap = shareBtn.closest(".winter-rating__date-share");
+      var dateStr = wrap && wrap.getAttribute("data-rating-date");
+      if (!dateStr) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
+      var startApp = isSpring ? "spring_rating_date_" + String(dateStr).replace(/\./g, "_") : "rating_" + String(dateStr).replace(/\./g, "_");
+      var link = appUrl + "?startapp=" + startApp;
+      var msg = "Ссылка скопирована. Отправьте другу — откроется рейтинг за " + dateStr + ".";
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    }, true);
+  }
   if (document.body.getAttribute("data-spring-league-share-bound") !== "1") {
     document.body.setAttribute("data-spring-league-share-bound", "1");
     document.body.addEventListener("click", function (e) {
@@ -4701,31 +4730,6 @@ function initWinterRating() {
   if (!alreadyInited) {
     datesContainer.setAttribute("data-rating-inited", "1");
     datesContainer.addEventListener("click", function (e) {
-      var shareBtn = e.target && e.target.closest ? e.target.closest(".winter-rating__date-share-btn") : null;
-      if (!shareBtn) return;
-      var wrap = shareBtn.closest(".winter-rating__date-share");
-      var dateStr = wrap && wrap.getAttribute("data-rating-date");
-      if (!dateStr) return;
-      e.preventDefault();
-      var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-      appUrl = appUrl.replace(/\/$/, "");
-      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
-      var startApp = isSpring ? "spring_rating_date_" + String(dateStr).replace(/\./g, "_") : "rating_" + String(dateStr).replace(/\./g, "_");
-      var link = appUrl + "?startapp=" + startApp;
-      var msg = "Ссылка скопирована. Отправьте другу — откроется рейтинг за " + dateStr + ".";
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(function () {
-          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
-        }).catch(function () {
-          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-        });
-      } else {
-        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-      }
-    });
-    datesContainer.addEventListener("click", function (e) {
       var cell = e.target && e.target.closest ? e.target.closest(".winter-rating__screenshot") : null;
       if (!cell) return;
       var screensWrap = cell.parentElement;
@@ -4770,8 +4774,9 @@ function initWinterRating() {
             "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div>" +
             "<div class=\"winter-rating__date-table-wrap spring-rating-date-table\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div></div></div>"
           : "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div><div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div>";
+        var shareHtml = "<div class=\"winter-rating__date-share\" data-rating-date=\"" + (dateStr || "") + "\"><button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">Поделиться</button></div>";
         item.innerHTML = "<button type=\"button\" class=\"winter-rating__date-btn\" aria-expanded=\"false\" aria-controls=\"winterRatingPanel" + slug + "\">" + dateStr + "</button>" +
-          "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" + panelInner + "</div>";
+          "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" + panelInner + shareHtml + "</div>";
         var insertBefore = null;
         for (var i = 0; i < dates.length; i++) {
           if (dates[i] === dateStr && i + 1 < dates.length) {
