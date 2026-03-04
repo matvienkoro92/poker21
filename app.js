@@ -717,11 +717,11 @@ function getTopByDates(dates) {
   (function initRatingSubscribe() {
     var ratingSubscribeBtn = document.getElementById("ratingSubscribeBtn");
     var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
-    var ratingInDevHtml = ' <span class="subscribe-btn__in-dev">(в разработке)</span>';
+    var ratingInDevHtml = "<span class=\"subscribe-btn__in-dev\">(в разработке)</span>";
     function setRatingSubscribeButtonState(subscribed) {
       if (!ratingSubscribeBtn) return;
       ratingSubscribeBtn.disabled = false;
-      ratingSubscribeBtn.innerHTML = (subscribed ? "Отписаться от обновлений рейтинга" : "Подписаться на обновления рейтинга") + ratingInDevHtml;
+      ratingSubscribeBtn.innerHTML = "<span>" + (subscribed ? "Отписаться" : "Подписаться") + "</span>" + ratingInDevHtml;
       ratingSubscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
     }
     function updateRatingSubscribeFromStorage() {
@@ -4380,7 +4380,6 @@ function initWinterRating() {
     if (winterSearchWrap) winterSearchWrap.style.display = "none";
     if (springLeaguesEl) { springLeaguesEl.removeAttribute("hidden"); springLeaguesEl.style.display = ""; }
     if (springMainTabsEl) { springMainTabsEl.removeAttribute("hidden"); springMainTabsEl.style.display = ""; }
-    if (winterRatingShareBtn) { winterRatingShareBtn.style.display = "none"; }
   } else {
     if (tableCaptionRow) tableCaptionRow.style.display = "";
     if (document.getElementById("winterRatingTableWrap")) document.getElementById("winterRatingTableWrap").style.display = "";
