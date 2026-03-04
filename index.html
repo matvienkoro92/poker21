@@ -246,7 +246,7 @@
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📚</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Научиться играть</div>
-                    <div class="feature__desc">(в разработке)</div>
+                    <div class="feature__desc">50 задач, таймер, стрик</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="streams" aria-label="Стримы">
@@ -1499,6 +1499,7 @@
                   <button type="button" class="primary-button raffle-join-btn" id="raffleJoinBtn">Участвую</button>
                   <button type="button" class="raffle-leave-btn raffle-leave-btn--hidden" id="raffleLeaveBtn">Отменить участие</button>
                   <div class="raffle-admin-actions raffle-admin-actions--hidden" id="raffleAdminActions" aria-hidden="true">
+                    <button type="button" class="raffle-complete-btn" id="raffleCompleteBtn">Завершить розыгрыш (админ)</button>
                     <button type="button" class="raffle-cancel-btn" id="raffleCancelBtn">Отменить розыгрыш (админ)</button>
                     <button type="button" class="raffle-cancel-btn" id="raffleDeleteBtn">Удалить розыгрыш (админ)</button>
                   </div>
@@ -1532,7 +1533,51 @@
             <div class="poker-tasks__start" id="pokerTasksStartScreen">
               <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
               <h1 class="title">Научиться играть</h1>
-              <button type="button" class="poker-tasks__spr-btn" id="pokerTasksSprBtn">SPR</button>
+              <p class="poker-tasks__desc">Выберите режим:</p>
+              <div class="poker-tasks__start-buttons">
+                <button type="button" class="poker-tasks__mode-btn poker-tasks__mode-btn--easy" id="pokerTasksLevelEasy" data-level="easy">
+                  <span class="poker-tasks__mode-icon">🌱</span>
+                  <span class="poker-tasks__mode-title">Полегче</span>
+                  <span class="poker-tasks__mode-desc">Базовые ситуации для новичков</span>
+                </button>
+                <button type="button" class="poker-tasks__mode-btn poker-tasks__mode-btn--hard" id="pokerTasksLevelHard" data-level="hard">
+                  <span class="poker-tasks__mode-icon">⚡</span>
+                  <span class="poker-tasks__mode-title">Посложнее</span>
+                  <span class="poker-tasks__mode-desc">Продвинутые решения и MTT</span>
+                </button>
+                <button type="button" class="poker-tasks__mode-btn poker-tasks__mode-btn--spr" id="pokerTasksSprBtn">
+                  <span class="poker-tasks__mode-icon">📊</span>
+                  <span class="poker-tasks__mode-title">SPR</span>
+                  <span class="poker-tasks__mode-desc">Задачи по Stack-to-Pot Ratio</span>
+                </button>
+              </div>
+            </div>
+            <!-- Poker Streak Challenge -->
+            <div class="poker-streak-screen poker-streak-screen--hidden" id="pokerStreakScreen">
+              <button type="button" class="poker-streak-screen__back" id="pokerStreakBackBtn" aria-label="Назад">←</button>
+              <div class="poker-streak-header">
+                <div class="poker-streak-header__timer" id="pokerStreakTimer">15</div>
+                <div class="poker-streak-header__streak" id="pokerStreakStreak">Стрик: 0</div>
+                <div class="poker-streak-header__score" id="pokerStreakScore">Очки: 0</div>
+              </div>
+              <div class="poker-streak-progress" id="pokerStreakProgress">1 / 50</div>
+              <div class="poker-streak-content" id="pokerStreakContent">
+                <p class="poker-streak-situation" id="pokerStreakSituation"></p>
+                <div class="poker-streak-cards" id="pokerStreakCards"></div>
+                <p class="poker-streak-question" id="pokerStreakQuestion"></p>
+                <div class="poker-streak-options" id="pokerStreakOptions"></div>
+              </div>
+              <div class="poker-streak-feedback poker-streak-feedback--hidden" id="pokerStreakFeedback">
+                <div class="poker-streak-feedback__result" id="pokerStreakFeedbackResult"></div>
+                <p class="poker-streak-feedback__explanation" id="pokerStreakFeedbackExplanation"></p>
+                <button type="button" class="poker-streak-feedback__next primary-button" id="pokerStreakNextBtn">Следующая</button>
+              </div>
+            </div>
+            <div class="poker-streak-result-screen poker-streak-result-screen--hidden" id="pokerStreakResultScreen">
+              <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+              <h2 class="title">Итоги</h2>
+              <div class="poker-streak-result-stats" id="pokerStreakResultStats"></div>
+              <button type="button" class="primary-button" id="pokerStreakPlayAgainBtn">Играть снова</button>
             </div>
             <div class="poker-task-screen poker-task-screen--hidden" id="pokerTaskScreen" aria-label="Задача">
               <button type="button" class="poker-task-screen__back" id="pokerTaskScreenBack" aria-label="Назад к списку">←</button>
@@ -2335,6 +2380,7 @@
     <script src="./updates-data.js"></script>
     <script src="./winter-rating-data.js?v=28"></script>
     <script src="./poker-tasks-data.js"></script>
+    <script src="./poker-streak-tasks.js"></script>
     <script src="./app.js?v=34"></script>
   </body>
 </html>

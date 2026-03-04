@@ -3956,6 +3956,269 @@ html.app-view-home .feature--rating-spring-promo:hover,
   border-color: rgba(148, 163, 184, 0.5);
 }
 
+/* Стартовый экран — выбор режима */
+.poker-tasks__desc {
+  margin: 12px 0 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.poker-tasks__start-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+.poker-tasks__mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: var(--block-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  text-align: left;
+}
+.poker-tasks__mode-btn:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(148, 163, 184, 0.4);
+  transform: translateY(-1px);
+}
+.poker-tasks__mode-btn--streak {
+  border-color: rgba(251, 146, 60, 0.4);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.8));
+}
+.poker-tasks__mode-btn--streak:hover {
+  border-color: rgba(251, 146, 60, 0.6);
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95), rgba(71, 85, 105, 0.9));
+}
+.poker-tasks__mode-btn--spr {
+  border-color: rgba(148, 163, 184, 0.3);
+}
+.poker-tasks__mode-btn--easy {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(22, 101, 52, 0.15));
+}
+.poker-tasks__mode-btn--easy:hover {
+  border-color: rgba(34, 197, 94, 0.6);
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95), rgba(22, 101, 52, 0.25));
+}
+.poker-tasks__mode-btn--hard {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(127, 29, 29, 0.2));
+}
+.poker-tasks__mode-btn--hard:hover {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95), rgba(127, 29, 29, 0.3));
+}
+.poker-tasks__mode-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.poker-tasks__mode-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.poker-tasks__mode-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+/* Poker Streak Challenge — игровой экран */
+.poker-streak-screen {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 80% at 50% 40%, rgba(88, 28, 135, 0.25) 0%, transparent 50%), radial-gradient(ellipse 100% 60% at 50% 50%, rgba(236, 72, 153, 0.08) 0%, transparent 60%), #0d0a12;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  padding-top: 48px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.poker-streak-screen--hidden {
+  display: none;
+}
+.poker-streak-screen__back {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(192, 132, 252, 0.15);
+  color: #e9d5ff;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+.poker-streak-screen__back:hover {
+  background: rgba(192, 132, 252, 0.25);
+}
+.poker-streak-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(30, 20, 45, 0.5);
+}
+.poker-streak-header__timer {
+  font-size: 24px;
+  font-weight: 700;
+  color: #00b894;
+  min-width: 36px;
+}
+.poker-streak-header__streak {
+  font-size: 14px;
+  color: #ffd700;
+}
+.poker-streak-header__score {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e9d5ff;
+}
+.poker-streak-progress {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.poker-streak-situation {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.poker-streak-cards {
+  margin-bottom: 16px;
+}
+.poker-streak-cards__player,
+.poker-streak-cards__board {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.poker-streak-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 48px;
+  padding: 0 6px;
+  margin: 0 4px;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.poker-streak-card--red {
+  color: #c0392b;
+}
+.poker-streak-card__suit {
+  font-size: 14px;
+  margin-left: 2px;
+}
+.poker-streak-question {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #e9d5ff;
+}
+.poker-streak-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.poker-streak-options--disabled .poker-streak-option {
+  pointer-events: none;
+  opacity: 0.7;
+}
+.poker-streak-option {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 2px solid rgba(192, 132, 252, 0.3);
+  background: rgba(30, 20, 45, 0.6);
+  color: #e9d5ff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.poker-streak-option:hover {
+  background: rgba(192, 132, 252, 0.2);
+  border-color: rgba(192, 132, 252, 0.5);
+}
+.poker-streak-feedback {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(30, 20, 45, 0.7);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+}
+.poker-streak-feedback--hidden {
+  display: none;
+}
+.poker-streak-feedback__result {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.poker-streak-feedback__result--correct {
+  color: #00b894;
+}
+.poker-streak-feedback__result--wrong {
+  color: #e74c3c;
+}
+.poker-streak-feedback__explanation {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+.poker-streak-feedback__next {
+  width: 100%;
+}
+
+/* Экран итогов Poker Streak */
+.poker-streak-result-screen {
+  position: absolute;
+  inset: 0;
+  padding: 20px;
+  padding-top: 56px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: #0d0a12;
+}
+.poker-streak-result-screen--hidden {
+  display: none;
+}
+.poker-streak-result-stats {
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--block-bg);
+  border: 1px solid var(--border-subtle);
+}
+.poker-streak-result-stats p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+.poker-streak-result-stats strong {
+  color: var(--accent-2);
+}
+
 /* Экран задачи — стол в стиле скрина: овал с неоновой розово-фиолетовой обводкой */
 .poker-task-screen {
   position: absolute;
@@ -4464,6 +4727,18 @@ html.app-view-home .feature--rating-spring-promo:hover,
   cursor: pointer;
   display: inline-block;
 }
+.raffle-complete-btn {
+  margin: 0 0 12px 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-block;
+}
+.raffle-complete-btn:hover { background: rgba(34, 197, 94, 0.25); color: #bbf7d0; border-color: rgba(34, 197, 94, 0.5); }
 .raffle-joined-msg--hidden { display: none; }
 .raffle-joined-msg { margin: 0 0 12px; font-weight: 600; color: var(--accent-2); }
 .raffle-participants-note { margin: 0 0 12px; font-size: 13px; color: var(--text-muted); line-height: 1.4; }

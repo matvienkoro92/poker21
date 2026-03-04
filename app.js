@@ -639,6 +639,7 @@ function getTopByDates(dates) {
         if (allinBtn) allinBtn.textContent = task.actions.allin || "ALLIN 25";
       }
     }
+    var streakScreen = document.getElementById("pokerStreakScreen");
     if (!startScreen || !taskScreen || !sprBtn || !backBtn || !tableWrap) return;
     if (typeof POKER_TASKS !== "undefined" && POKER_TASKS.length) {
       totalTasks = POKER_TASKS.length;
@@ -655,20 +656,42 @@ function getTopByDates(dates) {
         taskTables.push(tableEl);
       }
     }
+    function showStartScreen() {
+      startScreen.style.display = "";
+      if (taskScreen) { taskScreen.classList.add("poker-task-screen--hidden"); taskScreen.style.display = "none"; }
+      if (streakScreen) { streakScreen.classList.add("poker-streak-screen--hidden"); streakScreen.style.display = "none"; }
+      var resultScreen = document.getElementById("pokerStreakResultScreen");
+      if (resultScreen) { resultScreen.classList.add("poker-streak-result-screen--hidden"); resultScreen.style.display = "none"; }
+      if (view) view.classList.remove("poker-tasks--task-visible");
+    }
     sprBtn.addEventListener("click", function (e) {
       e.preventDefault();
       startScreen.style.display = "none";
+      if (streakScreen) { streakScreen.classList.add("poker-streak-screen--hidden"); streakScreen.style.display = "none"; }
+      var resultScreen = document.getElementById("pokerStreakResultScreen");
+      if (resultScreen) { resultScreen.classList.add("poker-streak-result-screen--hidden"); resultScreen.style.display = "none"; }
       taskScreen.classList.remove("poker-task-screen--hidden");
       taskScreen.style.display = "flex";
       if (view) view.classList.add("poker-tasks--task-visible");
       showTask(1);
     });
+    var levelEasyBtn = document.getElementById("pokerTasksLevelEasy");
+    var levelHardBtn = document.getElementById("pokerTasksLevelHard");
+    if (levelEasyBtn && streakScreen) {
+      levelEasyBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (typeof window.startPokerStreakChallenge === "function") window.startPokerStreakChallenge("easy");
+      });
+    }
+    if (levelHardBtn && streakScreen) {
+      levelHardBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (typeof window.startPokerStreakChallenge === "function") window.startPokerStreakChallenge("hard");
+      });
+    }
     backBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      taskScreen.classList.add("poker-task-screen--hidden");
-      taskScreen.style.display = "none";
-      startScreen.style.display = "";
-      if (view) view.classList.remove("poker-tasks--task-visible");
+      showStartScreen();
     });
     if (prevBtn) prevBtn.addEventListener("click", function (e) { e.preventDefault(); if (currentTask > 1) showTask(currentTask - 1); });
     if (nextBtn) nextBtn.addEventListener("click", function (e) { e.preventDefault(); if (currentTask < totalTasks) showTask(currentTask + 1); });
@@ -712,6 +735,250 @@ function getTopByDates(dates) {
       }
       showTask(num);
     };
+  })();
+
+  (function initPokerStreakChallenge() {
+    var streakScreen = document.getElementById("pokerStreakScreen");
+    var startScreen = document.getElementById("pokerTasksStartScreen");
+    var resultScreen = document.getElementById("pokerStreakResultScreen");
+    var view = document.querySelector('[data-view="poker-tasks"]');
+    var timerEl = document.getElementById("pokerStreakTimer");
+    var streakEl = document.getElementById("pokerStreakStreak");
+    var scoreEl = document.getElementById("pokerStreakScore");
+    var progressEl = document.getElementById("pokerStreakProgress");
+    var situationEl = document.getElementById("pokerStreakSituation");
+    var cardsEl = document.getElementById("pokerStreakCards");
+    var questionEl = document.getElementById("pokerStreakQuestion");
+    var optionsEl = document.getElementById("pokerStreakOptions");
+    var feedbackEl = document.getElementById("pokerStreakFeedback");
+    var feedbackResultEl = document.getElementById("pokerStreakFeedbackResult");
+    var feedbackExplanationEl = document.getElementById("pokerStreakFeedbackExplanation");
+    var nextBtn = document.getElementById("pokerStreakNextBtn");
+    var backBtn = document.getElementById("pokerStreakBackBtn");
+    var playAgainBtn = document.getElementById("pokerStreakPlayAgainBtn");
+    var resultStatsEl = document.getElementById("pokerStreakResultStats");
+    if (!streakScreen || !timerEl || !optionsEl) return;
+    var tasks = [];
+    var taskIndex = 0;
+    var score = 0;
+    var streak = 0;
+    var maxStreak = 0;
+    var correctCount = 0;
+    var timerId = null;
+    var timeLeft = 15;
+    var answered = false;
+    var SUIT_SYMBOLS = { s: "\u2660", h: "\u2665", d: "\u2666", c: "\u2663" };
+    var RANK_DISPLAY = { T: "10", J: "J", Q: "Q", K: "K", A: "A" };
+    function esc(s) {
+      if (s == null) return "";
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function parseCard(cardStr) {
+      if (!cardStr || cardStr.length < 2) return { rank: cardStr, suit: "", red: false };
+      var r = cardStr.charAt(0);
+      var s = cardStr.charAt(1);
+      var red = s === "h" || s === "d";
+      var rank = RANK_DISPLAY[r] || r;
+      var suit = SUIT_SYMBOLS[s] || s;
+      return { rank: rank, suit: suit, red: red };
+    }
+    function renderCard(cardStr) {
+      var c = parseCard(cardStr);
+      var cls = "poker-streak-card";
+      if (c.red) cls += " poker-streak-card--red";
+      return "<span class=\"" + cls + "\">" + esc(c.rank) + (c.suit ? "<span class=\"poker-streak-card__suit\">" + c.suit + "</span>" : "") + "</span>";
+    }
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+    function clearTimer() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+    }
+    function calculateScore(isCorrect, timeTaken, mult) {
+      if (!isCorrect) return 0;
+      var base = 100;
+      var timeBonus = Math.max(0, 50 - timeTaken * 5);
+      var streakMult = 1 + Math.min(streak, 10) * 0.1;
+      return Math.round((base * (mult || 1) * streakMult) + timeBonus);
+    }
+    function showTask() {
+      if (taskIndex >= tasks.length) {
+        endGame();
+        return;
+      }
+      answered = false;
+      clearTimer();
+      var task = tasks[taskIndex];
+      timeLeft = task.time_limit || 20;
+      if (situationEl) situationEl.textContent = task.situation || "";
+      if (questionEl) questionEl.textContent = task.question || "";
+      if (progressEl) progressEl.textContent = (taskIndex + 1) + " / " + tasks.length;
+      if (cardsEl) {
+        var cardsHtml = "<div class=\"poker-streak-cards__player\">Ваши карты: ";
+        if (task.player_cards && task.player_cards.length) {
+          for (var i = 0; i < task.player_cards.length; i++) {
+            cardsHtml += renderCard(task.player_cards[i]);
+          }
+        } else {
+          cardsHtml += "—";
+        }
+        cardsHtml += "</div>";
+        if (task.board_cards && task.board_cards.length) {
+          cardsHtml += "<div class=\"poker-streak-cards__board\">Стол: ";
+          for (var j = 0; j < task.board_cards.length; j++) {
+            cardsHtml += renderCard(task.board_cards[j]);
+          }
+          cardsHtml += "</div>";
+        }
+        cardsEl.innerHTML = cardsHtml;
+      }
+      if (optionsEl) {
+        optionsEl.innerHTML = "";
+        optionsEl.classList.remove("poker-streak-options--disabled");
+        if (task.options && task.options.length) {
+          for (var k = 0; k < task.options.length; k++) {
+            var opt = task.options[k];
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "poker-streak-option";
+            btn.textContent = opt.text || "";
+            btn.dataset.answerId = opt.id || "";
+            btn.dataset.correct = (opt.id === task.correct_answer) ? "1" : "0";
+            optionsEl.appendChild(btn);
+          }
+        }
+      }
+      if (feedbackEl) feedbackEl.classList.add("poker-streak-feedback--hidden");
+      if (timerEl) timerEl.textContent = String(timeLeft);
+      timerId = setInterval(function () {
+        timeLeft--;
+        if (timerEl) timerEl.textContent = String(Math.max(0, timeLeft));
+        if (timeLeft <= 0) {
+          clearTimer();
+          handleAnswer(null, false);
+        }
+      }, 1000);
+    }
+    function handleAnswer(answerId, isCorrect) {
+      if (answered) return;
+      answered = true;
+      clearTimer();
+      if (optionsEl) optionsEl.classList.add("poker-streak-options--disabled");
+      var task = tasks[taskIndex];
+      var timeTaken = (task.time_limit || 20) - timeLeft;
+      var pts = 0;
+      if (isCorrect) {
+        streak++;
+        if (streak > maxStreak) maxStreak = streak;
+        correctCount++;
+        pts = calculateScore(true, timeTaken, task.difficulty_multiplier);
+        score += pts;
+      } else {
+        streak = 0;
+      }
+      if (streakEl) streakEl.textContent = "Стрик: " + streak;
+      if (scoreEl) scoreEl.textContent = "Очки: " + score;
+      if (feedbackEl) {
+        feedbackEl.classList.remove("poker-streak-feedback--hidden");
+        if (feedbackResultEl) {
+          feedbackResultEl.textContent = isCorrect ? "Правильно! +" + pts + " очков" : "Неправильно";
+          feedbackResultEl.className = "poker-streak-feedback__result " + (isCorrect ? "poker-streak-feedback__result--correct" : "poker-streak-feedback__result--wrong");
+        }
+        if (feedbackExplanationEl) feedbackExplanationEl.textContent = task.explanation || "";
+      }
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(isCorrect ? "success" : "error");
+    }
+    function nextTask() {
+      taskIndex++;
+      showTask();
+    }
+    function endGame() {
+      if (streakScreen) streakScreen.classList.add("poker-streak-screen--hidden");
+      var bestScore = 0;
+      try {
+        bestScore = parseInt(localStorage.getItem("poker_streak_best_score") || "0", 10);
+        if (score > bestScore) {
+          localStorage.setItem("poker_streak_best_score", String(score));
+          bestScore = score;
+        }
+      } catch (e) {}
+      if (resultScreen) {
+        resultScreen.classList.remove("poker-streak-result-screen--hidden");
+        resultScreen.style.display = "";
+        if (resultStatsEl) {
+          var acc = tasks.length > 0 ? Math.round((correctCount / tasks.length) * 100) : 0;
+          resultStatsEl.innerHTML = "<p><strong>Очки:</strong> " + score + "</p><p><strong>Правильно:</strong> " + correctCount + " / " + tasks.length + " (" + acc + "%)</p><p><strong>Лучший стрик:</strong> " + maxStreak + "</p><p><strong>Рекорд:</strong> " + bestScore + "</p>";
+        }
+      }
+    }
+    function bindOptions() {
+      if (!optionsEl) return;
+      optionsEl.addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest(".poker-streak-option") : null;
+        if (!btn || answered) return;
+        var correct = btn.dataset.correct === "1";
+        handleAnswer(btn.dataset.answerId, correct);
+      });
+    }
+    window.startPokerStreakChallenge = function (difficulty) {
+      if (typeof POKER_STREAK_TASKS === "undefined" || !POKER_STREAK_TASKS.length) {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Задачи не загружены."); else alert("Задачи не загружены.");
+        return;
+      }
+      lastDifficulty = difficulty === "hard" ? "hard" : "easy";
+      var filtered = POKER_STREAK_TASKS.filter(function (t) {
+        if (lastDifficulty === "easy") return t.level === "beginner";
+        return t.level === "intermediate" || t.level === "expert";
+      });
+      if (!filtered.length) {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Нет задач для выбранного уровня."); else alert("Нет задач для выбранного уровня.");
+        return;
+      }
+      tasks = shuffle(filtered);
+      taskIndex = 0;
+      score = 0;
+      streak = 0;
+      maxStreak = 0;
+      correctCount = 0;
+      if (startScreen) startScreen.style.display = "none";
+      var taskScreen = document.getElementById("pokerTaskScreen");
+      if (taskScreen) { taskScreen.classList.add("poker-task-screen--hidden"); taskScreen.style.display = "none"; }
+      if (resultScreen) { resultScreen.classList.add("poker-streak-result-screen--hidden"); resultScreen.style.display = "none"; }
+      streakScreen.classList.remove("poker-streak-screen--hidden");
+      streakScreen.style.display = "flex";
+      if (view) view.classList.add("poker-tasks--task-visible");
+      if (streakEl) streakEl.textContent = "Стрик: 0";
+      if (scoreEl) scoreEl.textContent = "Очки: 0";
+      showTask();
+    };
+    if (nextBtn) nextBtn.addEventListener("click", function (e) { e.preventDefault(); nextTask(); });
+    if (backBtn) {
+      backBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        clearTimer();
+        streakScreen.classList.add("poker-streak-screen--hidden");
+        if (startScreen) startScreen.style.display = "";
+        if (view) view.classList.remove("poker-tasks--task-visible");
+      });
+    }
+    var lastDifficulty = "easy";
+    if (playAgainBtn && resultScreen) {
+      playAgainBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        resultScreen.classList.add("poker-streak-result-screen--hidden");
+        resultScreen.style.display = "none";
+        window.startPokerStreakChallenge(lastDifficulty);
+      });
+    }
+    bindOptions();
   })();
 
   (function initRatingSubscribe() {
@@ -1457,11 +1724,21 @@ function setView(viewName) {
   if (viewName === "poker-tasks") {
     var startScreen = document.getElementById("pokerTasksStartScreen");
     var taskScreen = document.getElementById("pokerTaskScreen");
+    var streakScreen = document.getElementById("pokerStreakScreen");
+    var resultScreen = document.getElementById("pokerStreakResultScreen");
     var pokerTasksView = document.querySelector('[data-view="poker-tasks"]');
     if (startScreen) startScreen.style.display = "";
     if (taskScreen) {
       taskScreen.classList.add("poker-task-screen--hidden");
       taskScreen.style.display = "none";
+    }
+    if (streakScreen) {
+      streakScreen.classList.add("poker-streak-screen--hidden");
+      streakScreen.style.display = "none";
+    }
+    if (resultScreen) {
+      resultScreen.classList.add("poker-streak-result-screen--hidden");
+      resultScreen.style.display = "none";
     }
     if (pokerTasksView) pokerTasksView.classList.remove("poker-tasks--task-visible");
   }
@@ -6847,9 +7124,9 @@ function initRaffles() {
   var rafflesCompleted = document.getElementById("rafflesCompleted");
   var rafflesCompletedEmpty = document.getElementById("rafflesCompletedEmpty");
   var raffleCard = document.getElementById("raffleCard");
+  var raffleCompleteBtn = document.getElementById("raffleCompleteBtn");
   var raffleCancelBtn = document.getElementById("raffleCancelBtn");
   var raffleDeleteBtn = document.getElementById("raffleDeleteBtn");
-  var raffleCancelBtn = document.getElementById("raffleCancelBtn");
   var raffleMeta = document.getElementById("raffleMeta");
   var raffleEnd = document.getElementById("raffleEnd");
   var rafflePrizes = document.getElementById("rafflePrizes");
@@ -7017,6 +7294,11 @@ function initRaffles() {
         ? "Завершение: " + endDate.toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })
         : (raffle.status === "drawn" ? "Завершён" : "");
     }
+    if (raffleCompleteBtn) {
+      var showComplete = rafflesIsAdmin && raffle.status === "active";
+      raffleCompleteBtn.classList.toggle("raffle-cancel-btn--hidden", !showComplete);
+      raffleCompleteBtn.disabled = !showComplete;
+    }
     if (raffleCancelBtn) {
       var showCancel = rafflesIsAdmin && raffle.status === "active";
       raffleCancelBtn.classList.toggle("raffle-cancel-btn--hidden", !showCancel);
@@ -7119,6 +7401,10 @@ function initRaffles() {
         if (raffleAdminActions) {
           raffleAdminActions.classList.toggle("raffle-admin-actions--hidden", !rafflesIsAdmin);
           raffleAdminActions.setAttribute("aria-hidden", rafflesIsAdmin ? "false" : "true");
+        }
+        if (raffleCompleteBtn) {
+          raffleCompleteBtn.classList.toggle("raffle-cancel-btn--hidden", !rafflesIsAdmin);
+          raffleCompleteBtn.disabled = !rafflesIsAdmin;
         }
         if (raffleCancelBtn) {
           raffleCancelBtn.classList.toggle("raffle-cancel-btn--hidden", !rafflesIsAdmin);
@@ -7401,6 +7687,52 @@ function initRaffles() {
     });
   }
 
+  if (raffleCompleteBtn) {
+    raffleCompleteBtn.addEventListener("click", function () {
+      if (!rafflesIsAdmin) return;
+      if (!currentRaffleId) {
+        if (tg && tg.showAlert) tg.showAlert("Розыгрыш не выбран. Обновите страницу.");
+        return;
+      }
+      if (!base || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+        return;
+      }
+      var doComplete = function () {
+        raffleCompleteBtn.disabled = true;
+        fetch(base + "/api/raffles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, action: "complete", raffleId: currentRaffleId }),
+        })
+          .then(function (r) {
+            return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
+          })
+          .then(function (data) {
+            raffleCompleteBtn.disabled = false;
+            if (data && data.ok) {
+              if (tg && tg.showAlert) tg.showAlert("Розыгрыш завершён. Победители определены.");
+              loadRaffles();
+            } else if (tg && tg.showAlert) {
+              tg.showAlert((data && data.error) || "Ошибка завершения розыгрыша");
+            }
+          })
+          .catch(function () {
+            raffleCompleteBtn.disabled = false;
+            if (tg && tg.showAlert) tg.showAlert("Ошибка сети при завершении розыгрыша");
+          });
+      };
+      if (tg && tg.showConfirm) {
+        tg.showConfirm("Завершить розыгрыш сейчас и определить победителей? Приём заявок будет остановлен.", function (ok) {
+          if (ok) doComplete();
+        });
+      } else {
+        var sure = window.confirm("Завершить розыгрыш сейчас и определить победителей? Приём заявок будет остановлен.");
+        if (sure) doComplete();
+      }
+    });
+  }
+
   if (raffleCancelBtn) {
     raffleCancelBtn.addEventListener("click", function () {
       if (!rafflesIsAdmin) return;
@@ -7544,52 +7876,6 @@ function initRaffles() {
       } else {
         var sure = window.confirm("Точно удалить этот завершённый розыгрыш окончательно?");
         if (sure) doDelete();
-      }
-    });
-  }
-
-  if (raffleCancelBtn) {
-    raffleCancelBtn.addEventListener("click", function () {
-      if (!rafflesIsAdmin) return;
-      if (!currentRaffleId) {
-        if (tg && tg.showAlert) tg.showAlert("Розыгрыш не выбран. Обновите страницу.");
-        return;
-      }
-      if (!base || !initData) {
-        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
-        return;
-      }
-      var doCancel = function () {
-        raffleCancelBtn.disabled = true;
-        fetch(base + "/api/raffles", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData, action: "cancel", raffleId: currentRaffleId }),
-        })
-          .then(function (r) {
-            return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; });
-          })
-          .then(function (data) {
-            raffleCancelBtn.disabled = false;
-            if (data && data.ok) {
-              if (tg && tg.showAlert) tg.showAlert("Розыгрыш отменён");
-              loadRaffles();
-            } else if (tg && tg.showAlert) {
-              tg.showAlert((data && data.error) || "Ошибка отмены розыгрыша");
-            }
-          })
-          .catch(function () {
-            raffleCancelBtn.disabled = false;
-            if (tg && tg.showAlert) tg.showAlert("Ошибка сети при отмене розыгрыша");
-          });
-      };
-      if (tg && tg.showConfirm) {
-        tg.showConfirm("Отменить розыгрыш? Это действие нельзя будет отменить.", function (ok) {
-          if (ok) doCancel();
-        });
-      } else {
-        var sure = window.confirm("Точно отменить этот розыгрыш? Это действие нельзя будет отменить.");
-        if (sure) doCancel();
       }
     });
   }
