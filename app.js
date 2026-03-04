@@ -4333,11 +4333,33 @@ function initWinterRating() {
   var springLeaguesEl = document.getElementById("winterRatingSpringLeagues");
   var springMainTabsEl = document.getElementById("winterRatingSpringMainTabs");
   var winterRatingShareBtn = document.getElementById("winterRatingShareBtn");
+  function filterTableByNick(tbody, searchStr, tableWrap, showAllBtn) {
+    if (!tbody) return;
+    var q = (searchStr || "").trim().toLowerCase();
+    var trs = tbody.querySelectorAll("tr");
+    var hadCollapsed = tableWrap && tableWrap.classList.contains("winter-rating__table-wrap--collapsed");
+    if (q) {
+      if (tableWrap) tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
+      if (showAllBtn) showAllBtn.textContent = "Свернуть";
+    } else if (hadCollapsed && tableWrap) {
+      tableWrap.classList.add("winter-rating__table-wrap--collapsed");
+      if (showAllBtn) showAllBtn.textContent = "Ещё";
+    }
+    for (var i = 0; i < trs.length; i++) {
+      var tr = trs[i];
+      var nickBtn = tr.querySelector(".winter-rating__nick-btn");
+      var nick = (nickBtn && nickBtn.dataset.nick ? nickBtn.dataset.nick : (nickBtn ? nickBtn.textContent : "")).toLowerCase();
+      var match = !q || (nick && nick.indexOf(q) >= 0);
+      tr.style.display = match ? "" : "none";
+    }
+  }
   if (isSpringRatingMode()) {
     if (tableCaptionRow) tableCaptionRow.style.display = "none";
     if (document.getElementById("winterRatingTableWrap")) document.getElementById("winterRatingTableWrap").style.display = "none";
     var winterShowAllWrap = document.getElementById("winterRatingShowAllWrap");
     if (winterShowAllWrap) winterShowAllWrap.style.display = "none";
+    var winterSearchWrap = document.getElementById("winterRatingSearchWrap");
+    if (winterSearchWrap) winterSearchWrap.style.display = "none";
     if (springLeaguesEl) { springLeaguesEl.removeAttribute("hidden"); springLeaguesEl.style.display = ""; }
     if (springMainTabsEl) { springMainTabsEl.removeAttribute("hidden"); springMainTabsEl.style.display = ""; }
     if (winterRatingShareBtn) { winterRatingShareBtn.style.display = "none"; }
@@ -4347,6 +4369,8 @@ function initWinterRating() {
     if (springLeaguesEl) { springLeaguesEl.setAttribute("hidden", ""); springLeaguesEl.style.display = "none"; }
     if (springMainTabsEl) { springMainTabsEl.setAttribute("hidden", ""); springMainTabsEl.style.display = "none"; }
     if (winterRatingShareBtn) { winterRatingShareBtn.style.display = ""; }
+    var winterSearchWrapEl = document.getElementById("winterRatingSearchWrap");
+    if (winterSearchWrapEl) winterSearchWrapEl.style.display = "";
   }
   function switchSpringRatingMainTab(league) {
     if (!springMainTabsEl || !springLeaguesEl) return;
@@ -4481,6 +4505,10 @@ function initWinterRating() {
       var tableWrap = bodyEl.parentElement && bodyEl.parentElement.parentElement;
       var showAllWrap = document.getElementById("winterRatingLeague" + leagueNum + "ShowAllWrap");
       var showAllBtn = showAllWrap && showAllWrap.querySelector(".winter-rating__show-all-btn--league");
+      var searchWrap = document.getElementById("winterRatingLeague" + leagueNum + "SearchWrap");
+      var searchInput = document.getElementById("winterRatingLeague" + leagueNum + "SearchInput");
+      var hasData = rows.length > 0 && !bodyEl.querySelector(".winter-rating__spring-placeholder");
+      if (searchWrap) searchWrap.style.display = hasData ? "" : "none";
       if (rows.length > 10 && tableWrap && showAllWrap && showAllBtn) {
         tableWrap.classList.add("winter-rating__table-wrap--collapsed");
         showAllWrap.style.display = "";
@@ -4496,6 +4524,15 @@ function initWinterRating() {
         };
       } else if (showAllWrap) {
         showAllWrap.style.display = "none";
+      }
+      if (searchInput && bodyEl) {
+        searchInput.value = "";
+        searchInput.oninput = function () {
+          filterTableByNick(bodyEl, searchInput.value, tableWrap, showAllBtn);
+        };
+        searchInput.onkeydown = function (e) {
+          if (e.key === "Escape") { searchInput.value = ""; searchInput.blur(); filterTableByNick(bodyEl, "", tableWrap, showAllBtn); }
+        };
       }
     }
     renderLeagueRows(1, league1Body);
@@ -4621,6 +4658,16 @@ function initWinterRating() {
     } else if (showAllWrap) {
       showAllWrap.style.display = "none";
     }
+  }
+  var winterSearchInput = document.getElementById("winterRatingSearchInput");
+  var winterTableWrap = document.getElementById("winterRatingTableWrap");
+  if (winterSearchInput && tbody) {
+    winterSearchInput.addEventListener("input", function () {
+      filterTableByNick(tbody, winterSearchInput.value, winterTableWrap, document.getElementById("winterRatingShowAllBtn"));
+    });
+    winterSearchInput.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { winterSearchInput.value = ""; winterSearchInput.blur(); filterTableByNick(tbody, "", winterTableWrap, document.getElementById("winterRatingShowAllBtn")); }
+    });
   }
   var datesContainer = document.getElementById("winterRatingDates");
   if (!datesContainer) return;
