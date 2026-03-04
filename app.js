@@ -6682,6 +6682,57 @@ function initRaffles() {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  function buildRaffleWinnerRowHtml(w, raffleId, isAdmin) {
+    var uid = (w.userId || "").replace(/"/g, "&quot;");
+    var status = w.winnerStatus;
+    var statusIcon = status === "ok" ? " ✓" : status === "fail" ? " ✗" : "";
+    var statusClass = status === "ok" ? "raffle-winner-status--ok" : status === "fail" ? "raffle-winner-status--fail" : "";
+    var text = escapeHtml(w.name) + " — " + escapeHtml(w.p21Id);
+    if (isAdmin) {
+      var okActive = status === "ok" ? " raffle-winner-btn--active" : "";
+      var failActive = status === "fail" ? " raffle-winner-btn--active" : "";
+      return "<li class=\"raffle-winner-row\"><span class=\"raffle-winner-row__text\">" + text + "</span>" +
+        "<span class=\"raffle-winner-status " + statusClass + "\">" + statusIcon + "</span>" +
+        "<span class=\"raffle-winner-btns\"><button type=\"button\" class=\"raffle-winner-btn raffle-winner-btn--ok" + okActive + "\" data-raffle-id=\"" + escapeHtml(raffleId) + "\" data-winner-user-id=\"" + uid + "\" title=\"Подтвердить\">✓</button>" +
+        "<button type=\"button\" class=\"raffle-winner-btn raffle-winner-btn--fail" + failActive + "\" data-raffle-id=\"" + escapeHtml(raffleId) + "\" data-winner-user-id=\"" + uid + "\" title=\"Отклонить\">✗</button></span></li>";
+    }
+    return "<li class=\"raffle-winner-row\"><span class=\"raffle-winner-row__text\">" + text + "</span><span class=\"raffle-winner-status " + statusClass + "\">" + statusIcon + "</span></li>";
+  }
+
+  function setRaffleWinnerStatus(rid, wid, btnIsOk, currentStatus, onDone) {
+    var newStatus = btnIsOk ? "ok" : "fail";
+    if ((btnIsOk && currentStatus === "ok") || (!btnIsOk && currentStatus === "fail")) newStatus = null;
+    fetch(base + "/api/raffles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData, action: "setWinnerStatus", raffleId: rid, winnerUserId: wid, status: newStatus }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok) loadRaffles();
+        if (onDone) onDone(!!(data && data.ok));
+      })
+      .catch(function () {
+        if (onDone) onDone(false);
+      });
+  }
+
+  function bindRaffleWinnerStatusButtons(container, raffleId) {
+    if (!container || !rafflesIsAdmin || !base || !initData) return;
+    container.querySelectorAll(".raffle-winner-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var rid = this.getAttribute("data-raffle-id");
+        var wid = this.getAttribute("data-winner-user-id");
+        var row = this.closest(".raffle-winner-row");
+        var statusEl = row && row.querySelector(".raffle-winner-status");
+        var currentStatus = statusEl && statusEl.classList.contains("raffle-winner-status--ok") ? "ok" : statusEl && statusEl.classList.contains("raffle-winner-status--fail") ? "fail" : null;
+        if (!rid || !wid) return;
+        btn.disabled = true;
+        setRaffleWinnerStatus(rid, wid, this.classList.contains("raffle-winner-btn--ok"), currentStatus, function (ok) { if (!ok) btn.disabled = false; });
+      });
+    });
+  }
+
   function parsePrizeValue(prizeStr) {
     if (prizeStr == null || prizeStr === "") return 0;
     var m = String(prizeStr).trim().match(/\d+(?:[.,]\d+)?/);
@@ -6791,11 +6842,12 @@ function initRaffles() {
         var prize = byGroup[g][0] && byGroup[g][0].prize ? byGroup[g][0].prize : "";
         winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(prize) : "") + "</strong><ul>";
         byGroup[g].forEach(function (w) {
-          winHtml += "<li>" + escapeHtml(w.name) + " — " + escapeHtml(w.p21Id) + "</li>";
+          winHtml += buildRaffleWinnerRowHtml(w, raffle.id, rafflesIsAdmin);
         });
         winHtml += "</ul></li>";
       });
       raffleWinners.innerHTML = winHtml;
+      bindRaffleWinnerStatusButtons(raffleWinners, raffle.id);
     } else {
       raffleWinnersWrap.classList.add("raffle-winners-wrap--hidden");
     }
@@ -6909,7 +6961,7 @@ function initRaffles() {
                 var prize = byGroup[g][0] && byGroup[g][0].prize ? byGroup[g][0].prize : "";
                 winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(prize) : "") + "</strong><ul>";
                 byGroup[g].forEach(function (w) {
-                  winHtml += "<li>" + escapeHtml(w.name) + " — " + escapeHtml(w.p21Id) + "</li>";
+                  winHtml += buildRaffleWinnerRowHtml(w, raffle.id, rafflesIsAdmin);
                 });
                 winHtml += "</ul></li>";
               });
@@ -7186,6 +7238,19 @@ function initRaffles() {
 
   if (rafflesCompleted && base && initData) {
     rafflesCompleted.addEventListener("click", function (e) {
+      var winnerBtn = e.target.closest(".raffle-winner-btn");
+      if (winnerBtn && rafflesIsAdmin) {
+        var rid = winnerBtn.getAttribute("data-raffle-id");
+        var wid = winnerBtn.getAttribute("data-winner-user-id");
+        var row = winnerBtn.closest(".raffle-winner-row");
+        var statusEl = row && row.querySelector(".raffle-winner-status");
+        var currentStatus = statusEl && statusEl.classList.contains("raffle-winner-status--ok") ? "ok" : statusEl && statusEl.classList.contains("raffle-winner-status--fail") ? "fail" : null;
+        if (rid && wid) {
+          winnerBtn.disabled = true;
+          setRaffleWinnerStatus(rid, wid, winnerBtn.classList.contains("raffle-winner-btn--ok"), currentStatus, function (ok) { if (!ok) winnerBtn.disabled = false; });
+        }
+        return;
+      }
       if (!rafflesIsAdmin) return;
       var btn = e.target.closest(".raffle-completed-card__delete-btn");
       if (!btn) return;
@@ -7787,7 +7852,8 @@ function initEquilator() {
         }
         if (resultMeta) resultMeta.textContent = trials === 1 ? "Точный расчёт (известна рука оппонента)." : "По " + trials + " симуляциям.";
         calcBtn.disabled = false;
-        if (resultBlock) resultBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+        var scrollEl = document.scrollingElement || document.documentElement;
+        if (scrollEl) scrollEl.scrollBy({ top: 100, behavior: "smooth" });
       };
       var allFixed = board.length === 5 && fixedOpps.every(function (p) { return p !== null; });
       if (allFixed) {

@@ -4397,7 +4397,49 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffle-winners-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--accent-2); }
 .raffle-winners { margin: 0; padding-left: 20px; font-size: 13px; }
 .raffle-winner-group { margin-bottom: 8px; }
-.raffle-winner-group ul { margin: 4px 0 0; padding-left: 18px; }
+.raffle-winner-group ul { margin: 4px 0 0; padding-left: 18px; list-style: none; }
+.raffle-winner-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.raffle-winner-row__text { flex: 1; min-width: 0; }
+.raffle-winner-status {
+  font-weight: 600;
+  min-width: 1.2em;
+}
+.raffle-winner-status--ok { color: #22c55e; }
+.raffle-winner-status--fail { color: #ef4444; }
+.raffle-winner-btns { display: flex; gap: 4px; }
+.raffle-winner-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.5);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.raffle-winner-btn:hover:not(:disabled) {
+  background: rgba(51, 65, 85, 0.8);
+  color: var(--text);
+}
+.raffle-winner-btn--ok.raffle-winner-btn--active {
+  background: rgba(34, 197, 94, 0.25);
+  color: #22c55e;
+  border-color: #22c55e;
+}
+.raffle-winner-btn--fail.raffle-winner-btn--active {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  border-color: #ef4444;
+}
 .raffles-randomizer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle); }
 .raffles-randomizer-title { margin: 0 0 10px; font-size: 16px; font-weight: 600; color: var(--text); }
 
