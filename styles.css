@@ -5883,6 +5883,7 @@ a.home-mini-icon-item {
   overflow-x: auto;
   margin: 0 12px 20px;
   -webkit-overflow-scrolling: touch;
+  overflow-anchor: none;
 }
 .winter-rating__spring-placeholder {
   text-align: center;

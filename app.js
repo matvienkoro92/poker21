@@ -118,6 +118,7 @@
   }
   function nativeShare() {
     if (typeof navigator.share !== "function") return Promise.resolve(false);
+    if (isIos()) return Promise.resolve(false);
     var link = getAppUrl();
     return navigator.share({
       title: "Клуб Два туза — Poker Club",
@@ -161,10 +162,10 @@
       }
       copyShareLink().then(function (ok) {
         if (ok) {
-          if (isIos()) showMsg("Ссылка скопирована. Safari → Поделиться → На экран Домой.");
+          if (isIos()) showMsg("Ссылка скопирована. Добавить на экран: нажмите кнопку «Поделиться» в Safari (внизу экрана) → прокрутите вниз → «На экран Домой».");
           else showMsg("Ссылка скопирована. Отправьте другу. Chrome: меню → Установить.");
         } else {
-          if (isIos()) showMsg("Safari → Поделиться → На экран Домой.");
+          if (isIos()) showMsg("Добавить на экран: нажмите кнопку «Поделиться» в Safari (внизу экрана) → прокрутите вниз → «На экран Домой».");
           else showMsg("Chrome или Edge: меню → Установить.");
         }
       });
@@ -4338,6 +4339,8 @@ function initWinterRating() {
     var q = (searchStr || "").trim().toLowerCase();
     var trs = tbody.querySelectorAll("tr");
     var hadCollapsed = tableWrap && tableWrap.classList.contains("winter-rating__table-wrap--collapsed");
+    var scrollTop = tableWrap && tableWrap.scrollTop != null ? tableWrap.scrollTop : 0;
+    var docScrollTop = (document.scrollingElement && document.scrollingElement.scrollTop) || document.documentElement.scrollTop || 0;
     if (q) {
       if (tableWrap) tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
       if (showAllBtn) showAllBtn.textContent = "Свернуть";
@@ -4352,6 +4355,21 @@ function initWinterRating() {
       var match = !q || (nick && nick.indexOf(q) >= 0);
       tr.style.display = match ? "" : "none";
     }
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (tableWrap && tableWrap.scrollTop !== scrollTop) tableWrap.scrollTop = scrollTop;
+        var el = document.scrollingElement || document.documentElement;
+        if (el && el.scrollTop !== docScrollTop) el.scrollTop = docScrollTop;
+      });
+    });
+  }
+  function debounceRatingSearch(fn, ms) {
+    var t;
+    return function () {
+      var args = arguments;
+      if (t) clearTimeout(t);
+      t = setTimeout(function () { t = null; fn.apply(null, args); }, ms);
+    };
   }
   if (isSpringRatingMode()) {
     if (tableCaptionRow) tableCaptionRow.style.display = "none";
@@ -4527,9 +4545,8 @@ function initWinterRating() {
       }
       if (searchInput && bodyEl) {
         searchInput.value = "";
-        searchInput.oninput = function () {
-          filterTableByNick(bodyEl, searchInput.value, tableWrap, showAllBtn);
-        };
+        var doFilter = debounceRatingSearch(function () { filterTableByNick(bodyEl, searchInput.value, tableWrap, showAllBtn); }, 120);
+        searchInput.oninput = doFilter;
         searchInput.onkeydown = function (e) {
           if (e.key === "Escape") { searchInput.value = ""; searchInput.blur(); filterTableByNick(bodyEl, "", tableWrap, showAllBtn); }
         };
@@ -4662,9 +4679,10 @@ function initWinterRating() {
   var winterSearchInput = document.getElementById("winterRatingSearchInput");
   var winterTableWrap = document.getElementById("winterRatingTableWrap");
   if (winterSearchInput && tbody) {
-    winterSearchInput.addEventListener("input", function () {
+    var winterDoFilter = debounceRatingSearch(function () {
       filterTableByNick(tbody, winterSearchInput.value, winterTableWrap, document.getElementById("winterRatingShowAllBtn"));
-    });
+    }, 120);
+    winterSearchInput.addEventListener("input", winterDoFilter);
     winterSearchInput.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { winterSearchInput.value = ""; winterSearchInput.blur(); filterTableByNick(tbody, "", winterTableWrap, document.getElementById("winterRatingShowAllBtn")); }
     });
