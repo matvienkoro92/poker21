@@ -820,10 +820,19 @@ function getTopByDates(dates) {
       }, 0);
     }
   }
-  if (startParam && startParam.indexOf("rating_") === 0) {
+  if (startParam && startParam.indexOf("rating_") === 0 && startParam.indexOf("spring_rating_date_") !== 0) {
     var dateParam = startParam.replace("rating_", "").replace(/_/g, ".");
     setTimeout(function () {
       if (typeof setView === "function") setView("winter-rating");
+      setTimeout(function () {
+        if (typeof window.openWinterRatingDatePanel === "function") window.openWinterRatingDatePanel(dateParam);
+      }, 400);
+    }, 0);
+  }
+  if (startParam && startParam.indexOf("spring_rating_date_") === 0) {
+    var dateParam = startParam.replace("spring_rating_date_", "").replace(/_/g, ".");
+    setTimeout(function () {
+      if (typeof setView === "function") setView("spring-rating");
       setTimeout(function () {
         if (typeof window.openWinterRatingDatePanel === "function") window.openWinterRatingDatePanel(dateParam);
       }, 400);
@@ -4701,19 +4710,14 @@ function initWinterRating() {
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
-      var link = appUrl + "?startapp=rating_" + String(dateStr).replace(/\./g, "_");
+      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
+      var startApp = isSpring ? "spring_rating_date_" + String(dateStr).replace(/\./g, "_") : "rating_" + String(dateStr).replace(/\./g, "_");
+      var link = appUrl + "?startapp=" + startApp;
+      var msg = "Ссылка скопирована. Отправьте другу — откроется рейтинг за " + dateStr + ".";
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      // В Telegram открываем стандартное окно шаринга, чтобы было явно видно действие
-      if (tg && tg.openTelegramLink) {
-        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) +
-          "&text=" + encodeURIComponent("Рейтинг клуба Два туза за " + dateStr);
-        tg.openTelegramLink(shareUrl);
-        return;
-      }
-      // Фоллбек: копирование в буфер обмена + алерт
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
-          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте другу — откроется рейтинг за " + dateStr + "."); else alert("Ссылка скопирована.");
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
         }).catch(function () {
           if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
         });
