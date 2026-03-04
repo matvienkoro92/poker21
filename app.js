@@ -116,6 +116,15 @@
     }
     return Promise.resolve(false);
   }
+  function nativeShare() {
+    if (typeof navigator.share !== "function") return Promise.resolve(false);
+    var link = getAppUrl();
+    return navigator.share({
+      title: "Клуб Два туза — Poker Club",
+      text: "Присоединяйся к покерному клубу «Два туза»",
+      url: link
+    }).then(function () { return true; }).catch(function () { return false; });
+  }
   function showMsg(msg) {
     var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
@@ -126,36 +135,48 @@
     installPrompt = e;
     btn.removeAttribute("hidden");
   });
-  if (isIos()) btn.removeAttribute("hidden");
+  if (isIos() || (typeof navigator.share === "function")) btn.removeAttribute("hidden");
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(function () {});
   }
   btn.addEventListener("click", function () {
-    copyShareLink().then(function (ok) {
-      if (ok) {
-        if (installPrompt) {
-          installPrompt.prompt();
-          installPrompt.userChoice.then(function (r) {
-            if (r.outcome === "accepted") installPrompt = null;
-            showMsg("Ссылка скопирована. Отправьте другу или добавьте на экран.");
-          });
-        } else if (isIos()) {
-          showMsg("Ссылка скопирована. Нажмите «Поделиться» в Safari → «На экран Домой».");
-        } else {
-          showMsg("Ссылка скопирована. Отправьте другу. Для установки откройте в Chrome и нажмите «Установить».");
-        }
-      } else {
+    nativeShare().then(function (shared) {
+      if (shared) {
         if (installPrompt) {
           installPrompt.prompt();
           installPrompt.userChoice.then(function (r) {
             if (r.outcome === "accepted") installPrompt = null;
           });
-        } else if (isIos()) {
-          showMsg("Нажмите «Поделиться» в Safari, затем «На экран Домой».");
-        } else {
-          showMsg("Откройте в Chrome или Edge и нажмите «Установить» в меню браузера.");
         }
+        showMsg("Поделились! Можно добавить на экран через меню браузера.");
+        return;
       }
+      return copyShareLink().then(function (ok) {
+        if (ok) {
+          if (installPrompt) {
+            installPrompt.prompt();
+            installPrompt.userChoice.then(function (r) {
+              if (r.outcome === "accepted") installPrompt = null;
+              showMsg("Ссылка скопирована. Отправьте другу или добавьте на экран.");
+            });
+          } else if (isIos()) {
+            showMsg("Ссылка скопирована. Нажмите «Поделиться» в Safari → «На экран Домой».");
+          } else {
+            showMsg("Ссылка скопирована. Отправьте другу. Для установки откройте в Chrome и нажмите «Установить».");
+          }
+        } else {
+          if (installPrompt) {
+            installPrompt.prompt();
+            installPrompt.userChoice.then(function (r) {
+              if (r.outcome === "accepted") installPrompt = null;
+            });
+          } else if (isIos()) {
+            showMsg("Нажмите «Поделиться» в Safari, затем «На экран Домой».");
+          } else {
+            showMsg("Откройте в Chrome или Edge и нажмите «Установить» в меню браузера.");
+          }
+        }
+      });
     });
   });
 })();

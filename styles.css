@@ -5515,12 +5515,14 @@ a.home-mini-icon-item {
   box-shadow: 0 0 18px rgba(234, 179, 8, 0.6), 0 0 32px rgba(234, 179, 8, 0.3);
 }
 [data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--white {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.25));
-  border-color: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.12);
 }
 [data-theme="light"] .view--active[data-view="home"] .home-mini-icon-item--white:hover {
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 0 28px rgba(255, 255, 255, 0.25);
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
 /* Рейтинг Турнирщиков зимы — стильный блок в духе покерного клуба */
