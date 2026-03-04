@@ -6816,6 +6816,8 @@ function initRaffles() {
   var raffleJoinBtn = document.getElementById("raffleJoinBtn");
   var raffleLeaveBtn = document.getElementById("raffleLeaveBtn");
   var raffleJoinedMsg = document.getElementById("raffleJoinedMsg");
+  var raffleParticipantsCount = document.getElementById("raffleParticipantsCount");
+  var raffleParticipantsChance = document.getElementById("raffleParticipantsChance");
   var raffleParticipants = document.getElementById("raffleParticipants");
   var raffleWinnersWrap = document.getElementById("raffleWinnersWrap");
   var raffleWinners = document.getElementById("raffleWinners");
@@ -7007,6 +7009,16 @@ function initRaffles() {
     }
     if (raffleJoinedMsg) raffleJoinedMsg.classList.toggle("raffle-joined-msg--hidden", !iAmIn);
     var parts = raffle.participants || [];
+    if (raffleParticipantsCount) raffleParticipantsCount.textContent = "(" + parts.length + ")";
+    var chancePct = "";
+    if (parts.length > 0 && total > 0) {
+      var pct = Math.min(100, (total / parts.length) * 100);
+      chancePct = "Ваш шанс выиграть: " + (pct >= 100 ? "100" : pct.toFixed(1)) + "%";
+    }
+    if (raffleParticipantsChance) {
+      raffleParticipantsChance.textContent = chancePct;
+      raffleParticipantsChance.style.display = chancePct ? "" : "none";
+    }
     raffleParticipants.innerHTML = parts.length === 0
       ? "<li class=\"raffle-participants-empty\">Пока никого</li>"
       : parts.map(function (p) { return "<li>" + escapeHtml(p.name) + " — " + escapeHtml(p.p21Id) + "</li>"; }).join("");
