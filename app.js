@@ -105,6 +105,21 @@
   function isIos() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   }
+  function getAppUrl() {
+    var appEl = document.getElementById("app");
+    return ((appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza").replace(/\/$/, "");
+  }
+  function copyShareLink() {
+    var link = getAppUrl();
+    if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(link).then(function () { return true; }).catch(function () { return false; });
+    }
+    return Promise.resolve(false);
+  }
+  function showMsg(msg) {
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+  }
   if (isStandalone()) return;
   window.addEventListener("beforeinstallprompt", function (e) {
     e.preventDefault();
@@ -116,22 +131,32 @@
     navigator.serviceWorker.register("./sw.js").catch(function () {});
   }
   btn.addEventListener("click", function () {
-    if (installPrompt) {
-      installPrompt.prompt();
-      installPrompt.userChoice.then(function (r) {
-        if (r.outcome === "accepted") installPrompt = null;
-      });
-      return;
-    }
-    if (isIos()) {
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      var msg = "Нажмите кнопку «Поделиться» в Safari, затем «На экран Домой».";
-      if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
-    } else {
-      var msg2 = "Откройте в Chrome или Edge и нажмите «Установить» в меню браузера.";
-      var tg2 = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg2 && tg2.showAlert) tg2.showAlert(msg2); else alert(msg2);
-    }
+    copyShareLink().then(function (ok) {
+      if (ok) {
+        if (installPrompt) {
+          installPrompt.prompt();
+          installPrompt.userChoice.then(function (r) {
+            if (r.outcome === "accepted") installPrompt = null;
+            showMsg("Ссылка скопирована. Отправьте другу или добавьте на экран.");
+          });
+        } else if (isIos()) {
+          showMsg("Ссылка скопирована. Нажмите «Поделиться» в Safari → «На экран Домой».");
+        } else {
+          showMsg("Ссылка скопирована. Отправьте другу. Для установки откройте в Chrome и нажмите «Установить».");
+        }
+      } else {
+        if (installPrompt) {
+          installPrompt.prompt();
+          installPrompt.userChoice.then(function (r) {
+            if (r.outcome === "accepted") installPrompt = null;
+          });
+        } else if (isIos()) {
+          showMsg("Нажмите «Поделиться» в Safari, затем «На экран Домой».");
+        } else {
+          showMsg("Откройте в Chrome или Edge и нажмите «Установить» в меню браузера.");
+        }
+      }
+    });
   });
 })();
 

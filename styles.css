@@ -146,12 +146,13 @@ body::-webkit-scrollbar,
   color: #c2410c;
 }
 [data-theme="light"] .app-store-btn {
-  background: linear-gradient(135deg, #4a5568, #2d3748);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(145deg, #4a5568 0%, #2d3748 50%, #1a202c 100%);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
-[data-theme="light"] .app-store-btn:hover,
-[data-theme="light"] .app-store-btn:active {
-  background: linear-gradient(135deg, #5a6578, #3d4858);
+[data-theme="light"] .app-store-btn:hover {
+  background: linear-gradient(145deg, #5a6578 0%, #4a5568 50%, #2d3748 100%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 [data-theme="light"] .hero__link {
   box-shadow:
@@ -4865,97 +4866,134 @@ a.home-mini-icon-item {
 .download-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 12px;
 }
 
 .download-app {
+  position: relative;
   border: none;
-  border-radius: 14px;
-  padding: 10px 8px;
-  background: linear-gradient(to top, #0f172a, #1e293b);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
+  overflow: hidden;
   transition:
-    background 0.16s ease-out,
-    box-shadow 0.16s ease-out,
-    transform 0.12s ease-out,
-    filter 0.12s ease-out;
-}
-
-.download-app:hover {
-  background: linear-gradient(to top, #b45309, #d97706);
-  border-color: rgba(248, 250, 252, 0.4);
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
   box-shadow:
-    0 8px 18px rgba(248, 113, 22, 0.35),
-    0 0 0 1px rgba(248, 250, 252, 0.25);
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.download-app::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.download-app:hover {
+  background: linear-gradient(145deg, #334155 0%, #1e293b 100%);
+  border-color: rgba(248, 250, 252, 0.35);
+  box-shadow:
+    0 8px 24px rgba(248, 113, 22, 0.25),
+    0 0 0 1px rgba(248, 250, 252, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
   color: var(--btn-on-accent);
 }
-
 .download-app:active {
-  transform: translateY(1px);
-  filter: brightness(0.97);
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .download-app--poker21 {
-  background: linear-gradient(to top, #b91c1c, #e11d48);
-  border: 2px solid rgba(254, 202, 202, 0.9);
-  box-shadow: 0 0 0 1px rgba(254, 202, 202, 0.4), 0 0 10px rgba(254, 202, 202, 0.2);
+  background: linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+  border: 1px solid rgba(254, 202, 202, 0.5);
   color: #fff;
+  box-shadow:
+    0 6px 20px rgba(185, 28, 28, 0.4),
+    0 0 20px rgba(254, 202, 202, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .download-app--poker21:hover {
-  background: linear-gradient(to top, #991b1b, #dc2626);
-  border-color: rgba(254, 226, 226, 0.95);
+  background: linear-gradient(145deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  border-color: rgba(254, 226, 226, 0.7);
   box-shadow:
-    0 8px 18px rgba(185, 28, 28, 0.4),
-    0 0 0 2px rgba(254, 226, 226, 0.5),
-    0 0 12px rgba(254, 202, 202, 0.25);
+    0 12px 32px rgba(185, 28, 28, 0.5),
+    0 0 24px rgba(254, 202, 202, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
   color: #fff;
 }
 
 .download-app--xpoker {
-  background: linear-gradient(to top, #1d4ed8, #3b82f6);
-  border-color: rgba(29, 78, 216, 0.5);
+  background: linear-gradient(145deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+  border: 1px solid rgba(191, 219, 254, 0.4);
   color: #fff;
+  box-shadow:
+    0 6px 20px rgba(37, 99, 235, 0.35),
+    0 0 16px rgba(96, 165, 250, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .download-app--xpoker:hover {
-  background: linear-gradient(to top, #1e40af, #2563eb);
-  border-color: rgba(191, 219, 254, 0.4);
+  background: linear-gradient(145deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+  border-color: rgba(191, 219, 254, 0.6);
   box-shadow:
-    0 8px 18px rgba(37, 99, 235, 0.35),
-    0 0 0 1px rgba(191, 219, 254, 0.2);
+    0 12px 32px rgba(37, 99, 235, 0.45),
+    0 0 24px rgba(96, 165, 250, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
   color: #fff;
 }
 
 .download-app--pppoker {
-  background: linear-gradient(to top, #15803d, #22c55e);
-  border-color: rgba(21, 128, 61, 0.5);
+  background: linear-gradient(145deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  border: 1px solid rgba(187, 247, 208, 0.4);
   color: #fff;
+  box-shadow:
+    0 6px 20px rgba(34, 197, 94, 0.35),
+    0 0 16px rgba(74, 222, 128, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .download-app--pppoker:hover {
-  background: linear-gradient(to top, #166534, #16a34a);
-  border-color: rgba(187, 247, 208, 0.4);
+  background: linear-gradient(145deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+  border-color: rgba(187, 247, 208, 0.6);
   box-shadow:
-    0 8px 18px rgba(34, 197, 94, 0.35),
-    0 0 0 1px rgba(187, 247, 208, 0.2);
+    0 12px 32px rgba(34, 197, 94, 0.45),
+    0 0 24px rgba(74, 222, 128, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
   color: #fff;
 }
 
 .download-app--supremapoker {
-  background: linear-gradient(to top, #c2410c, #ea580c);
-  border-color: rgba(194, 65, 12, 0.5);
+  background: linear-gradient(145deg, #ea580c 0%, #c2410c 50%, #9a3412 100%);
+  border: 1px solid rgba(255, 237, 213, 0.4);
   color: #fff;
+  box-shadow:
+    0 6px 20px rgba(234, 88, 12, 0.35),
+    0 0 16px rgba(251, 146, 60, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .download-app--supremapoker:hover {
-  background: linear-gradient(to top, #9a3412, #c2410c);
-  border-color: rgba(255, 237, 213, 0.4);
+  background: linear-gradient(145deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
+  border-color: rgba(255, 237, 213, 0.6);
   box-shadow:
-    0 8px 18px rgba(234, 88, 12, 0.35),
-    0 0 0 1px rgba(255, 237, 213, 0.2);
+    0 12px 32px rgba(234, 88, 12, 0.45),
+    0 0 24px rgba(251, 146, 60, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
   color: #fff;
 }
 
@@ -5084,69 +5122,125 @@ a.home-mini-icon-item {
 .download-buttons-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 12px;
+  margin-top: 8px;
   align-items: stretch;
 }
 
 .app-store-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #1c1c1e, #000);
+  gap: 10px;
+  padding: 14px 20px;
+  background: linear-gradient(145deg, #2c2c2e 0%, #1c1c1e 50%, #000 100%);
   color: #fff;
-  border-radius: 8px;
+  border-radius: 14px;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   flex: 1;
-  min-width: 140px;
+  min-width: 150px;
+  overflow: hidden;
+}
+.app-store-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 40%);
+  pointer-events: none;
+  border-radius: inherit;
 }
 .app-store-btn:hover,
 .app-store-btn:active {
-  background: linear-gradient(135deg, #2c2c2e, #1c1c1e);
+  background: linear-gradient(145deg, #3c3c3e 0%, #2c2c2e 50%, #1c1c1e 100%);
   color: #fff;
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.app-store-btn:active {
+  transform: translateY(0);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .app-store-btn__icon {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.app-store-btn__icon svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
 
 .android-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #3ddc84, #2e7d32);
+  gap: 10px;
+  padding: 14px 20px;
+  background: linear-gradient(145deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
   color: #fff;
-  border-radius: 8px;
+  border-radius: 14px;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 6px 20px rgba(34, 197, 94, 0.4),
+    0 0 20px rgba(74, 222, 128, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   flex: 1;
-  min-width: 140px;
+  min-width: 150px;
+  overflow: hidden;
+}
+.android-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 40%);
+  pointer-events: none;
+  border-radius: inherit;
 }
 .android-btn:hover,
 .android-btn:active {
-  background: linear-gradient(135deg, #4ade80, #16a34a);
+  background: linear-gradient(145deg, #6ee7b7 0%, #4ade80 50%, #22c55e 100%);
   color: #fff;
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 10px 28px rgba(34, 197, 94, 0.5),
+    0 0 24px rgba(74, 222, 128, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.android-btn:active {
+  transform: translateY(0);
+  box-shadow:
+    0 4px 12px rgba(34, 197, 94, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .android-btn__icon {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.android-btn__icon svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .poker21-arrow-down {
