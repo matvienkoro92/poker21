@@ -224,23 +224,17 @@
             <div class="games-apps-block">
                 <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
                 <div class="games-apps-grid">
-                <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎴</span></div>
-                  <div class="feature__body">
-                    <div class="feature__title">Найди Пиханину</div>
-                  </div>
-                </a>
-                <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🏎️</span></div>
-                  <div class="feature__body">
-                    <div class="feature__title">Переедь Штукатура</div>
-                  </div>
-                </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
                   <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш">1</span>
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Розыгрыши</div>
+                  </div>
+                </a>
+                <a href="#" class="feature feature--link feature--app" data-view-target="equilator" aria-label="Эквилятор">
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📊</span></div>
+                  <div class="feature__body">
+                    <div class="feature__title">Эквилятор</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
@@ -257,10 +251,16 @@
                     <div class="feature__desc">(в разработке)</div>
                   </div>
                 </a>
-                <a href="#" class="feature feature--link feature--app" data-view-target="equilator" aria-label="Эквилятор">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📊</span></div>
+                <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎴</span></div>
                   <div class="feature__body">
-                    <div class="feature__title">Эквилятор</div>
+                    <div class="feature__title">Найди Пиханину</div>
+                  </div>
+                </a>
+                <a href="#" class="feature feature--link" data-view-target="plasterer-game" aria-label="Переедь Штукатура">
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🏎️</span></div>
+                  <div class="feature__body">
+                    <div class="feature__title">Переедь Штукатура</div>
                   </div>
                 </a>
               </div>
@@ -322,6 +322,9 @@
                       <tbody id="winterRatingLeague1Body"></tbody>
                     </table>
                   </div>
+                  <p class="winter-rating__show-all-wrap winter-rating__show-all-wrap--league" id="winterRatingLeague1ShowAllWrap" style="display:none">
+                    <button type="button" class="winter-rating__show-all-btn winter-rating__show-all-btn--league" data-league="1">Ещё</button>
+                  </p>
                   <p class="winter-rating__spring-league-share-wrap">
                     <button type="button" class="winter-rating__share-btn winter-rating__spring-league-share" data-spring-league="1" aria-label="Поделиться ссылкой на рейтинг Лига 1">Поделиться</button>
                   </p>
@@ -343,18 +346,21 @@
                       <tbody id="winterRatingLeague2Body"></tbody>
                     </table>
                   </div>
+                  <p class="winter-rating__show-all-wrap winter-rating__show-all-wrap--league" id="winterRatingLeague2ShowAllWrap" style="display:none">
+                    <button type="button" class="winter-rating__show-all-btn winter-rating__show-all-btn--league" data-league="2">Ещё</button>
+                  </p>
                   <p class="winter-rating__spring-league-share-wrap">
                     <button type="button" class="winter-rating__share-btn winter-rating__spring-league-share" data-spring-league="2" aria-label="Поделиться ссылкой на рейтинг Лига 2">Поделиться</button>
                   </p>
                 </div>
               </div>
               <p class="winter-rating__show-all-wrap" id="winterRatingShowAllWrap">
-                <button type="button" class="winter-rating__show-all-btn" id="winterRatingShowAllBtn">Показать всех</button>
+                <button type="button" class="winter-rating__show-all-btn" id="winterRatingShowAllBtn">Ещё</button>
               </p>
               <div class="winter-rating__actions-wrap">
                 <p class="winter-rating__subscribe-text">Получать уведомления об обновлении рейтинга в Telegram</p>
                 <div class="winter-rating__actions-row">
-                  <button type="button" class="winter-rating__subscribe-btn" id="ratingSubscribeBtn">Подписаться на обновления рейтинга</button>
+                  <button type="button" class="winter-rating__subscribe-btn" id="ratingSubscribeBtn">Подписаться на обновления рейтинга <span class="subscribe-btn__in-dev">(в разработке)</span></button>
                   <button type="button" class="winter-rating__share-btn" id="winterRatingShareBtn" aria-label="Поделиться ссылкой на рейтинг">Поделиться</button>
                 </div>
               </div>
@@ -1472,6 +1478,11 @@
               <div class="raffles-completed-list" id="rafflesCompleted"></div>
               <p class="raffle-empty raffles-completed-empty" id="rafflesCompletedEmpty">Нет завершённых розыгрышей.</p>
             </div>
+
+            <div class="raffles-subscribe-wrap">
+              <p class="raffles-subscribe-text">Получать уведомления о новых розыгрышах в Telegram</p>
+              <button type="button" class="raffles-subscribe-btn" id="rafflesSubscribeBtn" disabled>Подписаться на розыгрыши <span class="subscribe-btn__in-dev">(в разработке)</span></button>
+            </div>
           </div>
 
           <!-- Научиться играть -->
@@ -1940,7 +1951,7 @@
             </div>
             <div class="gazette-modal__subscribe-wrap">
               <p class="gazette-modal__subscribe-text">Получать уведомления о новых новостях в Telegram</p>
-              <button type="button" class="gazette-modal__subscribe-btn" id="gazetteSubscribeBtn">Подписаться на газету</button>
+              <button type="button" class="gazette-modal__subscribe-btn" id="gazetteSubscribeBtn">Подписаться на газету <span class="subscribe-btn__in-dev">(в разработке)</span></button>
             </div>
           </div>
           <!-- Страница: Горячие новости -->

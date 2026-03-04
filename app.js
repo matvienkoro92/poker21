@@ -342,16 +342,17 @@ function getTopByDates(dates) {
   var subscribeBtnNews = document.getElementById("gazetteSubscribeBtnNews");
   var subscribeWrap = modal && modal.querySelector(".gazette-modal__subscribe-wrap");
   var GAZETTE_SUBSCRIBED_KEY = "poker_gazette_subscribed";
+  var inDevHtml = ' <span class="subscribe-btn__in-dev">(в разработке)</span>';
   function setSubscribeButtonState(subscribed) {
     var text = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
     if (subscribeBtn) {
-    subscribeBtn.disabled = false;
-      subscribeBtn.textContent = text;
-    subscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+      subscribeBtn.disabled = false;
+      subscribeBtn.innerHTML = text + inDevHtml;
+      subscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
     }
     if (subscribeBtnNews) {
       subscribeBtnNews.disabled = false;
-      subscribeBtnNews.textContent = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
+      subscribeBtnNews.innerHTML = text + inDevHtml;
       subscribeBtnNews.dataset.subscribed = subscribed ? "1" : "0";
     }
   }
@@ -636,10 +637,11 @@ function getTopByDates(dates) {
   (function initRatingSubscribe() {
     var ratingSubscribeBtn = document.getElementById("ratingSubscribeBtn");
     var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
+    var ratingInDevHtml = ' <span class="subscribe-btn__in-dev">(в разработке)</span>';
     function setRatingSubscribeButtonState(subscribed) {
       if (!ratingSubscribeBtn) return;
       ratingSubscribeBtn.disabled = false;
-      ratingSubscribeBtn.textContent = subscribed ? "Отписаться от обновлений рейтинга" : "Подписаться на обновления рейтинга";
+      ratingSubscribeBtn.innerHTML = (subscribed ? "Отписаться от обновлений рейтинга" : "Подписаться на обновления рейтинга") + ratingInDevHtml;
       ratingSubscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
     }
     function updateRatingSubscribeFromStorage() {
@@ -4252,6 +4254,8 @@ function initWinterRating() {
   if (isSpringRatingMode()) {
     if (tableCaptionRow) tableCaptionRow.style.display = "none";
     if (document.getElementById("winterRatingTableWrap")) document.getElementById("winterRatingTableWrap").style.display = "none";
+    var winterShowAllWrap = document.getElementById("winterRatingShowAllWrap");
+    if (winterShowAllWrap) winterShowAllWrap.style.display = "none";
     if (springLeaguesEl) { springLeaguesEl.removeAttribute("hidden"); springLeaguesEl.style.display = ""; }
     if (springMainTabsEl) { springMainTabsEl.removeAttribute("hidden"); springMainTabsEl.style.display = ""; }
     if (winterRatingShareBtn) { winterRatingShareBtn.style.display = "none"; }
@@ -4389,8 +4393,33 @@ function initWinterRating() {
       };
       bodyEl.addEventListener("click", bodyEl._leagueNickClick);
     }
+    function setupLeagueCollapse(bodyEl, leagueNum) {
+      if (!bodyEl) return;
+      var rows = bodyEl.querySelectorAll("tr");
+      var tableWrap = bodyEl.parentElement && bodyEl.parentElement.parentElement;
+      var showAllWrap = document.getElementById("winterRatingLeague" + leagueNum + "ShowAllWrap");
+      var showAllBtn = showAllWrap && showAllWrap.querySelector(".winter-rating__show-all-btn--league");
+      if (rows.length > 10 && tableWrap && showAllWrap && showAllBtn) {
+        tableWrap.classList.add("winter-rating__table-wrap--collapsed");
+        showAllWrap.style.display = "";
+        showAllBtn.textContent = "Ещё";
+        showAllBtn.onclick = function () {
+          if (tableWrap.classList.contains("winter-rating__table-wrap--collapsed")) {
+            tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
+            showAllBtn.textContent = "Свернуть";
+          } else {
+            tableWrap.classList.add("winter-rating__table-wrap--collapsed");
+            showAllBtn.textContent = "Ещё";
+          }
+        };
+      } else if (showAllWrap) {
+        showAllWrap.style.display = "none";
+      }
+    }
     renderLeagueRows(1, league1Body);
     renderLeagueRows(2, league2Body);
+    setupLeagueCollapse(league1Body, 1);
+    setupLeagueCollapse(league2Body, 2);
   }
   function buildSpringTop3PodiumHtml(rowsForPodium, titleText) {
     if (!rowsForPodium || rowsForPodium.length < 3) return "";
@@ -4497,14 +4526,14 @@ function initWinterRating() {
     if (rows.length > 10 && tableWrap && showAllWrap && showAllBtn) {
       tableWrap.classList.add("winter-rating__table-wrap--collapsed");
       showAllWrap.style.display = "";
-      showAllBtn.textContent = "Показать всех";
+      showAllBtn.textContent = "Ещё";
       showAllBtn.onclick = function () {
         if (tableWrap.classList.contains("winter-rating__table-wrap--collapsed")) {
           tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
-          showAllBtn.textContent = "Скрыть";
+          showAllBtn.textContent = "Свернуть";
         } else {
           tableWrap.classList.add("winter-rating__table-wrap--collapsed");
-          showAllBtn.textContent = "Показать всех";
+          showAllBtn.textContent = "Ещё";
         }
       };
     } else if (showAllWrap) {
