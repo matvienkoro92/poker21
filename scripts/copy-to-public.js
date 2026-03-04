@@ -17,6 +17,8 @@ const toCopy = [
   'winter-rating-data.js',
   'updates-data.js',
   'preview-iphone.html',
+  'manifest.json',
+  'sw.js',
 ];
 const dirsToCopy = ['assets'];
 

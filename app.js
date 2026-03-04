@@ -93,6 +93,48 @@
   });
 })();
 
+(function initPwaInstall() {
+  var btn = document.getElementById("pwaInstallBtn");
+  if (!btn) return;
+  var installPrompt = null;
+  function isStandalone() {
+    return window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true ||
+      document.referrer.indexOf("android-app://") === 0;
+  }
+  function isIos() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  }
+  if (isStandalone()) return;
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    installPrompt = e;
+    btn.removeAttribute("hidden");
+  });
+  if (isIos()) btn.removeAttribute("hidden");
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+  btn.addEventListener("click", function () {
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then(function (r) {
+        if (r.outcome === "accepted") installPrompt = null;
+      });
+      return;
+    }
+    if (isIos()) {
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      var msg = "Нажмите кнопку «Поделиться» в Safari, затем «На экран Домой».";
+      if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+    } else {
+      var msg2 = "Откройте в Chrome или Edge и нажмите «Установить» в меню браузера.";
+      var tg2 = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg2 && tg2.showAlert) tg2.showAlert(msg2); else alert(msg2);
+    }
+  });
+})();
+
 function getAssetUrl(relativePath) {
   try {
     var base = typeof document !== "undefined" && document.baseURI ? document.baseURI : (typeof location !== "undefined" && location.href) || "";
@@ -758,6 +800,9 @@ function getTopByDates(dates) {
         if (typeof window.openWinterRatingWeekTopModal === "function") window.openWinterRatingWeekTopModal(ratingTopKind);
       }, 350);
     }, 0);
+  }
+  if (startParam === "raffles") {
+    setTimeout(function () { if (typeof setView === "function") setView("raffles"); }, 0);
   }
   if (startParam && startParam.indexOf("streams_") === 0) {
     var streamsRoomId = startParam.replace("streams_", "");
@@ -7089,11 +7134,28 @@ function initRaffles() {
   }
   if (rafflesTabActive) rafflesTabActive.addEventListener("click", function () { setRafflesTab("active"); });
   if (rafflesTabCompleted) rafflesTabCompleted.addEventListener("click", function () { setRafflesTab("completed"); });
-  var rafflesActiveLink = document.getElementById("rafflesActiveLink");
-  if (rafflesActiveLink) {
-    rafflesActiveLink.addEventListener("click", function (e) {
-      e.preventDefault();
-      setRafflesTab("active");
+
+  var rafflesShareBtn = document.getElementById("rafflesShareBtn");
+  if (rafflesShareBtn && rafflesShareBtn.getAttribute("data-share-bound") !== "1") {
+    rafflesShareBtn.setAttribute("data-share-bound", "1");
+    rafflesShareBtn.addEventListener("click", function () {
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=raffles";
+      var msg = "Ссылка скопирована. Отправьте другу — откроется раздел розыгрышей.";
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
     });
   }
 

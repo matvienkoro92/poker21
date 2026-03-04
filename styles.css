@@ -655,6 +655,39 @@ html.app-view-home .home-welcome-outline::before {
 [data-theme="light"] .theme-toggle__icon--light { display: inline; }
 [data-theme="light"] .theme-toggle__icon--dark { display: none; }
 
+.pwa-install-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  height: 40px;
+  min-width: 40px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--block-bg);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s, background 0.2s;
+}
+.pwa-install-btn:hover {
+  opacity: 0.95;
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+.pwa-install-btn__icon {
+  font-size: 16px;
+}
+.pwa-install-btn__label {
+  font-size: 11px;
+}
+@media (max-width: 480px) {
+  .pwa-install-btn__label { display: none; }
+  .pwa-install-btn { padding: 0; min-width: 40px; justify-content: center; }
+}
+
 .radio-toggle {
   width: auto;
   min-width: 40px;
@@ -4256,6 +4289,43 @@ html.app-view-home .feature--rating-spring-promo:hover,
   color: var(--text-muted);
   position: relative;
 }
+.raffles-hero__share-btn {
+  display: inline-block;
+  min-width: 180px;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #e0f2fe;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.35), rgba(2, 132, 199, 0.25));
+  border: 1px solid rgba(186, 230, 253, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.raffles-hero__share-btn:hover {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.45), rgba(2, 132, 199, 0.35));
+  border-color: rgba(186, 230, 253, 0.85);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+.raffles-hero__share-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
+}
+[data-theme="light"] .raffles-hero__share-btn {
+  color: #0c4a6e;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.2));
+  border-color: rgba(14, 165, 233, 0.5);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+}
+[data-theme="light"] .raffles-hero__share-btn:hover {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.35), rgba(14, 165, 233, 0.3));
+  border-color: rgba(14, 165, 233, 0.7);
+  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.25);
+}
 /* Карточка розыгрыша в виде билета */
 .raffle-card--ticket {
   position: relative;
@@ -4489,23 +4559,6 @@ html.app-view-home .feature--rating-spring-promo:hover,
   font-size: 12px;
   color: var(--text-muted);
   line-height: 1.4;
-}
-.raffles-subscribe-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin: 0;
-}
-.raffles-subscribe-link {
-  font-size: 13px;
-  color: var(--accent);
-  text-decoration: underline;
-  cursor: pointer;
-}
-.raffles-subscribe-link:hover {
-  color: var(--accent-2);
 }
 .raffles-subscribe-btn {
   display: inline-block;

@@ -21,6 +21,7 @@
     <meta name="twitter:title" content="Вестник Два туза — горячие новости клуба" />
     <meta name="twitter:description" content="Горячие новости покерного клуба «Два туза». Откройте в Telegram." />
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
+    <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=20" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -133,6 +134,10 @@
               <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
                 <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
                 <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">☀️</span>
+              </button>
+              <button type="button" class="pwa-install-btn theme-toggle" id="pwaInstallBtn" title="Добавить на рабочий стол" aria-label="Добавить на рабочий стол" hidden>
+                <span class="pwa-install-btn__icon" aria-hidden="true">📲</span>
+                <span class="pwa-install-btn__label">На рабочий стол</span>
               </button>
             </div>
             <p class="header-radio-listeners" id="headerRadioListeners" aria-live="polite">Слушает: <span id="headerRadioListenersCount">10</span></p>
@@ -1382,6 +1387,7 @@
               </div>
               <p class="raffles-hero__club">TWO ACES</p>
               <p class="raffles-hero__tagline">Розыгрыши билетов на турниры клуба</p>
+              <button type="button" class="raffles-hero__share-btn" id="rafflesShareBtn" aria-label="Поделиться ссылкой на розыгрыши">Поделиться</button>
             </header>
 
             <div class="raffles-admin-wrap raffles-admin-wrap--hidden" id="rafflesAdminWrap">
@@ -1481,10 +1487,7 @@
 
             <div class="raffles-subscribe-wrap">
               <p class="raffles-subscribe-text">Получать уведомления о новых розыгрышах в Telegram</p>
-              <p class="raffles-subscribe-row">
-                <button type="button" class="raffles-subscribe-btn" id="rafflesSubscribeBtn" disabled>Подписаться на розыгрыши <span class="subscribe-btn__in-dev">(в разработке)</span></button>
-                <a href="#" class="raffles-subscribe-link" id="rafflesActiveLink" data-raffle-tab="active">Активные розыгрыши</a>
-              </p>
+              <button type="button" class="raffles-subscribe-btn" id="rafflesSubscribeBtn" disabled>Подписаться на розыгрыши <span class="subscribe-btn__in-dev">(в разработке)</span></button>
             </div>
           </div>
 
