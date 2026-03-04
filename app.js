@@ -140,41 +140,32 @@
     navigator.serviceWorker.register("./sw.js").catch(function () {});
   }
   btn.addEventListener("click", function () {
-    nativeShare().then(function (shared) {
+    function doShareAndCopy() {
+      return copyShareLink().then(function () { return nativeShare(); });
+    }
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then(function (r) {
+        if (r.outcome === "accepted") installPrompt = null;
+        doShareAndCopy().then(function (shared) {
+          if (shared) showMsg("Поделились!");
+          else showMsg("Ссылка скопирована. Отправьте другу.");
+        });
+      });
+      return;
+    }
+    doShareAndCopy().then(function (shared) {
       if (shared) {
-        if (installPrompt) {
-          installPrompt.prompt();
-          installPrompt.userChoice.then(function (r) {
-            if (r.outcome === "accepted") installPrompt = null;
-          });
-        }
-        showMsg("Поделились! Можно добавить на экран через меню браузера.");
+        showMsg("Поделились! Для добавления на экран: Safari → Поделиться → На экран Домой.");
         return;
       }
-      return copyShareLink().then(function (ok) {
+      copyShareLink().then(function (ok) {
         if (ok) {
-          if (installPrompt) {
-            installPrompt.prompt();
-            installPrompt.userChoice.then(function (r) {
-              if (r.outcome === "accepted") installPrompt = null;
-              showMsg("Ссылка скопирована. Отправьте другу или добавьте на экран.");
-            });
-          } else if (isIos()) {
-            showMsg("Ссылка скопирована. Нажмите «Поделиться» в Safari → «На экран Домой».");
-          } else {
-            showMsg("Ссылка скопирована. Отправьте другу. Для установки откройте в Chrome и нажмите «Установить».");
-          }
+          if (isIos()) showMsg("Ссылка скопирована. Safari → Поделиться → На экран Домой.");
+          else showMsg("Ссылка скопирована. Отправьте другу. Chrome: меню → Установить.");
         } else {
-          if (installPrompt) {
-            installPrompt.prompt();
-            installPrompt.userChoice.then(function (r) {
-              if (r.outcome === "accepted") installPrompt = null;
-            });
-          } else if (isIos()) {
-            showMsg("Нажмите «Поделиться» в Safari, затем «На экран Домой».");
-          } else {
-            showMsg("Откройте в Chrome или Edge и нажмите «Установить» в меню браузера.");
-          }
+          if (isIos()) showMsg("Safari → Поделиться → На экран Домой.");
+          else showMsg("Chrome или Edge: меню → Установить.");
         }
       });
     });
