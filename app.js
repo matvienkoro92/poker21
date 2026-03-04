@@ -7089,6 +7089,13 @@ function initRaffles() {
   }
   if (rafflesTabActive) rafflesTabActive.addEventListener("click", function () { setRafflesTab("active"); });
   if (rafflesTabCompleted) rafflesTabCompleted.addEventListener("click", function () { setRafflesTab("completed"); });
+  var rafflesActiveLink = document.getElementById("rafflesActiveLink");
+  if (rafflesActiveLink) {
+    rafflesActiveLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      setRafflesTab("active");
+    });
+  }
 
   if (createToggle && createForm) {
     createToggle.addEventListener("click", function () {

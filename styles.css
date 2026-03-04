@@ -4490,6 +4490,23 @@ html.app-view-home .feature--rating-spring-promo:hover,
   color: var(--text-muted);
   line-height: 1.4;
 }
+.raffles-subscribe-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+}
+.raffles-subscribe-link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.raffles-subscribe-link:hover {
+  color: var(--accent-2);
+}
 .raffles-subscribe-btn {
   display: inline-block;
   padding: 10px 18px;
