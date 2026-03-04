@@ -4569,6 +4569,8 @@ function initWinterRating() {
         showAllWrap.style.display = "";
         showAllBtn.textContent = "Ещё";
         showAllBtn.onclick = function () {
+          var scrollTop = tableWrap && tableWrap.scrollTop != null ? tableWrap.scrollTop : 0;
+          var docScrollTop = (document.scrollingElement && document.scrollingElement.scrollTop) || document.documentElement.scrollTop || 0;
           if (tableWrap.classList.contains("winter-rating__table-wrap--collapsed")) {
             tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
             showAllBtn.textContent = "Свернуть";
@@ -4576,6 +4578,13 @@ function initWinterRating() {
             tableWrap.classList.add("winter-rating__table-wrap--collapsed");
             showAllBtn.textContent = "Ещё";
           }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              if (tableWrap && tableWrap.scrollTop !== scrollTop) tableWrap.scrollTop = scrollTop;
+              var el = document.scrollingElement || document.documentElement;
+              if (el && el.scrollTop !== docScrollTop) el.scrollTop = docScrollTop;
+            });
+          });
         };
       } else if (showAllWrap) {
         showAllWrap.style.display = "none";
@@ -4701,6 +4710,8 @@ function initWinterRating() {
       showAllWrap.style.display = "";
       showAllBtn.textContent = "Ещё";
       showAllBtn.onclick = function () {
+        var scrollTop = tableWrap && tableWrap.scrollTop != null ? tableWrap.scrollTop : 0;
+        var docScrollTop = (document.scrollingElement && document.scrollingElement.scrollTop) || document.documentElement.scrollTop || 0;
         if (tableWrap.classList.contains("winter-rating__table-wrap--collapsed")) {
           tableWrap.classList.remove("winter-rating__table-wrap--collapsed");
           showAllBtn.textContent = "Свернуть";
@@ -4708,6 +4719,13 @@ function initWinterRating() {
           tableWrap.classList.add("winter-rating__table-wrap--collapsed");
           showAllBtn.textContent = "Ещё";
         }
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            if (tableWrap && tableWrap.scrollTop !== scrollTop) tableWrap.scrollTop = scrollTop;
+            var el = document.scrollingElement || document.documentElement;
+            if (el && el.scrollTop !== docScrollTop) el.scrollTop = docScrollTop;
+          });
+        });
       };
     } else if (showAllWrap) {
       showAllWrap.style.display = "none";

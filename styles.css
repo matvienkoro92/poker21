@@ -6091,6 +6091,18 @@ a.home-mini-icon-item {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(56, 189, 248, 0.12);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.winter-rating__actions-row .winter-rating__share-btn:hover {
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+}
+.winter-rating.spring-rating .winter-rating__actions-row .winter-rating__share-btn {
+  box-shadow: 0 1px 4px rgba(107, 142, 35, 0.15);
+}
+.winter-rating.spring-rating .winter-rating__actions-row .winter-rating__share-btn:hover {
+  box-shadow: 0 2px 8px rgba(107, 142, 35, 0.25);
 }
 @media (max-width: 480px) {
   .winter-rating__actions-row {
@@ -6161,11 +6173,47 @@ a.home-mini-icon-item {
   border-color: rgba(56, 189, 248, 0.6);
 }
 .winter-rating__date-share {
-  margin-bottom: 14px;
-  text-align: center;
+  margin: 16px 12px 20px;
+  padding: 0;
 }
 .winter-rating__date-share .winter-rating__date-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
   margin: 0;
+  padding: 14px 20px;
+  font-size: 16px;
+  min-height: 50px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.winter-rating__date-share .winter-rating__date-share-btn:hover {
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+  transform: translateY(-1px);
+}
+[data-theme="light"] .winter-rating__date-share .winter-rating__date-share-btn {
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+}
+[data-theme="light"] .winter-rating__date-share .winter-rating__date-share-btn:hover {
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+.winter-rating__spring-league-share-wrap .winter-rating__share-btn {
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(56, 189, 248, 0.12);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.winter-rating__spring-league-share-wrap .winter-rating__share-btn:hover {
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+}
+.winter-rating.spring-rating .winter-rating__spring-league-share-wrap .winter-rating__share-btn {
+  box-shadow: 0 1px 4px rgba(107, 142, 35, 0.15);
+}
+.winter-rating.spring-rating .winter-rating__spring-league-share-wrap .winter-rating__share-btn:hover {
+  box-shadow: 0 2px 8px rgba(107, 142, 35, 0.25);
 }
 .winter-rating__nick-btn {
   font: inherit;
