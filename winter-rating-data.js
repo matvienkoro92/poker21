@@ -1998,11 +1998,13 @@ var WINTER_RATING_TOURNAMENTS_BY_DATE = {
 // Скрины за дату по лигам — Лига 1 (то, что скидывали), Лига 2 отдельно.
 var SPRING_RATING_IMAGES_LEAGUE1 = {
   "01.03.2026": ["rating-01-03-2026.png", "rating-01-03-2026-2.png", "rating-01-03-2026-3.png", "rating-01-03-2026-4.png", "rating-01-03-2026-5.png", "rating-01-03-2026-6.png", "rating-01-03-2026-7.png", "rating-01-03-2026-8.png"],
-  "02.03.2026": ["rating-02-03-2026.png", "rating-02-03-2026-2.png", "rating-02-03-2026-3.png", "rating-02-03-2026-4.png", "rating-02-03-2026-5.png", "rating-02-03-2026-6.png", "rating-02-03-2026-7.png", "rating-02-03-2026-8.png", "rating-02-03-2026-9.png"]
+  "02.03.2026": ["rating-02-03-2026.png", "rating-02-03-2026-2.png", "rating-02-03-2026-3.png", "rating-02-03-2026-4.png", "rating-02-03-2026-5.png", "rating-02-03-2026-6.png", "rating-02-03-2026-7.png", "rating-02-03-2026-8.png", "rating-02-03-2026-9.png"],
+  "03.03.2026": ["rating-03-03-2026.png", "rating-03-03-2026-2.png", "rating-03-03-2026-3.png", "rating-03-03-2026-4.png", "rating-03-03-2026-5.png", "rating-03-03-2026-6.png"]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
   "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
-  "02.03.2026": ["rating-02-03-2026-league2-1.png", "rating-02-03-2026-league2-2.png", "rating-02-03-2026-league2-3.png"]
+  "02.03.2026": ["rating-02-03-2026-league2-1.png", "rating-02-03-2026-league2-2.png", "rating-02-03-2026-league2-3.png"],
+  "03.03.2026": ["rating-03-03-2026-league2-1.png", "rating-03-03-2026-league2-2.png", "rating-03-03-2026-league2-3.png", "rating-03-03-2026-league2-4.png"]
 };
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "01.03.2026": [
@@ -2030,5 +2032,17 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "21:00", name: "MOK", buyin: 300, players: [{ nick: "Аспирин", place: 1, reward: 10000 }, { nick: "Рамиль01fan", place: 2, reward: 9860 }, { nick: "pitbulltip", place: 3, reward: 4040 }, { nick: "Mier", place: 5, reward: 1480 }, { nick: "vitalyan088", place: 6, reward: 0 }] },
     { time: "22:00", name: "Energetik Tournament", buyin: 200, players: [{ nick: "Рамиль01fan", place: 1, reward: 6930 }, { nick: "Shkarubo", place: 2, reward: 4690 }, { nick: "ЧУРменя", place: 4, reward: 2240 }, { nick: "WiNifly", place: 5, reward: 2050 }, { nick: "|---777---|", place: 7, reward: 0 }] },
     { time: "22:00", name: "Magic", buyin: 500, players: [{ nick: "Proxor", place: 9, reward: 8818 }, { nick: "Рыбнадзор", place: 23, reward: 0 }, { nick: "AndrushaMorf", place: 65, reward: 0 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }] }
+  ],
+  "03.03.2026": [
+    { time: "00:00", name: "S.Bounty 2/3 150k", buyin: 10000, players: [{ nick: "YarFar", place: 1, reward: 77196 }, { nick: "Em13!!", place: 14, reward: 2673 }, { nick: "adiga666", place: 19, reward: 2196 }, { nick: "siropchik", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }] },
+    { time: "11:00", name: "Magic Bounty 60k", buyin: 300, players: [{ nick: "pryanik2la", place: 10, reward: 4109 }, { nick: "МВД", place: 19, reward: 0 }, { nick: "...Лёха...", place: 23, reward: 0 }, { nick: "Em13!!", place: 49, reward: 0 }, { nick: "XP3276334", place: 50, reward: 0 }] },
+    { time: "16:00", name: "PLO4 25K", buyin: 100, players: [{ nick: "pryanik2la", place: 7, reward: 2795 }, { nick: "Sarmat1305", place: 18, reward: 0 }, { nick: "no_name", place: 32, reward: 0 }] },
+    { time: "21:00", name: "MOK", buyin: 300, players: [{ nick: "Рамиль01fan", place: 3, reward: 7990 }, { nick: "51region", place: 4, reward: 1210 }, { nick: "$Denger$", place: 6, reward: 880 }, { nick: "lorg_777", place: 8, reward: 0 }, { nick: "Виктор", place: 9, reward: 0 }] },
+    { time: "22:00", name: "Energetik Tournament", buyin: 200, players: [{ nick: "WiNifly", place: 2, reward: 3610 }, { nick: "Виктор", place: 8, reward: 0 }, { nick: "@Felix", place: 9, reward: 0 }, { nick: "cadillac", place: 14, reward: 0 }, { nick: "TonniHalf", place: 15, reward: 0 }] },
+    { time: "12:00", name: "DV Rebuy", buyin: 800, players: [{ nick: "Waaar", place: 1, reward: 13900 }, { nick: "ПокерМанки", place: 2, reward: 9400 }, { nick: "FishKopcheny", place: 9, reward: 0 }, { nick: "FrankL", place: 10, reward: 0 }, { nick: "LuckyBoom", place: 15, reward: 0 }] },
+    { time: "17:00", name: "Rebuy MTT", buyin: 28800, players: [{ nick: "Waaar", place: 1, reward: 23700 }, { nick: "Nuts", place: 2, reward: 14900 }, { nick: "Рамиль01fan", place: 3, reward: 10200 }, { nick: "Adam1993", place: 7, reward: 0 }, { nick: "|---777---|", place: 10, reward: 0 }] },
+    { time: "18:00", name: "BOUNTY MAGIC", buyin: 10000, players: [{ nick: "Фокс", place: 5, reward: 44096 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "Waaarr", place: 125, reward: 0 }, { nick: "pryanik2la", place: 188, reward: 0 }, { nick: "Mougli", place: 0, reward: 0 }] },
+    { time: "20:00", name: "HOK", buyin: 39000, players: [{ nick: "Waaar", place: 4, reward: 7112 }, { nick: "@Felix", place: 12, reward: 2362 }, { nick: "ПокерМанки", place: 7, reward: 2025 }, { nick: "Mier", place: 22, reward: 450 }, { nick: "WiNifly", place: 10, reward: 450 }] },
+    { time: "22:00", name: "Magic", buyin: 500, players: [{ nick: "АршакМкртчян", place: 7, reward: 11958 }, { nick: "kabanchik", place: 68, reward: 0 }, { nick: "Pe4enkA", place: 0, reward: 0 }, { nick: "Антон Ойнус", place: 0, reward: 0 }, { nick: "Бабник", place: 0, reward: 0 }] }
   ]
 };
