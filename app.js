@@ -820,6 +820,17 @@ function getTopByDates(dates) {
       }, 0);
     }
   }
+  if (startParam && startParam.indexOf("spring_rating_player_") === 0) {
+    var playerNick = decodeURIComponent(startParam.replace("spring_rating_player_", "").replace(/\+/g, " "));
+    if (playerNick) {
+      setTimeout(function () {
+        if (typeof setView === "function") setView("spring-rating");
+        setTimeout(function () {
+          if (typeof openWinterRatingPlayerModal === "function") openWinterRatingPlayerModal(playerNick);
+        }, 400);
+      }, 0);
+    }
+  }
   if (startParam && startParam.indexOf("rating_") === 0 && startParam.indexOf("spring_rating_date_") !== 0) {
     var dateParam = startParam.replace("rating_", "").replace(/_/g, ".");
     setTimeout(function () {
@@ -4156,7 +4167,9 @@ function initWinterRatingPlayerModal() {
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
-      var link = appUrl + "?startapp=winter_rating_player_" + encodeURIComponent(nick);
+      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
+      var startApp = isSpring ? "spring_rating_player_" : "winter_rating_player_";
+      var link = appUrl + "?startapp=" + startApp + encodeURIComponent(nick);
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
