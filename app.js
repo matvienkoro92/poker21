@@ -1661,6 +1661,10 @@ function setView(viewName) {
   if (viewName === "home") {
     initPokerShowsPlayer();
     if (typeof updateTournamentDayBlock === "function") updateTournamentDayBlock();
+    if (!window.chatListenersAttached && typeof initChat === "function") {
+      var idle = window.requestIdleCallback || function (cb) { setTimeout(cb, 100); };
+      idle(function () { initChat(); });
+    }
   }
   if (viewName === "winter-rating") {
     var winterView = document.querySelector('[data-view="winter-rating"]');
@@ -10457,6 +10461,14 @@ if (document.readyState === "loading") {
 } else {
   initTournamentDayBlock();
 }
+
+(function preinitChat() {
+  var idle = window.requestIdleCallback || function (cb) { setTimeout(cb, 150); };
+  idle(function () {
+    if (window.chatListenersAttached) return;
+    if (typeof initChat === "function") initChat();
+  });
+})();
 
 (function initUpdatesBlock() {
   var updates = (typeof window !== "undefined" && window.APP_UPDATES) || [];
