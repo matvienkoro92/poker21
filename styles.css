@@ -7842,6 +7842,14 @@ a.home-mini-icon-item {
 }
 .winter-rating-date-modal__body .winter-rating__screenshots {
   margin-bottom: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .winter-rating-date-modal__body .winter-rating__screenshots {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
 }
 .winter-rating-date-modal__body .winter-rating__date-table-wrap {
   overflow-x: auto;
@@ -8253,6 +8261,15 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 }
 .spring-rating-date-league .winter-rating__screenshots {
   margin-bottom: 10px;
+}
+.winter-rating__date-tournaments-list:not(:empty) {
+  margin-bottom: 12px;
+}
+.winter-rating__date-tournaments-caption {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
 }
 .winter-rating__screenshots {
   display: grid;

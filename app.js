@@ -3976,6 +3976,24 @@ function getSpringRatingRowsForDateLeague(dateStr, leagueNum) {
   }
   return Object.keys(byNick).map(function (n) { return byNick[n]; });
 }
+function getSpringRatingTournamentNamesForDateLeague(dateStr, leagueNum) {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var list = tournamentsByDate[dateStr];
+  if (!Array.isArray(list) || !list.length) return [];
+  var names = [];
+  for (var j = 0; j < list.length; j++) {
+    var t = list[j];
+    var forcedLeague = t.league != null ? Number(t.league) : NaN;
+    var buyin = t.buyin != null ? Number(t.buyin) : NaN;
+    var inLeague1 = forcedLeague === 1 || (forcedLeague !== forcedLeague && (buyin >= 500 || (buyin !== buyin)));
+    var inLeague2 = forcedLeague === 2 || (forcedLeague !== forcedLeague && buyin >= 100 && buyin < 500);
+    var include = (leagueNum === 1 && inLeague1) || (leagueNum === 2 && inLeague2);
+    if (!include) continue;
+    var label = (t.time ? t.time + " " : "") + (t.name || "Турнир");
+    names.push(label);
+  }
+  return names;
+}
 
 function openWinterRatingLightbox(dateStr, index, leagueNum) {
   var box = document.getElementById("winterRatingLightbox");
@@ -5079,9 +5097,11 @@ function initWinterRating() {
             "<div class=\"spring-rating-date-league-tabs\"><button type=\"button\" class=\"spring-rating-date-league-tab spring-rating-date-league-tab--active\" data-league=\"1\">Лига 1</button><button type=\"button\" class=\"spring-rating-date-league-tab\" data-league=\"2\">Лига 2</button></div>" +
             "<div class=\"spring-rating-date-league spring-rating-date-league--1\" data-league=\"1\">" +
             "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\" data-league=\"1\"></div>" +
+            "<div class=\"winter-rating__date-tournaments-list\" data-rating-date=\"" + dateStr + "\" data-league=\"1\"></div>" +
             "<div class=\"winter-rating__date-table-wrap spring-rating-date-table\" data-rating-date=\"" + dateStr + "\" data-league=\"1\"></div></div>" +
             "<div class=\"spring-rating-date-league spring-rating-date-league--2\" data-league=\"2\" style=\"display:none\">" +
             "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div>" +
+            "<div class=\"winter-rating__date-tournaments-list\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div>" +
             "<div class=\"winter-rating__date-table-wrap spring-rating-date-table\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div></div></div>"
           : "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div><div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div>";
         var shareHtml = "<div class=\"winter-rating__date-share\" data-rating-date=\"" + (dateStr || "") + "\"><button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">Поделиться</button></div>";
@@ -5136,8 +5156,13 @@ function initWinterRating() {
           var block = leaguesWrap.querySelector(".spring-rating-date-league--" + leagueNum);
           if (!block) return;
           var screensEl = block.querySelector(".winter-rating__screenshots[data-league=\"" + leagueNum + "\"]");
+          var tournamentsEl = block.querySelector(".winter-rating__date-tournaments-list[data-league=\"" + leagueNum + "\"]");
           var tableEl = block.querySelector(".winter-rating__date-table-wrap[data-league=\"" + leagueNum + "\"]");
           if (screensEl) fillScreensForDate(screensEl, dateStr, leagueNum);
+          if (tournamentsEl) {
+            var names = getSpringRatingTournamentNamesForDateLeague(dateStr, leagueNum);
+            tournamentsEl.innerHTML = names.length ? "<p class=\"winter-rating__date-tournaments-caption\">Лига " + leagueNum + ": " + names.join(", ") + "</p>" : "";
+          }
           if (tableEl) {
             var rows = getSpringRatingRowsForDateLeague(dateStr, leagueNum);
             tableEl.innerHTML = rows && rows.length ? renderWinterRatingTable(rows) : "<p class=\"winter-rating__spring-placeholder\">Нет данных за эту дату</p>";
@@ -7382,9 +7407,10 @@ function initRaffles() {
     } catch (e) { return ""; }
   }
 
-  function loadRaffles() {
+  function loadRaffles(switchToCompleted) {
     if (!base || !initData) return;
-    fetch(base + "/api/raffles?initData=" + encodeURIComponent(initData))
+    var url = base + "/api/raffles?initData=" + encodeURIComponent(initData) + "&_t=" + Date.now();
+    fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data || !data.ok) return;
@@ -7456,6 +7482,8 @@ function initRaffles() {
           }
         }
         updateRaffleBadge(!!active);
+
+        if (switchToCompleted && typeof setRafflesTab === "function") setRafflesTab("completed");
 
         // Вкладка «Завершённые»: количество розыгрышей и сумма разыгранная за все время (₽)
         var completedCount = completed.length;
@@ -7714,7 +7742,7 @@ function initRaffles() {
             raffleCompleteBtn.disabled = false;
             if (data && data.ok) {
               if (tg && tg.showAlert) tg.showAlert("Розыгрыш завершён. Победители определены.");
-              loadRaffles();
+              loadRaffles(true);
             } else if (tg && tg.showAlert) {
               tg.showAlert((data && data.error) || "Ошибка завершения розыгрыша");
             }
@@ -7914,6 +7942,9 @@ function initRaffles() {
             if (data && data.code === "P21_REQUIRED") {
               if (tg && tg.showAlert) tg.showAlert("Заполните свой ID в профиле. На него будет начисляться выигрыш!");
               if (typeof setView === "function") setView("profile");
+            } else if (data && data.code === "CHANNEL_REQUIRED") {
+              if (tg && tg.showAlert) tg.showAlert(err);
+              if (tg && tg.openTelegramLink) tg.openTelegramLink("https://t.me/dva_tuza_club");
             } else if (data && (data.code === "SAME_IP" || data.code === "SAME_DEVICE")) {
               if (tg && tg.showAlert) tg.showAlert(err);
             } else if (tg && tg.showAlert) tg.showAlert(err);
