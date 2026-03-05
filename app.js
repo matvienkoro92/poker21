@@ -3955,9 +3955,10 @@ function getSpringRatingRowsForDateLeague(dateStr, leagueNum) {
   var byNick = {};
   for (var j = 0; j < list.length; j++) {
     var t = list[j];
+    var forcedLeague = t.league != null ? Number(t.league) : NaN;
     var buyin = t.buyin != null ? Number(t.buyin) : NaN;
-    var inLeague1 = buyin >= 500 || (buyin !== buyin);
-    var inLeague2 = buyin >= 100 && buyin < 500;
+    var inLeague1 = forcedLeague === 1 || (forcedLeague !== forcedLeague && (buyin >= 500 || (buyin !== buyin)));
+    var inLeague2 = forcedLeague === 2 || (forcedLeague !== forcedLeague && buyin >= 100 && buyin < 500);
     var include = (leagueNum === 1 && inLeague1) || (leagueNum === 2 && inLeague2);
     if (!include) continue;
     var players = t.players || [];
@@ -4535,9 +4536,10 @@ function getSpringRatingOverallByLeague(leagueNum) {
     if (!Array.isArray(list) || !list.length) continue;
     for (var j = 0; j < list.length; j++) {
       var t = list[j];
+      var forcedLeague = t.league != null ? Number(t.league) : NaN;
       var buyin = t.buyin != null ? Number(t.buyin) : NaN;
-      var inLeague1 = buyin >= 500 || (buyin !== buyin);
-      var inLeague2 = buyin >= 100 && buyin < 500;
+      var inLeague1 = forcedLeague === 1 || (forcedLeague !== forcedLeague && (buyin >= 500 || (buyin !== buyin)));
+      var inLeague2 = forcedLeague === 2 || (forcedLeague !== forcedLeague && buyin >= 100 && buyin < 500);
       var include = (leagueNum === 1 && inLeague1) || (leagueNum === 2 && inLeague2);
       if (!include) continue;
       var players = t.players || [];
