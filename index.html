@@ -218,6 +218,7 @@
                       <span class="feature__title-line1">Рейтинг турнирщиков</span>
                       <span class="feature__title-prize feature__title-prize--spring">На 250 000р</span>
                       <span class="feature__title-line3 feature__title-line3--spring">Весна 2026 <span class="feature__title-leaf" aria-hidden="true">🌿</span></span>
+                      <span class="feature__title-updated" id="springRatingUpdated">обновлено <span id="springRatingUpdatedDate">—</span></span>
                     </div>
                   </div>
                   <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
@@ -229,6 +230,13 @@
             <div class="games-apps-block">
                 <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
                 <div class="games-apps-grid">
+                <a href="#" class="feature feature--link feature--app" data-view-target="schedule" aria-label="Расписание турниров">
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📅</span></div>
+                  <div class="feature__body">
+                    <div class="feature__title">Расписание турниров</div>
+                    <div class="feature__desc">Турниры в Poker21</div>
+                  </div>
+                </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
                   <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш">1</span>
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
@@ -1443,20 +1451,45 @@
                 <!-- Форма: Розыгрыш билетов на турниры -->
                 <div class="raffle-create-form__panel raffle-create-form__panel--tickets" id="raffleCreatePanelTickets">
                   <label class="randomizer-label">
+                    <span class="randomizer-label__text">Турнир из расписания:</span>
+                    <select id="raffleTicketTournamentSelect" class="randomizer-input raffle-tournament-select" aria-label="Выберите турнир">
+                      <option value="">— Выберите турнир —</option>
+                      <optgroup label="Ежедневные">
+                        <option value="800" data-name="Rebuy DV">Rebuy DV — 800₽</option>
+                        <option value="100" data-name="Tournament Rebuy">Tournament Rebuy — 100₽</option>
+                        <option value="50" data-name="Magic Chest">Magic Chest — 50₽</option>
+                        <option value="800" data-name="Rebuy (17:00)">Rebuy (17:00) — 800₽</option>
+                        <option value="1000" data-name="HOK Magic">HOK Magic — 1000₽</option>
+                        <option value="300" data-name="MOK">MOK — 300₽</option>
+                        <option value="200" data-name="Energetic Tournament">Energetic Tournament — 200₽</option>
+                      </optgroup>
+                      <optgroup label="Турнир дня (18:00 Мск)">
+                        <option value="500" data-name="Magic MKO (Пн)">Magic MKO (Пн) — 500₽</option>
+                        <option value="300" data-name="Rebuy (Вт)">Rebuy (Вт) — 300₽</option>
+                        <option value="100" data-name="Rebuy (Ср)">Rebuy (Ср) — 100₽</option>
+                        <option value="1000" data-name="Нокаут Мистери (Чт)">Нокаут Мистери (Чт) — 1000₽</option>
+                        <option value="500" data-name="Нокаут Прогрессив (Пт)">Нокаут Прогрессив (Пт) — 500₽</option>
+                        <option value="0" data-name="Фриролл (Сб)">Фриролл (Сб) — бесплатно</option>
+                        <option value="2000" data-name="Турнир Недели Нокаут Меджик (Вс)">Турнир Недели Нокаут Меджик (Вс) — 2000₽</option>
+                      </optgroup>
+                      <option value="custom">Свой вариант (ввести вручную)</option>
+                    </select>
+                  </label>
+                  <label class="randomizer-label raffle-ticket-amount-wrap" id="raffleTicketAmountWrap">
+                    <span class="randomizer-label__text">Сумма каждого билета (₽):</span>
+                    <input type="number" id="raffleTicketAmount" class="randomizer-input" min="0" step="1" value="0" />
+                  </label>
+                  <label class="randomizer-label">
                     <span class="randomizer-label__text">Сколько групп победителей:</span>
                     <input type="number" id="raffleTicketGroupCount" class="randomizer-input" min="1" max="10" value="1" />
                   </label>
                   <div class="raffle-ticket-winners-wrap raffle-ticket-winners-wrap--single" id="raffleTicketWinnersWrap">
                     <label class="randomizer-label raffle-ticket-single-winners" id="raffleTicketSingleWinnersLabel">
-                      <span class="randomizer-label__text">Сколько победителей:</span>
+                      <span class="randomizer-label__text">Сколько билетов разыграть:</span>
                       <input type="number" id="raffleTicketWinnersCount" class="randomizer-input" min="1" max="100" value="3" />
                     </label>
                     <div class="raffle-ticket-groups" id="raffleTicketGroups"></div>
                   </div>
-                  <label class="randomizer-label">
-                    <span class="randomizer-label__text">Сумма каждого билета (₽):</span>
-                    <input type="number" id="raffleTicketAmount" class="randomizer-input" min="0" step="1" value="0" />
-                  </label>
                   <label class="randomizer-label">
                     <span class="randomizer-label__text">Дата и время завершения (МСК):</span>
                     <input type="datetime-local" id="raffleEndDate" class="randomizer-input" />
@@ -1836,6 +1869,66 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Расписание турниров -->
+          <div class="view" data-view="schedule">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title schedule-title">Расписание турниров на неделю</h1>
+            <p class="schedule-subtitle">Poker 21+</p>
+
+            <section class="schedule-section">
+              <h2 class="schedule-section__title">Ежедневные турниры</h2>
+              <div class="schedule-table-wrap">
+                <table class="schedule-table">
+                  <thead>
+                    <tr>
+                      <th>Турнир</th>
+                      <th>Бай-ин</th>
+                      <th>Ребай/Аддон</th>
+                      <th>Гарантия</th>
+                      <th>Начало (Мск)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Rebuy DV</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>30 000₽</td><td>12:00</td></tr>
+                    <tr><td>Tournament Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>5 000₽</td><td>14:00</td></tr>
+                    <tr><td>Magic Chest</td><td>50₽</td><td>R:50₽</td><td>3 000₽</td><td>16:00</td></tr>
+                    <tr><td>Rebuy</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>60 000₽</td><td>17:00</td></tr>
+                    <tr><td>HOK Magic</td><td>1 000₽</td><td>R:1 000₽</td><td>50 000₽</td><td>20:00</td></tr>
+                    <tr><td>MOK</td><td>300₽</td><td>R:300₽</td><td>15 000₽</td><td>21:00</td></tr>
+                    <tr><td>Energetic Tournament</td><td>200₽</td><td>R:200₽ / A:200₽</td><td>10 000₽</td><td>22:00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="schedule-section">
+              <h2 class="schedule-section__title">Турнир дня — 18:00 Мск</h2>
+              <div class="schedule-table-wrap">
+                <table class="schedule-table">
+                  <thead>
+                    <tr>
+                      <th>День</th>
+                      <th>Турнир</th>
+                      <th>Бай-ин</th>
+                      <th>Ребай/Аддон</th>
+                      <th>Гарантия</th>
+                      <th>Начало</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Понедельник</td><td>Magic MKO</td><td>500₽</td><td>R:500₽</td><td>100 000₽</td><td>18:00</td></tr>
+                    <tr><td>Вторник</td><td>Rebuy</td><td>300₽</td><td>R:300₽ / A:300₽</td><td>80 000₽</td><td>18:00</td></tr>
+                    <tr><td>Среда</td><td>Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>50 000₽</td><td>18:00</td></tr>
+                    <tr><td>Четверг</td><td>Нокаут Мистери</td><td>1 000₽</td><td>R:1 000₽</td><td>150 000₽</td><td>18:00</td></tr>
+                    <tr><td>Пятница</td><td>Нокаут Прогрессив</td><td>500₽</td><td>R:500₽</td><td>100 000₽</td><td>18:00</td></tr>
+                    <tr><td>Суббота</td><td>Фриролл</td><td>Бесплатно</td><td>R:250₽ / A:500₽</td><td>100 000₽</td><td>18:00</td></tr>
+                    <tr><td>Воскресенье</td><td>Турнир Недели Нокаут Меджик</td><td>2 000₽</td><td>R:2 000₽</td><td>250 000₽</td><td>18:00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
 
           <!-- Эквилятор: расчёт эквити -->

@@ -7113,6 +7113,8 @@ function initRaffles() {
   var raffleTicketWinnersCount = document.getElementById("raffleTicketWinnersCount");
   var raffleTicketGroups = document.getElementById("raffleTicketGroups");
   var raffleTicketAmount = document.getElementById("raffleTicketAmount");
+  var raffleTicketTournamentSelect = document.getElementById("raffleTicketTournamentSelect");
+  var raffleTicketAmountWrap = document.getElementById("raffleTicketAmountWrap");
   var raffleCreateTotal = document.getElementById("raffleCreateTotal");
   var raffleEndDateInput = document.getElementById("raffleEndDate");
   var groupCountInput = document.getElementById("raffleGroupCount");
@@ -7557,7 +7559,8 @@ function initRaffles() {
       for (var i = 0; i < inputs.length; i++) totalWinners += Math.max(0, parseInt(inputs[i].value, 10) || 0);
     }
     var total = totalWinners * amount;
-    raffleCreateTotal.textContent = "Итого: " + (total % 1 === 0 ? total : total.toFixed(2)) + " ₽";
+    var suffix = totalWinners > 0 && amount >= 0 ? " (" + totalWinners + " × " + (amount % 1 === 0 ? amount : amount.toFixed(2)) + " ₽)" : "";
+    raffleCreateTotal.textContent = "Итого: " + (total % 1 === 0 ? total : total.toFixed(2)) + " ₽" + suffix;
   }
 
   function buildGroupInputs() {
@@ -7617,6 +7620,18 @@ function initRaffles() {
   }
   if (raffleTypeTickets) raffleTypeTickets.addEventListener("change", switchRaffleCreatePanel);
   if (raffleTypeOther) raffleTypeOther.addEventListener("change", switchRaffleCreatePanel);
+  if (raffleTicketTournamentSelect) raffleTicketTournamentSelect.addEventListener("change", function () {
+    var val = this.value;
+    if (val === "custom" || val === "") {
+      if (raffleTicketAmount) { raffleTicketAmount.value = "0"; raffleTicketAmount.readOnly = false; raffleTicketAmount.disabled = false; }
+      if (raffleTicketAmountWrap) raffleTicketAmountWrap.style.display = "";
+    } else {
+      var buyin = parseFloat(val) || 0;
+      if (raffleTicketAmount) { raffleTicketAmount.value = String(buyin); raffleTicketAmount.readOnly = true; raffleTicketAmount.disabled = false; }
+      if (raffleTicketAmountWrap) raffleTicketAmountWrap.style.display = "";
+    }
+    updateRaffleCreateTotal();
+  });
   if (raffleTicketGroupCount) raffleTicketGroupCount.addEventListener("change", buildTicketGroupInputs);
   if (raffleTicketGroupCount) raffleTicketGroupCount.addEventListener("input", buildTicketGroupInputs);
   if (raffleTicketWinnersCount) raffleTicketWinnersCount.addEventListener("input", updateRaffleCreateTotal);
@@ -10380,6 +10395,26 @@ setInterval(updateCashoutManager, 60000);
 числ
 if (typeof initChat === "function") initChat();
 if (typeof initPokerShowsPlayer === "function") initPokerShowsPlayer();
+(function () {
+  var el = document.getElementById("springRatingUpdatedDate");
+  if (!el) return;
+  var date = "";
+  if (typeof SPRING_RATING_UPDATED !== "undefined" && SPRING_RATING_UPDATED) {
+    date = SPRING_RATING_UPDATED;
+  } else if (typeof SPRING_RATING_TOURNAMENTS_BY_DATE === "object" && SPRING_RATING_TOURNAMENTS_BY_DATE) {
+    var keys = Object.keys(SPRING_RATING_TOURNAMENTS_BY_DATE);
+    if (keys.length) {
+      keys.sort(function (a, b) {
+        var pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+        if (pa[2] !== pb[2]) return pb[2] - pa[2];
+        if (pa[1] !== pb[1]) return pb[1] - pa[1];
+        return pb[0] - pa[0];
+      });
+      date = keys[0];
+    }
+  }
+  if (date) el.textContent = date;
+})();
 
 (function initUpdatesBlock() {
   var updates = (typeof window !== "undefined" && window.APP_UPDATES) || [];

@@ -2008,6 +2008,7 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "03.03.2026": ["rating-03-03-2026-league2-1.png", "rating-03-03-2026-league2-2.png", "rating-03-03-2026-league2-3.png", "rating-03-03-2026-league2-4.png", "rating-03-03-2026-tuesday-1.png", "rating-03-03-2026-tuesday-2.png", "rating-03-03-2026-tuesday-3.png"],
   "04.03.2026": ["rating-04-03-2026-1.png", "rating-04-03-2026-2.png", "rating-04-03-2026-3.png", "rating-04-03-2026-wednesday-1.png", "rating-04-03-2026-wednesday-2.png", "rating-04-03-2026-plo4-25k.png", "rating-04-03-2026-plo5-300.png"]
 };
+var SPRING_RATING_UPDATED = "05.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "01.03.2026": [
     { time: "10:00", buyin: 500, players: [{ nick: "asianflushie", place: 0, reward: 4989 }] },
