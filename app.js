@@ -1658,7 +1658,10 @@ function setView(viewName) {
       footer.classList.add("card__footer--hidden");
     }
   }
-  if (viewName === "home") initPokerShowsPlayer();
+  if (viewName === "home") {
+    initPokerShowsPlayer();
+    if (typeof updateTournamentDayBlock === "function") updateTournamentDayBlock();
+  }
   if (viewName === "winter-rating") {
     var winterView = document.querySelector('[data-view="winter-rating"]');
     var springView = document.querySelector('[data-view="spring-rating"]');
@@ -10392,29 +10395,68 @@ function updateCashoutManager() {
 
 updateCashoutManager();
 setInterval(updateCashoutManager, 60000);
-числ
+
 if (typeof initChat === "function") initChat();
 if (typeof initPokerShowsPlayer === "function") initPokerShowsPlayer();
-(function () {
-  var el = document.getElementById("springRatingUpdatedDate");
-  if (!el) return;
-  var date = "";
-  if (typeof SPRING_RATING_UPDATED !== "undefined" && SPRING_RATING_UPDATED) {
-    date = SPRING_RATING_UPDATED;
-  } else if (typeof SPRING_RATING_TOURNAMENTS_BY_DATE === "object" && SPRING_RATING_TOURNAMENTS_BY_DATE) {
-    var keys = Object.keys(SPRING_RATING_TOURNAMENTS_BY_DATE);
-    if (keys.length) {
-      keys.sort(function (a, b) {
-        var pa = a.split(".").map(Number), pb = b.split(".").map(Number);
-        if (pa[2] !== pb[2]) return pb[2] - pa[2];
-        if (pa[1] !== pb[1]) return pb[1] - pa[1];
-        return pb[0] - pa[0];
-      });
-      date = keys[0];
-    }
+
+var TOURNAMENT_OF_DAY_BY_WEEKDAY = [
+  { name: "Турнир Недели Нокаут Меджик", buyin: "2 000₽", guarantee: "250 000₽" },
+  { name: "Magic MKO", buyin: "500₽", guarantee: "100 000₽" },
+  { name: "Rebuy", buyin: "300₽", guarantee: "80 000₽" },
+  { name: "Rebuy", buyin: "100₽", guarantee: "50 000₽" },
+  { name: "Нокаут Мистери", buyin: "1 000₽", guarantee: "150 000₽" },
+  { name: "Нокаут Прогрессив", buyin: "500₽", guarantee: "100 000₽" },
+  { name: "Фриролл", buyin: "Бесплатно", guarantee: "100 000₽" }
+];
+
+function updateTournamentDayBlock() {
+  var nameEl = document.getElementById("tournamentDayName");
+  var buyinEl = document.getElementById("tournamentDayBuyin");
+  var guaranteeEl = document.getElementById("tournamentDayGuarantee");
+  var timerEl = document.getElementById("tournamentDayTimer");
+  if (!nameEl || !buyinEl || !guaranteeEl || !timerEl) return;
+  var now = new Date();
+  var dayIndex = now.getDay();
+  var t = TOURNAMENT_OF_DAY_BY_WEEKDAY[dayIndex];
+  if (t) {
+    nameEl.textContent = t.name;
+    buyinEl.textContent = t.buyin;
+    guaranteeEl.textContent = t.guarantee;
   }
-  if (date) el.textContent = date;
-})();
+  var target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
+  if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
+  function formatTimer() {
+    var n = new Date();
+    if (n >= target) {
+      target = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate() + 1, 15, 0, 0, 0));
+      var nextT = TOURNAMENT_OF_DAY_BY_WEEKDAY[target.getDay()];
+      if (nextT && nameEl) nameEl.textContent = nextT.name;
+      if (nextT && buyinEl) buyinEl.textContent = nextT.buyin;
+      if (nextT && guaranteeEl) guaranteeEl.textContent = nextT.guarantee;
+    }
+    var diff = target - n;
+    if (diff <= 0) {
+      timerEl.textContent = "Скоро";
+      return;
+    }
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    timerEl.textContent = (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  formatTimer();
+  if (window._tournamentDayTimer) clearInterval(window._tournamentDayTimer);
+  window._tournamentDayTimer = setInterval(formatTimer, 1000);
+}
+
+function initTournamentDayBlock() {
+  updateTournamentDayBlock();
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initTournamentDayBlock);
+} else {
+  initTournamentDayBlock();
+}
 
 (function initUpdatesBlock() {
   var updates = (typeof window !== "undefined" && window.APP_UPDATES) || [];
@@ -10454,5 +10496,3 @@ if (typeof initPokerShowsPlayer === "function") initPokerShowsPlayer();
     });
   }
 })();
-
-п

@@ -218,7 +218,7 @@
                       <span class="feature__title-line1">Рейтинг турнирщиков</span>
                       <span class="feature__title-prize feature__title-prize--spring">На 250 000р</span>
                       <span class="feature__title-line3 feature__title-line3--spring">Весна 2026 <span class="feature__title-leaf" aria-hidden="true">🌿</span></span>
-                      <span class="feature__title-updated" id="springRatingUpdated">обновлено <span id="springRatingUpdatedDate">—</span></span>
+                      <span class="feature__title-updated">обновлено 05.03.2026</span>
                     </div>
                   </div>
                   <span class="feature__cup feature__cup--right" aria-hidden="true">🏆</span>
@@ -229,14 +229,30 @@
 
             <div class="games-apps-block">
                 <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
-                <div class="games-apps-grid">
-                <a href="#" class="feature feature--link feature--app" data-view-target="schedule" aria-label="Расписание турниров">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📅</span></div>
-                  <div class="feature__body">
-                    <div class="feature__title">Расписание турниров</div>
-                    <div class="feature__desc">Турниры в Poker21</div>
+                <a href="#" class="tournament-day-block tournament-day-block--home" data-view-target="schedule" aria-label="Турнир дня — перейти к расписанию">
+                  <div class="tournament-day-block__header-line">
+                    <span class="tournament-day-block__icon" aria-hidden="true">🏆</span>
+                    <span class="tournament-day-block__title">Турнир дня — </span>
+                    <span class="tournament-day-block__name" id="tournamentDayName">—</span>
+                    <span class="tournament-day-block__time"> — 18:00 Мск</span>
                   </div>
+                  <div class="tournament-day-block__cols">
+                    <div class="tournament-day-block__col">
+                      <div class="tournament-day-block__col-label">Бай-ин</div>
+                      <div class="tournament-day-block__col-value" id="tournamentDayBuyin">—</div>
+                    </div>
+                    <div class="tournament-day-block__col">
+                      <div class="tournament-day-block__col-label">Гарантия</div>
+                      <div class="tournament-day-block__col-value" id="tournamentDayGuarantee">—</div>
+                    </div>
+                    <div class="tournament-day-block__col">
+                      <div class="tournament-day-block__col-label">До начала</div>
+                      <div class="tournament-day-block__col-value tournament-day-block__timer" id="tournamentDayTimer">—</div>
+                    </div>
+                  </div>
+                  <span class="tournament-day-block__sublink">Расписание на неделю &gt;&gt;</span>
                 </a>
+                <div class="games-apps-grid">
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
                   <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш">1</span>
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
