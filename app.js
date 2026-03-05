@@ -3976,25 +3976,6 @@ function getSpringRatingRowsForDateLeague(dateStr, leagueNum) {
   }
   return Object.keys(byNick).map(function (n) { return byNick[n]; });
 }
-function getSpringRatingTournamentNamesForDateLeague(dateStr, leagueNum) {
-  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
-  var list = tournamentsByDate[dateStr];
-  if (!Array.isArray(list) || !list.length) return [];
-  var names = [];
-  for (var j = 0; j < list.length; j++) {
-    var t = list[j];
-    var forcedLeague = t.league != null ? Number(t.league) : NaN;
-    var buyin = t.buyin != null ? Number(t.buyin) : NaN;
-    var inLeague1 = forcedLeague === 1 || (forcedLeague !== forcedLeague && (buyin >= 500 || (buyin !== buyin)));
-    var inLeague2 = forcedLeague === 2 || (forcedLeague !== forcedLeague && buyin >= 100 && buyin < 500);
-    var include = (leagueNum === 1 && inLeague1) || (leagueNum === 2 && inLeague2);
-    if (!include) continue;
-    var label = (t.time ? t.time + " " : "") + (t.name || "Турнир");
-    names.push(label);
-  }
-  return names;
-}
-
 function openWinterRatingLightbox(dateStr, index, leagueNum) {
   var box = document.getElementById("winterRatingLightbox");
   var img = box && box.querySelector(".winter-rating-lightbox__img");
@@ -5160,8 +5141,8 @@ function initWinterRating() {
           var tableEl = block.querySelector(".winter-rating__date-table-wrap[data-league=\"" + leagueNum + "\"]");
           if (screensEl) fillScreensForDate(screensEl, dateStr, leagueNum);
           if (tournamentsEl) {
-            var names = getSpringRatingTournamentNamesForDateLeague(dateStr, leagueNum);
-            tournamentsEl.innerHTML = names.length ? "<p class=\"winter-rating__date-tournaments-caption\">Лига " + leagueNum + ": " + names.join(", ") + "</p>" : "";
+            var label = leagueNum === 1 ? "Лига 1. Турниры от 500₽" : "Лига 2. Турниры от 100₽ до 500₽";
+            tournamentsEl.innerHTML = "<p class=\"winter-rating__date-tournaments-caption\">" + label + "</p>";
           }
           if (tableEl) {
             var rows = getSpringRatingRowsForDateLeague(dateStr, leagueNum);
