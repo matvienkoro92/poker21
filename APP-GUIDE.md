@@ -110,7 +110,6 @@ function setView(viewName) {
 - `/api/auth-telegram` → авторизация
 - `/api/raffles`, `/api/respect`, `/api/friends`, `/api/pikhanina`, и т.д.
 - `/api/twitch-viewers` — счётчик зрителей Twitch (нужны `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` в env)
-- `/api/stream-viewers` — счётчик зрителей трансляции в приложении (GET — число, POST с initData — heartbeat; Redis)
 
 ### Внешние сервисы
 - Telegram Bot API — sendMessage, getChatMember
@@ -143,8 +142,6 @@ function setView(viewName) {
 - `initMttChallenge` — MTT задачи, таймер, баллы, стрик
 - `initBonusGame`, `initCoolerGame`, `initPlastererGame`
 - `initRaffles`, `initStreams`, `initEquilator`
-- `initHomeStreamTabs` — блок трансляции VK, счётчик зрителей, кнопка «Поделиться»
-- `initComments` — раздел комментариев (localStorage)
 - `initWinterRating`, `initProfile*`, `initChat`
 
 ### Глобальные функции

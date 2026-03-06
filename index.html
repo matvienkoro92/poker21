@@ -280,63 +280,6 @@
               </div>
               </div>
 
-            <!-- data-stream-end: дата/время окончания трансляции (МСК), после которого блок скрывается. Формат: 2026-03-10T23:00:00+03:00. Пустое значение = не скрывать -->
-            <section class="home-stream-section home-stream-section--bordered" id="homeStreamSection" aria-label="Прямая трансляция" data-stream-end="2026-03-10T23:00:00+03:00">
-              <h2 class="features-section-title home-stream__title">Прямая трансляция</h2>
-              <p class="home-stream__desc">Кубок Калининграда APC-41 · Финальный стол</p>
-              <div class="home-stream__embed-wrap" id="homeStreamEmbedWrap">
-                <button type="button" class="home-stream__fullscreen-btn" id="homeStreamFullscreenBtn" aria-label="Полный экран" title="Полный экран">⛶</button>
-                <div class="home-stream__embed">
-                  <iframe src="https://vk.com/video_ext.php?oid=-162791956&id=456239096" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" scrolling="no" title="Трансляция на VK"></iframe>
-                </div>
-              </div>
-              <div class="home-stream__actions">
-                <button type="button" class="home-stream__share-btn" id="homeStreamShareBtn" aria-label="Поделиться трансляцией">Поделиться</button>
-                <span class="home-stream__viewers" id="homeStreamViewers" aria-live="polite">— смотрят</span>
-              </div>
-              <div class="home-stream__comments" aria-labelledby="homeStreamCommentsTitle">
-                <h3 class="home-stream__comments-title" id="homeStreamCommentsTitle">Комментарии к трансляции</h3>
-                <div class="home-stream__comments-list" id="homeStreamCommentsList" aria-live="polite">
-                  <p class="comments-empty" id="homeStreamCommentsEmpty">Пока нет комментариев. Будьте первым!</p>
-                </div>
-                <div class="home-stream__comments-form">
-                  <label for="homeStreamCommentsInput" class="comments-form__label">Ваш комментарий</label>
-                  <textarea id="homeStreamCommentsInput" class="comments-form__input" rows="2" placeholder="Напишите комментарий к трансляции..." maxlength="300" aria-describedby="homeStreamCommentsCharCount"></textarea>
-                  <p class="comments-form__meta" id="homeStreamCommentsCharCount">0 / 300</p>
-                  <button type="button" class="primary-button comments-form__submit" id="homeStreamCommentsSubmitBtn">Отправить</button>
-                </div>
-              </div>
-            </section>
-
-            <section class="comments-section-home" aria-labelledby="commentsSectionTitle">
-              <h2 class="features-section-title" id="commentsSectionTitle">Комментарии</h2>
-              <p class="comments-section-home__desc">Отзывы и мнения участников клуба</p>
-              <a href="#" class="feature feature--link feature--comments-link" data-view-target="comments" aria-label="Перейти к комментариям">
-                <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">💬</span></div>
-                <div class="feature__body">
-                  <div class="feature__title">Читать комментарии</div>
-                  <div class="feature__desc">Оставить отзыв о клубе</div>
-                </div>
-              </a>
-            </section>
-          </div>
-
-          <!-- Комментарии -->
-          <div class="view" data-view="comments">
-            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
-            <section class="comments-view" id="commentsView" aria-labelledby="commentsViewTitle">
-              <h1 class="title comments-view__title" id="commentsViewTitle">Комментарии</h1>
-              <p class="comments-view__desc">Отзывы и мнения участников клуба «Два туза»</p>
-              <div class="comments-list" id="commentsList" aria-live="polite">
-                <p class="comments-empty" id="commentsEmpty">Пока нет комментариев. Будьте первым!</p>
-              </div>
-              <div class="comments-form-wrap">
-                <label for="commentsInput" class="comments-form__label">Ваш комментарий</label>
-                <textarea id="commentsInput" class="comments-form__input" rows="3" placeholder="Напишите отзыв о клубе..." maxlength="500" aria-describedby="commentsCharCount"></textarea>
-                <p class="comments-form__meta" id="commentsCharCount">0 / 500</p>
-                <button type="button" class="primary-button comments-form__submit" id="commentsSubmitBtn">Отправить</button>
-              </div>
-            </section>
           </div>
 
           <!-- Рейтинг Турнирщиков зимы: даты и итоговая таблица внутри -->

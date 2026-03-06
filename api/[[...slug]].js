@@ -31,7 +31,6 @@ const handlers = {
   "deploy-hook": () => require(path.join(handlersDir, "deploy-hook.js")),
   raffles: () => require(path.join(handlersDir, "raffles.js")),
   "twitch-viewers": () => require(path.join(handlersDir, "twitch-viewers.js")),
-  "stream-viewers": () => require(path.join(handlersDir, "stream-viewers.js")),
   respect: () => require(path.join(handlersDir, "respect.js")),
   friends: () => require(path.join(handlersDir, "friends.js")),
 };

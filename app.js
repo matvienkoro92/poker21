@@ -1091,13 +1091,7 @@ function runGazetteAndTasksInit() {
     setTimeout(function () { if (typeof setView === "function") setView("raffles"); }, 0);
   }
   if (startParam === "stream") {
-    setTimeout(function () {
-      if (typeof setView === "function") setView("home");
-      setTimeout(function () {
-        var el = document.getElementById("homeStreamSection");
-        if (el && !el.classList.contains("home-stream-section--hidden")) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 400);
-    }, 0);
+    setTimeout(function () { if (typeof setView === "function") setView("home"); }, 0);
   }
   if (startParam && startParam.indexOf("streams_") === 0) {
     var streamsRoomId = startParam.replace("streams_", "");
@@ -1117,24 +1111,12 @@ function runGazetteAndTasksInit() {
     }, 0);
   }
   if (window.location.hash === "#stream") {
-    setTimeout(function () {
-      if (typeof setView === "function") setView("home");
-      setTimeout(function () {
-        var el = document.getElementById("homeStreamSection");
-        if (el && !el.classList.contains("home-stream-section--hidden")) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 400);
-    }, 0);
+    setTimeout(function () { if (typeof setView === "function") setView("home"); }, 0);
   }
   try {
     var urlStart = typeof location !== "undefined" && location.search ? new URLSearchParams(location.search).get("startapp") : null;
     if (urlStart === "stream") {
-      setTimeout(function () {
-        if (typeof setView === "function") setView("home");
-        setTimeout(function () {
-          var el = document.getElementById("homeStreamSection");
-          if (el && !el.classList.contains("home-stream-section--hidden")) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 400);
-      }, 0);
+      setTimeout(function () { if (typeof setView === "function") setView("home"); }, 0);
     }
   } catch (e) {}
   if (startParam && startParam.indexOf("poker_task_") === 0) {
@@ -1723,7 +1705,6 @@ function setView(viewName) {
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
   if (viewName === "raffles") initRaffles();
-  if (viewName === "comments") initComments();
   if (viewName === "equilator") initEquilator();
   if (viewName === "poker-tasks") {
     var startScreen = document.getElementById("pokerTasksStartScreen");
@@ -5862,68 +5843,6 @@ function streamsCleanup() {
   if (remoteVideo) remoteVideo.srcObject = null;
 }
 
-function initComments() {
-  var input = document.getElementById("commentsInput");
-  var charCount = document.getElementById("commentsCharCount");
-  var submitBtn = document.getElementById("commentsSubmitBtn");
-  var list = document.getElementById("commentsList");
-  var empty = document.getElementById("commentsEmpty");
-  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  function showAlert(msg) {
-    if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
-  }
-  function updateCharCount() {
-    var len = input ? input.value.length : 0;
-    if (charCount) charCount.textContent = len + " / 500";
-  }
-  var stored = [];
-  try {
-    var raw = localStorage.getItem("poker_comments");
-    if (raw) stored = JSON.parse(raw);
-  } catch (e) {}
-  function renderComments() {
-    if (!list || !empty) return;
-    list.innerHTML = "";
-    if (stored.length === 0) {
-      empty.style.display = "";
-      list.appendChild(empty);
-    } else {
-      empty.style.display = "none";
-      stored.forEach(function (c) {
-        var div = document.createElement("div");
-        div.className = "comment-item";
-        div.innerHTML = "<div class=\"comment-item__author\">" + (c.author || "Аноним").replace(/</g, "&lt;") + "</div><p class=\"comment-item__text\">" + (c.text || "").replace(/</g, "&lt;").replace(/\n/g, "<br>") + "</p><div class=\"comment-item__date\">" + (c.date || "").replace(/</g, "&lt;") + "</div>";
-        list.appendChild(div);
-      });
-    }
-  }
-  renderComments();
-  if (input) {
-    input.addEventListener("input", updateCharCount);
-    updateCharCount();
-  }
-  if (submitBtn && input) {
-    submitBtn.addEventListener("click", function () {
-      var text = (input.value || "").trim();
-      if (!text) {
-        showAlert("Введите комментарий");
-        return;
-      }
-      var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-      var author = user && user.username ? "@" + user.username : (user && user.first_name ? user.first_name : "Игрок");
-      var item = { author: author, text: text, date: new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) };
-      stored.unshift(item);
-      try {
-        localStorage.setItem("poker_comments", JSON.stringify(stored));
-      } catch (e) {}
-      input.value = "";
-      updateCharCount();
-      renderComments();
-      showAlert("Комментарий добавлен");
-    });
-  }
-}
-
 function initStreams() {
   var startBtn = document.getElementById("streamsStartBtn");
   var stopBtn = document.getElementById("streamsStopBtn");
@@ -6286,211 +6205,6 @@ document.addEventListener("click", function (e) {
   document.addEventListener("click", tryPlay, { once: true, passive: true });
   document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
   tryChillRadioPlay();
-})();
-
-(function initHomeStreamTabs() {
-  var section = document.getElementById("homeStreamSection");
-  if (!section) return;
-  var endStr = section.getAttribute("data-stream-end");
-  if (endStr) {
-    try {
-      var endDate = new Date(endStr);
-      if (!isNaN(endDate.getTime()) && new Date() > endDate) {
-        section.classList.add("home-stream-section--hidden");
-        return;
-      }
-    } catch (e) {}
-  }
-  var viewersEl = document.getElementById("homeStreamViewers");
-  var appEl = document.getElementById("app");
-  var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
-  var apiBase = base ? base.replace(/\/$/, "") : "";
-  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  var initData = tg && tg.initData ? tg.initData : "";
-  var VIEWERS_OFFSET = 15;
-  function formatViewers(n) {
-    if (n == null || n < 0) return "—";
-    var total = (n || 0) + VIEWERS_OFFSET;
-    var s = total === 1 ? " смотрит" : " смотрят";
-    return total + s;
-  }
-  function fetchViewers() {
-    if (!viewersEl || !apiBase) return;
-    fetch(apiBase + "/api/stream-viewers").then(function (r) { return r.json(); }).then(function (data) {
-      if (viewersEl && data && data.ok) {
-        viewersEl.textContent = formatViewers(data.viewers);
-      }
-    }).catch(function () {
-      if (viewersEl) viewersEl.textContent = "— смотрят";
-    });
-  }
-  function sendHeartbeat() {
-    if (!apiBase || !initData) return;
-    fetch(apiBase + "/api/stream-viewers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: initData }),
-    }).then(function (r) { return r.json(); }).then(function (data) {
-      if (viewersEl && data && data.ok) {
-        viewersEl.textContent = formatViewers(data.viewers);
-      }
-    }).catch(function () {});
-  }
-  fetchViewers();
-  setInterval(fetchViewers, 30000);
-  if (viewersEl && typeof IntersectionObserver !== "undefined") {
-    var heartbeatTimer = null;
-    var io = new IntersectionObserver(function (entries) {
-      var vis = entries[0] && entries[0].isIntersecting;
-      if (vis) {
-        sendHeartbeat();
-        heartbeatTimer = setInterval(sendHeartbeat, 30000);
-      } else {
-        if (heartbeatTimer) {
-          clearInterval(heartbeatTimer);
-          heartbeatTimer = null;
-        }
-      }
-    }, { threshold: 0.1 });
-    io.observe(section);
-  }
-  var fullscreenBtn = document.getElementById("homeStreamFullscreenBtn");
-  var embedWrap = document.getElementById("homeStreamEmbedWrap");
-  var VK_VIDEO_URL = "https://vk.com/video_ext.php?oid=-162791956&id=456239096";
-  function isFullscreen() {
-    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-  }
-  function updateFullscreenBtn() {
-    if (!fullscreenBtn) return;
-    var fs = isFullscreen();
-    fullscreenBtn.textContent = fs ? "\u2715" : "\u26F6";
-    fullscreenBtn.setAttribute("aria-label", fs ? "Выйти из полноэкранного режима" : "Полный экран");
-    fullscreenBtn.setAttribute("title", fs ? "Выйти" : "Полный экран");
-    fullscreenBtn.classList.toggle("home-stream__fullscreen-btn--exit", fs);
-  }
-  function exitFullscreen() {
-    var doc = document;
-    if (doc.exitFullscreen) doc.exitFullscreen();
-    else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
-    else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
-    else if (doc.msExitFullscreen) doc.msExitFullscreen();
-  }
-  function openVideoFullscreen() {
-    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    if (tg && tg.openLink) tg.openLink(VK_VIDEO_URL);
-    else window.open(VK_VIDEO_URL, "_blank", "noopener");
-  }
-  function enterFullscreen() {
-    var el = embedWrap;
-    if (!el) {
-      openVideoFullscreen();
-      return;
-    }
-    var hasFs = !!(el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen);
-    if (!hasFs) {
-      openVideoFullscreen();
-      return;
-    }
-    var p = null;
-    if (el.requestFullscreen) p = el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) p = el.webkitRequestFullscreen();
-    else if (el.mozRequestFullScreen) p = el.mozRequestFullScreen();
-    else if (el.msRequestFullscreen) p = el.msRequestFullscreen();
-    if (p && typeof p.catch === "function") {
-      p.catch(function () {
-        openVideoFullscreen();
-      });
-    }
-  }
-  if (fullscreenBtn && embedWrap) {
-    fullscreenBtn.addEventListener("click", function () {
-      if (isFullscreen()) {
-        exitFullscreen();
-      } else {
-        enterFullscreen();
-      }
-    });
-    document.addEventListener("fullscreenchange", updateFullscreenBtn);
-    document.addEventListener("webkitfullscreenchange", updateFullscreenBtn);
-    document.addEventListener("mozfullscreenchange", updateFullscreenBtn);
-    document.addEventListener("MSFullscreenChange", updateFullscreenBtn);
-    updateFullscreenBtn();
-  }
-  var shareBtn = document.getElementById("homeStreamShareBtn");
-  if (shareBtn) {
-    shareBtn.addEventListener("click", function () {
-      var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-      var link = (appUrl.replace(/\/$/, "") || "") + "?startapp=stream";
-      var msg = "Ссылка скопирована. Отправьте другу — откроется блок с трансляцией.";
-      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(function () {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
-        }).catch(function () {});
-      } else {
-        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg && tg.showAlert) tg.showAlert(link); else alert(link);
-      }
-    });
-  }
-  var streamCommentsInput = document.getElementById("homeStreamCommentsInput");
-  var streamCommentsCharCount = document.getElementById("homeStreamCommentsCharCount");
-  var streamCommentsSubmit = document.getElementById("homeStreamCommentsSubmitBtn");
-  var streamCommentsList = document.getElementById("homeStreamCommentsList");
-  var streamCommentsEmpty = document.getElementById("homeStreamCommentsEmpty");
-  if (streamCommentsInput || streamCommentsSubmit) {
-    var streamCommentsStored = [];
-    try {
-      var raw = localStorage.getItem("poker_stream_comments");
-      if (raw) streamCommentsStored = JSON.parse(raw);
-    } catch (e) {}
-    function updateStreamCommentsCharCount() {
-      var len = streamCommentsInput ? streamCommentsInput.value.length : 0;
-      if (streamCommentsCharCount) streamCommentsCharCount.textContent = len + " / 300";
-    }
-    function renderStreamComments() {
-      if (!streamCommentsList || !streamCommentsEmpty) return;
-      streamCommentsList.innerHTML = "";
-      if (streamCommentsStored.length === 0) {
-        streamCommentsEmpty.style.display = "";
-        streamCommentsList.appendChild(streamCommentsEmpty);
-      } else {
-        streamCommentsEmpty.style.display = "none";
-        streamCommentsStored.forEach(function (c) {
-          var div = document.createElement("div");
-          div.className = "comment-item";
-          div.innerHTML = "<div class=\"comment-item__author\">" + (c.author || "Аноним").replace(/</g, "&lt;") + "</div><p class=\"comment-item__text\">" + (c.text || "").replace(/</g, "&lt;").replace(/\n/g, "<br>") + "</p><div class=\"comment-item__date\">" + (c.date || "").replace(/</g, "&lt;") + "</div>";
-          streamCommentsList.appendChild(div);
-        });
-      }
-    }
-    renderStreamComments();
-    if (streamCommentsInput) {
-      streamCommentsInput.addEventListener("input", updateStreamCommentsCharCount);
-      updateStreamCommentsCharCount();
-    }
-    if (streamCommentsSubmit && streamCommentsInput) {
-      streamCommentsSubmit.addEventListener("click", function () {
-        var text = (streamCommentsInput.value || "").trim();
-        if (!text) {
-          if (tg && tg.showAlert) tg.showAlert("Введите комментарий"); else alert("Введите комментарий");
-          return;
-        }
-        var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-        var author = user && user.username ? "@" + user.username : (user && user.first_name ? user.first_name : "Зритель");
-        var item = { author: author, text: text, date: new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) };
-        streamCommentsStored.unshift(item);
-        try {
-          localStorage.setItem("poker_stream_comments", JSON.stringify(streamCommentsStored));
-        } catch (e) {}
-        streamCommentsInput.value = "";
-        updateStreamCommentsCharCount();
-        renderStreamComments();
-        if (tg && tg.showAlert) tg.showAlert("Комментарий добавлен"); else alert("Комментарий добавлен");
-      });
-    }
-  }
 })();
 
 (function initChatNavDropdown() {
