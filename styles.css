@@ -844,6 +844,9 @@ html.app-view-home .card .card__content {
 .view--active {
   display: block;
 }
+.view--active[data-view="home"] {
+  padding-bottom: 16px;
+}
 
 .view--active[data-view="chat"] {
   display: flex;
@@ -3797,7 +3800,9 @@ html.app-view-home .feature--rating-spring-promo:hover,
 
 .home-stream-section {
   margin-top: 20px;
+  margin-bottom: 24px;
   padding-top: 16px;
+  padding-bottom: 24px;
   border-top: 1px solid var(--card-border);
 }
 .home-stream-section--bordered {
@@ -3822,47 +3827,28 @@ html.app-view-home .feature--rating-spring-promo:hover,
   color: var(--text-muted);
   margin: 0 0 12px;
 }
-.home-stream__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.home-stream__tab {
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--card-border);
-  background: var(--block-bg);
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-}
-.home-stream__tab:hover {
-  background: var(--hover-bg);
-}
-.home-stream__tab--active {
-  border-color: var(--accent);
-  background: rgba(251, 146, 60, 0.15);
-  color: var(--accent);
-}
-.home-stream__tab--link {
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
 .home-stream__embed-wrap {
   position: relative;
+}
+.home-stream__viewers {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 .home-stream__embed {
   min-height: 220px;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--block-bg);
-}
-.home-stream__embed--hidden {
-  display: none;
 }
 .home-stream__embed iframe {
   display: block;
@@ -3886,6 +3872,13 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .home-stream__share-btn:hover {
   background: var(--hover-bg);
   border-color: var(--accent);
+}
+.home-stream-section--hidden {
+  display: none !important;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .games-apps-grid {

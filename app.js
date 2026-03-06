@@ -1095,7 +1095,7 @@ function runGazetteAndTasksInit() {
       if (typeof setView === "function") setView("home");
       setTimeout(function () {
         var el = document.getElementById("homeStreamSection");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (el && !el.classList.contains("home-stream-section--hidden")) el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 400);
     }, 0);
   }
@@ -1121,7 +1121,7 @@ function runGazetteAndTasksInit() {
       if (typeof setView === "function") setView("home");
       setTimeout(function () {
         var el = document.getElementById("homeStreamSection");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (el && !el.classList.contains("home-stream-section--hidden")) el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 400);
     }, 0);
   }
@@ -1132,7 +1132,7 @@ function runGazetteAndTasksInit() {
         if (typeof setView === "function") setView("home");
         setTimeout(function () {
           var el = document.getElementById("homeStreamSection");
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (el && !el.classList.contains("home-stream-section--hidden")) el.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 400);
       }, 0);
     }
@@ -6226,23 +6226,70 @@ document.addEventListener("click", function (e) {
 })();
 
 (function initHomeStreamTabs() {
-  var tabs = document.querySelectorAll(".home-stream__tab[data-stream]");
-  var twitchEl = document.getElementById("homeStreamTwitch");
-  var vkEl = document.getElementById("homeStreamVk");
-  var shareBtn = document.getElementById("homeStreamShareBtn");
-  if (!tabs.length || !twitchEl || !vkEl) return;
-  tabs.forEach(function (tab) {
-    tab.addEventListener("click", function (e) {
-      e.preventDefault();
-      var stream = tab.getAttribute("data-stream");
-      tabs.forEach(function (t) {
-        t.classList.toggle("home-stream__tab--active", t === tab);
-        t.setAttribute("aria-selected", t === tab ? "true" : "false");
-      });
-      twitchEl.classList.toggle("home-stream__embed--hidden", stream !== "twitch");
-      vkEl.classList.toggle("home-stream__embed--hidden", stream !== "vk");
+  var section = document.getElementById("homeStreamSection");
+  if (!section) return;
+  var endStr = section.getAttribute("data-stream-end");
+  if (endStr) {
+    try {
+      var endDate = new Date(endStr);
+      if (!isNaN(endDate.getTime()) && new Date() > endDate) {
+        section.classList.add("home-stream-section--hidden");
+        return;
+      }
+    } catch (e) {}
+  }
+  var viewersEl = document.getElementById("homeStreamViewers");
+  var appEl = document.getElementById("app");
+  var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
+  var apiBase = base ? base.replace(/\/$/, "") : "";
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var initData = tg && tg.initData ? tg.initData : "";
+  function formatViewers(n) {
+    if (n == null || n < 0) return "—";
+    var s = n === 1 ? " смотрит" : " смотрят";
+    return n + s;
+  }
+  function fetchViewers() {
+    if (!viewersEl || !apiBase) return;
+    fetch(apiBase + "/api/stream-viewers").then(function (r) { return r.json(); }).then(function (data) {
+      if (viewersEl && data && data.ok) {
+        viewersEl.textContent = formatViewers(data.viewers);
+      }
+    }).catch(function () {
+      if (viewersEl) viewersEl.textContent = "— смотрят";
     });
-  });
+  }
+  function sendHeartbeat() {
+    if (!apiBase || !initData) return;
+    fetch(apiBase + "/api/stream-viewers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData }),
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      if (viewersEl && data && data.ok) {
+        viewersEl.textContent = formatViewers(data.viewers);
+      }
+    }).catch(function () {});
+  }
+  fetchViewers();
+  setInterval(fetchViewers, 30000);
+  if (viewersEl && typeof IntersectionObserver !== "undefined") {
+    var heartbeatTimer = null;
+    var io = new IntersectionObserver(function (entries) {
+      var vis = entries[0] && entries[0].isIntersecting;
+      if (vis) {
+        sendHeartbeat();
+        heartbeatTimer = setInterval(sendHeartbeat, 30000);
+      } else {
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = null;
+        }
+      }
+    }, { threshold: 0.1 });
+    io.observe(section);
+  }
+  var shareBtn = document.getElementById("homeStreamShareBtn");
   if (shareBtn) {
     shareBtn.addEventListener("click", function () {
       var appEl = document.getElementById("app");

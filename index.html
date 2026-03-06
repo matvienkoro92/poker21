@@ -280,18 +280,13 @@
               </div>
               </div>
 
-            <section class="home-stream-section home-stream-section--bordered" id="homeStreamSection" aria-label="Прямая трансляция">
+            <!-- data-stream-end: дата/время окончания трансляции (МСК), после которого блок скрывается. Формат: 2026-03-10T23:00:00+03:00. Пустое значение = не скрывать -->
+            <section class="home-stream-section home-stream-section--bordered" id="homeStreamSection" aria-label="Прямая трансляция" data-stream-end="2026-03-10T23:00:00+03:00">
               <h2 class="features-section-title home-stream__title">Прямая трансляция</h2>
               <p class="home-stream__desc">Кубок Калининграда APC-41 · Финальный стол</p>
-              <div class="home-stream__tabs" role="tablist">
-                <button type="button" class="home-stream__tab home-stream__tab--active" role="tab" aria-selected="true" data-stream="twitch">Twitch</button>
-                <button type="button" class="home-stream__tab" role="tab" aria-selected="false" data-stream="vk">VK Видео</button>
-              </div>
               <div class="home-stream__embed-wrap">
-                <div class="home-stream__embed home-stream__embed--twitch" id="homeStreamTwitch">
-                  <iframe src="https://player.twitch.tv/?channel=sobraniepoker&parent=localhost&parent=poker-app-ebon.vercel.app&parent=web.telegram.org" frameborder="0" allowfullscreen scrolling="no" title="Трансляция на Twitch"></iframe>
-                </div>
-                <div class="home-stream__embed home-stream__embed--vk home-stream__embed--hidden" id="homeStreamVk">
+                <span class="home-stream__viewers" id="homeStreamViewers" aria-live="polite">— смотрят</span>
+                <div class="home-stream__embed">
                   <iframe src="https://vk.com/video_ext.php?oid=-162791956&id=456239096" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" scrolling="no" title="Трансляция на VK"></iframe>
                 </div>
               </div>
