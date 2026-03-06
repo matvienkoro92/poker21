@@ -2356,11 +2356,11 @@ html.app-view-home .card .card__content {
   color: var(--text-muted);
 }
 .chat-msg__reply strong { color: var(--text); }
-/* Подложка при открытом контекстном меню: затемнение, сообщение и меню поверх */
+/* Подложка при открытом контекстном меню: затемнение, сообщение и меню поверх (z-index выше chat-input-area) */
 .chat-ctx-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: 5000;
   background: rgba(0, 0, 0, 0.65);
   opacity: 0;
   pointer-events: none;
@@ -2372,12 +2372,12 @@ html.app-view-home .card .card__content {
 }
 .chat-msg--ctx-highlight {
   position: relative;
-  z-index: 1001;
+  z-index: 5001;
 }
-/* Высота нижнего навбара: контекстное меню не должно заходить под него; z-index выше навбара (1001) */
+/* Контекстное меню поверх всего в чате, включая область ввода и навбар */
 .chat-ctx-menu {
   position: fixed;
-  z-index: 1002;
+  z-index: 5002;
   top: 0;
   left: 0;
   display: flex;
@@ -2563,6 +2563,18 @@ html.app-view-home .card .card__content {
   cursor: pointer;
 }
 .chat-voice-preview__send:hover { opacity: 0.9; }
+.chat-voice-preview__stop-btn {
+  margin-left: 8px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.chat-voice-preview__stop-btn:hover { opacity: 0.9; }
 .chat-voice-preview__label {
   color: var(--text-muted);
 }
@@ -10486,6 +10498,36 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   font-size: 14px;
   color: var(--text-muted);
 }
+.tournament-day-block--schedule {
+  display: block;
+  width: 100%;
+  margin: 16px 0 20px;
+  padding: 18px 20px;
+  box-sizing: border-box;
+}
+.tournament-day-block--schedule .tournament-day-block__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tournament-day-block--schedule .tournament-day-block__name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.tournament-day-block--schedule .tournament-day-block__meta {
+  font-size: 13px;
+  line-height: 1.3;
+}
+.tournament-day-block--schedule .tournament-day-block__timer {
+  font-weight: 600;
+  color: var(--accent);
+}
+[data-theme="light"] .tournament-day-block--schedule {
+  background: rgba(255, 245, 235, 0.95);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
 .schedule-section {
   margin-bottom: 24px;
 }

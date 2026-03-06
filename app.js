@@ -9016,6 +9016,11 @@ function initChat() {
       if (data && data.ok) {
         chatIsAdmin = !!data.isAdmin;
         var messages = data.messages || [];
+        var pending = window._pendingGeneralMessage;
+        if (pending && pending.id && !messages.some(function (m) { return m.id === pending.id; })) {
+          messages = messages.concat([pending]);
+        }
+        window._pendingGeneralMessage = null;
         window._chatGeneralCache = { messages: messages, participantsCount: data.participantsCount, onlineCount: data.onlineCount };
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
@@ -9627,7 +9632,22 @@ function initChat() {
     }).then(function (r) { return r.json(); }).then(function (data) {
       sendingGeneral = false;
       if (data && data.ok) {
-        lastGeneralMessagesSig = null;
+        var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
+        if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+        var msg = data.message;
+        if (msg && msg.id) {
+          window._pendingGeneralMessage = msg;
+          var cache = window._chatGeneralCache || { messages: [], participantsCount: null, onlineCount: null };
+          if (Array.isArray(cache.messages) && !cache.messages.some(function (m) { return m.id === msg.id; })) {
+            var msgs = cache.messages.concat([msg]);
+            window._chatGeneralCache = { messages: msgs, participantsCount: cache.participantsCount, onlineCount: cache.onlineCount };
+            lastGeneralMessagesSig = null;
+            if (chatActiveTab === "general" && !chatIsEditingMessage) {
+              lastGeneralMessagesSig = generalMessagesSignature(msgs);
+              renderGeneralMessages(msgs);
+            }
+          }
+        }
         loadGeneral();
       } else {
         var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
@@ -9819,6 +9839,12 @@ function initChat() {
       if (data && data.ok) {
         if (data.isAdmin !== undefined) chatIsAdmin = !!data.isAdmin;
         var messages = data.messages || [];
+        var pending = window._pendingPersonalMessage;
+        if (pending && pending.id && chatWithUserId === (window._pendingPersonalWith || "")) {
+          if (!messages.some(function (m) { return m.id === pending.id; })) messages = messages.concat([pending]);
+        }
+        window._pendingPersonalMessage = null;
+        window._pendingPersonalWith = null;
         var pt = data.participantsCount != null ? data.participantsCount : "—";
         var ol = data.onlineCount != null ? data.onlineCount : "—";
         window.lastConvStats = pt + " уч · " + ol + " онл";
@@ -9907,6 +9933,13 @@ function initChat() {
     }).then(function (r) { return r.json(); }).then(function (data) {
       sendingPrivate = false;
       if (data && data.ok) {
+        var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
+        if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+        var msg = data.message;
+        if (msg && msg.id && chatWithUserId) {
+          window._pendingPersonalMessage = msg;
+          window._pendingPersonalWith = chatWithUserId;
+        }
         lastPersonalMessagesSig = null;
         loadMessages();
       } else {
@@ -10173,6 +10206,22 @@ function initChat() {
       }
       var generalVoiceSend = document.getElementById("chatGeneralVoiceSend");
       if (generalVoiceSend) generalVoiceSend.addEventListener("click", function () { sendGeneral(); });
+      var generalVoiceStop = document.getElementById("chatGeneralVoiceStop");
+      if (generalVoiceStop) generalVoiceStop.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (voiceTarget === "general") {
+          if (voiceRecorder) {
+            try {
+              if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
+              voiceRecorder.stop();
+            } catch (err) {}
+          } else {
+            voiceTarget = null;
+            if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
+          }
+          if (generalVoiceBtn) { generalVoiceBtn.classList.remove("chat-voice-btn--recording"); generalVoiceBtn.title = "Голосовое сообщение"; }
+        }
+      });
       var personalVoiceBtn = document.getElementById("chatPersonalVoiceBtn");
       var personalVoiceRemove = document.getElementById("chatPersonalVoiceRemove");
       var personalVoicePreviewEl = document.getElementById("chatPersonalVoicePreview");
@@ -10210,6 +10259,24 @@ function initChat() {
       }
       var personalVoiceSend = document.getElementById("chatPersonalVoiceSend");
       if (personalVoiceSend) personalVoiceSend.addEventListener("click", function () { sendMessage(); });
+      var personalVoiceStop = document.getElementById("chatPersonalVoiceStop");
+      if (personalVoiceStop) personalVoiceStop.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (voiceTarget === "personal") {
+          if (voiceRecorder) {
+            try {
+              if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
+              voiceRecorder.stop();
+            } catch (err) {}
+          } else {
+            voiceTarget = null;
+            var pvPrev = document.getElementById("chatPersonalVoicePreview");
+            if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
+          }
+          var pvb = document.getElementById("chatPersonalVoiceBtn");
+          if (pvb) { pvb.classList.remove("chat-voice-btn--recording"); pvb.title = "Голосовое сообщение"; }
+        }
+      });
     })();
     function resizeChatTextarea(ta) {
       if (!ta || ta.nodeName !== "TEXTAREA") return;
@@ -10451,12 +10518,15 @@ var TOURNAMENT_OF_DAY_BY_WEEKDAY = [
 ];
 
 function updateTournamentDayBlock() {
-  var nameEl = document.getElementById("tournamentDayName");
-  var buyinEl = document.getElementById("tournamentDayBuyin");
-  var guaranteeEl = document.getElementById("tournamentDayGuarantee");
-  var timerLabelEl = document.getElementById("tournamentDayTimerLabel");
-  var timerEl = document.getElementById("tournamentDayTimer");
-  if (!nameEl || !buyinEl || !guaranteeEl || !timerEl) return;
+  var els = [
+    document.getElementById("tournamentDayName"),
+    document.getElementById("scheduleTournamentDayName")
+  ].filter(Boolean);
+  var buyinEls = [document.getElementById("tournamentDayBuyin"), document.getElementById("scheduleTournamentDayBuyin")].filter(Boolean);
+  var guaranteeEls = [document.getElementById("tournamentDayGuarantee"), document.getElementById("scheduleTournamentDayGuarantee")].filter(Boolean);
+  var timerLabelEls = [document.getElementById("tournamentDayTimerLabel"), document.getElementById("scheduleTournamentDayTimerLabel")].filter(Boolean);
+  var timerEls = [document.getElementById("tournamentDayTimer"), document.getElementById("scheduleTournamentDayTimer")].filter(Boolean);
+  if (els.length === 0 || buyinEls.length === 0 || guaranteeEls.length === 0 || timerEls.length === 0) return;
   var MSK_START_UTC_HOUR = 15;
   var MSK_END_REG_UTC_HOUR = 18;
   function getMskDateParts() {
@@ -10488,21 +10558,21 @@ function updateTournamentDayBlock() {
   function formatTimer() {
     var n = new Date();
     var state = getTournamentDayState(n);
-    if (state.t) {
-      nameEl.textContent = state.t.name;
-      buyinEl.textContent = state.t.buyin;
-      guaranteeEl.textContent = state.t.guarantee;
-    }
-    if (timerLabelEl) timerLabelEl.textContent = state.label;
+    var nameStr = state.t ? state.t.name : "";
+    var buyinStr = state.t ? state.t.buyin : "";
+    var guaranteeStr = state.t ? state.t.guarantee : "";
+    els.forEach(function (el) { el.textContent = nameStr; });
+    buyinEls.forEach(function (el) { el.textContent = buyinStr; });
+    guaranteeEls.forEach(function (el) { el.textContent = guaranteeStr; });
+    timerLabelEls.forEach(function (el) { el.textContent = state.label; });
     var diff = state.target - n;
-    if (diff <= 0) {
-      timerEl.textContent = "Скоро";
-      return;
-    }
-    var h = Math.floor(diff / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    var s = Math.floor((diff % 60000) / 1000);
-    timerEl.textContent = (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    var timerStr = diff <= 0 ? "Скоро" : (function () {
+      var h = Math.floor(diff / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    })();
+    timerEls.forEach(function (el) { el.textContent = timerStr; });
   }
   formatTimer();
   if (window._tournamentDayTimer) clearInterval(window._tournamentDayTimer);

@@ -1037,7 +1037,7 @@
                 </div>
                 <div class="chat-image-preview" id="chatGeneralImagePreview"></div>
                 <div class="chat-voice-preview chat-voice-preview--hidden" id="chatGeneralVoicePreview">
-                  <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatGeneralVoiceRecording">🔴 Идёт запись... Нажмите 🎤 ещё раз чтобы остановить</span>
+                  <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatGeneralVoiceRecording">🔴 Идёт запись... <button type="button" class="chat-voice-preview__stop-btn" id="chatGeneralVoiceStop">Остановить</button></span>
                   <span class="chat-voice-preview__label chat-voice-preview__label--recorded">Голосовое сообщение</span>
                   <button type="button" class="chat-voice-preview__remove" id="chatGeneralVoiceRemove">Убрать</button>
                   <button type="button" class="chat-voice-preview__send" id="chatGeneralVoiceSend" title="Отправить">↑</button>
@@ -1083,7 +1083,7 @@
                     </div>
                     <div class="chat-image-preview" id="chatPersonalImagePreview"></div>
                     <div class="chat-voice-preview chat-voice-preview--hidden" id="chatPersonalVoicePreview">
-                      <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatPersonalVoiceRecording">🔴 Идёт запись... Нажмите 🎤 ещё раз чтобы остановить</span>
+                      <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatPersonalVoiceRecording">🔴 Идёт запись... <button type="button" class="chat-voice-preview__stop-btn" id="chatPersonalVoiceStop">Остановить</button></span>
                       <span class="chat-voice-preview__label chat-voice-preview__label--recorded">Голосовое сообщение</span>
                       <button type="button" class="chat-voice-preview__remove" id="chatPersonalVoiceRemove">Убрать</button>
                       <button type="button" class="chat-voice-preview__send" id="chatPersonalVoiceSend" title="Отправить">↑</button>
@@ -1884,31 +1884,14 @@
             <h1 class="title schedule-title">Расписание турниров на неделю</h1>
             <p class="schedule-subtitle">Poker 21+</p>
 
-            <section class="schedule-section">
-              <h2 class="schedule-section__title">Ежедневные турниры</h2>
-              <div class="schedule-table-wrap">
-                <table class="schedule-table">
-                  <thead>
-                    <tr>
-                      <th>Турнир</th>
-                      <th>Бай-ин</th>
-                      <th>Ребай/Аддон</th>
-                      <th>Гарантия</th>
-                      <th>Начало (Мск)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr><td>Rebuy DV</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>30 000₽</td><td>12:00</td></tr>
-                    <tr><td>Tournament Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>5 000₽</td><td>14:00</td></tr>
-                    <tr><td>Magic Chest</td><td>50₽</td><td>R:50₽</td><td>3 000₽</td><td>16:00</td></tr>
-                    <tr><td>Rebuy</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>60 000₽</td><td>17:00</td></tr>
-                    <tr><td>HOK Magic</td><td>1 000₽</td><td>R:1 000₽</td><td>50 000₽</td><td>20:00</td></tr>
-                    <tr><td>MOK</td><td>300₽</td><td>R:300₽</td><td>15 000₽</td><td>21:00</td></tr>
-                    <tr><td>Energetic Tournament</td><td>200₽</td><td>R:200₽ / A:200₽</td><td>10 000₽</td><td>22:00</td></tr>
-                  </tbody>
-                </table>
+            <div class="tournament-day-block tournament-day-block--schedule feature feature--app" aria-label="Турнир дня">
+              <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🏆</span></div>
+              <div class="feature__body tournament-day-block__body">
+                <span class="tournament-day-block__badge">Турнир дня</span>
+                <div class="feature__title tournament-day-block__name" id="scheduleTournamentDayName">—</div>
+                <div class="feature__desc tournament-day-block__meta"><span id="scheduleTournamentDayBuyin">—</span> · <span id="scheduleTournamentDayGuarantee">—</span> · 18:00<br><span class="tournament-day-block__timer-label" id="scheduleTournamentDayTimerLabel"></span><span class="tournament-day-block__timer" id="scheduleTournamentDayTimer">—</span></div>
               </div>
-            </section>
+            </div>
 
             <section class="schedule-section schedule-section--tournament-day">
               <h2 class="schedule-section__title"><span class="schedule-section__title-badge">Турнир дня</span> — 18:00 Мск</h2>
@@ -1932,6 +1915,32 @@
                     <tr><td>Пятница</td><td>Нокаут Прогрессив</td><td>500₽</td><td>R:500₽</td><td>100 000₽</td><td>18:00</td></tr>
                     <tr><td>Суббота</td><td>Фриролл</td><td>Бесплатно</td><td>R:250₽ / A:500₽</td><td>100 000₽</td><td>18:00</td></tr>
                     <tr><td>Воскресенье</td><td>Турнир Недели Нокаут Меджик</td><td>2 000₽</td><td>R:2 000₽</td><td>250 000₽</td><td>18:00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="schedule-section">
+              <h2 class="schedule-section__title">Ежедневные турниры</h2>
+              <div class="schedule-table-wrap">
+                <table class="schedule-table">
+                  <thead>
+                    <tr>
+                      <th>Турнир</th>
+                      <th>Бай-ин</th>
+                      <th>Ребай/Аддон</th>
+                      <th>Гарантия</th>
+                      <th>Начало (Мск)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Rebuy DV</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>30 000₽</td><td>12:00</td></tr>
+                    <tr><td>Tournament Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>5 000₽</td><td>14:00</td></tr>
+                    <tr><td>Magic Chest</td><td>50₽</td><td>R:50₽</td><td>3 000₽</td><td>16:00</td></tr>
+                    <tr><td>Rebuy</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>60 000₽</td><td>17:00</td></tr>
+                    <tr><td>HOK Magic</td><td>1 000₽</td><td>R:1 000₽</td><td>50 000₽</td><td>20:00</td></tr>
+                    <tr><td>MOK</td><td>300₽</td><td>R:300₽</td><td>15 000₽</td><td>21:00</td></tr>
+                    <tr><td>Energetic Tournament</td><td>200₽</td><td>R:200₽ / A:200₽</td><td>10 000₽</td><td>22:00</td></tr>
                   </tbody>
                 </table>
               </div>
