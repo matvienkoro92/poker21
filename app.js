@@ -8893,8 +8893,18 @@ function initChat() {
   }
   window.chatSetTab = setTab;
 
-  var lastViewedGeneral = null;
-  var lastViewedPersonal = {};
+  var CHAT_LAST_VIEWED_KEY = "chat_last_viewed";
+  var stored = null;
+  try {
+    stored = JSON.parse(localStorage.getItem(CHAT_LAST_VIEWED_KEY) || "{}");
+  } catch (e) { stored = {}; }
+  var lastViewedGeneral = stored && stored.general != null ? stored.general : null;
+  var lastViewedPersonal = (stored && stored.personal && typeof stored.personal === "object") ? stored.personal : {};
+  function saveChatLastViewed() {
+    try {
+      localStorage.setItem(CHAT_LAST_VIEWED_KEY, JSON.stringify({ general: lastViewedGeneral, personal: lastViewedPersonal }));
+    } catch (e) {}
+  }
   var lastGeneralMessagesSig = null;
   var lastPersonalMessagesSig = null;
   function generalMessagesSignature(messages) {
@@ -9000,6 +9010,7 @@ function initChat() {
         var unreadCount = messages.filter(function (m) { return (m.time || "") > lastView; }).length;
         if (isChatViewActive && chatActiveTab === "general") {
           lastViewedGeneral = latest;
+          saveChatLastViewed();
           window.chatGeneralUnread = false;
           window.chatGeneralUnreadCount = 0;
         } else if (latest && (lastViewedGeneral == null || latest > lastViewedGeneral)) {
@@ -9805,6 +9816,7 @@ function initChat() {
         var unreadCount = messages.filter(function (m) { return (m.time || "") > lastView; }).length;
         if (isChatViewActive && chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) {
           lastViewedPersonal[chatWithUserId] = latest;
+          saveChatLastViewed();
           window.chatPersonalUnread = false;
           window.chatPersonalUnreadCount = 0;
         } else if (latest && chatWithUserId && (lastViewedPersonal[chatWithUserId] == null || latest > lastViewedPersonal[chatWithUserId])) {
