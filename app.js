@@ -311,7 +311,8 @@ function getTopByDates(dates) {
     .slice(0, 15);
 }
 
-// Газета «Вестник Два туза» — только горячие новости
+// Газета «Вестник Два туза» — только горячие новости (инициализация при DOMContentLoaded для надёжности)
+function runGazetteAndTasksInit() {
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
   var GAZETTE_VERSION = "2026-03-06";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
@@ -322,7 +323,7 @@ function getTopByDates(dates) {
   var closeBtn = document.getElementById("gazetteModalClose");
   var backdrop = document.getElementById("gazetteModalBackdrop");
   var unreadDot = document.getElementById("gazetteUnreadDot");
-  if (!modal || !pickEl || !newsEl) return;
+  if (modal && pickEl && newsEl) {
   function hasUnreadGazette() {
     try {
       return (localStorage.getItem(GAZETTE_READ_KEY) || "") !== GAZETTE_VERSION;
@@ -530,6 +531,7 @@ function getTopByDates(dates) {
     bindSubscribeClick(subscribeBtn);
     bindSubscribeClick(subscribeBtnNews);
   }
+  }
 
   (function initPartnershipModal() {
     var modal = document.getElementById("partnershipModal");
@@ -584,11 +586,28 @@ function getTopByDates(dates) {
   (function initPokerTasksMtt() {
     var startScreen = document.getElementById("pokerTasksStartScreen");
     var startBtn = document.getElementById("pokerTasksStartBtn");
+    var leaderboardBody = document.getElementById("pokerTasksLeaderboardBody");
     if (!startScreen || !startBtn) return;
     startBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      if (typeof window.startMttChallenge === "function") window.startMttChallenge();
+      if (typeof window.startMttChallenge === "function") {
+        window.startMttChallenge();
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Задачи ещё загружаются. Обновите страницу."); else alert("Задачи ещё загружаются. Обновите страницу.");
+      }
     });
+    function renderMttLeaderboard() {
+      if (!leaderboardBody) return;
+      var list = (typeof MTT_LEADERBOARD !== "undefined" && Array.isArray(MTT_LEADERBOARD)) ? MTT_LEADERBOARD : [];
+      var levels = typeof MTT_LEVELS !== "undefined" ? MTT_LEVELS : [];
+      leaderboardBody.innerHTML = list.map(function (r) {
+        var lvl = r.level != null ? r.level : 1;
+        var lvlName = levels[lvl - 1] ? levels[lvl - 1].name : "Ур." + lvl;
+        return "<tr><td>" + (r.place || "") + "</td><td>" + (r.nick || "—") + "</td><td>" + lvlName + "</td><td>" + (r.points != null ? r.points : "—") + "</td></tr>";
+      }).join("") || "<tr><td colspan=\"4\">Пока пусто</td></tr>";
+    }
+    renderMttLeaderboard();
     window.refreshMttStats = function () {
       var levelEl = document.getElementById("mttStatLevel");
       var pointsEl = document.getElementById("mttStatPoints");
@@ -661,7 +680,7 @@ function getTopByDates(dates) {
     var timerId = null;
     var timeElapsed = 0;
     var answered = false;
-    var MAX_TIME = 30;
+    var SPEED_BONUS_REF = 30;
     var DAILY_LIMIT = 5;
     var SUIT_SYMBOLS = { s: "\u2660", h: "\u2665", d: "\u2666", c: "\u2663" };
     var RANK_DISPLAY = { T: "10", J: "J", Q: "Q", K: "K", A: "A" };
@@ -741,7 +760,7 @@ function getTopByDates(dates) {
         return Math.round(penalty);
       }
       var basePoints = 50 * Math.pow(1.05, taskLevel - 1);
-      var speedBonus = basePoints * 0.5 * Math.max(0, 1 - timeTaken / 30);
+      var speedBonus = basePoints * 0.5 * Math.max(0, 1 - timeTaken / SPEED_BONUS_REF);
       var streakBonus = Math.min(streakBefore * 0.1 * basePoints, basePoints);
       var diff = taskLevel - playerLevel;
       var difficultyMultiplier = diff <= -5 ? 0.5 : diff <= -2 ? 0.75 : diff <= 2 ? 1.0 : diff <= 5 ? 1.25 : 1.5;
@@ -809,10 +828,6 @@ function getTopByDates(dates) {
       timerId = setInterval(function () {
         timeElapsed = (Date.now() - startTime) / 1000;
         if (timerEl) timerEl.textContent = timeElapsed.toFixed(1);
-        if (timeElapsed >= MAX_TIME) {
-          clearTimer();
-          handleAnswer(null, false);
-        }
       }, 100);
     }
     function handleAnswer(answerId, isCorrect) {
@@ -1005,7 +1020,7 @@ function getTopByDates(dates) {
   if (startParam && (startParam === "news" || startParam.indexOf("news_") === 0)) {
     var articleNum = startParam === "news" ? undefined : parseInt(startParam.replace("news_", ""), 10);
     if (startParam !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
-    setTimeout(function () { openGazette("news", articleNum); }, 300);
+    setTimeout(function () { if (typeof openGazette === "function") openGazette("news", articleNum); }, 300);
   }
   if (startParam === "winter_rating") {
     setTimeout(function () { if (typeof setView === "function") setView("winter-rating"); }, 0);
@@ -1109,6 +1124,13 @@ function getTopByDates(dates) {
     }, 0);
   }
 })();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", runGazetteAndTasksInit);
+} else {
+  runGazetteAndTasksInit();
+}
 
 setTimeout(function () {
   if (document.body && document.body.getAttribute("data-view") === "home" && typeof fetchRaffleBadge === "function") {
@@ -6149,6 +6171,19 @@ document.addEventListener("click", function (e) {
   if (page) setDownloadPage(page);
 });
 
+document.addEventListener("click", function (e) {
+  var btn = e.target && e.target.closest ? e.target.closest("#pokerTasksStartBtn") : null;
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (typeof window.startMttChallenge === "function") {
+    window.startMttChallenge();
+  } else {
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.showAlert) tg.showAlert("Задачи ещё загружаются. Обновите страницу."); else alert("Задачи ещё загружаются. Обновите страницу.");
+  }
+}, true);
+
 (function initChillRadio() {
   var radio = document.getElementById("chillRadio");
   if (!radio) return;
@@ -6158,6 +6193,43 @@ document.addEventListener("click", function (e) {
   document.addEventListener("click", tryPlay, { once: true, passive: true });
   document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
   tryChillRadioPlay();
+})();
+
+(function initHomeStreamTabs() {
+  var tabs = document.querySelectorAll(".home-stream__tab[data-stream]");
+  var twitchEl = document.getElementById("homeStreamTwitch");
+  var vkEl = document.getElementById("homeStreamVk");
+  var shareBtn = document.getElementById("homeStreamShareBtn");
+  if (!tabs.length || !twitchEl || !vkEl) return;
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function (e) {
+      e.preventDefault();
+      var stream = tab.getAttribute("data-stream");
+      tabs.forEach(function (t) {
+        t.classList.toggle("home-stream__tab--active", t === tab);
+        t.setAttribute("aria-selected", t === tab ? "true" : "false");
+      });
+      twitchEl.classList.toggle("home-stream__embed--hidden", stream !== "twitch");
+      vkEl.classList.toggle("home-stream__embed--hidden", stream !== "vk");
+    });
+  });
+  if (shareBtn) {
+    shareBtn.addEventListener("click", function () {
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var link = appUrl.replace(/\/$/, "");
+      var msg = "Ссылка скопирована. Отправьте другу — откроется приложение с трансляцией.";
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+        }).catch(function () {});
+      } else {
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert(link); else alert(link);
+      }
+    });
+  }
 })();
 
 (function initChatNavDropdown() {
@@ -10357,28 +10429,35 @@ function updateTournamentDayBlock() {
   var nameEl = document.getElementById("tournamentDayName");
   var buyinEl = document.getElementById("tournamentDayBuyin");
   var guaranteeEl = document.getElementById("tournamentDayGuarantee");
+  var timerLabelEl = document.getElementById("tournamentDayTimerLabel");
   var timerEl = document.getElementById("tournamentDayTimer");
   if (!nameEl || !buyinEl || !guaranteeEl || !timerEl) return;
-  var now = new Date();
-  var dayIndex = now.getDay();
-  var t = TOURNAMENT_OF_DAY_BY_WEEKDAY[dayIndex];
-  if (t) {
-    nameEl.textContent = t.name;
-    buyinEl.textContent = t.buyin;
-    guaranteeEl.textContent = t.guarantee;
+  var START_UTC_HOUR = 15;
+  var END_REG_UTC_HOUR = 18;
+  function getTournamentDayState(now) {
+    var startToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), START_UTC_HOUR, 0, 0, 0));
+    var endRegToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), END_REG_UTC_HOUR, 0, 0, 0));
+    if (now < startToday) {
+      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[now.getDay()], target: startToday, label: "" };
+    }
+    if (now < endRegToday) {
+      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[now.getDay()], target: endRegToday, label: "до конца рег " };
+    }
+    var nextDay = new Date(now);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+    var nextStart = new Date(Date.UTC(nextDay.getUTCFullYear(), nextDay.getUTCMonth(), nextDay.getUTCDate(), START_UTC_HOUR, 0, 0, 0));
+    return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[nextDay.getDay()], target: nextStart, label: "" };
   }
-  var target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0, 0));
-  if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
   function formatTimer() {
     var n = new Date();
-    if (n >= target) {
-      target = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate() + 1, 15, 0, 0, 0));
-      var nextT = TOURNAMENT_OF_DAY_BY_WEEKDAY[target.getDay()];
-      if (nextT && nameEl) nameEl.textContent = nextT.name;
-      if (nextT && buyinEl) buyinEl.textContent = nextT.buyin;
-      if (nextT && guaranteeEl) guaranteeEl.textContent = nextT.guarantee;
+    var state = getTournamentDayState(n);
+    if (state.t) {
+      nameEl.textContent = state.t.name;
+      buyinEl.textContent = state.t.buyin;
+      guaranteeEl.textContent = state.t.guarantee;
     }
-    var diff = target - n;
+    if (timerLabelEl) timerLabelEl.textContent = state.label;
+    var diff = state.target - n;
     if (diff <= 0) {
       timerEl.textContent = "Скоро";
       return;

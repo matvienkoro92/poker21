@@ -44,3 +44,12 @@ var MTT_TASKS = [
   { id: "mtt_014", level: 1, situation: "MTT, ранняя стадия. Блайнды 150/300. Ваш стек 4500 (15BB). Вы на большом блайнде с AJ. UTG рейзит 2.5BB (750).", question: "Ваше действие?", options: [{ id: "A", text: "Фолд" }, { id: "B", text: "Колл 750" }, { id: "C", text: "Рерайз до 2250" }, { id: "D", text: "Олл-ин" }], correct_answer: "A", explanation: "С AJo против рейза с ранней позиции и стеком 15BB лучше фолдить.", player_cards: ["A", "J"] },
   { id: "mtt_015", level: 1, situation: "MTT, ранняя стадия. Блайнды 200/400. Ваш стек 8000 (20BB). Вы на малом блайнде с KK. UTG рейзит 3BB (1200).", question: "Ваше действие?", options: [{ id: "A", text: "Фолд" }, { id: "B", text: "Колл 1200" }, { id: "C", text: "Рерайз до 3600" }, { id: "D", text: "Олл-ин" }], correct_answer: "C", explanation: "С парой королей нужно 3-бетить для защиты от дро и построения банка.", player_cards: ["K", "K"] }
 ];
+
+// Рейтинг игроков Tournament Pro Challenge. Обновлять вручную: { place, nick, points, level }
+var MTT_LEADERBOARD = [
+  { place: 1, nick: "—", points: 0, level: 1 },
+  { place: 2, nick: "—", points: 0, level: 1 },
+  { place: 3, nick: "—", points: 0, level: 1 },
+  { place: 4, nick: "—", points: 0, level: 1 },
+  { place: 5, nick: "—", points: 0, level: 1 }
+];

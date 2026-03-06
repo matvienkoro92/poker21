@@ -235,7 +235,7 @@
                   <div class="feature__body tournament-day-block__body">
                     <span class="tournament-day-block__badge">Турнир дня</span>
                     <div class="feature__title tournament-day-block__name" id="tournamentDayName">—</div>
-                    <div class="feature__desc tournament-day-block__meta"><span id="tournamentDayBuyin">—</span> · <span id="tournamentDayGuarantee">—</span> · 18:00<br><span class="tournament-day-block__timer" id="tournamentDayTimer">—</span> · Расписание &gt;&gt;</div>
+                    <div class="feature__desc tournament-day-block__meta"><span id="tournamentDayBuyin">—</span> · <span id="tournamentDayGuarantee">—</span> · 18:00<br><span class="tournament-day-block__timer-label" id="tournamentDayTimerLabel"></span><span class="tournament-day-block__timer" id="tournamentDayTimer">—</span> · Расписание &gt;&gt;</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
@@ -279,6 +279,24 @@
                 </a>
               </div>
               </div>
+
+            <section class="home-stream-section home-stream-section--bordered" aria-label="Прямая трансляция">
+              <h2 class="features-section-title home-stream__title">Прямая трансляция</h2>
+              <p class="home-stream__desc">Кубок Калининграда APC-41 · Финальный стол</p>
+              <div class="home-stream__tabs" role="tablist">
+                <button type="button" class="home-stream__tab home-stream__tab--active" role="tab" aria-selected="true" data-stream="twitch">Twitch</button>
+                <button type="button" class="home-stream__tab" role="tab" aria-selected="false" data-stream="vk">VK Видео</button>
+              </div>
+              <div class="home-stream__embed-wrap">
+                <div class="home-stream__embed home-stream__embed--twitch" id="homeStreamTwitch">
+                  <iframe src="https://player.twitch.tv/?channel=sobraniepoker&parent=localhost&parent=poker-app-ebon.vercel.app&parent=web.telegram.org" frameborder="0" allowfullscreen scrolling="no" title="Трансляция на Twitch"></iframe>
+                </div>
+                <div class="home-stream__embed home-stream__embed--vk home-stream__embed--hidden" id="homeStreamVk">
+                  <iframe src="https://vk.com/video_ext.php?oid=-162791956&id=456239096" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" scrolling="no" title="Трансляция на VK"></iframe>
+                </div>
+              </div>
+              <button type="button" class="home-stream__share-btn" id="homeStreamShareBtn" aria-label="Поделиться трансляцией">Поделиться</button>
+            </section>
           </div>
 
           <!-- Рейтинг Турнирщиков зимы: даты и итоговая таблица внутри -->
@@ -1575,6 +1593,17 @@
                 <div class="poker-tasks__mtt-stat"><span class="poker-tasks__mtt-stat-label">Сегодня</span><span id="mttStatDaily">0 / 5</span></div>
               </div>
               <button type="button" class="primary-button poker-tasks__start-btn" id="pokerTasksStartBtn">Начать задачи</button>
+              <div class="poker-tasks__leaderboard" id="pokerTasksLeaderboard">
+                <h3 class="poker-tasks__leaderboard-title">Рейтинг игроков</h3>
+                <div class="poker-tasks__leaderboard-table-wrap">
+                  <table class="poker-tasks__leaderboard-table">
+                    <thead>
+                      <tr><th>#</th><th>Игрок</th><th>Уровень</th><th>Баллы</th></tr>
+                    </thead>
+                    <tbody id="pokerTasksLeaderboardBody"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
             <div class="poker-streak-screen poker-streak-screen--hidden" id="pokerStreakScreen">
               <button type="button" class="poker-streak-screen__back" id="pokerStreakBackBtn" aria-label="Назад">←</button>
