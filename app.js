@@ -10158,6 +10158,8 @@ function initChat() {
           generalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
         });
       }
+      var generalVoiceSend = document.getElementById("chatGeneralVoiceSend");
+      if (generalVoiceSend) generalVoiceSend.addEventListener("click", function () { sendGeneral(); });
       var personalVoiceBtn = document.getElementById("chatPersonalVoiceBtn");
       var personalVoiceRemove = document.getElementById("chatPersonalVoiceRemove");
       var personalVoicePreviewEl = document.getElementById("chatPersonalVoicePreview");
@@ -10193,6 +10195,8 @@ function initChat() {
           personalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
         });
       }
+      var personalVoiceSend = document.getElementById("chatPersonalVoiceSend");
+      if (personalVoiceSend) personalVoiceSend.addEventListener("click", function () { sendMessage(); });
     })();
     function resizeChatTextarea(ta) {
       if (!ta || ta.nodeName !== "TEXTAREA") return;

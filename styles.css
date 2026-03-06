@@ -2547,9 +2547,22 @@ html.app-view-home .card .card__content {
   display: inline !important;
 }
 .chat-voice-preview--recording .chat-voice-preview__label--recorded,
-.chat-voice-preview--recording .chat-voice-preview__remove {
+.chat-voice-preview--recording .chat-voice-preview__remove,
+.chat-voice-preview--recording .chat-voice-preview__send {
   display: none;
 }
+.chat-voice-preview__send {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chat-voice-preview__send:hover { opacity: 0.9; }
 .chat-voice-preview__label {
   color: var(--text-muted);
 }
