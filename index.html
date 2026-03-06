@@ -1434,7 +1434,10 @@
               </div>
               <p class="raffles-hero__club">TWO ACES</p>
               <p class="raffles-hero__tagline">Розыгрыши билетов на турниры клуба</p>
-              <button type="button" class="raffles-hero__share-btn" id="rafflesShareBtn" aria-label="Поделиться ссылкой на розыгрыши">Поделиться</button>
+              <div class="raffles-hero__share-row">
+                <button type="button" class="raffles-hero__share-btn" id="rafflesCopyLinkBtn" aria-label="Скопировать ссылку на розыгрыши">Скопировать ссылку</button>
+                <button type="button" class="raffles-hero__share-btn" id="rafflesInviteFriendBtn" aria-label="Позвать друга">Позвать друга</button>
+              </div>
             </header>
 
             <div class="raffles-admin-wrap raffles-admin-wrap--hidden" id="rafflesAdminWrap">
@@ -1530,8 +1533,13 @@
             <div class="raffles-panel raffles-panel--active" id="rafflesPanelActive" data-raffle-panel="active">
               <div class="raffle-current raffle-current--hidden" id="raffleCurrent">
                 <div class="raffle-card raffle-card--ticket" id="raffleCard">
-                  <p class="raffle-meta" id="raffleMeta"></p>
-                  <p class="raffle-end" id="raffleEnd"></p>
+                  <p class="raffle-id-note">Проверьте ваш ID в Poker21</p>
+                  <div class="raffle-stats-block">
+                    <p class="raffle-stat" id="raffleStatWinners">Победителей:</p>
+                    <p class="raffle-stat" id="raffleStatPrize">Сумма приза:</p>
+                    <p class="raffle-stat" id="raffleStatGroups">Групп призов:</p>
+                    <p class="raffle-stat raffle-stat--timer" id="raffleEnd"></p>
+                  </div>
                   <div class="raffle-prizes" id="rafflePrizes"></div>
                   <button type="button" class="primary-button raffle-join-btn" id="raffleJoinBtn">Участвую</button>
                   <button type="button" class="raffle-leave-btn raffle-leave-btn--hidden" id="raffleLeaveBtn">Отменить участие</button>
@@ -1541,7 +1549,6 @@
                     <button type="button" class="raffle-cancel-btn" id="raffleDeleteBtn">Удалить розыгрыш (админ)</button>
                   </div>
                   <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
-                  <p class="raffle-participants-note"><span class="raffle-participants-note__highlight">Проверьте ваш ID в Poker21</span> — <span class="raffle-participants-note__highlight">на него будет начисляться выигрыш</span> после всех проверок.</p>
                   <p class="raffle-channel-note">Участвовать могут только подписчики канала <a href="https://t.me/dva_tuza_club" target="_blank" rel="noopener">Клуб Два Туза</a>.</p>
                   <h3 class="raffle-participants-title">Участники <span class="raffle-participants-count" id="raffleParticipantsCount">(0)</span></h3>
                   <p class="raffle-participants-chance" id="raffleParticipantsChance"></p>

@@ -4757,11 +4757,17 @@ html.app-view-home .feature--rating-spring-promo:hover,
   color: var(--text-muted);
   position: relative;
 }
+.raffles-hero__share-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: center;
+}
 .raffles-hero__share-btn {
   display: inline-block;
-  min-width: 180px;
-  padding: 14px 32px;
-  font-size: 15px;
+  min-width: 0;
+  padding: 10px 18px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: #e0f2fe;
@@ -4907,8 +4913,27 @@ html.app-view-home .feature--rating-spring-promo:hover,
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
 }
+.raffle-id-note {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+}
+[data-theme="light"] .raffle-id-note { color: var(--text); }
+.raffle-stats-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.raffle-stat {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+.raffle-stat--timer { color: var(--accent-2); font-weight: 500; }
 .raffle-meta { margin: 0 0 4px; font-size: 14px; color: var(--text-muted); }
-.raffle-end { margin: 0 0 12px; font-size: 13px; color: var(--text); }
+.raffle-end { margin: 0; font-size: inherit; color: inherit; }
 .raffle-prizes { margin-bottom: 14px; }
 .raffle-prize { font-size: 13px; color: var(--text); margin-bottom: 4px; }
 .raffle-join-btn--hidden { display: none; }

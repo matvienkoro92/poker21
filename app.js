@@ -7139,7 +7139,9 @@ function initRaffles() {
   var raffleCompleteBtn = document.getElementById("raffleCompleteBtn");
   var raffleCancelBtn = document.getElementById("raffleCancelBtn");
   var raffleDeleteBtn = document.getElementById("raffleDeleteBtn");
-  var raffleMeta = document.getElementById("raffleMeta");
+  var raffleStatWinners = document.getElementById("raffleStatWinners");
+  var raffleStatPrize = document.getElementById("raffleStatPrize");
+  var raffleStatGroups = document.getElementById("raffleStatGroups");
   var raffleEnd = document.getElementById("raffleEnd");
   var rafflePrizes = document.getElementById("rafflePrizes");
   var raffleJoinBtn = document.getElementById("raffleJoinBtn");
@@ -7294,17 +7296,16 @@ function initRaffles() {
     var endDate = raffle.endDate ? new Date(raffle.endDate) : null;
     var isActive = raffle.status === "active";
     currentRaffleEndDate = isActive && endDate ? endDate : null;
-    raffleMeta.textContent =
-      "Победителей: " + total +
-      (totalPrize > 0 ? " · Сумма приза: " + totalPrize + " р" : "") +
-      (groups.length > 0 ? " · Групп призов: " + groups.length : "");
+    if (raffleStatWinners) raffleStatWinners.textContent = "Победителей: " + total;
+    if (raffleStatPrize) raffleStatPrize.textContent = "Сумма приза: " + (totalPrize > 0 ? totalPrize + " р" : "—");
+    if (raffleStatGroups) raffleStatGroups.textContent = "Групп призов: " + (groups.length > 0 ? groups.length : "—");
     if (currentRaffleEndDate) {
       updateRaffleEndText();
       raffleTimerInterval = setInterval(updateRaffleEndText, 1000);
     } else {
-      raffleEnd.textContent = endDate
-        ? "Завершение: " + endDate.toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })
-        : (raffle.status === "drawn" ? "Завершён" : "");
+      raffleEnd.textContent = raffle.status === "drawn"
+        ? "Завершён"
+        : (endDate ? "Завершится через " + endDate.toLocaleString("ru-RU", { timeZone: "Europe/Moscow" }) : "");
     }
     if (raffleCompleteBtn) {
       var showComplete = rafflesIsAdmin && raffle.status === "active";
@@ -7590,10 +7591,10 @@ function initRaffles() {
   if (rafflesTabActive) rafflesTabActive.addEventListener("click", function () { setRafflesTab("active"); });
   if (rafflesTabCompleted) rafflesTabCompleted.addEventListener("click", function () { setRafflesTab("completed"); });
 
-  var rafflesShareBtn = document.getElementById("rafflesShareBtn");
-  if (rafflesShareBtn && rafflesShareBtn.getAttribute("data-share-bound") !== "1") {
-    rafflesShareBtn.setAttribute("data-share-bound", "1");
-    rafflesShareBtn.addEventListener("click", function () {
+  var rafflesCopyLinkBtn = document.getElementById("rafflesCopyLinkBtn");
+  if (rafflesCopyLinkBtn && rafflesCopyLinkBtn.getAttribute("data-share-bound") !== "1") {
+    rafflesCopyLinkBtn.setAttribute("data-share-bound", "1");
+    rafflesCopyLinkBtn.addEventListener("click", function () {
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
@@ -7611,6 +7612,18 @@ function initRaffles() {
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
       }
+    });
+  }
+  var rafflesInviteFriendBtn = document.getElementById("rafflesInviteFriendBtn");
+  if (rafflesInviteFriendBtn) {
+    rafflesInviteFriendBtn.addEventListener("click", function () {
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=raffles";
+      var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает билеты на турниры бесплатно, заходи участвуй)");
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
     });
   }
 
