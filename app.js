@@ -1723,6 +1723,7 @@ function setView(viewName) {
   if (viewName === "cooler-game") initCoolerGame();
   if (viewName === "plasterer-game") initPlastererGame();
   if (viewName === "raffles") initRaffles();
+  if (viewName === "comments") initComments();
   if (viewName === "equilator") initEquilator();
   if (viewName === "poker-tasks") {
     var startScreen = document.getElementById("pokerTasksStartScreen");
@@ -5861,6 +5862,68 @@ function streamsCleanup() {
   if (remoteVideo) remoteVideo.srcObject = null;
 }
 
+function initComments() {
+  var input = document.getElementById("commentsInput");
+  var charCount = document.getElementById("commentsCharCount");
+  var submitBtn = document.getElementById("commentsSubmitBtn");
+  var list = document.getElementById("commentsList");
+  var empty = document.getElementById("commentsEmpty");
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  function showAlert(msg) {
+    if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+  }
+  function updateCharCount() {
+    var len = input ? input.value.length : 0;
+    if (charCount) charCount.textContent = len + " / 500";
+  }
+  var stored = [];
+  try {
+    var raw = localStorage.getItem("poker_comments");
+    if (raw) stored = JSON.parse(raw);
+  } catch (e) {}
+  function renderComments() {
+    if (!list || !empty) return;
+    list.innerHTML = "";
+    if (stored.length === 0) {
+      empty.style.display = "";
+      list.appendChild(empty);
+    } else {
+      empty.style.display = "none";
+      stored.forEach(function (c) {
+        var div = document.createElement("div");
+        div.className = "comment-item";
+        div.innerHTML = "<div class=\"comment-item__author\">" + (c.author || "Аноним").replace(/</g, "&lt;") + "</div><p class=\"comment-item__text\">" + (c.text || "").replace(/</g, "&lt;").replace(/\n/g, "<br>") + "</p><div class=\"comment-item__date\">" + (c.date || "").replace(/</g, "&lt;") + "</div>";
+        list.appendChild(div);
+      });
+    }
+  }
+  renderComments();
+  if (input) {
+    input.addEventListener("input", updateCharCount);
+    updateCharCount();
+  }
+  if (submitBtn && input) {
+    submitBtn.addEventListener("click", function () {
+      var text = (input.value || "").trim();
+      if (!text) {
+        showAlert("Введите комментарий");
+        return;
+      }
+      var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+      var author = user && user.username ? "@" + user.username : (user && user.first_name ? user.first_name : "Игрок");
+      var item = { author: author, text: text, date: new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) };
+      stored.unshift(item);
+      try {
+        localStorage.setItem("poker_comments", JSON.stringify(stored));
+      } catch (e) {}
+      input.value = "";
+      updateCharCount();
+      renderComments();
+      showAlert("Комментарий добавлен");
+    });
+  }
+}
+
 function initStreams() {
   var startBtn = document.getElementById("streamsStartBtn");
   var stopBtn = document.getElementById("streamsStopBtn");
@@ -6244,10 +6307,12 @@ document.addEventListener("click", function (e) {
   var apiBase = base ? base.replace(/\/$/, "") : "";
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var initData = tg && tg.initData ? tg.initData : "";
+  var VIEWERS_OFFSET = 15;
   function formatViewers(n) {
     if (n == null || n < 0) return "—";
-    var s = n === 1 ? " смотрит" : " смотрят";
-    return n + s;
+    var total = (n || 0) + VIEWERS_OFFSET;
+    var s = total === 1 ? " смотрит" : " смотрят";
+    return total + s;
   }
   function fetchViewers() {
     if (!viewersEl || !apiBase) return;

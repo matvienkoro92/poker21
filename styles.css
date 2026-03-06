@@ -3881,6 +3881,117 @@ html.app-view-home .feature--rating-spring-promo:hover,
   padding-bottom: 0;
 }
 
+.comments-section-home {
+  margin-top: 24px;
+}
+.comments-section-home__desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+.feature--comments-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  background: var(--block-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+.feature--comments-link:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+
+.comments-view__title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+}
+.comments-view__desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+.comments-list {
+  margin-bottom: 24px;
+  min-height: 60px;
+}
+.comments-empty {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  background: var(--block-bg);
+  border: 1px dashed var(--card-border);
+}
+.comments-form-wrap {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  background: var(--block-bg);
+}
+.comments-form__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.comments-form__input {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  background: var(--input-bg, var(--block-bg));
+  color: var(--text);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.comments-form__input::placeholder {
+  color: var(--text-muted);
+}
+.comments-form__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.comments-form__meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 4px 0 12px;
+}
+.comments-form__submit {
+  width: 100%;
+}
+.comment-item {
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  background: var(--block-bg);
+}
+.comment-item__author {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.comment-item__text {
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+.comment-item__date {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
 .games-apps-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

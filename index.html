@@ -292,6 +292,36 @@
               </div>
               <button type="button" class="home-stream__share-btn" id="homeStreamShareBtn" aria-label="Поделиться трансляцией">Поделиться</button>
             </section>
+
+            <section class="comments-section-home" aria-labelledby="commentsSectionTitle">
+              <h2 class="features-section-title" id="commentsSectionTitle">Комментарии</h2>
+              <p class="comments-section-home__desc">Отзывы и мнения участников клуба</p>
+              <a href="#" class="feature feature--link feature--comments-link" data-view-target="comments" aria-label="Перейти к комментариям">
+                <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">💬</span></div>
+                <div class="feature__body">
+                  <div class="feature__title">Читать комментарии</div>
+                  <div class="feature__desc">Оставить отзыв о клубе</div>
+                </div>
+              </a>
+            </section>
+          </div>
+
+          <!-- Комментарии -->
+          <div class="view" data-view="comments">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <section class="comments-view" id="commentsView" aria-labelledby="commentsViewTitle">
+              <h1 class="title comments-view__title" id="commentsViewTitle">Комментарии</h1>
+              <p class="comments-view__desc">Отзывы и мнения участников клуба «Два туза»</p>
+              <div class="comments-list" id="commentsList" aria-live="polite">
+                <p class="comments-empty" id="commentsEmpty">Пока нет комментариев. Будьте первым!</p>
+              </div>
+              <div class="comments-form-wrap">
+                <label for="commentsInput" class="comments-form__label">Ваш комментарий</label>
+                <textarea id="commentsInput" class="comments-form__input" rows="3" placeholder="Напишите отзыв о клубе..." maxlength="500" aria-describedby="commentsCharCount"></textarea>
+                <p class="comments-form__meta" id="commentsCharCount">0 / 500</p>
+                <button type="button" class="primary-button comments-form__submit" id="commentsSubmitBtn">Отправить</button>
+              </div>
+            </section>
           </div>
 
           <!-- Рейтинг Турнирщиков зимы: даты и итоговая таблица внутри -->

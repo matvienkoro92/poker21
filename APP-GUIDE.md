@@ -144,6 +144,7 @@ function setView(viewName) {
 - `initBonusGame`, `initCoolerGame`, `initPlastererGame`
 - `initRaffles`, `initStreams`, `initEquilator`
 - `initHomeStreamTabs` — блок трансляции VK, счётчик зрителей, кнопка «Поделиться»
+- `initComments` — раздел комментариев (localStorage)
 - `initWinterRating`, `initProfile*`, `initChat`
 
 ### Глобальные функции
