@@ -276,6 +276,21 @@ function normalizeWinterNick(n) {
   if (lower === "waaarr") return "Waaar";
   return n;
 }
+function normalizeWinterNickForFinalTable(n) {
+  n = normalizeWinterNick(n);
+  if (!n) return n;
+  if (String(n).toLowerCase() === "andrushamorf") return "FrankL";
+  return n;
+}
+function winterRatingSamePlayer(nickA, nickB) {
+  var a = normalizeWinterNick(nickA);
+  var b = normalizeWinterNick(nickB);
+  if (!a || !b) return a === b;
+  if (a === b) return true;
+  var aL = String(a).toLowerCase();
+  var bL = String(b).toLowerCase();
+  return (aL === "frankl" && bL === "andrushamorf") || (aL === "andrushamorf" && bL === "frankl");
+}
 function getTopByDates(dates) {
   if (!dates || !dates.length) return [];
   var byNick = {};
@@ -566,185 +581,64 @@ function getTopByDates(dates) {
     });
   })();
 
-  (function initPokerTasksSpr() {
+  (function initPokerTasksMtt() {
     var startScreen = document.getElementById("pokerTasksStartScreen");
-    var taskScreen = document.getElementById("pokerTaskScreen");
-    var sprBtn = document.getElementById("pokerTasksSprBtn");
-    var backBtn = document.getElementById("pokerTaskScreenBack");
-    var prevBtn = document.getElementById("pokerTaskPrevBtn");
-    var nextBtn = document.getElementById("pokerTaskNextBtn");
-    var tableWrap = document.getElementById("pokerTaskTableWrap");
-    var view = document.querySelector('[data-view="poker-tasks"]');
-    var taskTables = [];
-    var currentTask = 1;
-    var totalTasks = 0;
-    function esc(s) {
-      if (s == null) return "";
-      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    }
-    function buildPokerTaskTableHTML(task) {
-      if (!task || !task.positions || typeof POKER_TASK_POSITION_ORDER === "undefined") return "";
-      var order = POKER_TASK_POSITION_ORDER;
-      var html = "";
-      for (var i = 0; i < order.length; i++) {
-        var pos = order[i];
-        var posKey = pos.toLowerCase().replace(/\s/g, "");
-        var seatClass = "poker-task-screen__seat poker-task-screen__seat--" + posKey;
-        if (task.heroPosition === pos) seatClass += " poker-task-screen__seat--hero";
-        var p = task.positions[pos] || {};
-        var stack = p.stack != null ? esc(String(p.stack)) : "";
-        var bet = p.bet != null ? p.bet : null;
-        var isDealer = task.dealerPosition === pos;
-        var parts = [];
-        if (bet != null) {
-          parts.push("<span class=\"poker-task-screen__bet\"><span class=\"poker-task-screen__bet-chip\" aria-hidden=\"true\"></span><span class=\"poker-task-screen__bet-amount\">" + esc(String(bet)) + "</span></span>");
-        }
-        parts.push("<span class=\"poker-task-screen__pos\">" + esc(pos) + "</span>");
-        parts.push("<span class=\"poker-task-screen__stack\">" + stack + "</span>");
-        if (task.heroPosition === pos && task.heroCards && task.heroCards.length) {
-          var cardsHtml = "";
-          for (var c = 0; c < task.heroCards.length; c++) {
-            var card = task.heroCards[c];
-            var cardClass = "poker-task-screen__card";
-            if (card.red) cardClass += " poker-task-screen__card--red";
-            cardsHtml += "<span class=\"" + cardClass + "\">" + esc(card.rank || "") + "</span>";
+    var startBtn = document.getElementById("pokerTasksStartBtn");
+    if (!startScreen || !startBtn) return;
+    startBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (typeof window.startMttChallenge === "function") window.startMttChallenge();
+    });
+    window.refreshMttStats = function () {
+      var levelEl = document.getElementById("mttStatLevel");
+      var pointsEl = document.getElementById("mttStatPoints");
+      var dailyEl = document.getElementById("mttStatDaily");
+      if (!levelEl || !pointsEl || !dailyEl) return;
+      var data = { totalPoints: 0, dailyCompleted: 0, dailyDate: "" };
+      try {
+        var raw = localStorage.getItem("mtt_challenge_progress");
+        if (raw) data = JSON.parse(raw);
+      } catch (e) {}
+      var today = new Date().toDateString();
+      if (data.dailyDate !== today) {
+        data.dailyCompleted = 0;
+        data.dailyDate = today;
+        try { localStorage.setItem("mtt_challenge_progress", JSON.stringify(data)); } catch (e) {}
+      }
+      var level = 1;
+      var nextRequired = 100;
+      if (typeof MTT_LEVELS !== "undefined" && MTT_LEVELS.length) {
+        for (var i = MTT_LEVELS.length - 1; i >= 0; i--) {
+          if (data.totalPoints >= MTT_LEVELS[i].requiredPoints) {
+            level = MTT_LEVELS[i].level;
+            nextRequired = i < MTT_LEVELS.length - 1 ? MTT_LEVELS[i + 1].requiredPoints : MTT_LEVELS[i].requiredPoints;
+            break;
           }
-          parts.push("<span class=\"poker-task-screen__cards\">" + cardsHtml + "</span>");
         }
-        if (isDealer) parts.push("<span class=\"poker-task-screen__dealer\">D</span>");
-        html += "<div class=\"" + seatClass + "\">" + parts.join("") + "</div>";
       }
-      var pot = task.pot || {};
-      html += "<div class=\"poker-task-screen__pot\">";
-      html += "<span class=\"poker-task-screen__pot-main\">" + esc(pot.main || "") + "</span>";
-      html += "<span class=\"poker-task-screen__pot-bet\"><strong>" + esc(pot.bet || "") + "</strong> " + esc(pot.betPct || "") + "</span>";
-      html += "<span class=\"poker-task-screen__pot-bet\">" + esc(pot.extra || "") + "</span>";
-      html += "</div>";
-      return html;
-    }
-    function showTask(num) {
-      currentTask = num;
-      for (var i = 0; i < taskTables.length; i++) {
-        taskTables[i].classList.toggle("poker-task-screen__table--hidden", i !== num - 1);
-      }
-      var task = typeof POKER_TASKS !== "undefined" && POKER_TASKS[num - 1] ? POKER_TASKS[num - 1] : null;
-      if (task && task.actions) {
-        var foldBtn = document.getElementById("pokerTaskActionFold");
-        var callBtn = document.getElementById("pokerTaskActionCall");
-        var raiseBtn = document.getElementById("pokerTaskActionRaise");
-        var allinBtn = document.getElementById("pokerTaskActionAllin");
-        if (foldBtn) foldBtn.textContent = task.actions.fold || "FOLD";
-        if (callBtn) callBtn.textContent = task.actions.call || "CALL";
-        if (raiseBtn) raiseBtn.textContent = task.actions.raise || "";
-        if (allinBtn) allinBtn.textContent = task.actions.allin || "ALLIN 25";
-      }
-    }
-    var streakScreen = document.getElementById("pokerStreakScreen");
-    if (!startScreen || !taskScreen || !sprBtn || !backBtn || !tableWrap) return;
-    if (typeof POKER_TASKS !== "undefined" && POKER_TASKS.length) {
-      totalTasks = POKER_TASKS.length;
-      tableWrap.innerHTML = "";
-      for (var t = 0; t < POKER_TASKS.length; t++) {
-        var task = POKER_TASKS[t];
-        var tableEl = document.createElement("div");
-        tableEl.className = "poker-task-screen__table poker-task-screen__table--task";
-        if (task.blueChips) tableEl.classList.add("poker-task-screen__table--blue-chips");
-        if (t > 0) tableEl.classList.add("poker-task-screen__table--hidden");
-        tableEl.setAttribute("data-task", String(t + 1));
-        tableEl.innerHTML = buildPokerTaskTableHTML(task);
-        tableWrap.appendChild(tableEl);
-        taskTables.push(tableEl);
-      }
-    }
-    function showStartScreen() {
-      startScreen.style.display = "";
-      if (taskScreen) { taskScreen.classList.add("poker-task-screen--hidden"); taskScreen.style.display = "none"; }
-      if (streakScreen) { streakScreen.classList.add("poker-streak-screen--hidden"); streakScreen.style.display = "none"; }
-      var resultScreen = document.getElementById("pokerStreakResultScreen");
-      if (resultScreen) { resultScreen.classList.add("poker-streak-result-screen--hidden"); resultScreen.style.display = "none"; }
-      if (view) view.classList.remove("poker-tasks--task-visible");
-    }
-    sprBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      startScreen.style.display = "none";
-      if (streakScreen) { streakScreen.classList.add("poker-streak-screen--hidden"); streakScreen.style.display = "none"; }
-      var resultScreen = document.getElementById("pokerStreakResultScreen");
-      if (resultScreen) { resultScreen.classList.add("poker-streak-result-screen--hidden"); resultScreen.style.display = "none"; }
-      taskScreen.classList.remove("poker-task-screen--hidden");
-      taskScreen.style.display = "flex";
-      if (view) view.classList.add("poker-tasks--task-visible");
-      showTask(1);
-    });
-    var levelEasyBtn = document.getElementById("pokerTasksLevelEasy");
-    var levelHardBtn = document.getElementById("pokerTasksLevelHard");
-    if (levelEasyBtn && streakScreen) {
-      levelEasyBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        if (typeof window.startPokerStreakChallenge === "function") window.startPokerStreakChallenge("easy");
-      });
-    }
-    if (levelHardBtn && streakScreen) {
-      levelHardBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        if (typeof window.startPokerStreakChallenge === "function") window.startPokerStreakChallenge("hard");
-      });
-    }
-    backBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      showStartScreen();
-    });
-    if (prevBtn) prevBtn.addEventListener("click", function (e) { e.preventDefault(); if (currentTask > 1) showTask(currentTask - 1); });
-    if (nextBtn) nextBtn.addEventListener("click", function (e) { e.preventDefault(); if (currentTask < totalTasks) showTask(currentTask + 1); });
-    var shareBtn = document.getElementById("pokerTaskShareBtn");
-    if (shareBtn) {
-      shareBtn.addEventListener("click", function () {
-        var task = typeof POKER_TASKS !== "undefined" && POKER_TASKS[currentTask - 1] ? POKER_TASKS[currentTask - 1] : null;
-        var taskId = task && task.id != null ? String(task.id) : String(currentTask);
-        var appEl = document.getElementById("app");
-        var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || (typeof location !== "undefined" && location.origin) ? (location.origin + (location.pathname || "")) : "";
-        appUrl = (appUrl || "").replace(/\/$/, "");
-        var link = appUrl + "?startapp=poker_task_" + encodeURIComponent(taskId);
-        var msg = "Ссылка скопирована. Отправьте другу — откроется эта задача.";
-        if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(link).then(function () {
-            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-            if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
-          }).catch(function () {
-            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-            if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-          });
-        } else {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      var levelName = "Новичок";
+      if (typeof MTT_LEVELS !== "undefined") {
+        for (var j = 0; j < MTT_LEVELS.length; j++) {
+          if (MTT_LEVELS[j].level === level) { levelName = MTT_LEVELS[j].name; break; }
         }
-      });
-    }
-    window.openPokerTaskScreenWithTask = function (taskId) {
-      if (!startScreen || !taskScreen) return;
-      startScreen.style.display = "none";
-      taskScreen.classList.remove("poker-task-screen--hidden");
-      taskScreen.style.display = "flex";
-      if (view) view.classList.add("poker-tasks--task-visible");
-      var id = taskId == null ? "1" : String(taskId);
-      var num = 1;
-      if (typeof POKER_TASKS !== "undefined" && POKER_TASKS.length) {
-        for (var i = 0; i < POKER_TASKS.length; i++) {
-          if (String(POKER_TASKS[i].id) === id) { num = i + 1; break; }
-        }
-        if (num > totalTasks) num = 1;
       }
-      showTask(num);
+      levelEl.textContent = level + " — " + levelName;
+      pointsEl.textContent = data.totalPoints + " / " + nextRequired;
+      dailyEl.textContent = data.dailyCompleted + " / 5";
     };
   })();
 
-  (function initPokerStreakChallenge() {
+  (function initMttChallenge() {
     var streakScreen = document.getElementById("pokerStreakScreen");
     var startScreen = document.getElementById("pokerTasksStartScreen");
     var resultScreen = document.getElementById("pokerStreakResultScreen");
     var view = document.querySelector('[data-view="poker-tasks"]');
     var timerEl = document.getElementById("pokerStreakTimer");
     var streakEl = document.getElementById("pokerStreakStreak");
-    var scoreEl = document.getElementById("pokerStreakScore");
+    var levelEl = document.getElementById("pokerStreakLevel");
+    var pointsEl = document.getElementById("pokerStreakPoints");
+    var dailyEl = document.getElementById("pokerStreakDaily");
+    var multiplierEl = document.getElementById("pokerStreakMultiplier");
     var progressEl = document.getElementById("pokerStreakProgress");
     var situationEl = document.getElementById("pokerStreakSituation");
     var cardsEl = document.getElementById("pokerStreakCards");
@@ -752,6 +646,7 @@ function getTopByDates(dates) {
     var optionsEl = document.getElementById("pokerStreakOptions");
     var feedbackEl = document.getElementById("pokerStreakFeedback");
     var feedbackResultEl = document.getElementById("pokerStreakFeedbackResult");
+    var feedbackScoreEl = document.getElementById("pokerStreakFeedbackScore");
     var feedbackExplanationEl = document.getElementById("pokerStreakFeedbackExplanation");
     var nextBtn = document.getElementById("pokerStreakNextBtn");
     var backBtn = document.getElementById("pokerStreakBackBtn");
@@ -760,13 +655,14 @@ function getTopByDates(dates) {
     if (!streakScreen || !timerEl || !optionsEl) return;
     var tasks = [];
     var taskIndex = 0;
-    var score = 0;
+    var sessionScore = 0;
     var streak = 0;
-    var maxStreak = 0;
     var correctCount = 0;
     var timerId = null;
-    var timeLeft = 15;
+    var timeElapsed = 0;
     var answered = false;
+    var MAX_TIME = 30;
+    var DAILY_LIMIT = 5;
     var SUIT_SYMBOLS = { s: "\u2660", h: "\u2665", d: "\u2666", c: "\u2663" };
     var RANK_DISPLAY = { T: "10", J: "J", Q: "Q", K: "K", A: "A" };
     function esc(s) {
@@ -774,16 +670,16 @@ function getTopByDates(dates) {
       return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
     function parseCard(cardStr) {
-      if (!cardStr || cardStr.length < 2) return { rank: cardStr, suit: "", red: false };
+      if (!cardStr || cardStr.length < 1) return { rank: cardStr, suit: "", red: false };
       var r = cardStr.charAt(0);
-      var s = cardStr.charAt(1);
+      var s = cardStr.length >= 2 ? cardStr.charAt(1) : "";
       var red = s === "h" || s === "d";
       var rank = RANK_DISPLAY[r] || r;
       var suit = SUIT_SYMBOLS[s] || s;
       return { rank: rank, suit: suit, red: red };
     }
     function renderCard(cardStr) {
-      var c = parseCard(cardStr);
+      var c = parseCard(String(cardStr));
       var cls = "poker-streak-card";
       if (c.red) cls += " poker-streak-card--red";
       return "<span class=\"" + cls + "\">" + esc(c.rank) + (c.suit ? "<span class=\"poker-streak-card__suit\">" + c.suit + "</span>" : "") + "</span>";
@@ -799,12 +695,66 @@ function getTopByDates(dates) {
     function clearTimer() {
       if (timerId) { clearInterval(timerId); timerId = null; }
     }
-    function calculateScore(isCorrect, timeTaken, mult) {
-      if (!isCorrect) return 0;
-      var base = 100;
-      var timeBonus = Math.max(0, 50 - timeTaken * 5);
-      var streakMult = 1 + Math.min(streak, 10) * 0.1;
-      return Math.round((base * (mult || 1) * streakMult) + timeBonus);
+    function getMttProgress() {
+      var data = { totalPoints: 0, dailyCompleted: 0, dailyDate: "" };
+      try {
+        var raw = localStorage.getItem("mtt_challenge_progress");
+        if (raw) data = JSON.parse(raw);
+      } catch (e) {}
+      var today = new Date().toDateString();
+      if (data.dailyDate !== today) {
+        data.dailyCompleted = 0;
+        data.dailyDate = today;
+      }
+      return data;
+    }
+    function saveMttProgress(data) {
+      try { localStorage.setItem("mtt_challenge_progress", JSON.stringify(data)); } catch (e) {}
+    }
+    function getLevelForPoints(points) {
+      var lvl = 1;
+      var nextReq = 100;
+      if (typeof MTT_LEVELS !== "undefined" && MTT_LEVELS.length) {
+        for (var i = MTT_LEVELS.length - 1; i >= 0; i--) {
+          if (points >= MTT_LEVELS[i].requiredPoints) {
+            lvl = MTT_LEVELS[i].level;
+            nextReq = i < MTT_LEVELS.length - 1 ? MTT_LEVELS[i + 1].requiredPoints : MTT_LEVELS[i].requiredPoints;
+            break;
+          }
+        }
+      }
+      return { level: lvl, nextRequired: nextReq };
+    }
+    function getLevelName(level) {
+      if (typeof MTT_LEVELS !== "undefined") {
+        for (var j = 0; j < MTT_LEVELS.length; j++) {
+          if (MTT_LEVELS[j].level === level) return MTT_LEVELS[j].name;
+        }
+      }
+      return "Новичок";
+    }
+    function calculateMttScore(isCorrect, timeTaken, streakBefore, taskLevel, playerLevel) {
+      taskLevel = Math.max(1, taskLevel || 1);
+      playerLevel = Math.max(1, playerLevel || 1);
+      if (!isCorrect) {
+        var penalty = -20 * Math.pow(1.03, playerLevel - 1);
+        return Math.round(penalty);
+      }
+      var basePoints = 50 * Math.pow(1.05, taskLevel - 1);
+      var speedBonus = basePoints * 0.5 * Math.max(0, 1 - timeTaken / 30);
+      var streakBonus = Math.min(streakBefore * 0.1 * basePoints, basePoints);
+      var diff = taskLevel - playerLevel;
+      var difficultyMultiplier = diff <= -5 ? 0.5 : diff <= -2 ? 0.75 : diff <= 2 ? 1.0 : diff <= 5 ? 1.25 : 1.5;
+      return Math.round((basePoints + speedBonus + streakBonus) * difficultyMultiplier);
+    }
+    function updateHeader() {
+      var prog = getMttProgress();
+      var lvlInfo = getLevelForPoints(prog.totalPoints);
+      if (levelEl) levelEl.textContent = "Ур. " + lvlInfo.level + " — " + getLevelName(lvlInfo.level);
+      if (pointsEl) pointsEl.textContent = prog.totalPoints + "/" + lvlInfo.nextRequired;
+      if (dailyEl) dailyEl.textContent = "Задачи: " + prog.dailyCompleted + "/5";
+      if (streakEl) streakEl.textContent = "Стрик: " + streak;
+      if (multiplierEl) multiplierEl.textContent = "\u00D7" + (1 + streak * 0.1).toFixed(1);
     }
     function showTask() {
       if (taskIndex >= tasks.length) {
@@ -814,10 +764,10 @@ function getTopByDates(dates) {
       answered = false;
       clearTimer();
       var task = tasks[taskIndex];
-      timeLeft = task.time_limit || 20;
+      timeElapsed = 0;
       if (situationEl) situationEl.textContent = task.situation || "";
       if (questionEl) questionEl.textContent = task.question || "";
-      if (progressEl) progressEl.textContent = (taskIndex + 1) + " / " + tasks.length;
+      if (progressEl) progressEl.textContent = "Задача " + (taskIndex + 1) + " из " + tasks.length;
       if (cardsEl) {
         var cardsHtml = "<div class=\"poker-streak-cards__player\">Ваши карты: ";
         if (task.player_cards && task.player_cards.length) {
@@ -854,15 +804,16 @@ function getTopByDates(dates) {
         }
       }
       if (feedbackEl) feedbackEl.classList.add("poker-streak-feedback--hidden");
-      if (timerEl) timerEl.textContent = String(timeLeft);
+      if (timerEl) timerEl.textContent = "0.0";
+      var startTime = Date.now();
       timerId = setInterval(function () {
-        timeLeft--;
-        if (timerEl) timerEl.textContent = String(Math.max(0, timeLeft));
-        if (timeLeft <= 0) {
+        timeElapsed = (Date.now() - startTime) / 1000;
+        if (timerEl) timerEl.textContent = timeElapsed.toFixed(1);
+        if (timeElapsed >= MAX_TIME) {
           clearTimer();
           handleAnswer(null, false);
         }
-      }, 1000);
+      }, 100);
     }
     function handleAnswer(answerId, isCorrect) {
       if (answered) return;
@@ -870,25 +821,30 @@ function getTopByDates(dates) {
       clearTimer();
       if (optionsEl) optionsEl.classList.add("poker-streak-options--disabled");
       var task = tasks[taskIndex];
-      var timeTaken = (task.time_limit || 20) - timeLeft;
-      var pts = 0;
+      var timeTaken = timeElapsed;
+      var streakBefore = streak;
+      var progCur = getMttProgress();
+      var lvlCur = getLevelForPoints(progCur.totalPoints);
+      var pts = calculateMttScore(isCorrect, timeTaken, streakBefore, task.level || 1, lvlCur.level);
       if (isCorrect) {
         streak++;
-        if (streak > maxStreak) maxStreak = streak;
         correctCount++;
-        pts = calculateScore(true, timeTaken, task.difficulty_multiplier);
-        score += pts;
+        sessionScore += pts;
       } else {
         streak = 0;
       }
-      if (streakEl) streakEl.textContent = "Стрик: " + streak;
-      if (scoreEl) scoreEl.textContent = "Очки: " + score;
+      var prog = getMttProgress();
+      prog.totalPoints = Math.max(0, prog.totalPoints + pts);
+      prog.dailyCompleted++;
+      saveMttProgress(prog);
+      updateHeader();
       if (feedbackEl) {
         feedbackEl.classList.remove("poker-streak-feedback--hidden");
         if (feedbackResultEl) {
-          feedbackResultEl.textContent = isCorrect ? "Правильно! +" + pts + " очков" : "Неправильно";
+          feedbackResultEl.textContent = isCorrect ? "Правильно!" : "Неправильно";
           feedbackResultEl.className = "poker-streak-feedback__result " + (isCorrect ? "poker-streak-feedback__result--correct" : "poker-streak-feedback__result--wrong");
         }
+        if (feedbackScoreEl) feedbackScoreEl.textContent = isCorrect ? "+" + pts + " баллов" : pts + " баллов";
         if (feedbackExplanationEl) feedbackExplanationEl.textContent = task.explanation || "";
       }
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -900,22 +856,16 @@ function getTopByDates(dates) {
     }
     function endGame() {
       if (streakScreen) streakScreen.classList.add("poker-streak-screen--hidden");
-      var bestScore = 0;
-      try {
-        bestScore = parseInt(localStorage.getItem("poker_streak_best_score") || "0", 10);
-        if (score > bestScore) {
-          localStorage.setItem("poker_streak_best_score", String(score));
-          bestScore = score;
-        }
-      } catch (e) {}
       if (resultScreen) {
         resultScreen.classList.remove("poker-streak-result-screen--hidden");
         resultScreen.style.display = "";
+        var prog = getMttProgress();
+        var lvlInfo = getLevelForPoints(prog.totalPoints);
         if (resultStatsEl) {
-          var acc = tasks.length > 0 ? Math.round((correctCount / tasks.length) * 100) : 0;
-          resultStatsEl.innerHTML = "<p><strong>Очки:</strong> " + score + "</p><p><strong>Правильно:</strong> " + correctCount + " / " + tasks.length + " (" + acc + "%)</p><p><strong>Лучший стрик:</strong> " + maxStreak + "</p><p><strong>Рекорд:</strong> " + bestScore + "</p>";
+          resultStatsEl.innerHTML = "<p><strong>Баллов за сессию:</strong> " + sessionScore + "</p><p><strong>Правильно:</strong> " + correctCount + " / " + tasks.length + "</p><p><strong>Всего баллов:</strong> " + prog.totalPoints + "</p><p><strong>Уровень:</strong> " + lvlInfo.level + " — " + getLevelName(lvlInfo.level) + "</p>";
         }
       }
+      if (typeof window.refreshMttStats === "function") window.refreshMttStats();
     }
     function bindOptions() {
       if (!optionsEl) return;
@@ -926,37 +876,33 @@ function getTopByDates(dates) {
         handleAnswer(btn.dataset.answerId, correct);
       });
     }
-    window.startPokerStreakChallenge = function (difficulty) {
-      if (typeof POKER_STREAK_TASKS === "undefined" || !POKER_STREAK_TASKS.length) {
+    window.startMttChallenge = function () {
+      if (typeof MTT_TASKS === "undefined" || !MTT_TASKS.length) {
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.showAlert) tg.showAlert("Задачи не загружены."); else alert("Задачи не загружены.");
         return;
       }
-      lastDifficulty = difficulty === "hard" ? "hard" : "easy";
-      var filtered = POKER_STREAK_TASKS.filter(function (t) {
-        if (lastDifficulty === "easy") return t.level === "beginner";
-        return t.level === "intermediate" || t.level === "expert";
-      });
-      if (!filtered.length) {
+      var prog = getMttProgress();
+      if (prog.dailyCompleted >= DAILY_LIMIT) {
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg && tg.showAlert) tg.showAlert("Нет задач для выбранного уровня."); else alert("Нет задач для выбранного уровня.");
+        if (tg && tg.showAlert) tg.showAlert("Сегодня вы уже выполнили 5 задач. Завтра лимит обновится."); else alert("Сегодня вы уже выполнили 5 задач. Завтра лимит обновится.");
         return;
       }
-      tasks = shuffle(filtered);
+      var lvlInfo = getLevelForPoints(prog.totalPoints);
+      var filtered = MTT_TASKS.filter(function (t) { return t.level <= lvlInfo.level; });
+      if (!filtered.length) filtered = MTT_TASKS;
+      var toTake = Math.min(DAILY_LIMIT - prog.dailyCompleted, 5, filtered.length);
+      tasks = shuffle(filtered).slice(0, toTake);
       taskIndex = 0;
-      score = 0;
+      sessionScore = 0;
       streak = 0;
-      maxStreak = 0;
       correctCount = 0;
       if (startScreen) startScreen.style.display = "none";
-      var taskScreen = document.getElementById("pokerTaskScreen");
-      if (taskScreen) { taskScreen.classList.add("poker-task-screen--hidden"); taskScreen.style.display = "none"; }
       if (resultScreen) { resultScreen.classList.add("poker-streak-result-screen--hidden"); resultScreen.style.display = "none"; }
       streakScreen.classList.remove("poker-streak-screen--hidden");
       streakScreen.style.display = "flex";
       if (view) view.classList.add("poker-tasks--task-visible");
-      if (streakEl) streakEl.textContent = "Стрик: 0";
-      if (scoreEl) scoreEl.textContent = "Очки: 0";
+      updateHeader();
       showTask();
     };
     if (nextBtn) nextBtn.addEventListener("click", function (e) { e.preventDefault(); nextTask(); });
@@ -967,15 +913,15 @@ function getTopByDates(dates) {
         streakScreen.classList.add("poker-streak-screen--hidden");
         if (startScreen) startScreen.style.display = "";
         if (view) view.classList.remove("poker-tasks--task-visible");
+        if (typeof window.refreshMttStats === "function") window.refreshMttStats();
       });
     }
-    var lastDifficulty = "easy";
     if (playAgainBtn && resultScreen) {
       playAgainBtn.addEventListener("click", function (e) {
         e.preventDefault();
         resultScreen.classList.add("poker-streak-result-screen--hidden");
         resultScreen.style.display = "none";
-        window.startPokerStreakChallenge(lastDifficulty);
+        window.startMttChallenge();
       });
     }
     bindOptions();
@@ -1147,20 +1093,18 @@ function getTopByDates(dates) {
     }, 0);
   }
   if (startParam && startParam.indexOf("poker_task_") === 0) {
-    var pokerTaskId = startParam.replace("poker_task_", "").split("_")[0];
     setTimeout(function () {
       if (typeof setView === "function") setView("poker-tasks");
       setTimeout(function () {
-        if (typeof window.openPokerTaskScreenWithTask === "function") window.openPokerTaskScreenWithTask(pokerTaskId);
+        if (typeof window.startMttChallenge === "function") window.startMttChallenge();
       }, 400);
     }, 0);
   }
   if (window.location.hash && window.location.hash.indexOf("#poker_task_") === 0) {
-    var hashTaskId = window.location.hash.replace("#poker_task_", "").split("_")[0];
     setTimeout(function () {
       if (typeof setView === "function") setView("poker-tasks");
       setTimeout(function () {
-        if (typeof window.openPokerTaskScreenWithTask === "function") window.openPokerTaskScreenWithTask(hashTaskId);
+        if (typeof window.startMttChallenge === "function") window.startMttChallenge();
       }, 400);
     }, 0);
   }
@@ -1730,15 +1674,10 @@ function setView(viewName) {
   if (viewName === "equilator") initEquilator();
   if (viewName === "poker-tasks") {
     var startScreen = document.getElementById("pokerTasksStartScreen");
-    var taskScreen = document.getElementById("pokerTaskScreen");
     var streakScreen = document.getElementById("pokerStreakScreen");
     var resultScreen = document.getElementById("pokerStreakResultScreen");
     var pokerTasksView = document.querySelector('[data-view="poker-tasks"]');
     if (startScreen) startScreen.style.display = "";
-    if (taskScreen) {
-      taskScreen.classList.add("poker-task-screen--hidden");
-      taskScreen.style.display = "none";
-    }
     if (streakScreen) {
       streakScreen.classList.add("poker-streak-screen--hidden");
       streakScreen.style.display = "none";
@@ -1748,6 +1687,7 @@ function setView(viewName) {
       resultScreen.style.display = "none";
     }
     if (pokerTasksView) pokerTasksView.classList.remove("poker-tasks--task-visible");
+    if (typeof window.refreshMttStats === "function") window.refreshMttStats();
   }
   var headerGreeting = document.getElementById("headerGreeting");
   var headerSwitcherWrap = document.getElementById("headerChatSwitcherWrap");
@@ -4184,7 +4124,7 @@ function getWinterRatingPlayerSummary(nick) {
     var tournaments = tournamentsByDate && tournamentsByDate[dateStr];
     if (tournaments && tournaments.length) {
       tournaments.forEach(function (t) {
-        var p = t.players && t.players.find(function (r) { return normalizeWinterNick(r.nick) === nick; });
+        var p = t.players && t.players.find(function (r) { return winterRatingSamePlayer(r.nick, nick); });
         if (p) {
           var reward = p.reward != null ? p.reward : 0;
           out.push({
@@ -4203,7 +4143,7 @@ function getWinterRatingPlayerSummary(nick) {
     if (!list || !list.length) return;
     var filtered = list.filter(function (r) { return r.points !== 0 || r.reward !== 0; });
     var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
-    var idx = sorted.findIndex(function (r) { return normalizeWinterNick(r.nick) === nick; });
+    var idx = sorted.findIndex(function (r) { return winterRatingSamePlayer(r.nick, nick); });
     if (idx === -1) return;
     var row = sorted[idx];
     out.push({
@@ -4551,7 +4491,7 @@ function getSpringRatingOverallByLeague(leagueNum) {
       var players = t.players || [];
       for (var k = 0; k < players.length; k++) {
         var p = players[k];
-        var n = normalizeWinterNick(p && p.nick);
+        var n = normalizeWinterNickForFinalTable(p && p.nick);
         if (!n) continue;
         var pts = winterRatingPointsForPlace(p.place, p.reward);
         var rew = p.reward != null ? Number(p.reward) : 0;
