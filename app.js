@@ -6356,22 +6356,65 @@ document.addEventListener("click", function (e) {
   }
   var fullscreenBtn = document.getElementById("homeStreamFullscreenBtn");
   var embedWrap = document.getElementById("homeStreamEmbedWrap");
+  var VK_VIDEO_URL = "https://vk.com/video_ext.php?oid=-162791956&id=456239096";
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+  }
+  function updateFullscreenBtn() {
+    if (!fullscreenBtn) return;
+    var fs = isFullscreen();
+    fullscreenBtn.textContent = fs ? "\u2715" : "\u26F6";
+    fullscreenBtn.setAttribute("aria-label", fs ? "Выйти из полноэкранного режима" : "Полный экран");
+    fullscreenBtn.setAttribute("title", fs ? "Выйти" : "Полный экран");
+    fullscreenBtn.classList.toggle("home-stream__fullscreen-btn--exit", fs);
+  }
+  function exitFullscreen() {
+    var doc = document;
+    if (doc.exitFullscreen) doc.exitFullscreen();
+    else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+    else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
+    else if (doc.msExitFullscreen) doc.msExitFullscreen();
+  }
+  function openVideoFullscreen() {
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.openLink) tg.openLink(VK_VIDEO_URL);
+    else window.open(VK_VIDEO_URL, "_blank", "noopener");
+  }
+  function enterFullscreen() {
+    var el = embedWrap;
+    if (!el) {
+      openVideoFullscreen();
+      return;
+    }
+    var hasFs = !!(el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen);
+    if (!hasFs) {
+      openVideoFullscreen();
+      return;
+    }
+    var p = null;
+    if (el.requestFullscreen) p = el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) p = el.webkitRequestFullscreen();
+    else if (el.mozRequestFullScreen) p = el.mozRequestFullScreen();
+    else if (el.msRequestFullscreen) p = el.msRequestFullscreen();
+    if (p && typeof p.catch === "function") {
+      p.catch(function () {
+        openVideoFullscreen();
+      });
+    }
+  }
   if (fullscreenBtn && embedWrap) {
     fullscreenBtn.addEventListener("click", function () {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-        var el = embedWrap;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
-        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      if (isFullscreen()) {
+        exitFullscreen();
       } else {
-        var doc = document;
-        if (doc.exitFullscreen) doc.exitFullscreen();
-        else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
-        else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
-        else if (doc.msExitFullscreen) doc.msExitFullscreen();
+        enterFullscreen();
       }
     });
+    document.addEventListener("fullscreenchange", updateFullscreenBtn);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenBtn);
+    document.addEventListener("mozfullscreenchange", updateFullscreenBtn);
+    document.addEventListener("MSFullscreenChange", updateFullscreenBtn);
+    updateFullscreenBtn();
   }
   var shareBtn = document.getElementById("homeStreamShareBtn");
   if (shareBtn) {

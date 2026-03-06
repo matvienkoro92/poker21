@@ -3853,6 +3853,12 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .home-stream__fullscreen-btn:hover {
   background: rgba(0, 0, 0, 0.85);
 }
+.home-stream__fullscreen-btn--exit {
+  background: rgba(0, 0, 0, 0.75);
+}
+.home-stream__fullscreen-btn--exit:hover {
+  background: rgba(200, 60, 60, 0.8);
+}
 .home-stream__embed-wrap:fullscreen .home-stream__fullscreen-btn,
 .home-stream__embed-wrap:-webkit-full-screen .home-stream__fullscreen-btn,
 .home-stream__embed-wrap:-moz-full-screen .home-stream__fullscreen-btn,
