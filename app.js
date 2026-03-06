@@ -6354,6 +6354,25 @@ document.addEventListener("click", function (e) {
     }, { threshold: 0.1 });
     io.observe(section);
   }
+  var fullscreenBtn = document.getElementById("homeStreamFullscreenBtn");
+  var embedWrap = document.getElementById("homeStreamEmbedWrap");
+  if (fullscreenBtn && embedWrap) {
+    fullscreenBtn.addEventListener("click", function () {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+        var el = embedWrap;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      } else {
+        var doc = document;
+        if (doc.exitFullscreen) doc.exitFullscreen();
+        else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+        else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
+        else if (doc.msExitFullscreen) doc.msExitFullscreen();
+      }
+    });
+  }
   var shareBtn = document.getElementById("homeStreamShareBtn");
   if (shareBtn) {
     shareBtn.addEventListener("click", function () {
@@ -6371,6 +6390,63 @@ document.addEventListener("click", function (e) {
         if (tg && tg.showAlert) tg.showAlert(link); else alert(link);
       }
     });
+  }
+  var streamCommentsInput = document.getElementById("homeStreamCommentsInput");
+  var streamCommentsCharCount = document.getElementById("homeStreamCommentsCharCount");
+  var streamCommentsSubmit = document.getElementById("homeStreamCommentsSubmitBtn");
+  var streamCommentsList = document.getElementById("homeStreamCommentsList");
+  var streamCommentsEmpty = document.getElementById("homeStreamCommentsEmpty");
+  if (streamCommentsInput || streamCommentsSubmit) {
+    var streamCommentsStored = [];
+    try {
+      var raw = localStorage.getItem("poker_stream_comments");
+      if (raw) streamCommentsStored = JSON.parse(raw);
+    } catch (e) {}
+    function updateStreamCommentsCharCount() {
+      var len = streamCommentsInput ? streamCommentsInput.value.length : 0;
+      if (streamCommentsCharCount) streamCommentsCharCount.textContent = len + " / 300";
+    }
+    function renderStreamComments() {
+      if (!streamCommentsList || !streamCommentsEmpty) return;
+      streamCommentsList.innerHTML = "";
+      if (streamCommentsStored.length === 0) {
+        streamCommentsEmpty.style.display = "";
+        streamCommentsList.appendChild(streamCommentsEmpty);
+      } else {
+        streamCommentsEmpty.style.display = "none";
+        streamCommentsStored.forEach(function (c) {
+          var div = document.createElement("div");
+          div.className = "comment-item";
+          div.innerHTML = "<div class=\"comment-item__author\">" + (c.author || "Аноним").replace(/</g, "&lt;") + "</div><p class=\"comment-item__text\">" + (c.text || "").replace(/</g, "&lt;").replace(/\n/g, "<br>") + "</p><div class=\"comment-item__date\">" + (c.date || "").replace(/</g, "&lt;") + "</div>";
+          streamCommentsList.appendChild(div);
+        });
+      }
+    }
+    renderStreamComments();
+    if (streamCommentsInput) {
+      streamCommentsInput.addEventListener("input", updateStreamCommentsCharCount);
+      updateStreamCommentsCharCount();
+    }
+    if (streamCommentsSubmit && streamCommentsInput) {
+      streamCommentsSubmit.addEventListener("click", function () {
+        var text = (streamCommentsInput.value || "").trim();
+        if (!text) {
+          if (tg && tg.showAlert) tg.showAlert("Введите комментарий"); else alert("Введите комментарий");
+          return;
+        }
+        var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+        var author = user && user.username ? "@" + user.username : (user && user.first_name ? user.first_name : "Зритель");
+        var item = { author: author, text: text, date: new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) };
+        streamCommentsStored.unshift(item);
+        try {
+          localStorage.setItem("poker_stream_comments", JSON.stringify(streamCommentsStored));
+        } catch (e) {}
+        streamCommentsInput.value = "";
+        updateStreamCommentsCharCount();
+        renderStreamComments();
+        if (tg && tg.showAlert) tg.showAlert("Комментарий добавлен"); else alert("Комментарий добавлен");
+      });
+    }
   }
 })();
 
