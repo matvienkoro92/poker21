@@ -1732,6 +1732,8 @@ function setView(viewName) {
     document.documentElement.classList.remove("app-view-winter-rating", "app-view-home");
     window.chatGeneralUnread = false;
     window.chatPersonalUnread = false;
+    window.chatGeneralUnreadCount = 0;
+    window.chatPersonalUnreadCount = 0;
     updateChatNavDot();
     if (window.chatListenersAttached && typeof window.chatRefresh === "function") {
       window.chatRefresh();
@@ -1770,9 +1772,15 @@ function setView(viewName) {
   if (appEl) appEl.classList.toggle("app--view-home", viewName === "home");
 }
 function updateChatNavDot() {
-  var hasUnread = !!(window.chatGeneralUnread || window.chatPersonalUnread);
-  var dot = document.getElementById("chatNavDot");
-  if (dot) dot.classList.toggle("bottom-nav__dot--on", hasUnread);
+  var count = (window.chatGeneralUnreadCount || 0) + (window.chatPersonalUnreadCount || 0);
+  if (count === 0 && (window.chatGeneralUnread || window.chatPersonalUnread)) count = 1;
+  var badge = document.getElementById("chatNavBadge");
+  if (badge) {
+    var display = count > 99 ? "99+" : (count > 0 ? String(count) : "0");
+    badge.textContent = display;
+    badge.classList.toggle("bottom-nav__badge--on", count > 0);
+    badge.setAttribute("aria-label", count > 0 ? "Непрочитанных: " + count : "Нет непрочитанных");
+  }
 }
 
 function updateRaffleBadge(hasActive) {
@@ -8903,6 +8911,8 @@ function initChat() {
   }
   window.chatGeneralUnread = false;
   window.chatPersonalUnread = false;
+  window.chatGeneralUnreadCount = 0;
+  window.chatPersonalUnreadCount = 0;
 
   var reactionPickerEl = document.getElementById("chatReactionPicker");
   var currentReactionPickerClose = null;
@@ -8986,13 +8996,18 @@ function initChat() {
         window._chatGeneralCache = { messages: messages, participantsCount: data.participantsCount, onlineCount: data.onlineCount };
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
+        var lastView = lastViewedGeneral != null ? lastViewedGeneral : "";
+        var unreadCount = messages.filter(function (m) { return (m.time || "") > lastView; }).length;
         if (isChatViewActive && chatActiveTab === "general") {
           lastViewedGeneral = latest;
           window.chatGeneralUnread = false;
-        } else if (latest && lastViewedGeneral !== null && latest > lastViewedGeneral) {
+          window.chatGeneralUnreadCount = 0;
+        } else if (latest && (lastViewedGeneral == null || latest > lastViewedGeneral)) {
           window.chatGeneralUnread = true;
+          window.chatGeneralUnreadCount = unreadCount > 0 ? unreadCount : 1;
         } else {
           window.chatGeneralUnread = false;
+          window.chatGeneralUnreadCount = 0;
         }
         var total = data.participantsCount != null ? data.participantsCount : "—";
         var online = data.onlineCount != null ? data.onlineCount : "—";
@@ -9786,11 +9801,17 @@ function initChat() {
         updateChatHeaderStats();
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
+        var lastView = (chatWithUserId && lastViewedPersonal[chatWithUserId] != null) ? lastViewedPersonal[chatWithUserId] : "";
+        var unreadCount = messages.filter(function (m) { return (m.time || "") > lastView; }).length;
         if (isChatViewActive && chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) {
           lastViewedPersonal[chatWithUserId] = latest;
           window.chatPersonalUnread = false;
-        } else if (latest && chatWithUserId && lastViewedPersonal[chatWithUserId] && latest > lastViewedPersonal[chatWithUserId]) {
+          window.chatPersonalUnreadCount = 0;
+        } else if (latest && chatWithUserId && (lastViewedPersonal[chatWithUserId] == null || latest > lastViewedPersonal[chatWithUserId])) {
           window.chatPersonalUnread = true;
+          window.chatPersonalUnreadCount = unreadCount > 0 ? unreadCount : 1;
+        } else {
+          window.chatPersonalUnreadCount = 0;
         }
         if (Array.isArray(messages) && !chatIsEditingMessage) {
           var reactionsPartP = messages.map(function (m) {
@@ -10407,21 +10428,33 @@ function updateTournamentDayBlock() {
   var timerLabelEl = document.getElementById("tournamentDayTimerLabel");
   var timerEl = document.getElementById("tournamentDayTimer");
   if (!nameEl || !buyinEl || !guaranteeEl || !timerEl) return;
-  var START_UTC_HOUR = 15;
-  var END_REG_UTC_HOUR = 18;
+  var MSK_START_UTC_HOUR = 15;
+  var MSK_END_REG_UTC_HOUR = 18;
+  function getMskDateParts() {
+    var s = new Date().toLocaleString("en-CA", { timeZone: "Europe/Moscow" });
+    var parts = s.slice(0, 10).split("-");
+    return { y: parseInt(parts[0], 10), m: parseInt(parts[1], 10) - 1, d: parseInt(parts[2], 10) };
+  }
+  function getMskDayOfWeek() {
+    var s = new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow", weekday: "short" });
+    var map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    return map[s] !== undefined ? map[s] : new Date().getDay();
+  }
   function getTournamentDayState(now) {
-    var startToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), START_UTC_HOUR, 0, 0, 0));
-    var endRegToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), END_REG_UTC_HOUR, 0, 0, 0));
+    var p = getMskDateParts();
+    var mskDow = getMskDayOfWeek();
+    var startToday = new Date(Date.UTC(p.y, p.m, p.d, MSK_START_UTC_HOUR, 0, 0, 0));
+    var endRegToday = new Date(Date.UTC(p.y, p.m, p.d, MSK_END_REG_UTC_HOUR, 0, 0, 0));
     if (now < startToday) {
-      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[now.getDay()], target: startToday, label: "" };
+      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[mskDow], target: startToday, label: "" };
     }
     if (now < endRegToday) {
-      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[now.getDay()], target: endRegToday, label: "до конца рег " };
+      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[mskDow], target: endRegToday, label: "до конца рег " };
     }
-    var nextDay = new Date(now);
-    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
-    var nextStart = new Date(Date.UTC(nextDay.getUTCFullYear(), nextDay.getUTCMonth(), nextDay.getUTCDate(), START_UTC_HOUR, 0, 0, 0));
-    return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[nextDay.getDay()], target: nextStart, label: "" };
+    var nextDate = new Date(p.y, p.m, p.d + 1);
+    var nextStart = new Date(Date.UTC(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), MSK_START_UTC_HOUR, 0, 0, 0));
+    var nextMskDow = nextDate.getDay();
+    return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[nextMskDow], target: nextStart, label: "" };
   }
   function formatTimer() {
     var n = new Date();

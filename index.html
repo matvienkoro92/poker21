@@ -1999,7 +1999,10 @@
         </button>
         <div class="bottom-nav__chat-wrap">
           <button type="button" class="bottom-nav__item" data-view-target="chat" id="chatNavBtn" aria-expanded="false" aria-haspopup="true">
-            <span class="bottom-nav__icon">💬</span>
+            <span class="bottom-nav__icon-wrap">
+              <span class="bottom-nav__icon">💬</span>
+              <span class="bottom-nav__badge" id="chatNavBadge" aria-live="polite" aria-label="Непрочитанных сообщений">0</span>
+            </span>
             <span class="bottom-nav__label" id="chatNavLabel">Чаты</span>
             <span class="bottom-nav__arrow-up" id="chatNavArrow" aria-hidden="true">▲</span>
           </button>
