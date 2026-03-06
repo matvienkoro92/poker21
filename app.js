@@ -1090,6 +1090,15 @@ function runGazetteAndTasksInit() {
   if (startParam === "raffles") {
     setTimeout(function () { if (typeof setView === "function") setView("raffles"); }, 0);
   }
+  if (startParam === "stream") {
+    setTimeout(function () {
+      if (typeof setView === "function") setView("home");
+      setTimeout(function () {
+        var el = document.getElementById("homeStreamSection");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 400);
+    }, 0);
+  }
   if (startParam && startParam.indexOf("streams_") === 0) {
     var streamsRoomId = startParam.replace("streams_", "");
     setTimeout(function () {
@@ -1107,6 +1116,27 @@ function runGazetteAndTasksInit() {
       if (typeof setView === "function") setView("streams");
     }, 0);
   }
+  if (window.location.hash === "#stream") {
+    setTimeout(function () {
+      if (typeof setView === "function") setView("home");
+      setTimeout(function () {
+        var el = document.getElementById("homeStreamSection");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 400);
+    }, 0);
+  }
+  try {
+    var urlStart = typeof location !== "undefined" && location.search ? new URLSearchParams(location.search).get("startapp") : null;
+    if (urlStart === "stream") {
+      setTimeout(function () {
+        if (typeof setView === "function") setView("home");
+        setTimeout(function () {
+          var el = document.getElementById("homeStreamSection");
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 400);
+      }, 0);
+    }
+  } catch (e) {}
   if (startParam && startParam.indexOf("poker_task_") === 0) {
     setTimeout(function () {
       if (typeof setView === "function") setView("poker-tasks");
@@ -6217,8 +6247,8 @@ document.addEventListener("click", function (e) {
     shareBtn.addEventListener("click", function () {
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-      var link = appUrl.replace(/\/$/, "");
-      var msg = "Ссылка скопирована. Отправьте другу — откроется приложение с трансляцией.";
+      var link = (appUrl.replace(/\/$/, "") || "") + "?startapp=stream";
+      var msg = "Ссылка скопирована. Отправьте другу — откроется блок с трансляцией.";
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
