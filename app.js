@@ -315,7 +315,7 @@ function getTopByDates(dates) {
 function runGazetteAndTasksInit() {
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
-  var GAZETTE_VERSION = "2026-03-06";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
+  var GAZETTE_VERSION = "2026-03-08";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
@@ -904,7 +904,7 @@ function runGazetteAndTasksInit() {
         return;
       }
       var lvlInfo = getLevelForPoints(prog.totalPoints);
-      var filtered = MTT_TASKS.filter(function (t) { return t.level <= lvlInfo.level; });
+      var filtered = MTT_TASKS.filter(function (t) { return t.level <= lvlInfo.level + 1; });
       if (!filtered.length) filtered = MTT_TASKS;
       var toTake = Math.min(DAILY_LIMIT - prog.dailyCompleted, 5, filtered.length);
       tasks = shuffle(filtered).slice(0, toTake);
@@ -1772,8 +1772,9 @@ function setView(viewName) {
   if (appEl) appEl.classList.toggle("app--view-home", viewName === "home");
 }
 function updateChatNavDot() {
-  var count = (window.chatGeneralUnreadCount || 0) + (window.chatPersonalUnreadCount || 0);
-  if (count === 0 && (window.chatGeneralUnread || window.chatPersonalUnread)) count = 1;
+  var raw = (window.chatGeneralUnreadCount || 0) + (window.chatPersonalUnreadCount || 0);
+  if (raw === 0 && (window.chatGeneralUnread || window.chatPersonalUnread)) raw = 1;
+  var count = raw > 0 ? Math.max(1, Math.floor(raw / 2)) : 0;
   var badge = document.getElementById("chatNavBadge");
   if (badge) {
     var display = count > 99 ? "99+" : (count > 0 ? String(count) : "0");
@@ -7430,10 +7431,32 @@ function initRaffles() {
         }
 
         var now = new Date();
+
+        function isTournamentDayRaffle(r) {
+          if (!r) return false;
+          var title = (r.title || "").toLowerCase();
+          if (title.indexOf("турнир дня") !== -1) return true;
+          var groups = Array.isArray(r.groups) ? r.groups : [];
+          for (var gi = 0; gi < groups.length; gi++) {
+            var prizeStr = (groups[gi].prize || "").toLowerCase();
+            if (prizeStr.indexOf("турнир дня") !== -1) return true;
+          }
+          return false;
+        }
+
         var activeList = allRaffles.filter(function (r) {
           if (r.status !== "active") return false;
           var end = r.endDate ? new Date(r.endDate) : null;
           return !end || end > now;
+        });
+        // Турниры дня всегда первыми в списке активных розыгрышей
+        activeList.sort(function (a, b) {
+          var aTd = isTournamentDayRaffle(a) ? 1 : 0;
+          var bTd = isTournamentDayRaffle(b) ? 1 : 0;
+          if (aTd !== bTd) return bTd - aTd;
+          var endA = a.endDate ? new Date(a.endDate).getTime() : 0;
+          var endB = b.endDate ? new Date(b.endDate).getTime() : 0;
+          return endA - endB;
         });
         var completed = allRaffles.filter(function (r) {
           if (r.status !== "active") return true;
@@ -7521,11 +7544,60 @@ function initRaffles() {
     return raffleTypeTickets && raffleTypeTickets.checked ? "tickets" : "other";
   }
 
+  function setupTournamentDaySelect() {
+    var select = document.getElementById("raffleTicketTournamentSelect");
+    if (!select || select._tournamentDaySetupDone) return;
+    select._tournamentDaySetupDone = true;
+
+    // Поднять группу «Турнир дня» наверх
+    var groups = select.querySelectorAll("optgroup");
+    var tdGroup = null;
+    for (var gi = 0; gi < groups.length; gi++) {
+      var label = (groups[gi].getAttribute("label") || "").toLowerCase();
+      if (label.indexOf("турнир дня") !== -1) {
+        tdGroup = groups[gi];
+        break;
+      }
+    }
+    if (tdGroup && select.firstElementChild && tdGroup !== select.firstElementChild) {
+      // Оставляем первую «— Выберите турнир —», а группу турнирa дня ставим сразу после неё
+      var first = select.firstElementChild;
+      if (first && first.tagName === "OPTION" && first.nextSibling) {
+        select.insertBefore(tdGroup, first.nextSibling);
+      }
+    }
+
+    // Выделить сегодняшний турнир дня
+    var now = new Date();
+    var moscowOffsetMs = 3 * 60 * 60 * 1000;
+    var moscowNow = new Date(now.getTime() + moscowOffsetMs);
+    var weekday = moscowNow.getUTCDay(); // 0=Вс,1=Пн...
+    var dayMap = { 1: "(Пн)", 2: "(Вт)", 3: "(Ср)", 4: "(Чт)", 5: "(Пт)", 6: "(Сб)", 0: "(Вс)" };
+    var marker = dayMap[weekday];
+    if (!marker) return;
+    var options = tdGroup ? tdGroup.querySelectorAll("option") : [];
+    var todayOpt = null;
+    for (var oi = 0; oi < options.length; oi++) {
+      var txt = options[oi].textContent || "";
+      if (txt.indexOf(marker) !== -1) {
+        todayOpt = options[oi];
+        break;
+      }
+    }
+    if (todayOpt) {
+      select.value = todayOpt.value;
+      if (todayOpt.textContent.indexOf("сегодня") === -1) {
+        todayOpt.textContent = todayOpt.textContent + " — сегодня";
+      }
+    }
+  }
+
   function switchRaffleCreatePanel() {
     var isTickets = getRaffleCreateType() === "tickets";
     if (raffleCreatePanelTickets) raffleCreatePanelTickets.classList.toggle("raffle-create-form__panel--hidden", !isTickets);
     if (raffleCreatePanelOther) raffleCreatePanelOther.classList.toggle("raffle-create-form__panel--hidden", isTickets);
     if (isTickets) {
+      setupTournamentDaySelect();
       buildTicketGroupInputs();
       updateRaffleCreateTotal();
     } else {
