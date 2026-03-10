@@ -2003,7 +2003,8 @@ var SPRING_RATING_IMAGES_LEAGUE1 = {
   "04.03.2026": ["rating-04-03-2026-1.png", "rating-04-03-2026-2.png", "rating-04-03-2026-3.png", "rating-04-03-2026-tai7ko20k.png", "rating-04-03-2026-dvbounty150k.png", "rating-04-03-2026-hotpko.png", "rating-04-03-2026-6holdem500.png", "rating-04-03-2026-dva-tuza-dollars.png", "rating-04-03-2026-freeroll1mln.png", "rating-04-03-2026-nightmagic100k.png"],
   "05.03.2026": ["rating-05-03-2026-1.png", "rating-05-03-2026-2.png", "rating-05-03-2026-3.png", "rating-05-03-2026-4.png", "rating-05-03-2026-5.png", "rating-05-03-2026-6.png", "rating-05-03-2026-7.png", "rating-05-03-2026-8.png", "rating-05-03-2026-9.png", "rating-05-03-2026-10.png", "rating-05-03-2026-11.png", "rating-05-03-2026-12.png", "rating-05-03-2026-14.png", "rating-05-03-2026-hyper-turbo-300.png"],
   "06.03.2026": ["rating-06-03-2026-1.png", "rating-06-03-2026-2.png", "rating-06-03-2026-3.png", "rating-06-03-2026-4.png", "rating-06-03-2026-5.png", "rating-06-03-2026-6.png", "rating-06-03-2026-7.png", "rating-06-03-2026-8.png"],
-  "07.03.2026": ["rating-07-03-2026-1.png", "rating-07-03-2026-2.png", "rating-07-03-2026-3.png", "rating-07-03-2026-4.png", "rating-07-03-2026-5.png", "rating-07-03-2026-6.png", "rating-07-03-2026-7.png", "rating-07-03-2026-8.png", "rating-07-03-2026-9.png", "rating-07-03-2026-10.png"]
+  "07.03.2026": ["rating-07-03-2026-1.png", "rating-07-03-2026-2.png", "rating-07-03-2026-3.png", "rating-07-03-2026-4.png", "rating-07-03-2026-5.png", "rating-07-03-2026-6.png", "rating-07-03-2026-7.png", "rating-07-03-2026-8.png", "rating-07-03-2026-9.png", "rating-07-03-2026-10.png"],
+  "08.03.2026": ["rating-08-03-2026-league2-1.png", "rating-08-03-2026-2.png", "rating-08-03-2026-3.png"]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
   "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
@@ -2012,9 +2013,10 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "04.03.2026": ["rating-04-03-2026-1.png", "rating-04-03-2026-2.png", "rating-04-03-2026-3.png", "rating-04-03-2026-wednesday-1.png", "rating-04-03-2026-wednesday-2.png", "rating-04-03-2026-plo4-25k.png", "rating-04-03-2026-plo5-300.png"],
   "05.03.2026": ["rating-05-03-2026-13.png"],
   "06.03.2026": ["rating-06-03-2026-league2-1.png", "rating-06-03-2026-league2-2.png", "rating-06-03-2026-league2-3.png", "rating-06-03-2026-league2-4.png"],
-  "07.03.2026": ["rating-07-03-2026-league2-1.png", "rating-07-03-2026-league2-2.png", "rating-07-03-2026-league2-3.png", "rating-07-03-2026-league2-4.png", "rating-07-03-2026-league2-5.png"]
+  "07.03.2026": ["rating-07-03-2026-league2-1.png", "rating-07-03-2026-league2-2.png", "rating-07-03-2026-league2-3.png", "rating-07-03-2026-league2-4.png", "rating-07-03-2026-league2-5.png"],
+  "08.03.2026": ["rating-08-03-2026-league2-2.png", "rating-08-03-2026-league2-3.png"]
 };
-var SPRING_RATING_UPDATED = "07.03.2026";
+var SPRING_RATING_UPDATED = "08.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "01.03.2026": [
     { time: "10:00", buyin: 500, players: [{ nick: "asianflushie", place: 0, reward: 4989 }] },
@@ -2117,5 +2119,42 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "21:00", name: "MOK", buyin: 11700, league: 2, players: [{ nick: "Jkeyx", place: 3, reward: 1155 }, { nick: "Tanechka", place: 4, reward: 920 }, { nick: "tatarin_1", place: 6, reward: 0 }, { nick: "TonniHalf", place: 8, reward: 0 }, { nick: "ПаПа_Мо}|{еТ", place: 9, reward: 0 }] },
     { time: "22:00", name: "Magic", buyin: 500, league: 1, players: [{ nick: "Mougli", place: 5, points: 60, reward: 10692 }, { nick: "Грек777", place: 30, points: 0, reward: 28 }] },
     { time: "18:00", name: "SUPER SATURDAY", buyin: 0, league: 1, players: [{ nick: "Waaar", place: 6, points: 50, reward: 30475 }] }
+  ],
+  "08.03.2026": [
+    { time: "20:00", name: "HOK", buyin: 1000, league: 1, players: [
+      { nick: "Waaar", place: 4, reward: 4948.44 },
+      { nick: "|---777---|", place: 7, reward: 337.5 },
+      { nick: "nerrielle", place: 9, reward: 0 },
+      { nick: "@Felix", place: 11, reward: 1575 },
+      { nick: "konfesta", place: 12, reward: 1181.25 }
+    ] },
+    { time: "18:00", name: "Воскресный турнир MKO 7MAX", buyin: 2000, league: 1, players: [
+      { nick: "Rifa", place: 1, reward: 88000 },
+      { nick: "king00001", place: 5, reward: 10100 },
+      { nick: "Waaar", place: 6, reward: 8800 },
+      { nick: "ПокерМанки", place: 9, reward: 4700 },
+      { nick: "IRIHKA", place: 14, reward: 0 }
+    ] },
+    { time: "17:00", name: "Rebuy", buyin: 800, league: 1, players: [
+      { nick: "Рамиль01fan", place: 2, reward: 15000 },
+      { nick: "Nuts", place: 4, reward: 7200 },
+      { nick: "FrankL", place: 5, reward: 6600 },
+      { nick: "Sarmat1305", place: 6, reward: 0 },
+      { nick: "king00001", place: 7, reward: 0 }
+    ] },
+    { time: "14:00", name: "Tournament Rebuy", buyin: 100, league: 2, players: [
+      { nick: "Аспирин", place: 3, reward: 1500 },
+      { nick: "DirtyFox", place: 7, reward: 0 },
+      { nick: "AlenaSt", place: 8, reward: 0 },
+      { nick: "Prushnik", place: 16, reward: 0 },
+      { nick: "Volga21", place: 18, reward: 0 }
+    ] },
+    { time: "22:00", name: "Energetik Tournament", buyin: 200, league: 2, players: [
+      { nick: "Shkarubo", place: 1, reward: 6400 },
+      { nick: "Ksuha🐍", place: 4, reward: 2070 },
+      { nick: "AlenaSt", place: 5, reward: 1900 },
+      { nick: "Аспирин", place: 9, reward: 0 },
+      { nick: "viktor200688", place: 12, reward: 0 }
+    ] }
   ]
 };
