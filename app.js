@@ -263,6 +263,8 @@ function getAssetUrl(relativePath) {
 // Топы по выигрышу за набор дат (прошлая/текущая неделя)
 var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19.02.2026", "20.02.2026", "21.02.2026", "22.02.2026"];
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
+/** Рейтинг весны: даты прошлой недели по марту (топ занос прошлой недели) */
+var MARCH_PAST_WEEK_DATES = ["02.03.2026", "03.03.2026", "04.03.2026", "05.03.2026", "06.03.2026", "07.03.2026", "08.03.2026"];
 // Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?Mart_week_1=1, Топы Марта = BASE?mart=1
 // Укажите сюда полный URL (например https://t.me/... или ссылку на пост), параметры допишутся автоматически
 var SPRING_TOP_LINK_BASE = "https://t.me/Poker_dvatuza_bot/DvaTuza";
@@ -1286,6 +1288,28 @@ setTimeout(function () {
       } else {
         marchWrap.setAttribute("hidden", "");
         marchWrap.style.display = "none";
+      }
+    }
+    var pastWeekWrap = document.getElementById("winterRatingPastWeekWrap");
+    var pastWeekList = document.getElementById("winterRatingPastWeekList");
+    var pastWeekTotal = document.getElementById("winterRatingPastWeekTotal");
+    if (pastWeekWrap && pastWeekList && pastWeekTotal) {
+      if (isSpringRatingMode() && typeof getSpringRatingPastWeekTopWins === "function") {
+        var pastWeekData = getSpringRatingPastWeekTopWins();
+        pastWeekWrap.removeAttribute("hidden");
+        pastWeekWrap.style.display = "";
+        if (pastWeekData.top3 && pastWeekData.top3.length) {
+          pastWeekList.innerHTML = pastWeekData.top3.map(function (r, i) {
+            var sum = r.reward.toLocaleString("ru-RU");
+            return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
+          }).join("");
+        } else {
+          pastWeekList.innerHTML = "";
+        }
+        pastWeekTotal.textContent = "Всего выиграно за неделю: " + (pastWeekData.totalWeek > 0 ? pastWeekData.totalWeek.toLocaleString("ru-RU") + " ₽" : "—");
+      } else {
+        pastWeekWrap.setAttribute("hidden", "");
+        pastWeekWrap.style.display = "none";
       }
     }
   }
@@ -4137,6 +4161,31 @@ function getSpringRatingMarchTopWins() {
   var max = allWins.length ? allWins[0] : null;
   var top3 = allWins.slice(0, 3);
   return { max: max, top3: top3 };
+}
+/** Топ-3 выигрыша за прошлую неделю (март) и общая сумма за неделю из таблицы марта */
+function getSpringRatingPastWeekTopWins() {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var allowedDates = typeof MARCH_PAST_WEEK_DATES !== "undefined" && MARCH_PAST_WEEK_DATES.length ? MARCH_PAST_WEEK_DATES : [];
+  var allWins = [];
+  var totalWeek = 0;
+  allowedDates.forEach(function (dateStr) {
+    var list = tournamentsByDate[dateStr];
+    if (!Array.isArray(list)) return;
+    list.forEach(function (t) {
+      var players = t.players || [];
+      players.forEach(function (p) {
+        var rew = p.reward != null ? Number(p.reward) : 0;
+        if (rew !== rew || rew <= 0) return;
+        var nick = normalizeWinterNick(p && p.nick);
+        if (!nick) return;
+        allWins.push({ nick: nick, reward: rew });
+        totalWeek += rew;
+      });
+    });
+  });
+  allWins.sort(function (a, b) { return b.reward - a.reward; });
+  var top3 = allWins.slice(0, 3);
+  return { top3: top3, totalWeek: totalWeek };
 }
 function getRatingImages() {
   if (isSpringRatingMode() && typeof SPRING_RATING_IMAGES_LEAGUE1 !== "undefined" && SPRING_RATING_IMAGES_LEAGUE1) return SPRING_RATING_IMAGES_LEAGUE1;
