@@ -6475,22 +6475,19 @@ function closeDailyPredictionModal() {
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       var text = getPokerDailyPredictionForToday() || "";
       var message = "Моё предсказание на день от клуба «Два туза»:\n\n" + text;
+      var sharedViaApi = false;
       if (tg && typeof tg.shareMessage === "function") {
-        tg.shareMessage(message).catch(function () {
-          if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(message).then(function () {
-              if (tg && tg.showAlert) tg.showAlert("Текст скопирован. Вставьте его в чат с другом.");
-              else alert("Текст скопирован. Вставьте его в чат с другом.");
-            }).catch(function () {
-              if (tg && tg.showAlert) tg.showAlert(message);
-              else alert(message);
-            });
-          } else {
-            if (tg && tg.showAlert) tg.showAlert(message);
-            else alert(message);
+        try {
+          var res = tg.shareMessage(message);
+          sharedViaApi = true;
+          if (res && typeof res.then === "function") {
+            res.catch(function () { /* игнорируем, fallback ниже всё равно есть */ });
           }
-        });
-      } else if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        } catch (e) {
+          sharedViaApi = false;
+        }
+      }
+      if (!sharedViaApi && typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(message).then(function () {
           if (tg && tg.showAlert) tg.showAlert("Текст скопирован. Вставьте его в чат с другом.");
           else alert("Текст скопирован. Вставьте его в чат с другом.");
