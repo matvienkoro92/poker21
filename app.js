@@ -273,7 +273,7 @@ function normalizeWinterNick(n) {
   var lower = n.toLowerCase();
   if (lower === "pryanik2la") return "Пряник";
   if (lower === "фокс") return "Фокс";
-  if (lower === "waaarr") return "Waaar";
+  if (lower === "waaarr" || lower === "waaar" || lower === "waaaar") return "Waaar";
   return n;
 }
 function normalizeWinterNickForFinalTable(n) {
@@ -4095,7 +4095,7 @@ function mergeWinterRatingRowsByNick(rows) {
   if (!rows || !rows.length) return [];
   var byNick = {};
   rows.forEach(function (r) {
-    var n = r.nick;
+    var n = normalizeWinterNick(r && r.nick);
     var pts = Number(r.points);
     var rew = Number(r.reward);
     if (!byNick[n]) byNick[n] = { nick: n, points: 0, reward: 0 };
