@@ -6472,20 +6472,35 @@ function closeDailyPredictionModal() {
   if (shareBtn && !shareBtn._bound) {
     shareBtn._bound = true;
     shareBtn.addEventListener("click", function () {
-      var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-      appUrl = appUrl.replace(/\/$/, "");
-      var link = appUrl + "?startapp=daily_prediction";
-      var msg = "Ссылка скопирована. Отправьте другу — у него откроется своё предсказание дня.";
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(function () {
-          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
+      var text = getPokerDailyPredictionForToday() || "";
+      var message = "Моё предсказание на день от клуба «Два туза»:\n\n" + text;
+      if (tg && typeof tg.shareMessage === "function") {
+        tg.shareMessage(message).catch(function () {
+          if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(message).then(function () {
+              if (tg && tg.showAlert) tg.showAlert("Текст скопирован. Вставьте его в чат с другом.");
+              else alert("Текст скопирован. Вставьте его в чат с другом.");
+            }).catch(function () {
+              if (tg && tg.showAlert) tg.showAlert(message);
+              else alert(message);
+            });
+          } else {
+            if (tg && tg.showAlert) tg.showAlert(message);
+            else alert(message);
+          }
+        });
+      } else if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(message).then(function () {
+          if (tg && tg.showAlert) tg.showAlert("Текст скопирован. Вставьте его в чат с другом.");
+          else alert("Текст скопирован. Вставьте его в чат с другом.");
         }).catch(function () {
-          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+          if (tg && tg.showAlert) tg.showAlert(message);
+          else alert(message);
         });
       } else {
-        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        if (tg && tg.showAlert) tg.showAlert(message);
+        else alert(message);
       }
     });
   }
