@@ -6476,11 +6476,16 @@ function closeDailyPredictionModal() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=daily_prediction";
-      var text = getPokerDailyPredictionForToday() || "";
-      var message = "Моё предсказание на день от клуба «Два туза»:\n\n" + text;
-      var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(message);
+      var shortText = "Моё предсказание на день от клуба «Два туза»";
+      var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shortText);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
+      if (tg && tg.openLink) {
+        tg.openLink(shareUrl);
+      } else if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(shareUrl);
+      } else {
+        window.open(shareUrl, "_blank");
+      }
     });
   }
   document.addEventListener("keydown", function (e) {
