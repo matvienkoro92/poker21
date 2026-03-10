@@ -413,6 +413,21 @@ body:has(.view--active[data-view="chat"]) {
   position: fixed;
   width: 100%;
 }
+
+/* Надёжный скролл для всех обычных разделов (дом, расписание, рейтинг и т.п.) даже на старых WebView */
+body[data-view="home"],
+body[data-view="schedule"],
+body[data-view="rating"],
+body[data-view="raffles"],
+body[data-view="news"],
+body[data-view="tasks"],
+body[data-view="hall"],
+body[data-view="downloads"] {
+  position: static;
+  overflow-y: auto;
+  width: auto;
+}
+
 .app:has(.view--active[data-view="chat"]) {
   height: 100dvh;
   min-height: 100dvh;
