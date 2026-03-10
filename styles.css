@@ -7212,6 +7212,151 @@ a.home-mini-icon-item {
   border: 1px solid rgba(251, 191, 36, 0.5);
   box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(251, 191, 36, 0.12);
 }
+
+/* Модалка «Предсказание на день» — стиль похоже на весенний рейтинг, но компактнее */
+.daily-prediction-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+.daily-prediction-modal.daily-prediction-modal--open {
+  opacity: 1;
+  visibility: visible;
+}
+.daily-prediction-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+}
+.daily-prediction-modal__inner {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  max-height: 80vh;
+  overflow: auto;
+  background: radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.4), transparent 60%), radial-gradient(circle at 100% 0, rgba(244, 114, 182, 0.4), transparent 60%), linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+  border-radius: 16px;
+  padding: 20px 16px 18px;
+  border: 1px solid rgba(129, 140, 248, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.35),
+    0 12px 40px rgba(15, 23, 42, 0.9),
+    0 4px 18px rgba(129, 140, 248, 0.4);
+}
+.daily-prediction-modal__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 20px;
+  cursor: pointer;
+}
+.daily-prediction-modal__title {
+  margin: 0 32px 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #e5e7eb;
+  text-align: left;
+}
+.daily-prediction-modal__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+[data-theme="light"] .daily-prediction-modal__inner {
+  background: linear-gradient(180deg, #fef9c3, #ffe4e6);
+  border-color: rgba(129, 140, 248, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.35),
+    0 12px 40px rgba(148, 163, 184, 0.6),
+    0 4px 18px rgba(129, 140, 248, 0.4);
+}
+[data-theme="light"] .daily-prediction-modal__title,
+[data-theme="light"] .daily-prediction-modal__text {
+  color: #1f2937;
+}
+[data-theme="light"] .daily-prediction-modal__close {
+  background: rgba(248, 250, 252, 0.9);
+  color: #111827;
+}
+.daily-prediction-modal__actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.daily-prediction-modal__timer {
+  font-size: 11px;
+  color: #9ca3af;
+}
+.daily-prediction-modal__share-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ecfdf5;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.5);
+}
+.daily-prediction-modal__share-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.6);
+}
+[data-theme="light"] .daily-prediction-modal__inner {
+  background: linear-gradient(180deg, #fef9c3, #ffe4e6);
+  border-color: rgba(129, 140, 248, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.35),
+    0 12px 40px rgba(148, 163, 184, 0.6),
+    0 4px 18px rgba(129, 140, 248, 0.4);
+}
+[data-theme="light"] .daily-prediction-modal__title,
+[data-theme="light"] .daily-prediction-modal__text {
+  color: #1f2937;
+}
+[data-theme="light"] .daily-prediction-modal__close {
+  background: rgba(248, 250, 252, 0.9);
+  color: #111827;
+}
+
+/* Бейдж предсказания: внизу справа внутри кнопки */
+.feature__badge--bottom-right {
+  top: auto;
+  bottom: -4px;
+  right: -4px;
+}
+[data-theme="light"] .daily-prediction-modal__inner {
+  background: linear-gradient(180deg, #fef9c3, #ffe4e6);
+  border-color: rgba(129, 140, 248, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.35),
+    0 12px 40px rgba(148, 163, 184, 0.6),
+    0 4px 18px rgba(129, 140, 248, 0.4);
+}
+[data-theme="light"] .daily-prediction-modal__title,
+[data-theme="light"] .daily-prediction-modal__text {
+  color: #1f2937;
+}
+[data-theme="light"] .daily-prediction-modal__close {
+  background: rgba(248, 250, 252, 0.9);
+  color: #111827;
+}
 .spring-rating-info-modal__close {
   position: absolute;
   top: 8px;

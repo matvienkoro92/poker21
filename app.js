@@ -1087,6 +1087,14 @@ function runGazetteAndTasksInit() {
       }, 350);
     }, 0);
   }
+  if (startParam === "daily_prediction") {
+    setTimeout(function () {
+      if (typeof setView === "function") setView("home");
+      setTimeout(function () {
+        if (typeof openDailyPredictionModal === "function") openDailyPredictionModal();
+      }, 400);
+    }, 0);
+  }
   if (startParam === "raffles") {
     setTimeout(function () { if (typeof setView === "function") setView("raffles"); }, 0);
   }
@@ -1572,6 +1580,171 @@ const footer = document.querySelector(".card__footer");
     document.documentElement.classList.add("app-view-home");
   }
 })();
+
+function scrollHomeToTop() {
+  if (!document.body || (document.body.getAttribute && document.body.getAttribute("data-view") !== "home")) return;
+  try {
+    window.scrollTo(0, 0);
+    if (document.documentElement && document.documentElement.scrollTop !== 0) document.documentElement.scrollTop = 0;
+    if (document.body.scrollTop !== 0) document.body.scrollTop = 0;
+    var el = document.scrollingElement;
+    if (el && el.scrollTop !== 0) el.scrollTop = 0;
+  } catch (e) {}
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", function () {
+    scrollHomeToTop();
+    setTimeout(scrollHomeToTop, 50);
+    setTimeout(scrollHomeToTop, 300);
+  });
+} else {
+  scrollHomeToTop();
+  setTimeout(scrollHomeToTop, 50);
+  setTimeout(scrollHomeToTop, 300);
+}
+window.addEventListener("pageshow", function (e) {
+  if (e && e.persisted) scrollHomeToTop();
+});
+
+// Предсказание на день: тексты (первые 31 из файла), без префиксов «День N»
+var POKER_DAILY_PREDICTIONS = [
+  "Сегодня твои тузы будут вести себя как короли на балу — все им кланяются, но помни: даже короли иногда проигрывают революцию.",
+  "Твои JJ сегодня — как два надежных друга: они всегда рядом, но иногда предают в самый неподходящий момент.",
+  "Сегодня ты на кнопке — как шеф-повар на кухне: все ингредиенты под рукой, но не пересоли с агрессией.",
+  "Твой стил сегодня — как грабитель в бархатных перчатках: тихо, элегантно, но иногда попадаешь на сигнализацию.",
+  "Твои блайнды сегодня — как крепостные стены: иногда их нужно защищать, даже если внутри только мыши и паутина.",
+  "Малый блайнд сегодня — как младший брат: всегда первый в драке, но редко выходит победителем.",
+  "Большой блайнд сегодня — как старый дуб: крепко стоит на своем, но молния может ударить в любую минуту.",
+  "Сегодня твой колл против кнопки — как танго с незнакомцем: страшно, но интригующе.",
+  "Твой большой блайнд против кат-оффа — как медведь в берлоге: кажется, спит, но проснется в самый неожиданный момент.",
+  "Твой 3-бет сегодня — как дорогое вино: чем старше, тем лучше, но не всем по вкусу.",
+  "Сегодня твой блефовый 3-бет — как фокусник: все видят, но никто не верит своим глазам.",
+  "Когда тебе делают 3-бет — как на экзамене: знаешь ответ, но боишься ошибиться.",
+  "Сегодня твой 3-бет/фолд — как романтическое свидание: идешь с надеждой, но готов уйти при первых признаках проблем.",
+  "Твой 4-бет сегодня — как ядерная кнопка: мощно, эффектно, но использовать можно только раз.",
+  "Сегодня твой блефовый 4-бет — как прыжок с парашютом: страшно, но адреналин того стоит.",
+  "Когда тебе делают 4-бет — как встреча с призраком: не веришь, но дрожь по спине пробегает.",
+  "Сегодня твоя префлоп-война — как шахматная партия: каждый ход просчитан, но соперник может сделать неожиданный.",
+  "Твой стил сегодня — как искусный вор: не просто берет, а оставляет визитную карточку.",
+  "Сегодня война блайндов — как соседские склоки: много шума, но мало смысла.",
+  "Твой сквиз сегодня — как бутерброд с колбасой: чем больше слоев, тем вкуснее.",
+  "Сегодня твой стил против лимперов — как сбор грибов в лесу: много мусора, но иногда находишь белый.",
+  "Война блайндов сегодня — как детская драка: много крика, но никто не пострадает.",
+  "Твой позиционный 3-бет — как удар с правого фланга: неожиданно, точно, болезненно.",
+  "3-бет с кнопки сегодня — как домашнее задание: делать лень, но надо.",
+  "3-бет с кат-оффа — как утренний кофе: бодрит, но может обжечь.",
+  "Сегодня твой 3-бет против кат-оффа — как спор двух профессоров: умно, но непонятно.",
+  "Твой чек-рейз сегодня — как засада в лесу: тихо ждешь, потом БАЦ!",
+  "Чек-рейз на флопе — как сюрприз на день рождения: все ждут, но всё равно удивляются.",
+  "На сухом флопе твой чек-рейз — как дождь в пустыне: редкий, но жизненно важный.",
+  "3-бет из малого блайнда — как вызов на дуэль: благородно, но опасно.",
+  "Сквиз из малого блайнда — как выход из запасного выхода: неожиданно, но эффективно."
+];
+
+function getDailyPredictionStorage() {
+  try {
+    var raw = localStorage.getItem("poker_daily_prediction_state");
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveDailyPredictionStorage(state) {
+  try {
+    localStorage.setItem("poker_daily_prediction_state", JSON.stringify(state));
+  } catch (e) {}
+}
+
+function getTodayKey() {
+  var d = new Date();
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, "0");
+  var day = String(d.getDate()).padStart(2, "0");
+  return y + "-" + m + "-" + day;
+}
+
+function ensureTodayPredictionState() {
+  var key = getTodayKey();
+  var state = getDailyPredictionStorage();
+  var index;
+  if (state && state.date === key && typeof state.index === "number") {
+    index = state.index;
+  } else {
+    var prevIndex = state && typeof state.index === "number" ? state.index : null;
+    if (!POKER_DAILY_PREDICTIONS.length) {
+      index = 0;
+    } else {
+      index = Math.floor(Math.random() * POKER_DAILY_PREDICTIONS.length);
+      if (POKER_DAILY_PREDICTIONS.length > 1 && prevIndex != null && index === prevIndex) {
+        index = (index + 1) % POKER_DAILY_PREDICTIONS.length;
+      }
+    }
+    state = { date: key, index: index, read: false };
+    saveDailyPredictionStorage(state);
+  }
+  return state;
+}
+
+function getPokerDailyPredictionForToday() {
+  var state = ensureTodayPredictionState();
+  return POKER_DAILY_PREDICTIONS[state.index] || "";
+}
+
+function markDailyPredictionRead() {
+  var state = ensureTodayPredictionState();
+  if (!state.read) {
+    state.read = true;
+    saveDailyPredictionStorage(state);
+  }
+}
+
+function updateDailyPredictionBadge() {
+  var badge = document.getElementById("dailyPredictionBadge");
+  var preview = document.getElementById("dailyPredictionPreview");
+  if (!badge) return;
+  var state = ensureTodayPredictionState();
+  var unread = !state.read;
+  badge.classList.toggle("feature__badge--hidden", !unread);
+  badge.setAttribute("aria-hidden", unread ? "false" : "true");
+  if (preview && !unread) {
+    preview.textContent = "Совет на сегодня уже открыт";
+  }
+}
+
+var dailyPredictionTimerId = null;
+
+function formatMsToHms(ms) {
+  if (ms < 0) ms = 0;
+  var totalSec = Math.floor(ms / 1000);
+  var h = Math.floor(totalSec / 3600);
+  var m = Math.floor((totalSec % 3600) / 60);
+  var s = totalSec % 60;
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+  return pad(h) + ":" + pad(m) + ":" + pad(s);
+}
+
+function updateDailyPredictionTimer() {
+  var el = document.getElementById("dailyPredictionTimer");
+  if (!el) return;
+  var now = new Date();
+  var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  var diff = tomorrow - now;
+  el.textContent = "Следующее через " + formatMsToHms(diff);
+}
+
+function startDailyPredictionTimer() {
+  updateDailyPredictionTimer();
+  if (dailyPredictionTimerId) clearInterval(dailyPredictionTimerId);
+  dailyPredictionTimerId = setInterval(updateDailyPredictionTimer, 1000);
+}
+
+function stopDailyPredictionTimer() {
+  if (dailyPredictionTimerId) {
+    clearInterval(dailyPredictionTimerId);
+    dailyPredictionTimerId = null;
+  }
+}
 
 function scrollHomeToTop() {
   if (!document.body || (document.body.getAttribute && document.body.getAttribute("data-view") !== "home")) return;
@@ -6257,6 +6430,71 @@ document.addEventListener("click", function (e) {
   document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
   tryChillRadioPlay();
 })();
+
+// Модалка «Предсказание на день»
+function openDailyPredictionModal() {
+  var modal = document.getElementById("dailyPredictionModal");
+  if (!modal) return;
+  var textEl = document.getElementById("dailyPredictionText");
+  if (textEl) {
+    textEl.textContent = getPokerDailyPredictionForToday();
+  }
+  markDailyPredictionRead();
+  updateDailyPredictionBadge();
+  modal.setAttribute("aria-hidden", "false");
+  modal.classList.add("daily-prediction-modal--open");
+   startDailyPredictionTimer();
+  if (document.body) document.body.style.overflow = "hidden";
+}
+
+function closeDailyPredictionModal() {
+  var modal = document.getElementById("dailyPredictionModal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "true");
+  modal.classList.remove("daily-prediction-modal--open");
+  stopDailyPredictionTimer();
+  if (document.body) document.body.style.overflow = "";
+}
+
+(function initDailyPredictionModal() {
+  var btn = document.getElementById("dailyPredictionBtn");
+  var modal = document.getElementById("dailyPredictionModal");
+  if (!btn || !modal) return;
+  var closeBtn = modal.querySelector(".daily-prediction-modal__close");
+  var backdrop = modal.querySelector(".daily-prediction-modal__backdrop");
+  var shareBtn = document.getElementById("dailyPredictionShareBtn");
+  btn.addEventListener("click", function (e) {
+    e.preventDefault();
+    openDailyPredictionModal();
+  });
+  if (closeBtn) closeBtn.addEventListener("click", function () { closeDailyPredictionModal(); });
+  if (backdrop) backdrop.addEventListener("click", function () { closeDailyPredictionModal(); });
+  if (shareBtn && !shareBtn._bound) {
+    shareBtn._bound = true;
+    shareBtn.addEventListener("click", function () {
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=daily_prediction";
+      var msg = "Ссылка скопирована. Отправьте другу — у него откроется своё предсказание дня.";
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function () {
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
+        }).catch(function () {
+          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        });
+      } else {
+        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+      }
+    });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") closeDailyPredictionModal();
+  });
+  // Обновляем бейдж при инициализации
+  updateDailyPredictionBadge();
+})(); 
 
 (function initChatNavDropdown() {
   var btn = document.getElementById("chatNavBtn");

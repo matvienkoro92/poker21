@@ -238,11 +238,12 @@
                     <div class="feature__desc tournament-day-block__meta"><span id="tournamentDayBuyin">—</span> · <span id="tournamentDayGuarantee">—</span> · 18:00<br><span class="tournament-day-block__timer-label" id="tournamentDayTimerLabel"></span><span class="tournament-day-block__timer" id="tournamentDayTimer">—</span> · Расписание &gt;&gt;</div>
                   </div>
                 </a>
-                <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
-                  <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш">1</span>
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
+                <a href="#" class="feature feature--link feature--app" id="dailyPredictionBtn" aria-label="Предсказание на день">
+                  <span class="feature__badge feature__badge--hidden feature__badge--bottom-right" id="dailyPredictionBadge" aria-hidden="true">1</span>
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🔮</span></div>
                   <div class="feature__body">
-                    <div class="feature__title">Розыгрыши</div>
+                    <div class="feature__title">Предсказание на день</div>
+                    <div class="feature__desc" id="dailyPredictionPreview">Нажми, чтобы узнать совет дня</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="equilator" aria-label="Эквилятор">
@@ -263,6 +264,13 @@
                   <div class="feature__body">
                     <div class="feature__title">Стримы</div>
                     <div class="feature__desc">(в разработке)</div>
+                  </div>
+                </a>
+                <a href="#" class="feature feature--link feature--app" data-view-target="raffles">
+                  <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true" title="Есть активный розыгрыш">1</span>
+                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎲</span></div>
+                  <div class="feature__body">
+                    <div class="feature__title">Розыгрыши</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--bonus-game" data-view-target="bonus-game" aria-label="Найти Пиханину">
@@ -2493,6 +2501,19 @@
           </div>
         </div>
       </div>
+      <div class="daily-prediction-modal" id="dailyPredictionModal" aria-hidden="true" role="dialog" aria-labelledby="dailyPredictionTitle" aria-label="Предсказание на день">
+        <div class="daily-prediction-modal__backdrop"></div>
+        <div class="daily-prediction-modal__inner">
+          <button type="button" class="daily-prediction-modal__close" aria-label="Закрыть">×</button>
+          <h3 class="daily-prediction-modal__title" id="dailyPredictionTitle">Предсказание от клуба «Два туза»</h3>
+          <p class="daily-prediction-modal__text" id="dailyPredictionText"></p>
+          <div class="daily-prediction-modal__actions">
+            <span class="daily-prediction-modal__timer" id="dailyPredictionTimer"></span>
+            <button type="button" class="daily-prediction-modal__share-btn" id="dailyPredictionShareBtn">Поделиться</button>
+          </div>
+        </div>
+      </div>
+
       <div class="spring-rating-info-modal" id="springRatingInfoModal" aria-hidden="true" role="dialog" aria-labelledby="springRatingInfoModalTitle" aria-label="Рейтинг турнирщиков весны">
         <div class="spring-rating-info-modal__backdrop"></div>
         <div class="spring-rating-info-modal__inner">
