@@ -2004,7 +2004,8 @@ var SPRING_RATING_IMAGES_LEAGUE1 = {
   "05.03.2026": ["rating-05-03-2026-1.png", "rating-05-03-2026-2.png", "rating-05-03-2026-3.png", "rating-05-03-2026-4.png", "rating-05-03-2026-5.png", "rating-05-03-2026-6.png", "rating-05-03-2026-7.png", "rating-05-03-2026-8.png", "rating-05-03-2026-9.png", "rating-05-03-2026-10.png", "rating-05-03-2026-11.png", "rating-05-03-2026-12.png", "rating-05-03-2026-14.png", "rating-05-03-2026-hyper-turbo-300.png"],
   "06.03.2026": ["rating-06-03-2026-1.png", "rating-06-03-2026-2.png", "rating-06-03-2026-3.png", "rating-06-03-2026-4.png", "rating-06-03-2026-5.png", "rating-06-03-2026-6.png", "rating-06-03-2026-7.png", "rating-06-03-2026-8.png"],
   "07.03.2026": ["rating-07-03-2026-1.png", "rating-07-03-2026-2.png", "rating-07-03-2026-3.png", "rating-07-03-2026-4.png", "rating-07-03-2026-5.png", "rating-07-03-2026-6.png", "rating-07-03-2026-7.png", "rating-07-03-2026-8.png", "rating-07-03-2026-9.png", "rating-07-03-2026-10.png"],
-  "08.03.2026": ["rating-08-03-2026-league2-1.png", "rating-08-03-2026-2.png", "rating-08-03-2026-3.png"]
+  "08.03.2026": ["rating-08-03-2026-league2-1.png", "rating-08-03-2026-2.png", "rating-08-03-2026-3.png"],
+  "09.03.2026": ["rating-09-03-2026-1.png", "rating-09-03-2026-2.png", "rating-09-03-2026-3.png"]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
   "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
@@ -2014,7 +2015,8 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "05.03.2026": ["rating-05-03-2026-13.png"],
   "06.03.2026": ["rating-06-03-2026-league2-1.png", "rating-06-03-2026-league2-2.png", "rating-06-03-2026-league2-3.png", "rating-06-03-2026-league2-4.png"],
   "07.03.2026": ["rating-07-03-2026-league2-1.png", "rating-07-03-2026-league2-2.png", "rating-07-03-2026-league2-3.png", "rating-07-03-2026-league2-4.png", "rating-07-03-2026-league2-5.png"],
-  "08.03.2026": ["rating-08-03-2026-league2-2.png", "rating-08-03-2026-league2-3.png"]
+  "08.03.2026": ["rating-08-03-2026-league2-2.png", "rating-08-03-2026-league2-3.png"],
+  "09.03.2026": ["rating-09-03-2026-league2-1.png", "rating-09-03-2026-league2-2.png"]
 };
 var SPRING_RATING_UPDATED = "08.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
@@ -2155,6 +2157,43 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
       { nick: "AlenaSt", place: 5, reward: 1900 },
       { nick: "Аспирин", place: 9, reward: 0 },
       { nick: "viktor200688", place: 12, reward: 0 }
+    ] }
+  ],
+  "09.03.2026": [
+    { time: "17:00", name: "Rebuy", buyin: 800, league: 1, players: [
+      { nick: "|---777---|", place: 4, reward: 9120 },
+      { nick: "ПокерМанки", place: 5, reward: 8300 },
+      { nick: "Rifa", place: 6, reward: 0 },
+      { nick: "AliPetuhov", place: 11, reward: 0 },
+      { nick: "FrankL", place: 13, reward: 0 }
+    ] },
+    { time: "20:00", name: "HOK", buyin: 1000, league: 1, players: [
+      { nick: "ПокерМанки", place: 3, reward: 6462.5 },
+      { nick: "Waaar", place: 5, reward: 6187.5 },
+      { nick: "king00001", place: 7, reward: 1462.5 },
+      { nick: "<Amaliya>", place: 9, reward: 675 },
+      { nick: "Rifa", place: 11, reward: 0 }
+    ] },
+    { time: "18:00", name: "Турнир Понедельника MKO 7MAX", buyin: 500, league: 1, players: [
+      { nick: "Prushnik", place: 1, reward: 39750 },
+      { nick: "Malek3084", place: 3, reward: 13940 },
+      { nick: "Аспирин", place: 5, reward: 4350 },
+      { nick: "\"ЗараЗа\"", place: 6, reward: 5740 },
+      { nick: "Baldendi", place: 8, reward: 1940 }
+    ] },
+    { time: "22:00", name: "Energetik Tournament", buyin: 200, league: 2, players: [
+      { nick: "Рамиль01fan", place: 4, reward: 2520 },
+      { nick: "VOSOvec", place: 5, reward: 2310 },
+      { nick: "Ronn", place: 6, reward: 0 },
+      { nick: "Malek3084", place: 8, reward: 0 },
+      { nick: "$M$Э$P$", place: 9, reward: 0 }
+    ] },
+    { time: "14:00", name: "Tournament Rebuy", buyin: 100, league: 2, players: [
+      { nick: "Shkarubo", place: 3, reward: 1930 },
+      { nick: "Ksuha🐍", place: 5, reward: 1410 },
+      { nick: "m0l4yH", place: 6, reward: 0 },
+      { nick: "Borsoi", place: 7, reward: 0 },
+      { nick: "YOUAREMYDONKEY", place: 8, reward: 0 }
     ] }
   ]
 };
