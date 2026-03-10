@@ -10582,7 +10582,7 @@ if (typeof initPokerShowsPlayer === "function") initPokerShowsPlayer();
 var TOURNAMENT_OF_DAY_BY_WEEKDAY = [
   { name: "Турнир Недели Нокаут Меджик", buyin: "2 000₽", guarantee: "250 000₽" },
   { name: "Magic MKO", buyin: "500₽", guarantee: "100 000₽" },
-  { name: "Rebuy", buyin: "300₽", guarantee: "80 000₽" },
+  { name: "Rebuy", buyin: "300₽", guarantee: "100 000₽" },
   { name: "Rebuy", buyin: "100₽", guarantee: "50 000₽" },
   { name: "Нокаут Мистери", buyin: "1 000₽", guarantee: "150 000₽" },
   { name: "Нокаут Прогрессив", buyin: "500₽", guarantee: "100 000₽" },
