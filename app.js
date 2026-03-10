@@ -10985,6 +10985,10 @@ function updateTournamentDayBlock() {
 }
 
 function initTournamentDayBlock() {
+  var trophyImg = document.getElementById("tournamentDayTrophyImg");
+  if (trophyImg && typeof getAssetUrl === "function") {
+    trophyImg.src = getAssetUrl("tournament-champion-trophy.png");
+  }
   updateTournamentDayBlock();
 }
 if (document.readyState === "loading") {
