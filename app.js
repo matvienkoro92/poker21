@@ -1573,6 +1573,31 @@ const footer = document.querySelector(".card__footer");
   }
 })();
 
+function scrollHomeToTop() {
+  if (!document.body || (document.body.getAttribute && document.body.getAttribute("data-view") !== "home")) return;
+  try {
+    window.scrollTo(0, 0);
+    if (document.documentElement.scrollTop !== 0) document.documentElement.scrollTop = 0;
+    if (document.body.scrollTop !== 0) document.body.scrollTop = 0;
+    var el = document.scrollingElement;
+    if (el && el.scrollTop !== 0) el.scrollTop = 0;
+  } catch (e) {}
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", function () {
+    scrollHomeToTop();
+    setTimeout(scrollHomeToTop, 50);
+    setTimeout(scrollHomeToTop, 300);
+  });
+} else {
+  scrollHomeToTop();
+  setTimeout(scrollHomeToTop, 50);
+  setTimeout(scrollHomeToTop, 300);
+}
+window.addEventListener("pageshow", function (e) {
+  if (e.persisted) scrollHomeToTop();
+});
+
 function playClickSound() {
   try {
     var Ctx = window.AudioContext || window.webkitAudioContext;
@@ -1607,6 +1632,17 @@ function tryChillRadioPlay() {
 }
 
 function setView(viewName) {
+  if (viewName !== "chat") {
+    var chatDd = document.getElementById("chatNavDropdown");
+    var chatBtn = document.getElementById("chatNavBtn");
+    var chatArrow = document.getElementById("chatNavArrow");
+    var bottomNav = document.querySelector(".bottom-nav");
+    if (chatDd) chatDd.classList.add("bottom-nav__chat-dropdown--hidden");
+    if (chatDd) chatDd.setAttribute("aria-hidden", "true");
+    if (chatBtn) chatBtn.setAttribute("aria-expanded", "false");
+    if (chatArrow) chatArrow.textContent = "\u25B2";
+    if (bottomNav) bottomNav.classList.remove("bottom-nav--chat-dropdown-open");
+  }
   if (document.body) {
     document.body.style.overflow = "";
     document.body.style.position = "";
@@ -6096,6 +6132,12 @@ navItems.forEach(function (item) {
       e.preventDefault();
       return;
     }
+    var currentView = document.body && document.body.getAttribute ? document.body.getAttribute("data-view") : "";
+    if (item.id === "chatNavBtn" && currentView === "chat") {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     var target = item.dataset.viewTarget;
     if (target) {
       setView(target);
@@ -6220,12 +6262,21 @@ document.addEventListener("click", function (e) {
   var btn = document.getElementById("chatNavBtn");
   var dd = document.getElementById("chatNavDropdown");
   var arrow = document.getElementById("chatNavArrow");
+  var navEl = document.querySelector(".bottom-nav");
   if (!btn || !dd) return;
+  var dropdownOpenedAt = 0;
   function setArrow(isOpen) {
     if (arrow) arrow.textContent = isOpen ? "\u25BC" : "\u25B2";
   }
   function isChatViewActive() {
     return !!document.querySelector(".view--active[data-view=\"chat\"]");
+  }
+  function closeDropdown() {
+    dd.classList.add("bottom-nav__chat-dropdown--hidden");
+    btn.setAttribute("aria-expanded", "false");
+    dd.setAttribute("aria-hidden", "true");
+    setArrow(false);
+    if (navEl) navEl.classList.remove("bottom-nav--chat-dropdown-open");
   }
   function toggleDropdown() {
     var wasHidden = dd.classList.contains("bottom-nav__chat-dropdown--hidden");
@@ -6234,11 +6285,10 @@ document.addEventListener("click", function (e) {
       btn.setAttribute("aria-expanded", "true");
       dd.setAttribute("aria-hidden", "false");
       setArrow(true);
+      dropdownOpenedAt = Date.now();
+      if (navEl) navEl.classList.add("bottom-nav--chat-dropdown-open");
     } else {
-      dd.classList.add("bottom-nav__chat-dropdown--hidden");
-      btn.setAttribute("aria-expanded", "false");
-      dd.setAttribute("aria-hidden", "true");
-      setArrow(false);
+      closeDropdown();
     }
   }
   btn.addEventListener("mousedown", function (e) {
@@ -6258,20 +6308,15 @@ document.addEventListener("click", function (e) {
       e.stopPropagation();
       var tab = opt.dataset.chatTab;
       if (window.chatSetTab && tab) window.chatSetTab(tab);
-      dd.classList.add("bottom-nav__chat-dropdown--hidden");
-      btn.setAttribute("aria-expanded", "false");
-      dd.setAttribute("aria-hidden", "true");
-      setArrow(false);
+      closeDropdown();
     });
   });
   document.addEventListener("click", function (e) {
     if (dd.classList.contains("bottom-nav__chat-dropdown--hidden")) return;
     if (dd.contains(e.target) || btn.contains(e.target)) return;
-    dd.classList.add("bottom-nav__chat-dropdown--hidden");
-    btn.setAttribute("aria-expanded", "false");
-    dd.setAttribute("aria-hidden", "true");
-    setArrow(false);
-  });
+    if (Date.now() - dropdownOpenedAt < 500) return;
+    closeDropdown();
+  }, false);
 })();
 
 // Подстраницы раздела «Скачать»
@@ -8960,6 +9005,8 @@ function initChat() {
     if (btn) btn.setAttribute("aria-expanded", "false");
     var arrow = document.getElementById("chatNavArrow");
     if (arrow) arrow.textContent = "\u25B2";
+    var bottomNav = document.querySelector(".bottom-nav");
+    if (bottomNav) bottomNav.classList.remove("bottom-nav--chat-dropdown-open");
   }
   function setTab(tab) {
     chatActiveTab = tab;

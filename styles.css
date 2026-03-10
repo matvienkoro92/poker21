@@ -425,7 +425,14 @@ body[data-view="hall"],
 body[data-view="downloads"] {
   position: static;
   overflow-y: auto;
+  overflow-x: hidden;
   width: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Redmi и др.: часть WebView скроллит html — даём явный скролл (класс вешается при загрузке главной) */
+html.app-view-home {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .app:has(.view--active[data-view="chat"]) {
@@ -11565,7 +11572,11 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   pointer-events: auto;
   box-sizing: border-box;
   max-width: 100vw;
-  overflow: hidden;
+  overflow: visible;
+}
+/* Выпадающее меню чата поверх всего (модалки 9999–10000, контекстное меню 5002) */
+.bottom-nav.bottom-nav--chat-dropdown-open {
+  z-index: 10002;
 }
 
 .bottom-nav__item {
@@ -11703,7 +11714,8 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   box-shadow: var(--shadow-strong);
-  z-index: 50;
+  /* Поверх чата и всех внутренних областей, но ниже полноэкранных модалок/контекстного меню */
+  z-index: 6001;
   display: flex;
   flex-direction: column;
   gap: 2px;
