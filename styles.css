@@ -2176,11 +2176,13 @@ html.app-view-home .card .card__content {
   margin-top: 2px;
 }
 .chat-msg__text { word-wrap: break-word; white-space: pre-wrap; }
-.chat-msg__tg-link {
+.chat-msg__tg-link,
+.chat-msg__link {
   color: var(--accent);
   text-decoration: none;
 }
-.chat-msg__tg-link:hover { text-decoration: underline; }
+.chat-msg__tg-link:hover,
+.chat-msg__link:hover { text-decoration: underline; }
 .chat-msg__footer {
   display: flex;
   align-items: center;
