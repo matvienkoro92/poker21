@@ -227,7 +227,7 @@ function getAssetUrl(relativePath) {
     if (!link || !link.href) return;
     e.preventDefault();
 
-    // Внутренние ссылки с параметром startapp (например, startapp=raffles) — не открываем приложение заново,
+    // Внутренние ссылки с параметром startapp — не открываем приложение заново,
     // а переключаемся внутри текущего web-app.
     try {
       var urlObj = new URL(link.href, window.location.href);
@@ -235,6 +235,20 @@ function getAssetUrl(relativePath) {
       var startApp = sp.get("startapp");
       if (startApp === "raffles" && typeof setView === "function") {
         setView("raffles");
+        return;
+      }
+      if (startApp && (startApp === "news" || startApp.indexOf("news_") === 0) && typeof openGazette === "function") {
+        var articleNum = startApp === "news" ? undefined : parseInt(startApp.replace("news_", ""), 10);
+        if (startApp !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
+        openGazette("news", articleNum);
+        return;
+      }
+      if (startApp && (startApp === "spring_rating_league_1" || startApp === "spring_rating_league_2") && typeof setView === "function") {
+        var leagueNum = startApp === "spring_rating_league_1" ? "1" : "2";
+        setView("spring-rating");
+        setTimeout(function () {
+          if (typeof window.switchSpringRatingMainTab === "function") window.switchSpringRatingMainTab(leagueNum);
+        }, 400);
         return;
       }
     } catch (ignore) {}
@@ -1427,8 +1441,21 @@ setTimeout(function () {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
-      var link = appUrl + "?startapp=" + (isSpring ? "spring_rating" : "winter_rating");
-      var msg = isSpring ? "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков весны." : "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков зимы.";
+      var startApp;
+      var msg;
+      if (isSpring) {
+        var springTabsEl = document.getElementById("winterRatingSpringMainTabs");
+        var activeTab = springTabsEl && springTabsEl.querySelector(".winter-rating__spring-main-tab.winter-rating__spring-main-tab--active");
+        var league = (activeTab && activeTab.getAttribute("data-spring-main-league")) || "1";
+        startApp = "spring_rating_league_" + league;
+        msg = league === "2"
+          ? "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков весны, Лига 2."
+          : "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков весны, Лига 1.";
+      } else {
+        startApp = "winter_rating";
+        msg = "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков зимы.";
+      }
+      var link = appUrl + "?startapp=" + startApp;
       if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(link).then(function () {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
