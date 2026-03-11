@@ -978,14 +978,25 @@ function runGazetteAndTasksInit() {
   })();
 
   (function initRatingSubscribe() {
-    var ratingSubscribeBtn = document.getElementById("ratingSubscribeBtn");
+    var ratingSubscribeBtns = Array.prototype.slice.call(document.querySelectorAll(".rating-subscribe-btn"));
     var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
     var ratingInDevHtml = "<span class=\"subscribe-btn__in-dev\">(в разработке)</span>";
     function setRatingSubscribeButtonState(subscribed) {
-      if (!ratingSubscribeBtn) return;
-      ratingSubscribeBtn.disabled = false;
-      ratingSubscribeBtn.innerHTML = "<span>" + (subscribed ? "Отписаться" : "Подписаться") + "</span>" + ratingInDevHtml;
-      ratingSubscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+      if (!ratingSubscribeBtns.length) return;
+      ratingSubscribeBtns.forEach(function (btn) {
+        var league = btn.getAttribute("data-spring-league") || "";
+        var label;
+        if (league === "1") {
+          label = subscribed ? "Отписаться от Лиги 1" : "Подписаться на Лигу 1";
+        } else if (league === "2") {
+          label = subscribed ? "Отписаться от Лиги 2" : "Подписаться на Лигу 2";
+        } else {
+          label = subscribed ? "Отписаться" : "Подписаться";
+        }
+        btn.disabled = false;
+        btn.innerHTML = "<span>" + label + "</span>" + ratingInDevHtml;
+        btn.dataset.subscribed = subscribed ? "1" : "0";
+      });
     }
     function updateRatingSubscribeFromStorage() {
       try {
@@ -995,51 +1006,56 @@ function runGazetteAndTasksInit() {
       }
     }
     updateRatingSubscribeFromStorage();
-    if (ratingSubscribeBtn) {
-      ratingSubscribeBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        if (window.__touchWasScroll && window.__touchWasScroll()) return;
-        var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
-        if (!initData) {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться."); else alert("Откройте приложение в Telegram, чтобы подписаться.");
-          return;
-        }
-        var subscribed = ratingSubscribeBtn.dataset.subscribed === "1";
-        var appEl = document.getElementById("app");
-        var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
-        var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/rating-subscribe";
-        ratingSubscribeBtn.disabled = true;
-        fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData, unsubscribe: subscribed }),
-        })
-          .then(function (r) { return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; }); })
-          .then(function (data) {
-            if (data && data.ok) {
-              try {
-                localStorage.setItem(RATING_SUBSCRIBED_KEY, data.subscribed ? "1" : "0");
-              } catch (e) {}
-              setRatingSubscribeButtonState(!!data.subscribed);
-              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-              if (tg && tg.showAlert) {
-                tg.showAlert(data.subscribed ? "Подписка оформлена. Уведомления об обновлении рейтинга будут приходить в Telegram." : "Вы отписаны от уведомлений рейтинга.");
-              } else {
-                alert(data.subscribed ? "Подписка оформлена." : "Вы отписаны.");
-              }
-            } else {
-              var msg = (data && data.error) || "Ошибка. Попробуйте позже.";
-              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-              if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
-              setRatingSubscribeButtonState(subscribed);
-            }
-          })
-          .catch(function () {
+    if (ratingSubscribeBtns.length) {
+      ratingSubscribeBtns.forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (window.__touchWasScroll && window.__touchWasScroll()) return;
+          var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
+          if (!initData) {
             var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-            if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен. Попробуйте позже."); else alert("Сервис временно недоступен.");
-            setRatingSubscribeButtonState(subscribed);
-          });
+            if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы подписаться."); else alert("Откройте приложение в Telegram, чтобы подписаться.");
+            return;
+          }
+          var subscribed = btn.dataset.subscribed === "1";
+          var appEl = document.getElementById("app");
+          var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
+          var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/rating-subscribe";
+          ratingSubscribeBtns.forEach(function (b) { b.disabled = true; });
+          fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: initData, unsubscribe: subscribed }),
+          })
+            .then(function (r) { return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; }); })
+            .then(function (data) {
+              if (data && data.ok) {
+                try {
+                  localStorage.setItem(RATING_SUBSCRIBED_KEY, data.subscribed ? "1" : "0");
+                } catch (e) {}
+                setRatingSubscribeButtonState(!!data.subscribed);
+                var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+                if (tg && tg.showAlert) {
+                  tg.showAlert(data.subscribed ? "Подписка оформлена. Уведомления об обновлении рейтинга будут приходить в Telegram." : "Вы отписаны от уведомлений рейтинга.");
+                } else {
+                  alert(data.subscribed ? "Подписка оформлена." : "Вы отписаны.");
+                }
+              } else {
+                var msg = (data && data.error) || "Ошибка. Попробуйте позже.";
+                var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+                if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+                setRatingSubscribeButtonState(subscribed);
+              }
+            })
+            .catch(function () {
+              var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+              if (tg && tg.showAlert) tg.showAlert("Сервис временно недоступен. Попробуйте позже."); else alert("Сервис временно недоступен.");
+              setRatingSubscribeButtonState(subscribed);
+            })
+            .finally(function () {
+              ratingSubscribeBtns.forEach(function (b) { b.disabled = false; });
+            });
+        });
       });
     }
   })();
@@ -1434,42 +1450,8 @@ setTimeout(function () {
       }
     });
   }
-  var winterRatingShareBtn = document.getElementById("winterRatingShareBtn");
-  if (winterRatingShareBtn) {
-    winterRatingShareBtn.addEventListener("click", function () {
-      var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-      appUrl = appUrl.replace(/\/$/, "");
-      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
-      var startApp;
-      var msg;
-      if (isSpring) {
-        var springTabsEl = document.getElementById("winterRatingSpringMainTabs");
-        var activeTab = springTabsEl && springTabsEl.querySelector(".winter-rating__spring-main-tab.winter-rating__spring-main-tab--active");
-        var league = (activeTab && activeTab.getAttribute("data-spring-main-league")) || "1";
-        startApp = "spring_rating_league_" + league;
-        msg = league === "2"
-          ? "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков весны, Лига 2."
-          : "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков весны, Лига 1.";
-      } else {
-        startApp = "winter_rating";
-        msg = "Ссылка скопирована. Отправьте другу — откроется рейтинг турнирщиков зимы.";
-      }
-      var link = appUrl + "?startapp=" + startApp;
-      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(function () {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert(msg); else alert("Ссылка скопирована.");
-        }).catch(function () {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-        });
-      } else {
-        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-      }
-    });
-  }
+  // Кнопки «Поделиться» для весенних лиг находятся внутри блоков лиг (winter-rating__spring-league-share),
+  // отдельная общая кнопка под итоговой таблицей отключена.
   window.openWinterRatingWeekTopModal = function (kind) {
     if (kind === "current") openModal("Топы текущей недели", CURRENT_WEEK_DATES, "current");
     else if (kind === "past") openModal("Топы прошлой недели", GAZETTE_DATES, "past");

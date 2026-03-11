@@ -6765,9 +6765,6 @@ a.home-mini-icon-item {
   margin: 12px 12px 0;
   text-align: center;
 }
-.winter-rating.spring-rating .winter-rating__spring-league-share-wrap {
-  display: none;
-}
 .winter-rating__table-wrap--collapsed .winter-rating__table tbody tr:nth-child(n+11) {
   display: none;
 }
