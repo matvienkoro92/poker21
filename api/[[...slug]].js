@@ -22,6 +22,7 @@ const handlers = {
   "setup-qstash-reminder": () => require(path.join(handlersDir, "setup-qstash-reminder.js")),
   "freeroll-reminder-send": () => require(path.join(handlersDir, "freeroll-reminder-send.js")),
   "send-to-user": () => require(path.join(handlersDir, "send-to-user.js")),
+  "send-bulk": () => require(path.join(handlersDir, "send-bulk.js")),
   "cron-reminder-10min": () => require(path.join(handlersDir, "cron-reminder-10min.js")),
   "freeroll-reminder-subscribe": () => require(path.join(handlersDir, "freeroll-reminder-subscribe.js")),
   "gazette-subscribe": () => require(path.join(handlersDir, "gazette-subscribe.js")),

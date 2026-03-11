@@ -7533,8 +7533,10 @@ function initRaffles() {
   var raffleParticipants = document.getElementById("raffleParticipants");
   var raffleWinnersWrap = document.getElementById("raffleWinnersWrap");
   var raffleWinners = document.getElementById("raffleWinners");
+  var raffleInviteFriendInlineBtn = document.getElementById("raffleInviteFriendInlineBtn");
   var currentRaffleId = null;
   var currentRaffleEndDate = null;
+  var currentRaffleData = null;
   var raffleTimerInterval = null;
   var rafflesIsAdmin = false;
   var myRaffleUserId = null;
@@ -7671,6 +7673,7 @@ function initRaffles() {
       raffleTimerInterval = null;
     }
     currentRaffleId = raffle.id;
+    currentRaffleData = raffle;
     var total = raffle.totalWinners || 0;
     var groups = raffle.groups || [];
     var totalPrize = getRaffleTotalPrize(raffle);
@@ -8077,6 +8080,26 @@ function initRaffles() {
       var link = appUrl + "?startapp=raffles";
       var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает билеты на турниры бесплатно, заходи участвуй)");
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
+    });
+  }
+
+  if (raffleInviteFriendInlineBtn) {
+    raffleInviteFriendInlineBtn.addEventListener("click", function () {
+      if (!currentRaffleData) return;
+      var raffle = currentRaffleData;
+      var groups = raffle.groups || [];
+      var total = raffle.totalWinners || 0;
+      var totalPrize = getRaffleTotalPrize(raffle);
+      var tournamentName = (raffle.title || (groups[0] && groups[0].prize) || "").trim() || "турнир клуба";
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var link = appUrl + "?startapp=raffles";
+      var text = "Стартовал первый розыгрыш на *" + tournamentName + "*." +
+        " Разыгрывается *" + (total || 0) + "* билетов на сумму *" + (totalPrize || 0) + "₽*";
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text);
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
     });
   }
@@ -11033,6 +11056,10 @@ updateVisitorCounter();
     if (elRaffle) elRaffle.textContent = "—";
     visitorsAdminData = null;
     fillMonthFilterSelect();
+    ["Visitors", "Gazette", "Rating", "Raffle"].forEach(function (name) {
+      var btn = document.getElementById("visitorsAdminGroup" + name);
+      updateGroupBtnState(btn, false);
+    });
     modal.setAttribute("aria-hidden", "false");
     var base = getApiBase();
     var initData = tg && tg.initData ? tg.initData : "";
@@ -11044,6 +11071,112 @@ updateVisitorCounter();
   function closeVisitorsModal() {
     var modal = document.getElementById("visitorsAdminModal");
     if (modal) modal.setAttribute("aria-hidden", "true");
+  }
+
+  var selectedBroadcastGroups = [];
+  function updateGroupBtnState(btn, pressed) {
+    if (!btn) return;
+    btn.setAttribute("aria-pressed", pressed ? "true" : "false");
+    var check = btn.querySelector(".visitors-admin-modal__group-check");
+    if (check) check.textContent = pressed ? "\u2611" : "\u2610";
+  }
+  function getSelectedBroadcastGroups() {
+    var out = [];
+    ["visitors", "gazette", "rating", "raffle"].forEach(function (g) {
+      var btn = document.getElementById("visitorsAdminGroup" + (g.charAt(0).toUpperCase() + g.slice(1)));
+      if (btn && btn.getAttribute("aria-pressed") === "true") out.push(g);
+    });
+    return out;
+  }
+  function openBroadcastModal() {
+    selectedBroadcastGroups = getSelectedBroadcastGroups();
+    if (selectedBroadcastGroups.length === 0) {
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.showAlert) tg.showAlert("Выберите хотя бы одну группу"); else alert("Выберите хотя бы одну группу");
+      return;
+    }
+    var modal = document.getElementById("visitorsBroadcastModal");
+    var hint = document.getElementById("visitorsBroadcastHint");
+    var textEl = document.getElementById("visitorsBroadcastText");
+    var fileEl = document.getElementById("visitorsBroadcastImageFile");
+    var fileNameEl = document.getElementById("visitorsBroadcastFileName");
+    if (hint) hint.textContent = "Выбрано групп: " + selectedBroadcastGroups.length;
+    if (textEl) textEl.value = "";
+    if (fileEl) { fileEl.value = ""; if (fileNameEl) fileNameEl.textContent = ""; }
+    if (modal) modal.setAttribute("aria-hidden", "false");
+  }
+  function closeBroadcastModal() {
+    var modal = document.getElementById("visitorsBroadcastModal");
+    if (modal) modal.setAttribute("aria-hidden", "true");
+  }
+  function sendBroadcast() {
+    var textEl = document.getElementById("visitorsBroadcastText");
+    var fileEl = document.getElementById("visitorsBroadcastImageFile");
+    var sendBtn = document.getElementById("visitorsBroadcastSendBtn");
+    var text = (textEl && textEl.value || "").trim();
+    var file = fileEl && fileEl.files && fileEl.files[0];
+    if (!text && !file) {
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.showAlert) tg.showAlert("Введите текст или прикрепите картинку"); else alert("Введите текст или прикрепите картинку");
+      return;
+    }
+    var base = getApiBase();
+    var initData = tg && tg.initData ? tg.initData : "";
+    var monthSelect = document.getElementById("visitorsAdminMonthFilter");
+    var month = monthSelect ? monthSelect.value : null;
+    if (!base || !initData) return;
+    if (sendBtn) sendBtn.disabled = true;
+
+    function doSend(imageBase64, imageMimeType) {
+      var payload = {
+        initData: initData,
+        groups: getSelectedBroadcastGroups(),
+        month: month || undefined,
+        text: text,
+      };
+      if (imageBase64) payload.imageBase64 = imageBase64;
+      if (imageMimeType) payload.imageMimeType = imageMimeType;
+      fetch(base + "/api/send-bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (sendBtn) sendBtn.disabled = false;
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (data && data.ok) {
+          var msg = "Отправлено: " + (data.sent || 0) + ", ошибок: " + (data.failed || 0) + (data.total != null ? " из " + data.total : "");
+          if (tg && tg.showAlert) tg.showAlert(msg); else alert(msg);
+          closeBroadcastModal();
+        } else {
+          if (tg && tg.showAlert) tg.showAlert(data && data.error ? data.error : "Ошибка рассылки"); else alert(data && data.error || "Ошибка рассылки");
+        }
+      })
+      .catch(function () {
+        if (sendBtn) sendBtn.disabled = false;
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети"); else alert("Ошибка сети");
+      });
+    }
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var dataUrl = reader.result;
+        var match = typeof dataUrl === "string" && dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+        var mime = (match && match[1]) || "image/jpeg";
+        var base64 = (match && match[2]) || "";
+        doSend(base64, mime);
+      };
+      reader.onerror = function () {
+        if (sendBtn) sendBtn.disabled = false;
+        var t = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (t && t.showAlert) t.showAlert("Не удалось прочитать файл"); else alert("Не удалось прочитать файл");
+      };
+      reader.readAsDataURL(file);
+    } else {
+      doSend();
+    }
   }
 
   function renderVisitorsList() {
@@ -11130,12 +11263,37 @@ updateVisitorCounter();
     var closeBtn = document.getElementById("visitorsAdminModalClose");
     var backdrop = document.getElementById("visitorsAdminModalBackdrop");
     var monthFilter = document.getElementById("visitorsAdminMonthFilter");
+    var broadcastBtn = document.getElementById("visitorsAdminBroadcastBtn");
+    var broadcastModalClose = document.getElementById("visitorsBroadcastModalClose");
+    var broadcastModalBackdrop = document.getElementById("visitorsBroadcastModalBackdrop");
+    var broadcastSendBtn = document.getElementById("visitorsBroadcastSendBtn");
     if (btn) btn.addEventListener("click", openVisitorsModal);
     if (showListBtn) showListBtn.addEventListener("click", renderVisitorsList);
     if (closeBtn) closeBtn.addEventListener("click", closeVisitorsModal);
     if (backdrop) backdrop.addEventListener("click", closeVisitorsModal);
     if (monthFilter) monthFilter.addEventListener("change", function () {
       fetchVisitorsAdminStats(monthFilter.value || null);
+    });
+    if (broadcastBtn) broadcastBtn.addEventListener("click", openBroadcastModal);
+    if (broadcastModalClose) broadcastModalClose.addEventListener("click", closeBroadcastModal);
+    if (broadcastModalBackdrop) broadcastModalBackdrop.addEventListener("click", closeBroadcastModal);
+    if (broadcastSendBtn) broadcastSendBtn.addEventListener("click", sendBroadcast);
+    var broadcastFileEl = document.getElementById("visitorsBroadcastImageFile");
+    var broadcastFileNameEl = document.getElementById("visitorsBroadcastFileName");
+    if (broadcastFileEl && broadcastFileNameEl) {
+      broadcastFileEl.addEventListener("change", function () {
+        var f = this.files && this.files[0];
+        broadcastFileNameEl.textContent = f ? f.name : "";
+      });
+    }
+    ["Visitors", "Gazette", "Rating", "Raffle"].forEach(function (name) {
+      var groupBtn = document.getElementById("visitorsAdminGroup" + name);
+      if (groupBtn) {
+        groupBtn.addEventListener("click", function () {
+          var pressed = this.getAttribute("aria-pressed") !== "true";
+          updateGroupBtnState(this, pressed);
+        });
+      }
     });
   });
 })();
