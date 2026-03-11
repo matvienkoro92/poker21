@@ -10875,6 +10875,152 @@ function fetchVisitorStatsOnly() {
 
 updateVisitorCounter();
 
+// Посетители (админ): кнопка в футере, модалка со списком, отправка сообщения
+(function () {
+  var visitorsAdminData = null;
+
+  function esc(s) {
+    if (s == null) return "";
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function checkAdminAndShowVisitorsButton() {
+    var wrap = document.getElementById("footerAdminVisitorsWrap");
+    if (!wrap) return;
+    var base = getApiBase();
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) return;
+    fetch(base + "/api/visitors-list?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && data.isAdmin) wrap.classList.remove("footer-admin-visitors--hidden");
+      })
+      .catch(function () {});
+  }
+
+  function openVisitorsModal() {
+    var modal = document.getElementById("visitorsAdminModal");
+    var listWrap = document.getElementById("visitorsAdminListWrap");
+    var listEl = document.getElementById("visitorsAdminList");
+    var uniqueMonthEl = document.getElementById("visitorsAdminUniqueMonth");
+    if (!modal || !listWrap || !listEl) return;
+    listWrap.classList.add("visitors-admin-modal__list-wrap--hidden");
+    listEl.innerHTML = "";
+    uniqueMonthEl.textContent = "—";
+    visitorsAdminData = null;
+    modal.setAttribute("aria-hidden", "false");
+    var base = getApiBase();
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) return;
+    fetch(base + "/api/visitors-list?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.ok || !data.isAdmin) return;
+        visitorsAdminData = data;
+        if (uniqueMonthEl) uniqueMonthEl.textContent = String(data.uniqueThisMonth != null ? data.uniqueThisMonth : "—");
+      })
+      .catch(function () {});
+  }
+
+  function closeVisitorsModal() {
+    var modal = document.getElementById("visitorsAdminModal");
+    if (modal) modal.setAttribute("aria-hidden", "true");
+  }
+
+  function renderVisitorsList() {
+    var listWrap = document.getElementById("visitorsAdminListWrap");
+    var listEl = document.getElementById("visitorsAdminList");
+    if (!listWrap || !listEl || !visitorsAdminData || !visitorsAdminData.visitors) return;
+    listWrap.classList.remove("visitors-admin-modal__list-wrap--hidden");
+    var initData = tg && tg.initData ? tg.initData : "";
+    var base = getApiBase();
+    var visitors = visitorsAdminData.visitors;
+    listEl.innerHTML = "";
+    visitors.forEach(function (v) {
+      var isTg = v.id && v.id.indexOf("tg_") === 0;
+      var channelSpan = "Подписан на канал клуба: <span class=\"visitors-admin-item__channel\" data-user-id=\"" + esc(v.id) + "\">—</span>";
+      if (!isTg) channelSpan = "Подписан на канал: —";
+      var botSpan = " Подписан на бота: проверяется отправкой сообщения.";
+      var sendBlock = "";
+      if (isTg) {
+        sendBlock =
+          "<div class=\"visitors-admin-item__send\">" +
+          "<input type=\"text\" class=\"visitors-admin-item__input\" placeholder=\"Сообщение...\" maxlength=\"4000\" data-user-id=\"" + esc(v.id) + "\" />" +
+          "<button type=\"button\" class=\"visitors-admin-item__send-btn\" data-user-id=\"" + esc(v.id) + "\">Отправить</button>" +
+          "</div>";
+      }
+      var row =
+        "<div class=\"visitors-admin-item\" data-user-id=\"" + esc(v.id) + "\">" +
+        "<div class=\"visitors-admin-item__row\">" +
+        "<span class=\"visitors-admin-item__id\">" + esc(v.id) + "</span> " +
+        (v.username ? "<span class=\"visitors-admin-item__meta\">@" + esc(v.username) + "</span>" : "") + " " +
+        (v.dtId ? "<span class=\"visitors-admin-item__badge\">" + esc(v.dtId) + "</span>" : "") + " " +
+        "<span class=\"visitors-admin-item__meta\">визитов: " + esc(v.count) + "</span>" +
+        "</div>" +
+        (isTg ? "<div class=\"visitors-admin-item__row\">" + channelSpan + "." + botSpan + "</div>" : "") +
+        sendBlock +
+        "</div>";
+      listEl.insertAdjacentHTML("beforeend", row);
+    });
+    if (base && initData) {
+      listEl.querySelectorAll(".visitors-admin-item__channel[data-user-id]").forEach(function (el) {
+        var uid = el.getAttribute("data-user-id");
+        if (!uid) return;
+        fetch(base + "/api/visitor-telegram-status?initData=" + encodeURIComponent(initData) + "&userId=" + encodeURIComponent(uid))
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d && d.ok) {
+              if (d.channelSubscribedUnknown) el.textContent = "?";
+              else el.textContent = d.channelSubscribed ? "да" : "нет";
+              el.classList.add(d.channelSubscribed ? "visitors-admin-item__badge--yes" : "visitors-admin-item__badge--no");
+            }
+          })
+          .catch(function () { el.textContent = "—"; });
+      });
+    }
+    listEl.querySelectorAll(".visitors-admin-item__send-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var uid = btn.getAttribute("data-user-id");
+        var input = listEl.querySelector(".visitors-admin-item__input[data-user-id=\"" + uid + "\"]");
+        var text = (input && input.value || "").trim();
+        if (!text || !base || !initData) return;
+        btn.disabled = true;
+        fetch(base + "/api/send-to-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, user_id: uid, text: text }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            btn.disabled = false;
+            if (d && d.ok) {
+              if (input) input.value = "";
+            } else {
+              alert(d && d.error ? d.error : "Ошибка отправки");
+            }
+          })
+          .catch(function () { btn.disabled = false; alert("Ошибка сети"); });
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    checkAdminAndShowVisitorsButton();
+    var btn = document.getElementById("adminVisitorsBtn");
+    var showListBtn = document.getElementById("visitorsAdminShowListBtn");
+    var closeBtn = document.getElementById("visitorsAdminModalClose");
+    var backdrop = document.getElementById("visitorsAdminModalBackdrop");
+    if (btn) btn.addEventListener("click", openVisitorsModal);
+    if (showListBtn) showListBtn.addEventListener("click", renderVisitorsList);
+    if (closeBtn) closeBtn.addEventListener("click", closeVisitorsModal);
+    if (backdrop) backdrop.addEventListener("click", closeVisitorsModal);
+  });
+})();
+
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
 function getMskHour() {

@@ -10498,6 +10498,178 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   color: var(--text-muted);
 }
 
+.footer-admin-visitors {
+  margin: 8px 0 0;
+}
+.footer-admin-visitors--hidden {
+  display: none !important;
+}
+.footer-admin-visitors__btn {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--block-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.footer-admin-visitors__btn:hover {
+  color: var(--text);
+  background: var(--bg-elevated);
+}
+
+/* Модалка «Посетители» (админ) */
+.visitors-admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+.visitors-admin-modal[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+}
+.visitors-admin-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+.visitors-admin-modal__box {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+}
+.visitors-admin-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.visitors-admin-modal__close:hover {
+  color: var(--text);
+  background: var(--bg-elevated);
+}
+.visitors-admin-modal__title {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+.visitors-admin-modal__stats {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.visitors-admin-modal__stats strong {
+  color: var(--text);
+}
+.visitors-admin-modal__show-btn {
+  margin-bottom: 16px;
+}
+.visitors-admin-modal__list-wrap {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 120px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--block-bg);
+}
+.visitors-admin-modal__list-wrap--hidden {
+  display: none !important;
+}
+.visitors-admin-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.visitors-admin-item {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+.visitors-admin-item__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.visitors-admin-item__id {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--text);
+}
+.visitors-admin-item__meta {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.visitors-admin-item__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+.visitors-admin-item__badge--yes { color: var(--success, #22c55e); }
+.visitors-admin-item__badge--no { color: var(--danger, #ef4444); }
+.visitors-admin-item__send {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.visitors-admin-item__send input {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--block-bg);
+  color: var(--text);
+}
+.visitors-admin-item__send button {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.visitors-admin-item__send button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Профиль */
 .profile-greeting {
   margin: 8px 0 0;

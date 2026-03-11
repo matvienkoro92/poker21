@@ -18,6 +18,7 @@ const handlers = {
   users: () => require(path.join(handlersDir, "users.js")),
   pikhanina: () => require(path.join(handlersDir, "pikhanina.js")),
   "visitors-list": () => require(path.join(handlersDir, "visitors-list.js")),
+  "visitor-telegram-status": () => require(path.join(handlersDir, "visitor-telegram-status.js")),
   "setup-qstash-reminder": () => require(path.join(handlersDir, "setup-qstash-reminder.js")),
   "freeroll-reminder-send": () => require(path.join(handlersDir, "freeroll-reminder-send.js")),
   "send-to-user": () => require(path.join(handlersDir, "send-to-user.js")),
