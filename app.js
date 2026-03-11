@@ -6563,13 +6563,13 @@ function closeDailyPredictionModal() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=daily_prediction";
-      var shortText = "Моё предсказание на день от клуба «Два туза»";
+      var shortText = "Покерное предсказание на сегодня";
       var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shortText);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg && tg.openLink) {
-        tg.openLink(shareUrl);
-      } else if (tg && tg.openTelegramLink) {
+      if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(shareUrl);
+      } else if (tg && tg.openLink) {
+        tg.openLink(shareUrl);
       } else {
         window.open(shareUrl, "_blank");
       }
