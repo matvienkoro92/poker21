@@ -9973,7 +9973,7 @@ function initChat() {
             }).catch(function () { chatIsEditingMessage = false; });
           });
           cancelBtn.addEventListener("click", closeEdit);
-        } else if (action === "delete" && msg.own) {
+        } else if (action === "delete" && (msg.own || chatIsAdmin)) {
           if (!confirm("Удалить сообщение?")) return;
           var delBody = { initData: initData, messageId: msg.id };
           if (src === "personal" && chatWithUserId) delBody.with = chatWithUserId;
