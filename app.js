@@ -9782,8 +9782,9 @@ function initChat() {
       if (!ctxMenu) return;
       var isOwn = !!msg.own;
       var canEdit = isOwn && !msg.hasImage && !msg.hasVoice;
+      var canDelete = isOwn || !!chatIsAdmin;
       ctxMenu.querySelectorAll("[data-action=\"delete\"]").forEach(function (item) {
-        item.style.display = isOwn ? "" : "none";
+        item.style.display = canDelete ? "" : "none";
       });
       ctxMenu.querySelectorAll("[data-action=\"edit\"]").forEach(function (item) {
         item.style.display = canEdit ? "" : "none";
