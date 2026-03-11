@@ -7520,6 +7520,8 @@ function initRaffles() {
   var raffleDeleteBtn = document.getElementById("raffleDeleteBtn");
   var raffleStatWinners = document.getElementById("raffleStatWinners");
   var raffleStatPrize = document.getElementById("raffleStatPrize");
+  var raffleStatPrizeValue = document.getElementById("raffleStatPrizeValue");
+  var raffleStatTournamentName = document.getElementById("raffleStatTournamentName");
   var raffleStatGroups = document.getElementById("raffleStatGroups");
   var raffleEnd = document.getElementById("raffleEnd");
   var rafflePrizes = document.getElementById("rafflePrizes");
@@ -7676,7 +7678,9 @@ function initRaffles() {
     var isActive = raffle.status === "active";
     currentRaffleEndDate = isActive && endDate ? endDate : null;
     if (raffleStatWinners) raffleStatWinners.textContent = "Победителей: " + total;
-    if (raffleStatPrize) raffleStatPrize.textContent = "Сумма приза: " + (totalPrize > 0 ? totalPrize + " р" : "—");
+    var tournamentName = (raffle.title || (groups[0] && groups[0].prize) || "").trim() || "—";
+    if (raffleStatTournamentName) raffleStatTournamentName.textContent = tournamentName;
+    if (raffleStatPrizeValue) raffleStatPrizeValue.textContent = totalPrize > 0 ? totalPrize + " р" : "—";
     if (raffleStatGroups) raffleStatGroups.textContent = "Групп призов: " + (groups.length > 0 ? groups.length : "—");
     if (currentRaffleEndDate) {
       updateRaffleEndText();
@@ -10828,23 +10832,23 @@ function updateVisitorCounter() {
   const elTotal = document.getElementById("visitorTotal");
   const elUnique = document.getElementById("visitorUnique");
   const elReturning = document.getElementById("visitorReturning");
-  if (!elUnique || !elReturning) return;
+  const hasCounterEls = !!(elUnique && elReturning);
 
   const setDash = function () {
     if (elTotal) elTotal.textContent = "—";
-    elUnique.textContent = "—";
-    elReturning.textContent = "—";
+    if (elUnique) elUnique.textContent = "—";
+    if (elReturning) elReturning.textContent = "—";
   };
 
   const base = getApiBase();
   const isLocal = isLocalEnv();
   if (isLocal && !(document.getElementById("app") && document.getElementById("app").getAttribute("data-api-base"))) {
-    setDash();
+    if (hasCounterEls) setDash();
     return;
   }
 
   if (!base) {
-    setDash();
+    if (hasCounterEls) setDash();
     return;
   }
 
@@ -10862,17 +10866,19 @@ function updateVisitorCounter() {
         return res.json();
       })
       .then(function (data) {
-        applyVisitorCounts(data, elTotal, elUnique, elReturning);
+        if (hasCounterEls) applyVisitorCounts(data, elTotal, elUnique, elReturning);
         if (data && data.dtId) sessionStorage.setItem("poker_dt_id", data.dtId);
-        if (data && data.ok === false) fetchVisitorStatsOnly();
+        if (data && data.ok === false && hasCounterEls) fetchVisitorStatsOnly();
       })
       .catch(function () {
-        setDash();
+        if (hasCounterEls) setDash();
         if (retryCount > 0) {
           setTimeout(function () { doFetch(retryCount - 1); }, 1500);
         } else {
-          fetchVisitorStatsOnly();
-          setTimeout(updateVisitorCounter, 5000);
+          if (hasCounterEls) {
+            fetchVisitorStatsOnly();
+            setTimeout(updateVisitorCounter, 5000);
+          }
         }
       });
   }
@@ -10946,6 +10952,14 @@ updateVisitorCounter();
   function checkAdminAndShowVisitorsButton() {
     var wrap = document.getElementById("footerAdminVisitorsWrap");
     if (!wrap) return;
+    // В локальной разработке всегда показываем кнопку админа,
+    // чтобы можно было тестировать без Telegram initData.
+    try {
+      if (typeof window !== "undefined" && window.location && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+        wrap.classList.remove("footer-admin-visitors--hidden");
+        return;
+      }
+    } catch (e) {}
     var base = getApiBase();
     var initData = tg && tg.initData ? tg.initData : "";
     if (!base || !initData) return;
@@ -10957,28 +10971,74 @@ updateVisitorCounter();
       .catch(function () {});
   }
 
-  function openVisitorsModal() {
-    var modal = document.getElementById("visitorsAdminModal");
-    var listWrap = document.getElementById("visitorsAdminListWrap");
-    var listEl = document.getElementById("visitorsAdminList");
-    var uniqueMonthEl = document.getElementById("visitorsAdminUniqueMonth");
-    if (!modal || !listWrap || !listEl) return;
-    listWrap.classList.add("visitors-admin-modal__list-wrap--hidden");
-    listEl.innerHTML = "";
-    uniqueMonthEl.textContent = "—";
-    visitorsAdminData = null;
-    modal.setAttribute("aria-hidden", "false");
+  var MONTH_NAMES = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+  function getMonthValue(d) {
+    var y = d.getFullYear();
+    var m = d.getMonth() + 1;
+    return y + "-" + (m < 10 ? "0" + m : String(m));
+  }
+  function fillMonthFilterSelect() {
+    var sel = document.getElementById("visitorsAdminMonthFilter");
+    if (!sel) return;
+    var d = new Date();
+    sel.innerHTML = "";
+    for (var i = 0; i < 12; i++) {
+      var value = getMonthValue(d);
+      var label = MONTH_NAMES[d.getMonth()] + " " + d.getFullYear();
+      var opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      sel.appendChild(opt);
+      d.setMonth(d.getMonth() - 1);
+    }
+    sel.value = getMonthValue(new Date());
+  }
+  function fetchVisitorsAdminStats(monthValue) {
+    var elUnique = document.getElementById("visitorsAdminUnique");
+    var elGazette = document.getElementById("visitorsAdminGazette");
+    var elRating = document.getElementById("visitorsAdminRating");
+    var elRaffle = document.getElementById("visitorsAdminRaffle");
     var base = getApiBase();
     var initData = tg && tg.initData ? tg.initData : "";
     if (!base || !initData) return;
-    fetch(base + "/api/visitors-list?initData=" + encodeURIComponent(initData))
+    var url = base + "/api/visitors-list?initData=" + encodeURIComponent(initData);
+    if (monthValue) url += "&month=" + encodeURIComponent(monthValue);
+    fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data || !data.ok || !data.isAdmin) return;
         visitorsAdminData = data;
-        if (uniqueMonthEl) uniqueMonthEl.textContent = String(data.uniqueThisMonth != null ? data.uniqueThisMonth : "—");
+        if (elUnique) elUnique.textContent = String(data.uniqueInSelectedMonth != null ? data.uniqueInSelectedMonth : data.uniqueThisMonth != null ? data.uniqueThisMonth : "—");
+        if (elGazette) elGazette.textContent = String(data.gazetteSubscribers != null ? data.gazetteSubscribers : "—");
+        if (elRating) elRating.textContent = String(data.ratingSubscribers != null ? data.ratingSubscribers : "—");
+        if (elRaffle) elRaffle.textContent = String(data.raffleSubscribers != null ? data.raffleSubscribers : "—");
       })
       .catch(function () {});
+  }
+  function openVisitorsModal() {
+    var modal = document.getElementById("visitorsAdminModal");
+    var listWrap = document.getElementById("visitorsAdminListWrap");
+    var listEl = document.getElementById("visitorsAdminList");
+    var elUnique = document.getElementById("visitorsAdminUnique");
+    var elGazette = document.getElementById("visitorsAdminGazette");
+    var elRating = document.getElementById("visitorsAdminRating");
+    var elRaffle = document.getElementById("visitorsAdminRaffle");
+    var monthSelect = document.getElementById("visitorsAdminMonthFilter");
+    if (!modal || !listWrap || !listEl) return;
+    listWrap.classList.add("visitors-admin-modal__list-wrap--hidden");
+    listEl.innerHTML = "";
+    if (elUnique) elUnique.textContent = "—";
+    if (elGazette) elGazette.textContent = "—";
+    if (elRating) elRating.textContent = "—";
+    if (elRaffle) elRaffle.textContent = "—";
+    visitorsAdminData = null;
+    fillMonthFilterSelect();
+    modal.setAttribute("aria-hidden", "false");
+    var base = getApiBase();
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) return;
+    var monthValue = monthSelect ? monthSelect.value : null;
+    fetchVisitorsAdminStats(monthValue);
   }
 
   function closeVisitorsModal() {
@@ -11069,10 +11129,14 @@ updateVisitorCounter();
     var showListBtn = document.getElementById("visitorsAdminShowListBtn");
     var closeBtn = document.getElementById("visitorsAdminModalClose");
     var backdrop = document.getElementById("visitorsAdminModalBackdrop");
+    var monthFilter = document.getElementById("visitorsAdminMonthFilter");
     if (btn) btn.addEventListener("click", openVisitorsModal);
     if (showListBtn) showListBtn.addEventListener("click", renderVisitorsList);
     if (closeBtn) closeBtn.addEventListener("click", closeVisitorsModal);
     if (backdrop) backdrop.addEventListener("click", closeVisitorsModal);
+    if (monthFilter) monthFilter.addEventListener("change", function () {
+      fetchVisitorsAdminStats(monthFilter.value || null);
+    });
   });
 })();
 

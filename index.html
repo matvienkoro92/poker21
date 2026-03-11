@@ -1589,7 +1589,8 @@
                   <p class="raffle-id-note">Проверьте ваш ID в Poker21</p>
                   <div class="raffle-stats-block">
                     <p class="raffle-stat" id="raffleStatWinners">Победителей:</p>
-                    <p class="raffle-stat" id="raffleStatPrize">Сумма приза:</p>
+                    <p class="raffle-stat" id="raffleStatPrizeLabel">Приз: Билеты на турнир <span id="raffleStatTournamentName">—</span></p>
+                    <p class="raffle-stat" id="raffleStatPrize">Общая сумма розыгрыша: <span id="raffleStatPrizeValue">—</span></p>
                     <p class="raffle-stat" id="raffleStatGroups">Групп призов:</p>
                     <p class="raffle-stat raffle-stat--timer" id="raffleEnd"></p>
                   </div>
@@ -2100,9 +2101,16 @@
         <div class="visitors-admin-modal__box">
           <button type="button" class="visitors-admin-modal__close" id="visitorsAdminModalClose" aria-label="Закрыть">×</button>
           <h2 class="visitors-admin-modal__title">Посетители</h2>
-          <p class="visitors-admin-modal__stats">
-            Уникальных за этот месяц: <strong id="visitorsAdminUniqueMonth">—</strong>
-          </p>
+          <div class="visitors-admin-modal__filter-wrap">
+            <label for="visitorsAdminMonthFilter" class="visitors-admin-modal__filter-label">Месяц:</label>
+            <select id="visitorsAdminMonthFilter" class="visitors-admin-modal__filter-select" aria-label="Выбор месяца"></select>
+          </div>
+          <div class="visitors-admin-modal__stats-wrap">
+            <p class="visitors-admin-modal__stats-row">Уникальных посетителей: <strong id="visitorsAdminUnique">—</strong></p>
+            <p class="visitors-admin-modal__stats-row">Подписчиков газеты: <strong id="visitorsAdminGazette">—</strong></p>
+            <p class="visitors-admin-modal__stats-row">Подписчиков рейтинга: <strong id="visitorsAdminRating">—</strong></p>
+            <p class="visitors-admin-modal__stats-row">Подписчиков розыгрышей: <strong id="visitorsAdminRaffle">—</strong></p>
+          </div>
           <button type="button" class="visitors-admin-modal__show-btn primary-button" id="visitorsAdminShowListBtn">Посмотреть</button>
           <div class="visitors-admin-modal__list-wrap visitors-admin-modal__list-wrap--hidden" id="visitorsAdminListWrap">
             <div class="visitors-admin-modal__list" id="visitorsAdminList"></div>

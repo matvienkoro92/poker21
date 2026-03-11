@@ -10597,6 +10597,36 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .visitors-admin-modal__stats strong {
   color: var(--text);
 }
+.visitors-admin-modal__filter-wrap {
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.visitors-admin-modal__filter-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.visitors-admin-modal__filter-select {
+  padding: 6px 10px;
+  font-size: 14px;
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border, #334155);
+  border-radius: 8px;
+  color: var(--text);
+  min-width: 140px;
+}
+.visitors-admin-modal__stats-wrap {
+  margin: 0 0 12px;
+}
+.visitors-admin-modal__stats-row {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.visitors-admin-modal__stats-row strong {
+  color: var(--text);
+}
 .visitors-admin-modal__show-btn {
   margin-bottom: 16px;
 }
