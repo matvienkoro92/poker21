@@ -226,6 +226,19 @@ function getAssetUrl(relativePath) {
     var link = e.target && e.target.closest ? e.target.closest(".chat-msg__tg-link, .chat-msg__link") : null;
     if (!link || !link.href) return;
     e.preventDefault();
+
+    // Внутренние ссылки с параметром startapp (например, startapp=raffles) — не открываем приложение заново,
+    // а переключаемся внутри текущего web-app.
+    try {
+      var urlObj = new URL(link.href, window.location.href);
+      var sp = new URLSearchParams(urlObj.search || "");
+      var startApp = sp.get("startapp");
+      if (startApp === "raffles" && typeof setView === "function") {
+        setView("raffles");
+        return;
+      }
+    } catch (ignore) {}
+
     var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (link.classList && link.classList.contains("chat-msg__tg-link") && tg && tg.openTelegramLink) {
       tg.openTelegramLink(link.href);
