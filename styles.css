@@ -6360,9 +6360,9 @@ a.home-mini-icon-item {
 }
 
 .winter-rating.spring-rating {
-  background: linear-gradient(165deg, rgba(14, 35, 55, 0.96) 0%, rgba(22, 45, 65, 0.94) 40%, rgba(15, 40, 55, 0.96) 100%);
+  background: transparent;
   border: none;
-  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: none;
 }
 .winter-rating.spring-rating::before {
   background-image: none;
@@ -6535,9 +6535,8 @@ a.home-mini-icon-item {
   border-color: rgba(181, 196, 138, 0.4);
 }
 [data-theme="light"] .winter-rating.spring-rating {
-  background: linear-gradient(165deg, rgba(244, 248, 236, 0.82) 0%, rgba(228, 236, 208, 0.78) 50%, rgba(213, 224, 184, 0.78) 100%);
-  border-color: rgba(107, 142, 35, 0.22);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: transparent;
+  box-shadow: none;
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__title-accent {
   color: #556b2f;

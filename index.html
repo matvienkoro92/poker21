@@ -1520,7 +1520,7 @@
               </div>
               <div class="raffles-subscribe-wrap">
                 <p class="raffles-subscribe-text">Получать уведомления о новых розыгрышах в Telegram</p>
-                <button type="button" class="raffles-subscribe-btn" id="rafflesSubscribeBtn" disabled>Подписаться на розыгрыши</button>
+                <button type="button" class="raffles-subscribe-btn" id="rafflesSubscribeBtn">Подписаться на розыгрыши</button>
               </div>
             </header>
 
@@ -2292,6 +2292,16 @@
             <div class="gazette-modal__subscribe-wrap">
               <p class="gazette-modal__subscribe-text">Получать уведомления о новых новостях в Telegram</p>
               <button type="button" class="gazette-modal__subscribe-btn" id="gazetteSubscribeBtn">Подписаться на газету</button>
+              <div class="gazette-admin-row gazette-admin-row--hidden" id="gazetteAdminRow">
+                <button
+                  type="button"
+                  class="gazette-admin-btn"
+                  id="gazetteNotifySubsBtn"
+                >
+                  Разослать подписчикам газеты
+                </button>
+                <p class="gazette-admin-hint" id="gazetteNotifySubsHint"></p>
+              </div>
             </div>
           </div>
           <!-- Страница: Горячие новости -->
@@ -2299,16 +2309,40 @@
             <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад к выбору страницы">← К газете</button>
             <div class="gazette-modal__content-masthead">Горячие новости недели</div>
             <div class="gazette-modal__content-rule"></div>
-            <div class="gazette-admin-row gazette-admin-row--hidden" id="gazetteAdminRow">
-              <button
-                type="button"
-                class="gazette-admin-btn"
-                id="gazetteNotifySubsBtn"
-              >
-                Разослать подписчикам газеты
-              </button>
-              <p class="gazette-admin-hint" id="gazetteNotifySubsHint"></p>
-            </div>
+            <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="13">
+              <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
+              <p class="gazette-modal__content-date">13 марта</p>
+              <h3 class="gazette-modal__headline gazette-modal__headline--main">КУЛЕР ВЕРНУЛСЯ В БОЛЬШУЮ ИГРУ И СРАЗУ ПОПАЛ В ОЧКО. Легенда зарекалась — и превзошла себя: тридцать столов подряд в минусе. Каламбур судьбы и стихи на злобу дня!</h3>
+              <div class="gazette-modal__body">
+                <p>Когда Легенда клуба объявила, что возвращается в большую игру, чат замер. Не прошло и суток — и судьба, эта старая карга с колодой в руках, подсунула ей не просто карту, а целую игру. Игру, что зовётся в народе «двадцать одно», а в сердцах — просто <strong>очко</strong>.</p>
+                <p>И вот тут-то и развернулся каламбур, достойный пера сатирика: <strong>попал в очко</strong> — и как название игры, и как приговор. Одна фраза — два смысла. Один стол — одна судьба. Ниже — скрины-доказательства из чата клуба.</p>
+                <p>Всё началось с трёх фраз. В четверть пятого утра герой наш объявляет чату планы на вечер:</p>
+                <div class="gazette-modal__photo-wrap">
+                  <img src="./assets/gazette-culer-21-poydu-proebu.png" alt="Скрин чата: три сообщения от Кулера — «Пойду проебу», «В 21», «Как еблан»" class="gazette-modal__photo" />
+                  <p class="gazette-modal__photo-caption"><strong>Доказательство № 1.</strong> Чат, 04:35. Кулер — три сообщения подряд: «Пойду проебу», «В 21», «Как еблан». Предсказание собственного провала в игре 21, данное за несколько часов до того, как сесть за стол.</p>
+                </div>
+                <p>Так и вышло. Он сел, он проиграл — и дал зарок. «Со спокойной душой больше не зайду никогда туда» — слова, высеченные в истории чата:</p>
+                <div class="gazette-modal__photo-wrap">
+                  <img src="./assets/gazette-culer-21-bolshe-ne-zaydu.png" alt="Скрин чата: сообщение «Проебу и со спокойной душой больше не зайду никогда туда»" class="gazette-modal__photo" />
+                  <p class="gazette-modal__photo-caption"><strong>Доказательство № 2.</strong> Чат, 04:36. Клятва Кулера: «Проебу и со спокойной душой больше не зайду никогда туда». Зарок, данный в минуту поражения — и благополучно нарушенный после возвращения в очко.</p>
+                </div>
+                <p>Ещё недавно эти слова казались финальной точкой. Но что такое зарок для того, кого тянет к столу? Кулер вернулся — и <strong>превзошёл себя</strong>. Предыдущий рекорд по провалу показался маловат. Тридцать столов подряд — всегда в минусе. Свою новую серию он описал в чате так:</p>
+                <div class="gazette-modal__photo-wrap">
+                  <img src="./assets/gazette-culer-21-tridcat-stolov.png" alt="Скрин чата: Кулер (Легенда клуба) о 30 столах в минусе и игре ради интереса" class="gazette-modal__photo" />
+                  <p class="gazette-modal__photo-caption"><strong>Доказательство № 3.</strong> Чат. Кулер (Легенда клуба) — ответ Владиславу: «Я играю чисто ради интереса, посмотреть хочу, когда мне начнёт хотя бы просто нейтрально раздавать. Последние столов 30 я сажусь и всегда минус 🙈 это притом что я умею в 21 играть». Тридцать столов, тридцать минусов — и непоколебимая вера в то, что колода когда-нибудь смилуется.</p>
+                </div>
+                <p>Маяковский бы сказал: <strong>громадье планов и одна колода</strong>. Пушкин бы заметил: <strong>привычка свыше нам дана — замена счастию она</strong>. А Толстой бы описал это так: нелогичная, упрямая человеческая душа, что идёт против собственного слова, как река против берега — потому что не может иначе. «Я умею в 21 играть», — говорит Кулер. И мы верим. Но колода не верит. Колода раздаёт не по умению, а по своему капризу.</p>
+                <p>Так что же мы видим? Героя — в стиле Маяковского: <strong>громоздящегося над чатом</strong>, не сгибающегося под тяжестью минусов. Афоризм в стиле Пушкина: <strong>мы все глядим в напёрстки, редко кто в двадцать одно</strong>. И метафору в стиле Толстого: длинная, неровная линия судьбы — зарок, срыв, возвращение, новый провал; и в этой линии нет ни одной лишней карты, всё связано, всё неизбежно.</p>
+                <p>Клуб смеётся, сочувствует и ждёт. Когда же Кулеру начнёт «хотя бы нейтрально раздавать»? А пока — очко остаётся очком: и игрой, и приговором.</p>
+                <p><strong>Стих на тему</strong></p>
+                <p><em>Кулер сел за стол — и в очко попал,<br>Не в переносном смысле — в самую суть.<br>Он зарекался, клялся, устал,<br>Но колода сказала: «Не забудь.»</em></p>
+                <p><em>Тридцать столов — тридцать минусов подряд,<br>Судьба смеётся, чат в сторонке молчит.<br>Он превзошёл себя — вот наш парад,<br>Кто в очко попал — тот в истории стоит.</em></p>
+                <p><em>По материалам чата клуба «Два туза». Цитаты героя сохранены.</em></p>
+              </div>
+              <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn" data-gazette-share="13" aria-label="Скопировать ссылку на новость">Отправить эту новость другу</button>
+              </p>
+            </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="12">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
               <p class="gazette-modal__content-date">8 марта</p>

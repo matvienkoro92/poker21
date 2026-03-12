@@ -7841,6 +7841,7 @@ function initRaffles() {
   var base = getApiBase();
   var initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || "";
   var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var rafflesSubscribeBtn = document.getElementById("rafflesSubscribeBtn");
   var adminWrap = document.getElementById("rafflesAdminWrap");
   var raffleAdminActions = document.getElementById("raffleAdminActions");
   var createToggle = document.getElementById("rafflesCreateToggle");
@@ -7903,6 +7904,85 @@ function initRaffles() {
   var raffleTimerInterval = null;
   var rafflesIsAdmin = false;
   var myRaffleUserId = null;
+
+  // Подписка на уведомления о новых розыгрышах
+  (function initRafflesSubscribe() {
+    if (!rafflesSubscribeBtn) return;
+    var RAFFLE_SUBSCRIBED_KEY = "poker_raffles_subscribed";
+    function setRaffleSubscribeState(subscribed) {
+      rafflesSubscribeBtn.disabled = false;
+      rafflesSubscribeBtn.textContent = subscribed
+        ? "Отписаться от розыгрышей"
+        : "Подписаться на розыгрыши";
+      rafflesSubscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
+    }
+    try {
+      setRaffleSubscribeState(localStorage.getItem(RAFFLE_SUBSCRIBED_KEY) === "1");
+    } catch (e) {
+      setRaffleSubscribeState(false);
+    }
+    rafflesSubscribeBtn.addEventListener("click", function () {
+      var tgLocal = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      var init = tgLocal && tgLocal.initData ? tgLocal.initData : initData;
+      var baseUrl = getApiBase();
+      if (!init || !baseUrl) {
+        if (tgLocal && tgLocal.showAlert) {
+          tgLocal.showAlert("Откройте приложение в Telegram, чтобы подписаться.");
+        } else {
+          alert("Откройте приложение в Telegram, чтобы подписаться.");
+        }
+        return;
+      }
+      var subscribed = rafflesSubscribeBtn.dataset.subscribed === "1";
+      rafflesSubscribeBtn.disabled = true;
+      fetch(baseUrl.replace(/\/$/, "") + "/api/raffle-subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: init, unsubscribe: subscribed }),
+      })
+        .then(function (r) {
+          return r.json().catch(function () {
+            return { ok: false, error: "Ошибка ответа сервера" };
+          });
+        })
+        .then(function (data) {
+          if (data && data.ok) {
+            try {
+              localStorage.setItem(RAFFLE_SUBSCRIBED_KEY, data.subscribed ? "1" : "0");
+            } catch (e) {}
+            setRaffleSubscribeState(!!data.subscribed);
+            var tgNow = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tgNow && tgNow.showAlert) {
+              tgNow.showAlert(
+                data.subscribed
+                  ? "Подписка оформлена. Уведомления о новых розыгрышах будут приходить в Telegram."
+                  : "Вы отписаны от уведомлений о розыгрышах."
+              );
+            } else {
+              alert(data.subscribed ? "Подписка оформлена." : "Вы отписаны.");
+            }
+          } else {
+            var msg = (data && data.error) || "Ошибка. Попробуйте позже.";
+            var tgNow2 = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tgNow2 && tgNow2.showAlert) tgNow2.showAlert(msg);
+            else alert(msg);
+            setRaffleSubscribeState(subscribed);
+          }
+        })
+        .catch(function () {
+          var tgNow3 = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tgNow3 && tgNow3.showAlert) {
+            tgNow3.showAlert("Сервис временно недоступен. Попробуйте позже.");
+          } else {
+            alert("Сервис временно недоступен.");
+          }
+          setRaffleSubscribeState(subscribed);
+        })
+        .finally(function () {
+          rafflesSubscribeBtn.disabled = false;
+        });
+    });
+  })();
 
   function formatRaffleCountdown(endDate) {
     if (!endDate) return "";
