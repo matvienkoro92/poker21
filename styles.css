@@ -1159,6 +1159,147 @@ html.app-view-home .card .card__content {
 .gazette-modal__pick[hidden] {
   display: none !important;
 }
+
+/* Первая полоса газеты (фронт) */
+.gazette-front {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(44, 24, 16, 0.6);
+}
+.gazette-front__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(44, 24, 16, 0.8);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(44, 24, 16, 0.6);
+}
+.gazette-front__headline-wrap {
+  text-align: center;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(44, 24, 16, 0.6);
+}
+.gazette-front__headline-main {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.gazette-front__headline-sub {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  margin-top: 2px;
+}
+.gazette-front__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+@media (max-width: 380px) {
+  .gazette-front__grid {
+    grid-template-columns: 1fr;
+  }
+}
+.gazette-front__main {
+  border-right: 1px solid rgba(44, 24, 16, 0.35);
+  padding-right: 8px;
+}
+@media (max-width: 380px) {
+  .gazette-front__main {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid rgba(44, 24, 16, 0.35);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+}
+.gazette-front__side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gazette-front__section {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(139, 90, 43, 0.9);
+  margin-bottom: 4px;
+}
+.gazette-front__teaser-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.gazette-front__title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 6px;
+}
+.gazette-front__title-small {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 4px;
+}
+.gazette-front__thumb,
+.gazette-front__thumb-small {
+  border: 1px solid rgba(44, 24, 16, 0.35);
+  background: rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.gazette-front__thumb img {
+  display: block;
+  width: 100%;
+  max-height: 90px;
+  object-fit: cover;
+}
+.gazette-front__thumb-small img {
+  display: block;
+  width: 100%;
+  max-height: 60px;
+  object-fit: cover;
+}
+.gazette-front__lead {
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 0 0 4px;
+}
+.gazette-front__lead-small {
+  font-size: 10px;
+  line-height: 1.35;
+  margin: 0;
+}
+.gazette-front__lead::first-letter,
+.gazette-front__lead-small::first-letter {
+  font-size: 180%;
+  font-weight: 700;
+  float: left;
+  line-height: 0.9;
+  padding-right: 3px;
+}
+.gazette-front__read-more {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.gazette-front__col {
+  border-top: 1px solid rgba(44, 24, 16, 0.3);
+  padding-top: 4px;
+}
 .gazette-modal__pages {
   display: flex;
   flex-direction: column;
@@ -1300,25 +1441,40 @@ html.app-view-home .card .card__content {
   line-height: 1.4;
 }
 .gazette-modal__subscribe-btn {
-  display: inline-block;
-  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 260px;
+  padding: 12px 24px;
   font-size: 14px;
-  font-weight: 600;
-  color: #2c1810;
-  background: rgba(139, 90, 43, 0.2);
-  border: 1px solid rgba(139, 90, 43, 0.5);
-  border-radius: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fef3e2;
+  background: linear-gradient(180deg, #a5241c 0%, #7f1711 100%);
+  border-radius: 999px;
+  border: 1px solid #3c0b07;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
   cursor: pointer;
-  font-family: inherit;
-  transition: background 0.2s, border-color 0.2s;
+  font-family: Georgia, "Times New Roman", serif;
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
 }
 .gazette-modal__subscribe-btn:hover:not(:disabled) {
-  background: rgba(139, 90, 43, 0.35);
-  border-color: rgba(139, 90, 43, 0.65);
+  background: linear-gradient(180deg, #b5271f 0%, #8c1a13 100%);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
 }
 .gazette-modal__subscribe-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 /* .subscribe-btn__in-dev оставлена для совместимости, но сейчас не используется */
 /* Кнопка подписки в блоке новостей */
@@ -1344,6 +1500,32 @@ html.app-view-home .card .card__content {
   border-color: rgba(139, 90, 43, 0.65);
 }
 .gazette-modal__subscribe-in-news-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+/* Кнопка подписки под каждой статьёй */
+.gazette-modal__subscribe-in-article {
+  margin: 12px 0 24px;
+  text-align: center;
+}
+.gazette-modal__subscribe-in-article-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c1810;
+  background: rgba(139, 90, 43, 0.2);
+  border: 1px solid rgba(139, 90, 43, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+.gazette-modal__subscribe-in-article-btn:hover:not(:disabled) {
+  background: rgba(139, 90, 43, 0.35);
+  border-color: rgba(139, 90, 43, 0.65);
+}
+.gazette-modal__subscribe-in-article-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }

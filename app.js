@@ -606,6 +606,14 @@ function runGazetteAndTasksInit() {
       subscribeBtnNews.innerHTML = text + inDevHtml;
       subscribeBtnNews.dataset.subscribed = subscribed ? "1" : "0";
     }
+    var articleBtns = modal && modal.querySelectorAll(".gazette-modal__subscribe-in-article-btn");
+    if (articleBtns) {
+      for (var i = 0; i < articleBtns.length; i++) {
+        articleBtns[i].disabled = false;
+        articleBtns[i].textContent = text;
+        articleBtns[i].dataset.subscribed = subscribed ? "1" : "0";
+      }
+    }
   }
   function updateSubscribeButtonFromStorage() {
     try {
@@ -625,12 +633,16 @@ function runGazetteAndTasksInit() {
         return;
       }
       var activeBtn = subscribeBtn || subscribeBtnNews;
-      var subscribed = (activeBtn && activeBtn.dataset.subscribed === "1") || false;
+      var articleBtn = modal && modal.querySelector(".gazette-modal__subscribe-in-article-btn");
+      var anyBtn = activeBtn || articleBtn;
+      var subscribed = (anyBtn && anyBtn.dataset.subscribed === "1") || false;
       var appEl = document.getElementById("app");
       var base = (appEl && appEl.getAttribute("data-api-base")) || (typeof location !== "undefined" && location.origin) || "";
       var apiUrl = (base ? base.replace(/\/$/, "") : "") + "/api/gazette-subscribe";
       if (subscribeBtn) subscribeBtn.disabled = true;
       if (subscribeBtnNews) subscribeBtnNews.disabled = true;
+      var allArticleBtns = modal && modal.querySelectorAll(".gazette-modal__subscribe-in-article-btn");
+      if (allArticleBtns) for (var j = 0; j < allArticleBtns.length; j++) allArticleBtns[j].disabled = true;
       fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -685,6 +697,10 @@ function runGazetteAndTasksInit() {
     }
     bindSubscribeClick(subscribeBtn);
     bindSubscribeClick(subscribeBtnNews);
+    var articleSubscribeBtns = modal && modal.querySelectorAll(".gazette-modal__subscribe-in-article-btn");
+    if (articleSubscribeBtns) {
+      for (var k = 0; k < articleSubscribeBtns.length; k++) bindSubscribeClick(articleSubscribeBtns[k]);
+    }
   }
   }
 

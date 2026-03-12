@@ -2280,14 +2280,63 @@
               <div class="gazette-modal__rule"></div>
             </header>
             <div class="gazette-modal__pages">
-              <button type="button" class="gazette-modal__page-card gazette-modal__page-card--newspaper" data-gazette-page="news" aria-label="Открыть горячие новости недели">
-                <span class="gazette-modal__page-card-masthead">ПЕРВАЯ ПОЛОСА</span>
-                <span class="gazette-modal__page-card-rule"></span>
-                <span class="gazette-modal__page-card-inner">
-                  <span class="gazette-modal__page-card-caption">Горячие новости недели</span>
-                  <span class="gazette-modal__page-card-sub">Читать в номере →</span>
-                </span>
-              </button>
+              <div class="gazette-front">
+                <div class="gazette-front__meta">
+                  <span class="gazette-front__date">Суббота, 13 марта 2026</span>
+                  <span class="gazette-front__issue">Выпуск № 1 (весна)</span>
+                </div>
+                <div class="gazette-front__headline-wrap">
+                  <div class="gazette-front__headline-main">ПЕРВАЯ ПОЛОСА</div>
+                  <div class="gazette-front__headline-sub">Горячие новости недели</div>
+                </div>
+                <div class="gazette-front__grid">
+                  <div class="gazette-front__main">
+                    <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="13">
+                      <div class="gazette-front__section">Очко · 21</div>
+                      <h3 class="gazette-front__title">
+                        Кулер вернулся в большую игру и сразу попал в очко
+                      </h3>
+                      <div class="gazette-front__thumb">
+                        <img src="./assets/gazette-culer-21-poydu-proebu.png" alt="Кулер: скрин из чата про игру 21" />
+                      </div>
+                      <p class="gazette-front__lead">
+                        Легенда клуба зарекалась больше не заходить в 21, но устроила новое падение из тридцати минусовых столов подряд.
+                      </p>
+                      <span class="gazette-front__read-more">Читать в номере →</span>
+                    </a>
+                  </div>
+                  <div class="gazette-front__side">
+                    <article class="gazette-front__col">
+                      <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="12">
+                        <div class="gazette-front__section">Весенний рейтинг</div>
+                        <h4 class="gazette-front__title-small">
+                          FrankL поджимает Ваара в Лиге&nbsp;1 — всего 60 баллов разрыва
+                        </h4>
+                        <div class="gazette-front__thumb-small">
+                          <img src="./assets/gazette-frankl-vaaar-march8.png" alt="FrankL и Waaar в весеннем рейтинге" />
+                        </div>
+                        <p class="gazette-front__lead-small">
+                          Waaar на троне, но один удачный финальный стол может перевернуть расклад в Лиге&nbsp;1.
+                        </p>
+                      </a>
+                    </article>
+                    <article class="gazette-front__col">
+                      <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="10">
+                        <div class="gazette-front__section">Криминальная сводка</div>
+                        <h4 class="gazette-front__title-small">
+                          АндрюшаМорф выносит кассу двух турниров за вечер
+                        </h4>
+                          <div class="gazette-front__thumb-small">
+                            <img src="./assets/gazette-march-5-thursday.png" alt="Криминальная сводка: турнир четверга" />
+                          </div>
+                        <p class="gazette-front__lead-small">
+                          Два чемодана денег, 85&nbsp;000₽ за одну ночь и легенда, которая снова напомнила, кто здесь хозяин стола.
+                        </p>
+                      </a>
+                    </article>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="gazette-modal__subscribe-wrap">
               <p class="gazette-modal__subscribe-text">Получать уведомления о новых новостях в Telegram</p>
@@ -2342,6 +2391,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="13" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="13" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="12">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2360,6 +2412,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="12" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="12" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="11">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2376,6 +2431,9 @@
               <p class="gazette-modal__share-row">
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="11" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="11" aria-label="Поделиться новостью">Поделиться</button>
+              </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="10">
@@ -2403,6 +2461,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="10" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="10" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="9">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2425,6 +2486,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="9" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="9" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="8">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2444,6 +2508,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="8" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="8" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="7">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2462,6 +2529,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="7" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="7" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="6">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2477,6 +2547,9 @@
               <p class="gazette-modal__share-row">
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="6" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="6" aria-label="Поделиться новостью">Поделиться</button>
+              </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
               </p>
             </article>
             <article class="gazette-modal__lead" data-gazette-article="5">
@@ -2494,6 +2567,9 @@
               <p class="gazette-modal__share-row">
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="5" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="5" aria-label="Поделиться новостью">Поделиться</button>
+              </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="4">
@@ -2513,6 +2589,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="4" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="4" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="3">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2529,6 +2608,9 @@
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="3" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="3" aria-label="Поделиться новостью">Поделиться</button>
               </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="2">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
@@ -2541,6 +2623,9 @@
               <p class="gazette-modal__share-row">
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="2" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="2" aria-label="Поделиться новостью">Поделиться</button>
+              </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
               </p>
             </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="1">
@@ -2557,6 +2642,9 @@
               <p class="gazette-modal__share-row">
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="1" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="1" aria-label="Поделиться новостью">Поделиться</button>
+              </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
               </p>
             </article>
           </div>
