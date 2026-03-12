@@ -298,6 +298,8 @@ var GAZETTE_DATES = ["15.02.2026", "16.02.2026", "17.02.2026", "18.02.2026", "19
 var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026", "27.02.2026", "28.02.2026", "29.02.2026"];
 /** Рейтинг весны: даты прошлой недели по марту (топ занос прошлой недели) */
 var MARCH_PAST_WEEK_DATES = ["02.03.2026", "03.03.2026", "04.03.2026", "05.03.2026", "06.03.2026", "07.03.2026", "08.03.2026"];
+/** Рейтинг весны: даты текущей недели по марту (топы этой недели) */
+var MARCH_CURRENT_WEEK_DATES = ["09.03.2026", "10.03.2026", "11.03.2026", "12.03.2026", "13.03.2026", "14.03.2026", "15.03.2026"];
 // Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?Mart_week_1=1, Топы Марта = BASE?mart=1
 // Укажите сюда полный URL (например https://t.me/... или ссылку на пост), параметры допишутся автоматически
 var SPRING_TOP_LINK_BASE = "https://t.me/Poker_dvatuza_bot/DvaTuza";
@@ -1237,7 +1239,7 @@ setTimeout(function () {
     max = max || 3;
     if (!top || !top.length) return "";
     var lines = top.slice(0, max).map(function (r, i) {
-      var sum = r.totalReward.toLocaleString("ru-RU");
+      var sum = formatRewardRound(r.totalReward);
       return "<span class=\"winter-rating__week-top-preview-line\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</span>";
     }).join("");
     var ellipsis = top.length > max ? "<span class=\"winter-rating__week-top-preview-ellipsis\">…</span>" : "";
@@ -1302,7 +1304,7 @@ setTimeout(function () {
       if (singleTop.length) {
         singleTopSummary.textContent = "Самый большой выигрыш за один турнир за 2026: ";
         singleTopList.innerHTML = singleTop.map(function (r, i) {
-          var sum = r.reward.toLocaleString("ru-RU");
+          var sum = formatRewardRound(r.reward);
           return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " +
             escapePreview(r.nick) + " — " + sum + " ₽</li>";
         }).join("");
@@ -1321,14 +1323,14 @@ setTimeout(function () {
         marchWrap.removeAttribute("hidden");
         marchWrap.style.display = "";
         if (marchData.max) {
-          marchSummary.textContent = "Самый большой выигрыш за март: " + escapePreview(marchData.max.nick) + " — " + marchData.max.reward.toLocaleString("ru-RU") + " ₽";
+          marchSummary.textContent = "Самый большой выигрыш за март: " + escapePreview(marchData.max.nick) + " — " + formatRewardRound(marchData.max.reward) + " ₽";
         } else {
           marchSummary.textContent = "Самый большой выигрыш за март: —";
         }
         if (marchTop3Caption) marchTop3Caption.textContent = marchData.top3 && marchData.top3.length ? "Топ-3 выигрыша за март:" : "";
         if (marchData.top3 && marchData.top3.length) {
           marchList.innerHTML = marchData.top3.map(function (r, i) {
-            var sum = r.reward.toLocaleString("ru-RU");
+            var sum = formatRewardRound(r.reward);
             return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
           }).join("");
         } else {
@@ -1339,23 +1341,105 @@ setTimeout(function () {
         marchWrap.style.display = "none";
       }
     }
+    var currentWeekSection = document.getElementById("winterRatingCurrentWeekSection");
+    var currentWeekSumWrap = document.getElementById("winterRatingCurrentWeekSumWrap");
+    var currentWeekSumList = document.getElementById("winterRatingCurrentWeekSumList");
+    var currentWeekTotalBelow = document.getElementById("winterRatingCurrentWeekTotalBelow");
+    if (currentWeekSumWrap && currentWeekSumList) {
+      if (isSpringRatingMode() && typeof getSpringRatingCurrentWeekTopSum === "function") {
+        if (currentWeekSection) {
+          currentWeekSection.removeAttribute("hidden");
+          currentWeekSection.style.display = "";
+        }
+        var currentWeekSumData = getSpringRatingCurrentWeekTopSum();
+        currentWeekSumWrap.removeAttribute("hidden");
+        currentWeekSumWrap.style.display = "";
+        if (currentWeekSumData.top3 && currentWeekSumData.top3.length) {
+          currentWeekSumList.innerHTML = currentWeekSumData.top3.map(function (r, i) {
+            var sum = formatRewardRound(r.reward);
+            return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
+          }).join("");
+        } else {
+          currentWeekSumList.innerHTML = "";
+        }
+        if (currentWeekTotalBelow) currentWeekTotalBelow.textContent = "Всего выиграно игроками: " + (currentWeekSumData.totalWeek > 0 ? formatRewardRound(currentWeekSumData.totalWeek) + " ₽" : "—");
+      } else {
+        if (currentWeekSection) {
+          currentWeekSection.setAttribute("hidden", "");
+          currentWeekSection.style.display = "none";
+        }
+        currentWeekSumWrap.setAttribute("hidden", "");
+        currentWeekSumWrap.style.display = "none";
+        if (currentWeekTotalBelow) currentWeekTotalBelow.textContent = "";
+      }
+    }
+    var currentWeekWrap = document.getElementById("winterRatingCurrentWeekWrap");
+    var currentWeekList = document.getElementById("winterRatingCurrentWeekList");
+    if (currentWeekWrap && currentWeekList) {
+      if (isSpringRatingMode() && typeof getSpringRatingCurrentWeekTopWins === "function") {
+        var currentWeekData = getSpringRatingCurrentWeekTopWins();
+        currentWeekWrap.removeAttribute("hidden");
+        currentWeekWrap.style.display = "";
+        if (currentWeekData.top3 && currentWeekData.top3.length) {
+          currentWeekList.innerHTML = currentWeekData.top3.map(function (r, i) {
+            var sum = formatRewardRound(r.reward);
+            return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
+          }).join("");
+        } else {
+          currentWeekList.innerHTML = "";
+        }
+      } else {
+        currentWeekWrap.setAttribute("hidden", "");
+        currentWeekWrap.style.display = "none";
+      }
+    }
+    var pastWeekSection = document.getElementById("winterRatingPastWeekSection");
+    var pastWeekSumWrap = document.getElementById("winterRatingPastWeekSumWrap");
+    var pastWeekSumList = document.getElementById("winterRatingPastWeekSumList");
+    var pastWeekTotalBelow = document.getElementById("winterRatingPastWeekTotalBelow");
+    if (pastWeekSumWrap && pastWeekSumList) {
+      if (isSpringRatingMode() && typeof getSpringRatingPastWeekTopSum === "function") {
+        if (pastWeekSection) {
+          pastWeekSection.removeAttribute("hidden");
+          pastWeekSection.style.display = "";
+        }
+        var pastWeekSumData = getSpringRatingPastWeekTopSum();
+        pastWeekSumWrap.removeAttribute("hidden");
+        pastWeekSumWrap.style.display = "";
+        if (pastWeekSumData.top3 && pastWeekSumData.top3.length) {
+          pastWeekSumList.innerHTML = pastWeekSumData.top3.map(function (r, i) {
+            var sum = formatRewardRound(r.reward);
+            return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
+          }).join("");
+        } else {
+          pastWeekSumList.innerHTML = "";
+        }
+        if (pastWeekTotalBelow) pastWeekTotalBelow.textContent = "Всего выиграно игроками: " + (pastWeekSumData.totalWeek > 0 ? formatRewardRound(pastWeekSumData.totalWeek) + " ₽" : "—");
+      } else {
+        if (pastWeekSection) {
+          pastWeekSection.setAttribute("hidden", "");
+          pastWeekSection.style.display = "none";
+        }
+        pastWeekSumWrap.setAttribute("hidden", "");
+        pastWeekSumWrap.style.display = "none";
+        if (pastWeekTotalBelow) pastWeekTotalBelow.textContent = "";
+      }
+    }
     var pastWeekWrap = document.getElementById("winterRatingPastWeekWrap");
     var pastWeekList = document.getElementById("winterRatingPastWeekList");
-    var pastWeekTotal = document.getElementById("winterRatingPastWeekTotal");
-    if (pastWeekWrap && pastWeekList && pastWeekTotal) {
+    if (pastWeekWrap && pastWeekList) {
       if (isSpringRatingMode() && typeof getSpringRatingPastWeekTopWins === "function") {
         var pastWeekData = getSpringRatingPastWeekTopWins();
         pastWeekWrap.removeAttribute("hidden");
         pastWeekWrap.style.display = "";
         if (pastWeekData.top3 && pastWeekData.top3.length) {
           pastWeekList.innerHTML = pastWeekData.top3.map(function (r, i) {
-            var sum = r.reward.toLocaleString("ru-RU");
+            var sum = formatRewardRound(r.reward);
             return "<li class=\"winter-rating__single-top-item\">" + (i + 1) + ". " + escapePreview(r.nick) + " — " + sum + " ₽</li>";
           }).join("");
         } else {
           pastWeekList.innerHTML = "";
         }
-        pastWeekTotal.textContent = "Всего выиграно за неделю: " + (pastWeekData.totalWeek > 0 ? pastWeekData.totalWeek.toLocaleString("ru-RU") + " ₽" : "—");
       } else {
         pastWeekWrap.setAttribute("hidden", "");
         pastWeekWrap.style.display = "none";
@@ -1385,7 +1469,7 @@ setTimeout(function () {
       listEl.innerHTML = "<div class=\"winter-rating__week-top-header\"><span class=\"winter-rating__week-top-num\">№</span><span class=\"winter-rating__week-top-header-nick\">Ник</span><span class=\"winter-rating__week-top-header-reward\">Выигрыш</span><span class=\"winter-rating__week-top-header-prize\">Приз</span></div>" + top.map(function (r, i) {
         var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
         var nickAttr = String(r.nick).replace(/"/g, "&quot;");
-        var sum = r.totalReward.toLocaleString("ru-RU");
+        var sum = formatRewardRound(r.totalReward);
         var prize = prizeForPlace(i + 1);
         return "<div class=\"winter-rating__week-top-item\"><span class=\"winter-rating__week-top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"winter-rating__week-top-reward\">" + sum + " ₽</span><span class=\"winter-rating__week-top-prize\">" + prize + "</span></div>";
       }).join("");
@@ -1394,7 +1478,7 @@ setTimeout(function () {
       listEl.innerHTML = top.map(function (r, i) {
       var nickEsc = String(r.nick).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
       var nickAttr = String(r.nick).replace(/"/g, "&quot;");
-      var sum = r.totalReward.toLocaleString("ru-RU");
+      var sum = formatRewardRound(r.totalReward);
       return "<div class=\"winter-rating__week-top-item\"><span class=\"winter-rating__week-top-num\">" + (i + 1) + ".</span><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button><span class=\"winter-rating__week-top-reward\">" + sum + " ₽</span></div>";
       }).join("");
   }
@@ -2069,7 +2153,7 @@ function updateRaffleBadge(hasActive) {
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
 }
 
-// Рейтинг Турнирщиков зимы — 01.12 по конец февраля (декабрь, январь, февраль). Баллы за места 1–6 только при ненулевой награде (1=135, 2=110, 3=90, 4=70, 5=60, 6=50).
+// Рейтинг Турнирщиков зимы — 01.12 по конец февраля. Логика баллов: см. «Хпокер баллы» (XPOKER_BALLS / winterRatingPointsForPlace).
 // Учитывать данные и с синих, и с красных скринов. Синий скрин («Игровые данные»): призовые в наших единицах = выигрыш из скрина × 100. Красный скрин: призовые так же (выигрыш × 100), места и игроки — как на скрине.
 var WINTER_RATING_START = new Date(2025, 11, 1);  // 01.12.2025
 var WINTER_RATING_END = new Date(2026, 1, 28);    // последний день февраля 2026
@@ -4209,10 +4293,85 @@ function getSpringRatingMarchTopWins() {
   var top3 = allWins.slice(0, 3);
   return { max: max, top3: top3 };
 }
-/** Топ-3 выигрыша за прошлую неделю (март) и общая сумма за неделю из таблицы марта */
+/** Топ-3 по сумме выигрышей за прошлую неделю (март) и общая сумма за неделю */
+function getSpringRatingPastWeekTopSum() {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var allowedDates = typeof MARCH_PAST_WEEK_DATES !== "undefined" && MARCH_PAST_WEEK_DATES.length ? MARCH_PAST_WEEK_DATES : [];
+  var byNick = {};
+  var totalWeek = 0;
+  allowedDates.forEach(function (dateStr) {
+    var list = tournamentsByDate[dateStr];
+    if (!Array.isArray(list)) return;
+    list.forEach(function (t) {
+      var players = t.players || [];
+      players.forEach(function (p) {
+        var rew = p.reward != null ? Number(p.reward) : 0;
+        if (rew !== rew || rew <= 0) return;
+        var nick = normalizeWinterNick(p && p.nick);
+        if (!nick) return;
+        if (!byNick[nick]) byNick[nick] = 0;
+        byNick[nick] += rew;
+        totalWeek += rew;
+      });
+    });
+  });
+  var sorted = Object.keys(byNick).map(function (n) { return { nick: n, reward: byNick[n] }; }).sort(function (a, b) { return b.reward - a.reward; });
+  return { top3: sorted.slice(0, 3), totalWeek: totalWeek };
+}
+/** Топ-3 занос за 1 турнир за прошлую неделю (март) — один выигрыш на игрока, сортировка по убыванию */
 function getSpringRatingPastWeekTopWins() {
   var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
   var allowedDates = typeof MARCH_PAST_WEEK_DATES !== "undefined" && MARCH_PAST_WEEK_DATES.length ? MARCH_PAST_WEEK_DATES : [];
+  var allWins = [];
+  var totalWeek = 0;
+  allowedDates.forEach(function (dateStr) {
+    var list = tournamentsByDate[dateStr];
+    if (!Array.isArray(list)) return;
+    list.forEach(function (t) {
+      var players = t.players || [];
+      players.forEach(function (p) {
+        var rew = p.reward != null ? Number(p.reward) : 0;
+        if (rew !== rew || rew <= 0) return;
+        var nick = normalizeWinterNick(p && p.nick);
+        if (!nick) return;
+        allWins.push({ nick: nick, reward: rew });
+        totalWeek += rew;
+      });
+    });
+  });
+  allWins.sort(function (a, b) { return b.reward - a.reward; });
+  var top3 = allWins.slice(0, 3);
+  return { top3: top3, totalWeek: totalWeek };
+}
+/** Топ-3 по сумме выигрышей за текущую неделю (март) и общая сумма за неделю */
+function getSpringRatingCurrentWeekTopSum() {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var allowedDates = typeof MARCH_CURRENT_WEEK_DATES !== "undefined" && MARCH_CURRENT_WEEK_DATES.length ? MARCH_CURRENT_WEEK_DATES : [];
+  var byNick = {};
+  var totalWeek = 0;
+  allowedDates.forEach(function (dateStr) {
+    var list = tournamentsByDate[dateStr];
+    if (!Array.isArray(list)) return;
+    list.forEach(function (t) {
+      var players = t.players || [];
+      players.forEach(function (p) {
+        var rew = p.reward != null ? Number(p.reward) : 0;
+        if (rew !== rew || rew <= 0) return;
+        var nick = normalizeWinterNick(p && p.nick);
+        if (!nick) return;
+        if (!byNick[nick]) byNick[nick] = 0;
+        byNick[nick] += rew;
+        totalWeek += rew;
+      });
+    });
+  });
+  var sorted = Object.keys(byNick).map(function (n) { return { nick: n, reward: byNick[n] }; }).sort(function (a, b) { return b.reward - a.reward; });
+  return { top3: sorted.slice(0, 3), totalWeek: totalWeek };
+}
+/** Топ-3 занос за 1 турнир за текущую неделю (март) */
+function getSpringRatingCurrentWeekTopWins() {
+  var tournamentsByDate = getSpringRatingTournamentsByDate() || {};
+  var allowedDates = typeof MARCH_CURRENT_WEEK_DATES !== "undefined" && MARCH_CURRENT_WEEK_DATES.length ? MARCH_CURRENT_WEEK_DATES : [];
   var allWins = [];
   var totalWeek = 0;
   allowedDates.forEach(function (dateStr) {
@@ -4373,10 +4532,14 @@ function winterRatingRowClass(place) {
   if (place === 3) return "winter-rating__row--bronze";
   return "";
 }
+/** Форматирует сумму без копеек (округление до целого) */
+function formatRewardRound(val) {
+  return Math.round(Number(val) || 0).toLocaleString("ru-RU");
+}
 function winterRatingPrizeByPlace(place) {
   var prizes = { 1: 110000, 2: 60000, 3: 30000, 4: 20000, 5: 10000, 6: 10000, 7: 10000 };
   var amount = prizes[place];
-  return amount != null ? amount.toLocaleString("ru-RU") + " ₽" : "<span class=\"winter-rating__prize-respect\">уважение</span>";
+  return amount != null ? formatRewardRound(amount) + " ₽" : "<span class=\"winter-rating__prize-respect\">уважение</span>";
 }
 
 function winterRatingPlaceCell(place) {
@@ -4385,16 +4548,12 @@ function winterRatingPlaceCell(place) {
   if (place === 3) return "🥉 3";
   return String(place);
 }
-// Призовое место берётся из раздела «Рейтинг»; баллы назначаются по месту (1–6) только при ненулевой награде.
+/** Хпокер баллы: логика подсчёта баллов рейтинга. Баллы за места 1–6 только при ненулевой награде (reward > 0). Место → баллы: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50, 7+=0. */
+var XPOKER_BALLS = { 1: 135, 2: 110, 3: 90, 4: 70, 5: 60, 6: 50 };
 function winterRatingPointsForPlace(place, reward) {
   if (reward == null || reward <= 0) return 0;
-  if (place === 1) return 135;
-  if (place === 2) return 110;
-  if (place === 3) return 90;
-  if (place === 4) return 70;
-  if (place === 5) return 60;
-  if (place === 6) return 50;
-  return 0;
+  var pts = XPOKER_BALLS[place];
+  return pts != null ? pts : 0;
 }
 function mergeWinterRatingRowsByNick(rows) {
   if (!rows || !rows.length) return [];
@@ -4416,13 +4575,13 @@ function renderWinterRatingTable(rows) {
   var sorted = filtered.slice().sort(function (a, b) { return (b.points - a.points) || (b.reward - a.reward); });
   var place = 0;
   var totalReward = sorted.reduce(function (sum, r) { return sum + (Number(r.reward) || 0); }, 0);
-  var tfoot = "<tfoot><tr class=\"winter-rating__table-total-row\"><td colspan=\"3\">Сумма призовых за день</td><td>" + (totalReward ? totalReward.toLocaleString("ru-RU") : "0") + "</td></tr></tfoot>";
+  var tfoot = "<tfoot><tr class=\"winter-rating__table-total-row\"><td colspan=\"3\">Сумма призовых за день</td><td>" + (totalReward ? formatRewardRound(totalReward) : "0") + "</td></tr></tfoot>";
   return "<table class=\"winter-rating__table\"><thead><tr><th>Место</th><th>Ник</th><th>Баллы</th><th>Выигрыш в<br>турнирах</th></tr></thead><tbody>" +
     sorted.map(function (r) {
       place++;
       var trClass = winterRatingRowClass(place);
       var placeCell = winterRatingPlaceCell(place);
-      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? r.reward.toLocaleString("ru-RU") : "0") + "</td></tr>";
+      return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? formatRewardRound(r.reward) : "0") + "</td></tr>";
     }).join("") + "</tbody>" + tfoot + "</table>";
 }
 
@@ -4547,7 +4706,7 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
     var tableHtml = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr>" + headers + "</tr></thead><tbody>" +
       displayList.map(function (s, i) {
         var placeStr = winterRatingPlaceCell(s.place);
-        var rewardStr = s.reward ? Number(s.reward).toLocaleString("ru-RU") : "0";
+        var rewardStr = s.reward ? formatRewardRound(s.reward) : "0";
         var showDate = (i === 0 || displayList[i - 1].date !== s.date);
         var dateCell = showDate ? escapeHtmlRating(s.date) : "";
         var tourCell = escapeHtmlRating(s.tournamentLabel || s.time || "—");
@@ -4562,27 +4721,27 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
     var firsts = firstsList.length;
     var firstsReward = 0;
     for (var fi = 0; fi < firstsList.length; fi++) { firstsReward += Number(firstsList[fi].reward) || 0; }
-    var firstsRewardStr = firstsReward ? firstsReward.toLocaleString("ru-RU") : "0";
+    var firstsRewardStr = firstsReward ? formatRewardRound(firstsReward) : "0";
     var secondsList = list.filter(function (s) { return Number(s.place) === 2; });
     var seconds = secondsList.length;
     var secondsReward = 0;
     for (var si = 0; si < secondsList.length; si++) { secondsReward += Number(secondsList[si].reward) || 0; }
-    var secondsRewardStr = secondsReward ? secondsReward.toLocaleString("ru-RU") : "0";
+    var secondsRewardStr = secondsReward ? formatRewardRound(secondsReward) : "0";
     var thirdsList = list.filter(function (s) { return Number(s.place) === 3; });
     var thirds = thirdsList.length;
     var thirdsReward = 0;
     for (var ti = 0; ti < thirdsList.length; ti++) { thirdsReward += Number(thirdsList[ti].reward) || 0; }
-    var thirdsRewardStr = thirdsReward ? thirdsReward.toLocaleString("ru-RU") : "0";
+    var thirdsRewardStr = thirdsReward ? formatRewardRound(thirdsReward) : "0";
     var totalReward = 0;
     for (var i = 0; i < list.length; i++) { totalReward += Number(list[i].reward) || 0; }
     if (monthVal === "all" && modal._winterPlayerModalNick === "Waaar" && !isSpringRatingMode()) totalReward += 588225;
-    var totalStr = totalReward ? totalReward.toLocaleString("ru-RU") : "0";
+    var totalStr = totalReward ? formatRewardRound(totalReward) : "0";
     var topReward = 0;
     for (var ri = 0; ri < list.length; ri++) {
       var r = Number(list[ri].reward) || 0;
       if (r > topReward) topReward = r;
     }
-    var topRewardStr = topReward ? topReward.toLocaleString("ru-RU") : "0";
+    var topRewardStr = topReward ? formatRewardRound(topReward) : "0";
     if (summaryBlock) {
       summaryBlock.innerHTML = "<p class=\"winter-rating-player-modal__summary-line winter-rating-player-modal__summary-total\">Общие призовые — " + totalStr + "</p>" +
         "<p class=\"winter-rating-player-modal__summary-line\">Топ выигрыш — " + topRewardStr + "</p>" +
@@ -5075,8 +5234,7 @@ function initWinterRating() {
       var r = allRows[ri];
       var rewardVal = r && r.reward != null ? Number(r.reward) : 0;
       if (rewardVal !== rewardVal || !isFinite(rewardVal)) rewardVal = 0;
-      var rewardStr = "0";
-      try { rewardStr = rewardVal ? rewardVal.toLocaleString("ru-RU") : "0"; } catch (e) { rewardStr = String(rewardVal); }
+      var rewardStr = formatRewardRound(rewardVal);
       var pointsVal = r && r.points != null ? Number(r.points) : 0;
       if (pointsVal !== pointsVal || !isFinite(pointsVal)) pointsVal = 0;
       if (pointsVal === 0 && rewardVal === 0) continue;
@@ -5105,7 +5263,7 @@ function initWinterRating() {
         var r = raw[ri];
         var rewardVal = r && r.reward != null ? Number(r.reward) : 0;
         if (rewardVal !== rewardVal || !isFinite(rewardVal)) rewardVal = 0;
-        var rewardStr = rewardVal ? rewardVal.toLocaleString("ru-RU") : "0";
+        var rewardStr = formatRewardRound(rewardVal);
         var pointsVal = r && r.points != null ? Number(r.points) : 0;
         if (pointsVal !== pointsVal || !isFinite(pointsVal)) pointsVal = 0;
         if (pointsVal === 0 && rewardVal === 0) continue;
@@ -5128,7 +5286,7 @@ function initWinterRating() {
         if (hasPrizeColumn) {
           var prizeVal = prizesByPlace && prizesByPlace[place] != null ? prizesByPlace[place] : null;
           var prizeStr = prizeVal != null && prizeVal >= 1000 ? (prizeVal / 1000) + "К₽" : (prizeVal != null && prizeVal > 0 ? prizeVal + "₽" : "—");
-          prizeCell = "<td class=\"winter-rating__td-prize\" title=\"" + (prizeVal ? prizeVal.toLocaleString("ru-RU") + " ₽" : "—") + "\">" + prizeStr + "</td>";
+          prizeCell = "<td class=\"winter-rating__td-prize\" title=\"" + (prizeVal ? formatRewardRound(prizeVal) + " ₽" : "—") + "\">" + prizeStr + "</td>";
         }
         parts.push("<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td><button type=\"button\" class=\"winter-rating__nick-btn\" data-nick=\"" + nickAttr + "\">" + nickEsc + "</button></td><td>" + (row.points != null ? row.points : "") + "</td><td>" + (row.reward != null ? row.reward : "0") + "</td>" + prizeCell + "</tr>");
       }
@@ -5233,7 +5391,7 @@ function initWinterRating() {
         for (var pi = 0; pi < raw.length && pi < 3; pi++) {
           var r = raw[pi];
           var rewardVal = r && r.reward != null ? Number(r.reward) : 0;
-          list.push({ place: pi + 1, nick: r && r.nick != null ? String(r.nick) : "", points: r && r.points != null ? r.points : 0, reward: rewardVal ? rewardVal.toLocaleString("ru-RU") : "0" });
+          list.push({ place: pi + 1, nick: r && r.nick != null ? String(r.nick) : "", points: r && r.points != null ? r.points : 0, reward: formatRewardRound(rewardVal) });
         }
         return list;
       };

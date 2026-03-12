@@ -452,10 +452,33 @@
                   <span class="winter-rating__week-top-btn-preview" id="winterRatingTopFebruaryPreview"></span>
                 </button>
               </div>
-              <div class="winter-rating__past-week-wrap winter-rating__single-top-wrap--march" id="winterRatingPastWeekWrap" hidden>
-                <h3 class="winter-rating__past-week-title">Топ занос прошлой недели</h3>
-                <ul class="winter-rating__single-top-list" id="winterRatingPastWeekList"></ul>
-                <p class="winter-rating__past-week-total" id="winterRatingPastWeekTotal"></p>
+              <div class="winter-rating__past-week-section" id="winterRatingCurrentWeekSection" hidden>
+                <h3 class="winter-rating__past-week-heading">Эта неделя</h3>
+                <div class="winter-rating__past-week-row">
+                  <div class="winter-rating__past-week-wrap winter-rating__single-top-wrap--march" id="winterRatingCurrentWeekSumWrap" hidden>
+                    <h4 class="winter-rating__past-week-title">Топ суммарный выигрыш за неделю</h4>
+                    <ul class="winter-rating__single-top-list" id="winterRatingCurrentWeekSumList"></ul>
+                  </div>
+                  <div class="winter-rating__past-week-wrap winter-rating__single-top-wrap--march" id="winterRatingCurrentWeekWrap" hidden>
+                    <h4 class="winter-rating__past-week-title">Топ занос за 1 турнир</h4>
+                    <ul class="winter-rating__single-top-list" id="winterRatingCurrentWeekList"></ul>
+                  </div>
+                </div>
+                <p class="winter-rating__past-week-total winter-rating__past-week-total--below" id="winterRatingCurrentWeekTotalBelow"></p>
+              </div>
+              <div class="winter-rating__past-week-section" id="winterRatingPastWeekSection" hidden>
+                <h3 class="winter-rating__past-week-heading">Прошлая неделя</h3>
+                <div class="winter-rating__past-week-row">
+                  <div class="winter-rating__past-week-wrap winter-rating__single-top-wrap--march" id="winterRatingPastWeekSumWrap" hidden>
+                    <h4 class="winter-rating__past-week-title">Топ суммарный выигрыш за неделю</h4>
+                    <ul class="winter-rating__single-top-list" id="winterRatingPastWeekSumList"></ul>
+                  </div>
+                  <div class="winter-rating__past-week-wrap winter-rating__single-top-wrap--march" id="winterRatingPastWeekWrap" hidden>
+                    <h4 class="winter-rating__past-week-title">Топ занос за 1 турнир</h4>
+                    <ul class="winter-rating__single-top-list" id="winterRatingPastWeekList"></ul>
+                  </div>
+                </div>
+                <p class="winter-rating__past-week-total winter-rating__past-week-total--below" id="winterRatingPastWeekTotalBelow"></p>
               </div>
               <h3 class="winter-rating__dates-caption"><span class="winter-rating__caption-icon" aria-hidden="true">❄</span> Таблица по датам</h3>
               <p class="winter-rating__dates-hint">Выберите дату в календаре</p>
