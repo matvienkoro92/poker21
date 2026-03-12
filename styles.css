@@ -6361,7 +6361,7 @@ a.home-mini-icon-item {
 
 .winter-rating.spring-rating {
   background: linear-gradient(165deg, rgba(14, 35, 55, 0.96) 0%, rgba(22, 45, 65, 0.94) 40%, rgba(15, 40, 55, 0.96) 100%);
-  border-color: rgba(186, 230, 253, 0.2);
+  border: none;
   box-shadow: 0 6px 26px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .winter-rating.spring-rating::before {
