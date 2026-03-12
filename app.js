@@ -4548,8 +4548,8 @@ function winterRatingPlaceCell(place) {
   if (place === 3) return "🥉 3";
   return String(place);
 }
-/** Хпокер баллы: логика подсчёта баллов рейтинга. Баллы за места 1–6 только при ненулевой награде (reward > 0). Место → баллы: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50, 7+=0. */
-var XPOKER_BALLS = { 1: 135, 2: 110, 3: 90, 4: 70, 5: 60, 6: 50 };
+/** Хпокер баллы: логика подсчёта баллов рейтинга. Баллы за места 1–8 только при ненулевой награде (reward > 0). Место → баллы: 1=135, 2=110, 3=90, 4=70, 5=60, 6=50, 7=40, 8=30. */
+var XPOKER_BALLS = { 1: 135, 2: 110, 3: 90, 4: 70, 5: 60, 6: 50, 7: 40, 8: 30 };
 function winterRatingPointsForPlace(place, reward) {
   if (reward == null || reward <= 0) return 0;
   var pts = XPOKER_BALLS[place];
