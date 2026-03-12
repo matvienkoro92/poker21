@@ -2543,8 +2543,9 @@ html.app-view-home .card .card__content {
   cursor: pointer;
 }
 .chat-msg__image {
-  max-width: 100%;
-  max-height: 320px;
+  max-width: min(100%, 420px);
+  width: 100%;
+  max-height: 420px;
   border-radius: 10px;
   display: block;
   margin-top: 4px;

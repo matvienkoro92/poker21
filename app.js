@@ -1495,8 +1495,8 @@ setTimeout(function () {
           button.textContent = originalText;
         });
     }
-    // Обновить текст кнопки подписчиков количеством
-    (function updateSubsCount() {
+    // Обновление текста кнопки подписчиков количеством — вызывается только после проверки админа
+    window.updateRatingSubsCount = function () {
       if (!subsBtn) return;
       var base = getApiBase();
       var initData = tg && tg.initData ? tg.initData : "";
@@ -1507,21 +1507,20 @@ setTimeout(function () {
           encodeURIComponent(initData)
       )
         .then(function (r) {
+          if (!r.ok) return Promise.reject(new Error("http " + r.status));
           return r.json();
         })
         .then(function (data) {
           if (!data || !data.ok || typeof data.total !== "number") return;
           var total = data.total;
-          // Базовый текст, если вдруг изменится разметка
           var baseText = "Разослать подписчикам рейтинга";
-          // Если уже есть текст — берём до первой скобки
           var current = subsBtn.textContent || baseText;
           var idx = current.indexOf(" (");
           if (idx !== -1) current = current.slice(0, idx);
           subsBtn.textContent = current + " (" + total + ")";
         })
         .catch(function () {});
-    })();
+    };
 
     if (btn) {
       btn.addEventListener("click", function () {
@@ -11236,6 +11235,7 @@ updateVisitorCounter();
     function showAdminUi() {
       if (wrap) wrap.classList.remove("footer-admin-visitors--hidden");
       if (ratingAdminRow) ratingAdminRow.classList.remove("winter-rating__admin-row--hidden");
+      if (window.updateRatingSubsCount) window.updateRatingSubsCount();
     }
     // В локальной разработке всегда показываем кнопку админа,
     // чтобы можно было тестировать без Telegram initData.
