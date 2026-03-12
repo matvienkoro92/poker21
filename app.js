@@ -1457,7 +1457,7 @@ setTimeout(function () {
     var subsBtn = document.getElementById("winterRatingNotifySubsBtn");
     var hint = document.getElementById("winterRatingNotifyHint");
     if (!btn && !subsBtn) return;
-    function sendRequest(button, url, body, pendingText, successText, errorPrefix) {
+    function sendRequest(button, url, body, pendingText, successText, errorPrefix, onSuccess) {
       var base = getApiBase();
       var initData = tg && tg.initData ? tg.initData : "";
       if (!base || !initData) {
@@ -1478,7 +1478,11 @@ setTimeout(function () {
         })
         .then(function (data) {
           if (data && data.ok) {
-            if (hint) hint.textContent = successText;
+            if (typeof onSuccess === "function") {
+              onSuccess(data);
+            } else if (hint) {
+              hint.textContent = successText;
+            }
           } else {
             if (hint)
               hint.textContent =
@@ -1541,8 +1545,17 @@ setTimeout(function () {
           "/api/rating-manual-subscribers",
           {},
           "Рассылаем…",
-          "Личное сообщение отправлено подписчикам рейтинга.",
-          "Ошибка рассылки"
+          "",
+          "Ошибка рассылки",
+          function (data) {
+            if (!hint) return;
+            var sent =
+              data && typeof data.sent === "number" && data.sent >= 0 ? data.sent : 0;
+            var total =
+              data && typeof data.total === "number" && data.total >= 0 ? data.total : 0;
+            hint.textContent =
+              "Личные сообщения отправлены: " + sent + " из " + total + " подписчиков.";
+          }
         );
       });
     }
