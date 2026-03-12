@@ -1120,6 +1120,33 @@ html.app-view-home .card .card__content {
 .gazette-modal__paper {
   padding-top: 0;
 }
+.gazette-admin-row {
+  margin: 8px 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gazette-admin-row--hidden { display: none; }
+.gazette-admin-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(249, 115, 22, 0.08);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.gazette-admin-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.gazette-admin-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
 .gazette-modal__pick,
 .gazette-modal__content {
   padding-right: 52px;
@@ -5104,6 +5131,31 @@ html.app-view-home .feature--rating-spring-promo:hover,
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+.raffles-admin-row {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.raffles-admin-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: rgba(249, 115, 22, 0.08);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.raffles-admin-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.raffles-admin-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
 }
 .raffle-create-form__type-label { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--text); }
 .raffle-create-form__type-row { display: flex; flex-direction: column; gap: 8px; }

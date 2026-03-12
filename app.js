@@ -356,6 +356,9 @@ function runGazetteAndTasksInit() {
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
+  var gazetteAdminRow = document.getElementById("gazetteAdminRow");
+  var gazetteNotifySubsBtn = document.getElementById("gazetteNotifySubsBtn");
+  var gazetteNotifySubsHint = document.getElementById("gazetteNotifySubsHint");
   var openBtn = document.getElementById("gazetteOpenBtn");
   var closeBtn = document.getElementById("gazetteModalClose");
   var backdrop = document.getElementById("gazetteModalBackdrop");
@@ -380,11 +383,100 @@ function runGazetteAndTasksInit() {
   }
   updateGazetteUnreadDot();
   var paperEl = modal && modal.querySelector(".gazette-modal__paper");
+  // Админская рассылка по подписчикам газеты
+  window.updateGazetteSubsCount = function () {
+    if (!gazetteNotifySubsBtn) return;
+    var base = getApiBase && getApiBase();
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) return;
+    fetch(
+      base +
+        "/api/gazette-manual-subscribers?stats=1&initData=" +
+        encodeURIComponent(initData)
+    )
+      .then(function (r) {
+        if (!r.ok) return Promise.reject(new Error("http " + r.status));
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok || typeof data.total !== "number") return;
+        var total = data.total;
+        var baseText = "Разослать подписчикам газеты";
+        var current = gazetteNotifySubsBtn.textContent || baseText;
+        var idx = current.indexOf(" (");
+        if (idx !== -1) current = current.slice(0, idx);
+        gazetteNotifySubsBtn.textContent = current + " (" + total + ")";
+      })
+      .catch(function () {});
+  };
   function showGazetteView(view) {
     pickEl.hidden = view !== "pick";
     newsEl.hidden = view !== "news";
     if (paperEl) paperEl.scrollTop = 0;
   }
+
+  (function initGazetteAdminNotify() {
+    if (!gazetteNotifySubsBtn) return;
+    gazetteNotifySubsBtn.addEventListener("click", function () {
+      var base = getApiBase && getApiBase();
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      var initData = tg && tg.initData ? tg.initData : "";
+      if (!base || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+        return;
+      }
+      var btn = gazetteNotifySubsBtn;
+      var originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Рассылаем…";
+      if (gazetteNotifySubsHint) gazetteNotifySubsHint.textContent = "";
+      fetch(base + "/api/gazette-manual-subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData }),
+      })
+        .then(function (r) {
+          return r
+            .json()
+            .catch(function () {
+              return { ok: false, error: "Ошибка ответа сервера" };
+            });
+        })
+        .then(function (data) {
+          if (data && data.ok) {
+            var sent =
+              data && typeof data.sent === "number" && data.sent >= 0 ? data.sent : 0;
+            var total =
+              data && typeof data.total === "number" && data.total >= 0
+                ? data.total
+                : 0;
+            if (gazetteNotifySubsHint) {
+              gazetteNotifySubsHint.textContent =
+                "Личные сообщения отправлены: " +
+                sent +
+                " из " +
+                total +
+                " подписчиков газеты.";
+            }
+          } else if (gazetteNotifySubsHint) {
+            gazetteNotifySubsHint.textContent =
+              "Ошибка рассылки: " +
+              (data && data.error ? data.error : "не удалось отправить");
+          }
+        })
+        .catch(function () {
+          if (gazetteNotifySubsHint) {
+            gazetteNotifySubsHint.textContent =
+              "Ошибка сети при отправке рассылки.";
+          }
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        });
+    });
+  })();
   function openGazette(goToNews, articleIndex) {
     if (goToNews === "news") {
       showGazetteView("news");
@@ -7803,6 +7895,8 @@ function initRaffles() {
   var raffleWinnersWrap = document.getElementById("raffleWinnersWrap");
   var raffleWinners = document.getElementById("raffleWinners");
   var raffleInviteFriendInlineBtn = document.getElementById("raffleInviteFriendInlineBtn");
+  var rafflesNotifySubsBtn = document.getElementById("rafflesNotifySubsBtn");
+  var rafflesNotifySubsHint = document.getElementById("rafflesNotifySubsHint");
   var currentRaffleId = null;
   var currentRaffleEndDate = null;
   var currentRaffleData = null;
@@ -8083,6 +8177,9 @@ function initRaffles() {
           raffleDeleteBtn.classList.toggle("raffle-cancel-btn--hidden", !rafflesIsAdmin);
           raffleDeleteBtn.disabled = !rafflesIsAdmin;
         }
+        if (rafflesIsAdmin && window.updateRaffleSubsCount) {
+          window.updateRaffleSubsCount();
+        }
 
         var now = new Date();
 
@@ -8193,6 +8290,90 @@ function initRaffles() {
       })
       .catch(function () {});
   }
+
+  // Админская рассылка подписчикам розыгрышей
+  window.updateRaffleSubsCount = function () {
+    if (!rafflesNotifySubsBtn) return;
+    if (!base || !initData) return;
+    fetch(
+      base +
+        "/api/raffle-manual-subscribers?stats=1&initData=" +
+        encodeURIComponent(initData)
+    )
+      .then(function (r) {
+        if (!r.ok) return Promise.reject(new Error("http " + r.status));
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok || typeof data.total !== "number") return;
+        var total = data.total;
+        var baseText = "Разослать подписчикам розыгрыша";
+        var current = rafflesNotifySubsBtn.textContent || baseText;
+        var idx = current.indexOf(" (");
+        if (idx !== -1) current = current.slice(0, idx);
+        rafflesNotifySubsBtn.textContent = current + " (" + total + ")";
+      })
+      .catch(function () {});
+  };
+
+  (function initRafflesSubscribersAdminNotify() {
+    if (!rafflesNotifySubsBtn) return;
+    rafflesNotifySubsBtn.addEventListener("click", function () {
+      if (!base || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+        return;
+      }
+      var btn = rafflesNotifySubsBtn;
+      var originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Рассылаем…";
+      if (rafflesNotifySubsHint) rafflesNotifySubsHint.textContent = "";
+      fetch(base + "/api/raffle-manual-subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData }),
+      })
+        .then(function (r) {
+          return r
+            .json()
+            .catch(function () {
+              return { ok: false, error: "Ошибка ответа сервера" };
+            });
+        })
+        .then(function (data) {
+          if (data && data.ok) {
+            var sent =
+              data && typeof data.sent === "number" && data.sent >= 0 ? data.sent : 0;
+            var total =
+              data && typeof data.total === "number" && data.total >= 0
+                ? data.total
+                : 0;
+            if (rafflesNotifySubsHint) {
+              rafflesNotifySubsHint.textContent =
+                "Личные сообщения отправлены: " +
+                sent +
+                " из " +
+                total +
+                " подписчиков розыгрыша.";
+            }
+          } else if (rafflesNotifySubsHint) {
+            rafflesNotifySubsHint.textContent =
+              "Ошибка рассылки: " +
+              (data && data.error ? data.error : "не удалось отправить");
+          }
+        })
+        .catch(function () {
+          if (rafflesNotifySubsHint) {
+            rafflesNotifySubsHint.textContent =
+              "Ошибка сети при отправке рассылки.";
+          }
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        });
+    });
+  })();
 
   function getRaffleCreateType() {
     return raffleTypeTickets && raffleTypeTickets.checked ? "tickets" : "other";
@@ -11244,11 +11425,14 @@ updateVisitorCounter();
   function checkAdminAndShowVisitorsButton() {
     var wrap = document.getElementById("footerAdminVisitorsWrap");
     var ratingAdminRow = document.getElementById("winterRatingAdminRow");
-    if (!wrap && !ratingAdminRow) return;
+    var gazetteAdminRow = document.getElementById("gazetteAdminRow");
+    if (!wrap && !ratingAdminRow && !gazetteAdminRow) return;
     function showAdminUi() {
       if (wrap) wrap.classList.remove("footer-admin-visitors--hidden");
       if (ratingAdminRow) ratingAdminRow.classList.remove("winter-rating__admin-row--hidden");
       if (window.updateRatingSubsCount) window.updateRatingSubsCount();
+      if (gazetteAdminRow) gazetteAdminRow.classList.remove("gazette-admin-row--hidden");
+      if (window.updateGazetteSubsCount) window.updateGazetteSubsCount();
     }
     // В локальной разработке всегда показываем кнопку админа,
     // чтобы можно было тестировать без Telegram initData.
