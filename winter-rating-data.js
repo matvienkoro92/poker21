@@ -2051,7 +2051,7 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "22:00", name: "Magic", buyin: 500, players: [{ nick: "Proxor", place: 9, reward: 8818 }, { nick: "Рыбнадзор", place: 23, reward: 0 }, { nick: "AndrushaMorf", place: 65, reward: 0 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }] }
   ],
   "03.03.2026": [
-    { time: "00:00", name: "S.Bounty 2/3 150k", buyin: 10000, players: [{ nick: "YarFar", place: 1, reward: 77196 }, { nick: "Em13!!", place: 14, reward: 2673 }, { nick: "adiga666", place: 19, reward: 2196 }, { nick: "siropchik", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }] },
+    { time: "00:00", name: "S.Bounty 2/3 150k", buyin: 10000, players: [{ nick: "Ярый", place: 1, reward: 77196 }, { nick: "Em13!!", place: 14, reward: 2673 }, { nick: "adiga666", place: 19, reward: 2196 }, { nick: "siropchik", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }] },
     { time: "11:00", name: "Magic Bounty 60k", buyin: 300, players: [{ nick: "pryanik2la", place: 10, reward: 4109 }, { nick: "МВД", place: 19, reward: 0 }, { nick: "...Лёха...", place: 23, reward: 0 }, { nick: "Em13!!", place: 49, reward: 0 }, { nick: "XP3276334", place: 50, reward: 0 }] },
     { time: "16:00", name: "PLO4 25K", buyin: 100, players: [{ nick: "pryanik2la", place: 7, reward: 2795 }, { nick: "Sarmat1305", place: 18, reward: 0 }, { nick: "no_name", place: 32, reward: 0 }] },
     { time: "21:00", name: "MOK", buyin: 300, players: [{ nick: "Рамиль01fan", place: 3, reward: 7990 }, { nick: "51region", place: 4, reward: 1210 }, { nick: "$Denger$", place: 6, reward: 880 }, { nick: "lorg_777", place: 8, reward: 0 }, { nick: "Виктор", place: 9, reward: 0 }] },
