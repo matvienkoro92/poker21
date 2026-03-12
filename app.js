@@ -1454,41 +1454,101 @@ setTimeout(function () {
   // Админская кнопка «Сообщить в чат об обновлении рейтинга»
   (function initWinterRatingAdminNotify() {
     var btn = document.getElementById("winterRatingNotifyBtn");
+    var subsBtn = document.getElementById("winterRatingNotifySubsBtn");
     var hint = document.getElementById("winterRatingNotifyHint");
-    if (!btn) return;
-    btn.addEventListener("click", function () {
+    if (!btn && !subsBtn) return;
+    function sendRequest(button, url, body, pendingText, successText, errorPrefix) {
       var base = getApiBase();
       var initData = tg && tg.initData ? tg.initData : "";
       if (!base || !initData) {
         if (hint) hint.textContent = "Нет соединения с сервером или Telegram initData.";
         return;
       }
-      var originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = "Отправляем…";
+      var originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = pendingText;
       if (hint) hint.textContent = "";
-      fetch(base + "/api/rating-manual", {
+      fetch(base + url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "spring_rating_notify", initData: initData }),
+        body: JSON.stringify(Object.assign({}, body, { initData: initData })),
       })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          return r.json();
+        })
         .then(function (data) {
           if (data && data.ok) {
-            if (hint) hint.textContent = "Сообщение отправлено в общий чат.";
+            if (hint) hint.textContent = successText;
           } else {
-            if (hint) hint.textContent = "Ошибка: " + (data && data.error ? data.error : "не удалось отправить");
+            if (hint)
+              hint.textContent =
+                (errorPrefix || "Ошибка") +
+                ": " +
+                (data && data.error ? data.error : "не удалось отправить");
           }
         })
         .catch(function () {
-          if (hint) hint.textContent = "Ошибка сети при отправке.";
+          if (hint) hint.textContent = (errorPrefix || "Ошибка") + " сети при отправке.";
         })
         .finally(function () {
-          btn.disabled = false;
-          btn.textContent = originalText;
+          button.disabled = false;
+          button.textContent = originalText;
         });
-    });
+    }
+    // Обновить текст кнопки подписчиков количеством
+    (function updateSubsCount() {
+      if (!subsBtn) return;
+      var base = getApiBase();
+      var initData = tg && tg.initData ? tg.initData : "";
+      if (!base || !initData) return;
+      fetch(
+        base +
+          "/api/rating-manual-subscribers?stats=1&initData=" +
+          encodeURIComponent(initData)
+      )
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (data) {
+          if (!data || !data.ok || typeof data.total !== "number") return;
+          var total = data.total;
+          // Базовый текст, если вдруг изменится разметка
+          var baseText = "Разослать подписчикам рейтинга";
+          // Если уже есть текст — берём до первой скобки
+          var current = subsBtn.textContent || baseText;
+          var idx = current.indexOf(" (");
+          if (idx !== -1) current = current.slice(0, idx);
+          subsBtn.textContent = current + " (" + total + ")";
+        })
+        .catch(function () {});
+    })();
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        sendRequest(
+          btn,
+          "/api/rating-manual",
+          { action: "spring_rating_notify" },
+          "Отправляем…",
+          "Сообщение отправлено в общий чат.",
+          "Ошибка"
+        );
+      });
+    }
+    if (subsBtn) {
+      subsBtn.addEventListener("click", function () {
+        sendRequest(
+          subsBtn,
+          "/api/rating-manual-subscribers",
+          {},
+          "Рассылаем…",
+          "Личное сообщение отправлено подписчикам рейтинга.",
+          "Ошибка рассылки"
+        );
+      });
+    }
   })();
+
   function prizeForPlace(place) {
     if (place === 1) return "5 000 ₽";
     if (place === 2) return "3 000 ₽";
