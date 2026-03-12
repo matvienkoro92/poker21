@@ -31,6 +31,7 @@ const handlers = {
   "gazette-notify-test": () => require(path.join(handlersDir, "gazette-notify-test.js")),
   "rating-notify": () => require(path.join(handlersDir, "rating-notify.js")),
   "deploy-hook": () => require(path.join(handlersDir, "deploy-hook.js")),
+  "rating-manual": () => require(path.join(handlersDir, "rating-manual.js")),
   raffles: () => require(path.join(handlersDir, "raffles.js")),
   "twitch-viewers": () => require(path.join(handlersDir, "twitch-viewers.js")),
   respect: () => require(path.join(handlersDir, "respect.js")),

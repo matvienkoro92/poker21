@@ -1450,6 +1450,45 @@ setTimeout(function () {
   setTimeout(function () {
     if (window.updateWinterRatingWeekTopPreviews) window.updateWinterRatingWeekTopPreviews();
   }, 0);
+
+  // Админская кнопка «Сообщить в чат об обновлении рейтинга»
+  (function initWinterRatingAdminNotify() {
+    var btn = document.getElementById("winterRatingNotifyBtn");
+    var hint = document.getElementById("winterRatingNotifyHint");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      var base = getApiBase();
+      var initData = tg && tg.initData ? tg.initData : "";
+      if (!base || !initData) {
+        if (hint) hint.textContent = "Нет соединения с сервером или Telegram initData.";
+        return;
+      }
+      var originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Отправляем…";
+      if (hint) hint.textContent = "";
+      fetch(base + "/api/rating-manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "spring_rating_notify", initData: initData }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.ok) {
+            if (hint) hint.textContent = "Сообщение отправлено в общий чат.";
+          } else {
+            if (hint) hint.textContent = "Ошибка: " + (data && data.error ? data.error : "не удалось отправить");
+          }
+        })
+        .catch(function () {
+          if (hint) hint.textContent = "Ошибка сети при отправке.";
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        });
+    });
+  })();
   function prizeForPlace(place) {
     if (place === 1) return "5 000 ₽";
     if (place === 2) return "3 000 ₽";
@@ -11132,12 +11171,17 @@ updateVisitorCounter();
 
   function checkAdminAndShowVisitorsButton() {
     var wrap = document.getElementById("footerAdminVisitorsWrap");
-    if (!wrap) return;
+    var ratingAdminRow = document.getElementById("winterRatingAdminRow");
+    if (!wrap && !ratingAdminRow) return;
+    function showAdminUi() {
+      if (wrap) wrap.classList.remove("footer-admin-visitors--hidden");
+      if (ratingAdminRow) ratingAdminRow.classList.remove("winter-rating__admin-row--hidden");
+    }
     // В локальной разработке всегда показываем кнопку админа,
     // чтобы можно было тестировать без Telegram initData.
     try {
       if (typeof window !== "undefined" && window.location && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-        wrap.classList.remove("footer-admin-visitors--hidden");
+        showAdminUi();
         return;
       }
     } catch (e) {}
@@ -11147,7 +11191,7 @@ updateVisitorCounter();
     fetch(base + "/api/visitors-list?initData=" + encodeURIComponent(initData))
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (data && data.ok && data.isAdmin) wrap.classList.remove("footer-admin-visitors--hidden");
+        if (data && data.ok && data.isAdmin) showAdminUi();
       })
       .catch(function () {});
   }
