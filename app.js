@@ -567,7 +567,7 @@ function runGazetteAndTasksInit() {
   var subscribeBtnNews = document.getElementById("gazetteSubscribeBtnNews");
   var subscribeWrap = modal && modal.querySelector(".gazette-modal__subscribe-wrap");
   var GAZETTE_SUBSCRIBED_KEY = "poker_gazette_subscribed";
-  var inDevHtml = ' <span class="subscribe-btn__in-dev">(в разработке)</span>';
+  var inDevHtml = "";
   function setSubscribeButtonState(subscribed) {
     var text = subscribed ? "Отписаться от газеты" : "Подписаться на газету";
     if (subscribeBtn) {
@@ -1074,7 +1074,7 @@ function runGazetteAndTasksInit() {
   (function initRatingSubscribe() {
     var ratingSubscribeBtns = Array.prototype.slice.call(document.querySelectorAll(".rating-subscribe-btn"));
     var RATING_SUBSCRIBED_KEY = "poker_rating_subscribed";
-    var ratingInDevHtml = "<span class=\"subscribe-btn__in-dev\">(в разработке)</span>";
+    var ratingInDevHtml = "";
     function setRatingSubscribeButtonState(subscribed) {
       if (!ratingSubscribeBtns.length) return;
       ratingSubscribeBtns.forEach(function (btn) {

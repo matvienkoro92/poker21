@@ -1320,11 +1320,7 @@ html.app-view-home .card .card__content {
   opacity: 0.7;
   cursor: not-allowed;
 }
-.subscribe-btn__in-dev {
-  font-size: 10px;
-  font-weight: 400;
-  opacity: 0.85;
-}
+/* .subscribe-btn__in-dev оставлена для совместимости, но сейчас не используется */
 /* Кнопка подписки в блоке новостей */
 .gazette-modal__subscribe-in-news {
   margin: 0 0 16px;
@@ -6975,9 +6971,6 @@ a.home-mini-icon-item {
   transition: background 0.2s, border-color 0.2s;
 }
 .winter-rating__subscribe-btn .subscribe-btn__in-dev {
-  font-size: 11px;
-  font-weight: 500;
-  opacity: 0.9;
 }
 .winter-rating__subscribe-btn:hover:not(:disabled) {
   background: rgba(56, 189, 248, 0.28);
