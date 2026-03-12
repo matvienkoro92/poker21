@@ -431,10 +431,23 @@ function runGazetteAndTasksInit() {
       btn.disabled = true;
       btn.textContent = "Рассылаем…";
       if (gazetteNotifySubsHint) gazetteNotifySubsHint.textContent = "";
+      var payload = { initData: initData };
+      if (newsEl) {
+        var firstArticle = newsEl.querySelector(".gazette-modal__lead[data-gazette-article]");
+        var headlineEl = firstArticle && firstArticle.querySelector(".gazette-modal__headline");
+        if (headlineEl) {
+          var headlineText = headlineEl.textContent.trim();
+          if (headlineText) payload.headline = headlineText;
+        }
+        if (firstArticle) {
+          var articleIdx = firstArticle.getAttribute("data-gazette-article");
+          if (articleIdx) payload.articleIndex = parseInt(articleIdx, 10);
+        }
+      }
       fetch(base + "/api/gazette-manual-subscribers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData }),
+        body: JSON.stringify(payload),
       })
         .then(function (r) {
           return r
@@ -548,17 +561,30 @@ function runGazetteAndTasksInit() {
       e.preventDefault();
       var idx = shareBtn.dataset.gazetteShare;
       var link = idx !== undefined && idx !== "" ? appUrl + "?startapp=news_" + idx : appUrl + "?startapp=news";
-      if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(function () {
-          var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте её другу — по ней откроется эта новость."); else alert("Ссылка скопирована.");
-        }).catch(function () {
+      var isTelegramShare = shareBtn.classList && shareBtn.classList.contains("gazette-modal__share-telegram");
+      if (isTelegramShare) {
+        var article = shareBtn.closest && shareBtn.closest("article");
+        var headlineEl = article && article.querySelector(".gazette-modal__headline");
+        var headline = headlineEl ? headlineEl.textContent.trim() : "";
+        var shareText = headline.length > 0 ? headline : "Новая новость в газете «Вестник Два туза»";
+        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shareText);
+        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
+        else if (tg && tg.openLink) tg.openLink(shareUrl);
+        else window.open(shareUrl, "_blank");
+      } else {
+        if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(function () {
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована. Отправьте её другу — по ней откроется эта новость."); else alert("Ссылка скопирована.");
+          }).catch(function () {
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+          });
+        } else {
           var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
           if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
-        });
-      } else {
-        var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
+        }
       }
     }
   });

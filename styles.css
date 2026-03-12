@@ -1534,6 +1534,10 @@ html.app-view-home .card .card__content {
   margin: 16px 0 20px 0;
   padding: 12px 16px 0;
   border-top: 1px solid rgba(139, 90, 43, 0.25);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 /* Современная иконка «поделиться» для кнопок Отправить другу / Поделиться */
 .gazette-modal__share-btn,
