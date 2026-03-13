@@ -4862,6 +4862,9 @@ function renderWinterRatingTable(rows) {
     sorted.map(function (r) {
       place++;
       var trClass = winterRatingRowClass(place);
+      var rewardNum = Number(String(r.reward || 0).replace(/\s/g, "")) || 0;
+      if (rewardNum > 100000) trClass = (trClass ? trClass + " " : "") + "winter-rating__tr--reward-high";
+      else if (rewardNum > 50000) trClass = (trClass ? trClass + " " : "") + "winter-rating__tr--reward-mid";
       var placeCell = winterRatingPlaceCell(place);
       return "<tr" + (trClass ? " class=\"" + trClass + "\"" : "") + "><td>" + placeCell + "</td><td>" + String(r.nick).replace(/</g, "&lt;") + "</td><td>" + r.points + "</td><td>" + (r.reward ? formatRewardRound(r.reward) : "0") + "</td></tr>";
     }).join("") + "</tbody>" + tfoot + "</table>";
@@ -4993,7 +4996,15 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
         var dateCell = showDate ? escapeHtmlRating(s.date) : "";
         var tourCell = escapeHtmlRating(s.tournamentLabel || s.time || "—");
         var ptsCell = showPoints ? "<td>" + (s.points || 0) + "</td>" : "";
-        return "<tr><td>" + dateCell + "</td><td class=\"winter-rating-player-modal__td-tournament\">" + tourCell + "</td><td>" + placeStr + "</td>" + ptsCell + "<td>" + rewardStr + "</td></tr>";
+        var dateParts = String(s.date || "").split(".");
+        var monthKey = dateParts.length >= 3 ? dateParts[1] + "." + dateParts[2] : "";
+        var prevParts = i > 0 ? String(displayList[i - 1].date || "").split(".") : [];
+        var prevMonthKey = prevParts.length >= 3 ? prevParts[1] + "." + prevParts[2] : "";
+        var isNewMonth = i > 0 && monthKey && monthKey !== prevMonthKey;
+        var rewardNum = Number(String(s.reward || 0).replace(/\s/g, "")) || 0;
+        var rewardClass = rewardNum > 100000 ? " winter-rating-player-modal__tr--reward-high" : (rewardNum > 50000 ? " winter-rating-player-modal__tr--reward-mid" : "");
+        var trClass = (isNewMonth ? " winter-rating-player-modal__tr--month-start" : "") + rewardClass;
+        return "<tr class=\"" + trClass.replace(/^ /, "") + "\"><td>" + dateCell + "</td><td class=\"winter-rating-player-modal__td-tournament\">" + tourCell + "</td><td>" + placeStr + "</td>" + ptsCell + "<td>" + rewardStr + "</td></tr>";
       }).join("") + "</tbody></table>";
     var showAllHtml = list.length > PLAYER_MODAL_TOURNAMENTS_LIMIT
       ? "<div class=\"winter-rating-player-modal__show-all-wrap\"><button type=\"button\" class=\"winter-rating-player-modal__show-all-btn\" aria-label=\"Раскрыть или свернуть список\">" + (expanded ? "Свернуть" : "Показать все (" + list.length + ")") + "</button></div>"
@@ -5024,15 +5035,40 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
       if (r > topReward) topReward = r;
     }
     var topRewardStr = topReward ? formatRewardRound(topReward) : "0";
+    var monthNames = { "12": "Декабрь", "01": "Январь", "02": "Февраль", "03": "Март", "04": "Апрель", "05": "Май", "06": "Июнь", "07": "Июль", "08": "Август", "09": "Сентябрь", "10": "Октябрь", "11": "Ноябрь" };
+    var fullSummaryForMonths = modal._winterPlayerModalFullSummary || [];
+    var byMonth = {};
+    for (var mi = 0; mi < fullSummaryForMonths.length; mi++) {
+      var parts = String(fullSummaryForMonths[mi].date).split(".");
+      if (parts.length === 3) {
+        var monthKey = parts[1] + "." + parts[2];
+        if (!byMonth[monthKey]) byMonth[monthKey] = { key: monthKey, sum: 0 };
+        byMonth[monthKey].sum += Number(fullSummaryForMonths[mi].reward) || 0;
+      }
+    }
+    var monthOrder = ["12.2025", "01.2026", "02.2026", "03.2026", "04.2026", "05.2026", "06.2026", "07.2026", "08.2026", "09.2026", "10.2026", "11.2026"];
+    var monthRows = "";
+    monthOrder.forEach(function (monthKey) {
+      if (byMonth[monthKey] && byMonth[monthKey].sum) {
+        var p = monthKey.split(".");
+        var monthLabel = (monthNames[p[0]] || p[0]) + " " + p[1];
+        monthRows += "<tr><td class=\"winter-rating-player-modal__summary-label\">" + escapeHtmlRating(monthLabel) + "</td><td class=\"winter-rating-player-modal__summary-value\">" + formatRewardRound(byMonth[monthKey].sum) + "</td></tr>";
+      }
+    });
+    modal._winterPlayerModalTotalStr = totalStr;
     if (summaryBlock) {
-      summaryBlock.innerHTML = "<p class=\"winter-rating-player-modal__summary-line winter-rating-player-modal__summary-total\">Общие призовые — " + totalStr + "</p>" +
-        "<p class=\"winter-rating-player-modal__summary-line\">Топ выигрыш — " + topRewardStr + "</p>" +
-        "<p class=\"winter-rating-player-modal__summary-line\">Первых мест — " + firsts + " (призовые за 1-е места — " + firstsRewardStr + ")</p>" +
-        "<p class=\"winter-rating-player-modal__summary-line\">Вторых мест — " + seconds + " (призовые за 2-е места — " + secondsRewardStr + ")</p>" +
-        "<p class=\"winter-rating-player-modal__summary-line\">Третьих мест — " + thirds + " (призовые за 3-е места — " + thirdsRewardStr + ")</p>";
+      summaryBlock.innerHTML = "<table class=\"winter-rating-player-modal__summary-table\"><tbody>" +
+        "<tr class=\"winter-rating-player-modal__summary-total-row\"><td class=\"winter-rating-player-modal__summary-label\">Общие призовые</td><td class=\"winter-rating-player-modal__summary-value\">" + totalStr + "</td></tr>" +
+        "<tr><td class=\"winter-rating-player-modal__summary-label\">Топ выигрыш</td><td class=\"winter-rating-player-modal__summary-value\">" + topRewardStr + "</td></tr>" +
+        "<tr><td class=\"winter-rating-player-modal__summary-label\">Первых мест</td><td class=\"winter-rating-player-modal__summary-value\">" + firsts + " (призовые — " + firstsRewardStr + ")</td></tr>" +
+        "<tr><td class=\"winter-rating-player-modal__summary-label\">Вторых мест</td><td class=\"winter-rating-player-modal__summary-value\">" + seconds + " (призовые — " + secondsRewardStr + ")</td></tr>" +
+        "<tr><td class=\"winter-rating-player-modal__summary-label\">Третьих мест</td><td class=\"winter-rating-player-modal__summary-value\">" + thirds + " (призовые — " + thirdsRewardStr + ")</td></tr>" +
+        (monthRows ? "<tr class=\"winter-rating-player-modal__summary-months-sep\"><td colspan=\"2\">Выигрыши по месяцам</td></tr>" + monthRows : "") +
+        "</tbody></table>";
       summaryBlock.style.display = "";
     }
   } else {
+    modal._winterPlayerModalTotalStr = "0";
     tableWrap.innerHTML = "<p class=\"winter-rating-player-modal__empty\">Нет данных за выбранный период</p>";
     if (summaryBlock) { summaryBlock.innerHTML = ""; summaryBlock.style.display = "none"; }
   }
@@ -5067,7 +5103,9 @@ function openWinterRatingPlayerModal(nick, options) {
   if (sortByBtn) sortByBtn.textContent = "Сортировать: По дате";
   if (sortDirBtn) { sortDirBtn.textContent = "↓"; sortDirBtn.title = "По убыванию"; }
   var toolbar = modal.querySelector(".winter-rating-player-modal__toolbar");
+  var tableLabel = document.getElementById("winterRatingPlayerModalTableLabel");
   if (toolbar) toolbar.style.display = summary.length ? "" : "none";
+  if (tableLabel) tableLabel.style.display = summary.length ? "" : "none";
   if (summary.length) {
     applyWinterRatingPlayerModalFilterAndRender(modal);
     var shareWrap = modal.querySelector(".winter-rating-player-modal__share-wrap");
@@ -5195,6 +5233,27 @@ function initWinterRatingPlayerModal() {
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.showAlert) tg.showAlert("Ссылка: " + link); else alert("Ссылка: " + link);
       }
+    });
+  }
+  var shareTelegramBtn = document.getElementById("winterRatingPlayerModalShareTelegramBtn");
+  if (shareTelegramBtn) {
+    shareTelegramBtn.addEventListener("click", function () {
+      var titleEl = modal.querySelector(".winter-rating-player-modal__title");
+      var nick = modal._winterPlayerModalNick || (titleEl && titleEl.textContent) || "";
+      if (!nick) return;
+      var appEl = document.getElementById("app");
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      appUrl = appUrl.replace(/\/$/, "");
+      var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
+      var startApp = isSpring ? "spring_rating_player_" : "winter_rating_player_";
+      var link = appUrl + "?startapp=" + startApp + encodeURIComponent(nick);
+      var totalStr = modal._winterPlayerModalTotalStr || "0";
+      var shareText = "Игрок " + nick + " выиграл " + totalStr + ". Посмотрите отчет по турнирам - " + link;
+      var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent(shareText);
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
+      else if (tg && tg.openLink) tg.openLink(shareUrl);
+      else window.open(shareUrl, "_blank");
     });
   }
 }
@@ -5820,7 +5879,8 @@ function initWinterRating() {
             "<div class=\"winter-rating__date-tournaments-list\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div>" +
             "<div class=\"winter-rating__date-table-wrap spring-rating-date-table\" data-rating-date=\"" + dateStr + "\" data-league=\"2\"></div></div></div>"
           : "<div class=\"winter-rating__screenshots\" data-rating-date=\"" + dateStr + "\"></div><div class=\"winter-rating__date-table-wrap\" id=\"winterRatingDateTable" + slug + "\"></div>";
-        var shareHtml = "<div class=\"winter-rating__date-share\" data-rating-date=\"" + (dateStr || "") + "\"><button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">Поделиться</button></div>";
+        var shareIcon = "<span class=\"winter-rating__share-icon\" aria-hidden=\"true\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg></span>";
+        var shareHtml = "<div class=\"winter-rating__date-share\" data-rating-date=\"" + (dateStr || "") + "\"><button type=\"button\" class=\"winter-rating__share-btn winter-rating__share-btn--copy-icon winter-rating__date-share-btn\" aria-label=\"Скопировать ссылку на рейтинг за " + (dateStr || "") + "\">" + shareIcon + "</button></div>";
         item.innerHTML = "<button type=\"button\" class=\"winter-rating__date-btn\" aria-expanded=\"false\" aria-controls=\"winterRatingPanel" + slug + "\">" + dateStr + "</button>" +
           "<div class=\"winter-rating__date-panel winter-rating__date-panel--hidden\" id=\"winterRatingPanel" + slug + "\" role=\"region\" aria-label=\"Рейтинг на " + dateStr + "\">" + panelInner + shareHtml + "</div>";
         var insertBefore = null;
@@ -5906,7 +5966,8 @@ function initWinterRating() {
         shareWrap = document.createElement("div");
         shareWrap.className = "winter-rating__date-share";
         shareWrap.setAttribute("data-rating-date", dateStr || "");
-        shareWrap.innerHTML = "<button type=\"button\" class=\"winter-rating__share-btn winter-rating__date-share-btn\" aria-label=\"Поделиться ссылкой на рейтинг за " + (dateStr || "") + "\">Поделиться</button>";
+        var shareIcon = "<span class=\"winter-rating__share-icon\" aria-hidden=\"true\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg></span>";
+        shareWrap.innerHTML = "<button type=\"button\" class=\"winter-rating__share-btn winter-rating__share-btn--copy-icon winter-rating__date-share-btn\" aria-label=\"Скопировать ссылку на рейтинг за " + (dateStr || "") + "\">" + shareIcon + "</button>";
         panel.appendChild(shareWrap);
       }
       if (!alreadyInited) {
