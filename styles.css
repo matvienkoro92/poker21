@@ -7534,11 +7534,18 @@ a.home-mini-icon-item {
 }
 .winter-rating-player-modal__toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 10px 16px;
+  gap: 10px;
   margin-top: 0;
   margin-bottom: 12px;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.winter-rating-player-modal__filter {
+  flex-shrink: 0;
+  min-width: 0;
 }
 .winter-rating-player-modal__filter select {
   font-size: 14px;
@@ -7547,12 +7554,14 @@ a.home-mini-icon-item {
   border: 1px solid var(--border-subtle);
   background: var(--card-bg);
   color: var(--text);
-  min-width: 180px;
+  min-width: 140px;
+  max-width: 100%;
 }
 .winter-rating-player-modal__sort {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 .winter-rating-player-modal__sort button {
   font-size: 13px;
@@ -7562,6 +7571,7 @@ a.home-mini-icon-item {
   background: var(--card-bg);
   color: var(--text);
   cursor: pointer;
+  white-space: nowrap;
 }
 .winter-rating-player-modal__sort-dir {
   min-width: 36px;
@@ -7740,6 +7750,9 @@ a.home-mini-icon-item {
   box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .winter-rating-player-modal__share-telegram-btn::before {
+  display: none;
+}
+.winter-rating-player-modal__download-btn::before {
   display: none;
 }
 /* Узкая колонка «Турнир» */
