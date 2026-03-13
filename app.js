@@ -7008,11 +7008,15 @@ function closeDailyPredictionModal() {
   if (shareBtn && !shareBtn._bound) {
     shareBtn._bound = true;
     shareBtn.addEventListener("click", function () {
+      var predictionTextEl = document.getElementById("dailyPredictionText");
+      var prediction = predictionTextEl ? predictionTextEl.textContent.trim() : "";
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=daily_prediction";
-      var shortText = "Покерное предсказание на сегодня";
+      var shortText = "Моё покерное предсказание на сегодня:";
+      if (prediction) shortText += "\n\n" + prediction;
+      shortText += "\n\nПосмотрите своё предсказание здесь —";
       var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shortText);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) {
