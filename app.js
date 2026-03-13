@@ -5235,111 +5235,6 @@ function initWinterRatingPlayerModal() {
       }
     });
   }
-  var downloadBtn = document.getElementById("winterRatingPlayerModalDownloadBtn");
-  if (downloadBtn) {
-    downloadBtn.addEventListener("click", function () {
-      var titleEl = modal.querySelector(".winter-rating-player-modal__title");
-      var nick = modal._winterPlayerModalNick || (titleEl && titleEl.textContent) || "";
-      var fullSummary = modal._winterPlayerModalFullSummary;
-      var showPoints = modal._winterPlayerModalShowPoints;
-      if (!nick || !fullSummary || !fullSummary.length) return;
-      var monthSelect = document.getElementById("winterRatingPlayerModalMonth");
-      var sortByBtn = document.getElementById("winterRatingPlayerModalSortBy");
-      var sortDirBtn = document.getElementById("winterRatingPlayerModalSortDir");
-      var monthVal = monthSelect && monthSelect.value ? monthSelect.value : "all";
-      var sortBy = (sortByBtn && sortByBtn.textContent.indexOf("выигрыш") !== -1) ? "reward" : "date";
-      var sortDesc = (sortDirBtn && sortDirBtn.textContent.indexOf("↑") === -1);
-      var list = monthVal === "all" ? fullSummary.slice() : fullSummary.filter(function (s) {
-        var parts = String(s.date).split(".");
-        return parts.length === 3 && parts[1] + "." + parts[2] === monthVal;
-      });
-      list.sort(function (a, b) {
-        var cmp = sortBy === "date" ? winterRatingDateKeyToStamp(a.date) - winterRatingDateKeyToStamp(b.date) : (Number(a.reward) || 0) - (Number(b.reward) || 0);
-        return sortDesc ? -cmp : cmp;
-      });
-      var totalReward = 0;
-      for (var i = 0; i < list.length; i++) totalReward += Number(list[i].reward) || 0;
-      var totalStr = totalReward ? formatRewardRound(totalReward) : "0";
-      var topReward = 0;
-      for (var ri = 0; ri < list.length; ri++) { var r = Number(list[ri].reward) || 0; if (r > topReward) topReward = r; }
-      var topRewardStr = topReward ? formatRewardRound(topReward) : "0";
-      var firstsList = list.filter(function (s) { return Number(s.place) === 1; });
-      var firsts = firstsList.length;
-      var firstsReward = 0;
-      for (var fi = 0; fi < firstsList.length; fi++) firstsReward += Number(firstsList[fi].reward) || 0;
-      var firstsRewardStr = firstsReward ? formatRewardRound(firstsReward) : "0";
-      var secondsList = list.filter(function (s) { return Number(s.place) === 2; });
-      var seconds = secondsList.length;
-      var secondsReward = 0;
-      for (var si = 0; si < secondsList.length; si++) secondsReward += Number(secondsList[si].reward) || 0;
-      var secondsRewardStr = secondsReward ? formatRewardRound(secondsReward) : "0";
-      var thirdsList = list.filter(function (s) { return Number(s.place) === 3; });
-      var thirds = thirdsList.length;
-      var thirdsReward = 0;
-      for (var ti = 0; ti < thirdsList.length; ti++) thirdsReward += Number(thirdsList[ti].reward) || 0;
-      var thirdsRewardStr = thirdsReward ? formatRewardRound(thirdsReward) : "0";
-      var pad = 24, scale = 2, cw = 800, rowH = 28, fontTitle = "bold 20px system-ui, Arial, sans-serif", fontNorm = "14px system-ui, Arial, sans-serif", fontHead = "bold 14px system-ui, Arial, sans-serif";
-      var colDate = 70, colTour = 320, colPlace = 50, colPts = 50, colRew = 90;
-      var xTour = pad + colDate, xPlace = xTour + colTour, xPts = xPlace + colPlace, xRew = showPoints ? xPts + colPts : xPlace + colPlace;
-      var y = pad;
-      var summaryLines = ["Ник: " + nick, "Общие призовые: " + totalStr, "Топ выигрыш: " + topRewardStr, "Первых мест: " + firsts + " (призовые — " + firstsRewardStr + ")", "Вторых мест: " + seconds + " (призовые — " + secondsRewardStr + ")", "Третьих мест: " + thirds + " (призовые — " + thirdsRewardStr + ")"];
-      var tableH = 32 + list.length * rowH;
-      var ch = pad + 32 + summaryLines.length * 22 + 20 + tableH + pad;
-      var canvas = document.createElement("canvas");
-      canvas.width = cw * scale;
-      canvas.height = ch * scale;
-      var ctx = canvas.getContext("2d");
-      ctx.scale(scale, scale);
-      ctx.fillStyle = "#1e293b";
-      ctx.fillRect(0, 0, cw, ch);
-      ctx.fillStyle = "#e2e8f0";
-      ctx.font = fontTitle;
-      ctx.fillText("Рейтинг — " + nick, pad, y + 22);
-      y += 36;
-      ctx.font = fontNorm;
-      for (var sl = 0; sl < summaryLines.length; sl++) { ctx.fillText(summaryLines[sl], pad, y + 16); y += 22; }
-      y += 12;
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.5)";
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = fontHead;
-      ctx.fillText("Дата", pad, y + 16);
-      ctx.fillText("Турнир", xTour, y + 16);
-      ctx.fillText("Место", xPlace, y + 16);
-      if (showPoints) ctx.fillText("Баллы", xPts, y + 16);
-      ctx.fillText("Выигрыш", xRew, y + 16);
-      ctx.beginPath();
-      ctx.moveTo(pad, y + 22);
-      ctx.lineTo(cw - pad, y + 22);
-      ctx.stroke();
-      y += 32;
-      ctx.font = fontNorm;
-      ctx.fillStyle = "#e2e8f0";
-      for (var j = 0; j < list.length; j++) {
-        var s = list[j];
-        var tourLabel = (s.tournamentLabel || s.time || "—");
-        if (ctx.measureText(tourLabel).width > colTour - 4) { while (tourLabel.length && ctx.measureText(tourLabel + "…").width > colTour - 4) tourLabel = tourLabel.slice(0, -1); tourLabel += "…"; }
-        var rewardStr = s.reward ? formatRewardRound(s.reward) : "0";
-        ctx.fillText(String(s.date), pad, y + 16);
-        ctx.fillText(tourLabel, xTour, y + 16);
-        ctx.fillText(String(s.place), xPlace, y + 16);
-        if (showPoints) ctx.fillText(String(s.points || 0), xPts, y + 16);
-        ctx.fillText(rewardStr, xRew, y + 16);
-        y += rowH;
-      }
-      canvas.toBlob(function (blob) {
-        if (!blob) return;
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = url;
-        a.download = "reiting-" + (nick.replace(/[^\w\u0400-\u04FF\-]/g, "_") || "igrok") + ".png";
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, "image/png", 1);
-    });
-  }
   var shareTelegramBtn = document.getElementById("winterRatingPlayerModalShareTelegramBtn");
   if (shareTelegramBtn) {
     shareTelegramBtn.addEventListener("click", function () {
@@ -5353,7 +5248,7 @@ function initWinterRatingPlayerModal() {
       var startApp = isSpring ? "spring_rating_player_" : "winter_rating_player_";
       var link = appUrl + "?startapp=" + startApp + encodeURIComponent(nick);
       var totalStr = modal._winterPlayerModalTotalStr || "0";
-      var shareText = "Игрок " + nick + " выиграл " + totalStr + ". Посмотрите отчет по турнирам - " + link;
+      var shareText = "Игрок " + nick + " уже выиграл " + totalStr + ". Посмотрите отчет по турнирам - " + link;
       var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent(shareText);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
