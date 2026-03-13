@@ -8702,8 +8702,13 @@ function initRaffles() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
-      var text = "Стартовал первый розыгрыш на *" + tournamentName + "*." +
-        " Разыгрывается *" + (total || 0) + "* билетов на сумму *" + (totalPrize || 0) + "₽*";
+      var text =
+        "Разыгрываем " +
+        (total || 0) +
+        " билетов на сумму " +
+        (totalPrize || 0) +
+        "₽ на " +
+        tournamentName;
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text);
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
