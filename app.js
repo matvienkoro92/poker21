@@ -620,9 +620,12 @@ function runGazetteAndTasksInit() {
     var articleBtns = modal && modal.querySelectorAll(".gazette-modal__subscribe-in-article-btn");
     if (articleBtns) {
       for (var i = 0; i < articleBtns.length; i++) {
-        articleBtns[i].disabled = false;
-        articleBtns[i].textContent = text;
-        articleBtns[i].dataset.subscribed = subscribed ? "1" : "0";
+        var btn = articleBtns[i];
+        var wrap = btn.closest(".gazette-modal__subscribe-in-article");
+        btn.disabled = false;
+        btn.textContent = text;
+        btn.dataset.subscribed = subscribed ? "1" : "0";
+        if (wrap) wrap.style.display = subscribed ? "none" : "";
       }
     }
   }
@@ -8376,12 +8379,12 @@ function initRaffles() {
           return endB - endA;
         });
 
-        // Вкладка «Активные»: количество розыгрышей и сумма разыгрываемая сейчас (₽)
-        var activeCount = activeList.length;
-        var activeSumRub = activeList.reduce(function (s, r) { return s + getRaffleTotalPrize(r); }, 0);
+        // Вкладка «Активные»: показываем ровно один текущий розыгрыш (как в карточке ниже)
+        var active = activeList[0] || null;
+        var activeCount = active ? 1 : 0;
+        var activeSumRub = active ? getRaffleTotalPrize(active) : 0;
         if (rafflesTabActiveCount) rafflesTabActiveCount.textContent = String(activeCount);
         if (rafflesTabActiveSum) rafflesTabActiveSum.textContent = formatRaffleSum(activeSumRub);
-        var active = activeList[0] || null;
 
         if (active) {
           if (raffleCurrent) raffleCurrent.classList.remove("raffle-current--hidden");
@@ -11962,7 +11965,7 @@ var TOURNAMENT_OF_DAY_BY_WEEKDAY = [
   { name: "Rebuy", buyin: "100₽", guarantee: "50 000₽" },
   { name: "Нокаут Мистери", buyin: "1 000₽", guarantee: "150 000₽" },
   { name: "Нокаут Прогрессив", buyin: "500₽", guarantee: "100 000₽" },
-  { name: "Фриролл", buyin: "Бесплатно", guarantee: "100 000₽" }
+  { name: "Фриролл", buyin: "Бесплатно", guarantee: "150 000₽" }
 ];
 
 function updateTournamentDayBlock() {
@@ -12009,7 +12012,18 @@ function updateTournamentDayBlock() {
     var nameStr = state.t ? state.t.name : "";
     var buyinStr = state.t ? state.t.buyin : "";
     var guaranteeStr = state.t ? state.t.guarantee : "";
-    els.forEach(function (el) { el.textContent = nameStr; });
+    window._tournamentDayShare = {
+      name: nameStr,
+      time: "18:00"
+    };
+    els.forEach(function (el) {
+      el.textContent = nameStr;
+      if (nameStr === "Фриролл") {
+        el.classList.add("tournament-day-name--freeroll");
+      } else {
+        el.classList.remove("tournament-day-name--freeroll");
+      }
+    });
     buyinEls.forEach(function (el) { el.textContent = buyinStr; });
     guaranteeEls.forEach(function (el) { el.textContent = guaranteeStr; });
     timerLabelEls.forEach(function (el) { el.textContent = state.label; });
@@ -12030,7 +12044,7 @@ function updateTournamentDayBlock() {
 function initTournamentDayBlock() {
   var trophyImg = document.getElementById("tournamentDayTrophyImg");
   if (trophyImg && typeof getAssetUrl === "function") {
-    trophyImg.src = getAssetUrl("tournament-champion-trophy.png");
+    trophyImg.src = getAssetUrl("tournament-day-golden-glove.png");
   }
   updateTournamentDayBlock();
 }
@@ -12039,6 +12053,38 @@ if (document.readyState === "loading") {
 } else {
   initTournamentDayBlock();
 }
+
+// Поделиться турниром дня с другом (кнопка под блоком «Турнир дня» на главной)
+(function initTournamentDayShareButton() {
+  var btn = document.getElementById("tournamentDayShareBtn");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var share = window._tournamentDayShare || {};
+    var name = (share.name || "").trim() || "турнир клуба";
+    var time = (share.time || "18:00").trim();
+    var appEl = document.getElementById("app");
+    var appUrl =
+      (appEl && appEl.getAttribute("data-telegram-app-url")) ||
+      "https://t.me/Poker_dvatuza_bot/DvaTuza";
+    appUrl = appUrl.replace(/\/$/, "");
+    var link = appUrl + "?startapp=schedule";
+    var text =
+      "Привет, сегодня " +
+      name +
+      " в " +
+      time +
+      ". Вот ссылка на приложение:";
+    var shareUrl =
+      "https://t.me/share/url?url=" +
+      encodeURIComponent(link) +
+      "&text=" +
+      encodeURIComponent(text);
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
+    else if (tg && tg.openLink) tg.openLink(shareUrl);
+    else window.open(shareUrl, "_blank");
+  });
+})();
 
 (function preinitChat() {
   var idle = window.requestIdleCallback || function (cb) { setTimeout(cb, 150); };

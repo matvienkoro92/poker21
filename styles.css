@@ -1291,10 +1291,15 @@ html.app-view-home .card .card__content {
 .gazette-front__read-more {
   display: inline-block;
   margin-top: 2px;
+  padding: 2px 8px;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  border-radius: 999px;
+  background: rgba(220, 38, 38, 0.92);
+  color: #fefce8;
+  box-shadow: 0 0 0 1px rgba(127, 29, 29, 0.9), 0 2px 6px rgba(127, 29, 29, 0.55);
 }
 .gazette-front__col {
   border-top: 1px solid rgba(44, 24, 16, 0.3);
@@ -1545,7 +1550,8 @@ html.app-view-home .card .card__content {
 /* Чтобы контент газеты не уходил под нижнее меню: отступ снизу = высота меню + 2мм */
 .gazette-modal__content--news {
   padding-top: 50px;
-  padding-bottom: calc(74px + 2mm);
+  /* Больше отступ снизу, чтобы кнопка «Подписаться на газету» всегда была видна над нижним меню */
+  padding-bottom: calc(104px + 8mm);
 }
 .gazette-modal__content-masthead {
   display: block;
@@ -1717,7 +1723,7 @@ html.app-view-home .card .card__content {
   padding: 12px 16px 0;
   border-top: 1px solid rgba(139, 90, 43, 0.25);
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
   align-items: center;
 }
@@ -1749,7 +1755,8 @@ html.app-view-home .card .card__content {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  width: 100%;
+  width: auto;
+  flex: 1 1 0;
   box-sizing: border-box;
   min-height: 44px;
   padding: 12px 20px;
@@ -1762,6 +1769,23 @@ html.app-view-home .card .card__content {
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
   box-shadow: 0 2px 8px rgba(92, 64, 51, 0.1);
+}
+.gazette-modal__share-btn.gazette-modal__share-copy {
+  flex: 0 0 auto;
+  font-size: 12px;
+  min-height: 36px;
+  padding: 8px 14px;
+}
+.gazette-modal__share-btn.gazette-modal__share-telegram {
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%);
+  border-color: rgba(21, 128, 61, 0.95);
+  color: #ecfdf5;
+  box-shadow: 0 0 0 1px rgba(4, 120, 87, 0.9), 0 4px 12px rgba(4, 120, 87, 0.6);
+}
+.gazette-modal__share-btn.gazette-modal__share-telegram:hover {
+  background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+  border-color: rgba(4, 120, 87, 1);
+  box-shadow: 0 0 0 1px rgba(4, 120, 87, 1), 0 6px 16px rgba(4, 120, 87, 0.7);
 }
 .gazette-modal__share-btn:hover {
   background: linear-gradient(180deg, rgba(255, 247, 237, 1) 0%, rgba(255, 237, 213, 0.98) 100%);
@@ -4111,14 +4135,14 @@ html.app-view-home .feature--rating-spring-promo:hover,
   top: auto;
   padding: 12px 14px;
   min-height: 72px;
-  background: rgba(0, 0, 0, 0.25) !important;
+  background: #000 !important;
   border: 1px solid rgba(251, 146, 60, 0.5);
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(251, 146, 60, 0.2) !important;
   transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .tournament-day-home-wrap .tournament-day-block--home:hover {
-  background: rgba(0, 0, 0, 0.3) !important;
+  background: #000 !important;
   border-color: rgba(251, 146, 60, 0.65);
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(0, 0, 0, 0.25), 0 0 12px rgba(251, 146, 60, 0.25) !important;
 }
@@ -4135,14 +4159,14 @@ html.app-view-home .feature--rating-spring-promo:hover,
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 6px 8px;
+  padding: 0;
   box-sizing: border-box;
 }
 .tournament-day-home-wrap .tournament-day-block__trophy-img {
   display: block;
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 .tournament-day-home-wrap .tournament-day-block--home .tournament-day-block__body {
@@ -4156,6 +4180,11 @@ html.app-view-home .feature--rating-spring-promo:hover,
   font-size: 18px;
   font-weight: 700;
   color: rgb(251, 146, 60);
+}
+[data-theme="light"] .tournament-day-home-wrap .tournament-day-block--home .tournament-day-block__name.tournament-day-name--freeroll,
+.tournament-day-home-wrap .tournament-day-block--home .tournament-day-block__name.tournament-day-name--freeroll {
+  font-size: 22px;
+  font-weight: 800;
 }
 [data-theme="light"] .tournament-day-home-wrap .tournament-day-block--home .tournament-day-block__name {
   color: #ea580c;
@@ -4172,13 +4201,51 @@ html.app-view-home .feature--rating-spring-promo:hover,
   padding: 8px 14px;
   margin-top: 8px;
 }
+
+.schedule-freeroll-name {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.tournament-day-share-btn {
+  margin-top: 0;
+  width: 100%;
+  border: 1px solid rgba(251, 146, 60, 0.5);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.tournament-day-share-btn::before {
+  content: "🕊";
+  font-size: 16px;
+}
+.tournament-day-share-btn:hover {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.7);
+}
+.tournament-day-share-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(194, 65, 12, 0.6);
+}
 [data-theme="light"] .tournament-day-home-wrap .tournament-day-block--home {
-  background: rgba(0, 0, 0, 0.06) !important;
+  background: #000 !important;
   border-color: rgba(249, 115, 22, 0.5);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(249, 115, 22, 0.15) !important;
 }
 [data-theme="light"] .tournament-day-home-wrap .tournament-day-block--home:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
+  background: #000 !important;
   border-color: rgba(249, 115, 22, 0.65);
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1), 0 0 12px rgba(249, 115, 22, 0.2) !important;
 }

@@ -238,7 +238,7 @@
               <h2 class="tournament-day-home-wrap__title">Турнир дня</h2>
               <a href="#" class="tournament-day-block tournament-day-block--home feature feature--link feature--app" data-view-target="schedule" aria-label="Турнир дня — перейти к расписанию">
                 <div class="feature__icon feature__icon--games feature__icon--trophy-img">
-                  <img id="tournamentDayTrophyImg" src="./assets/tournament-champion-trophy.png" alt="" class="tournament-day-block__trophy-img" width="80" height="80" />
+                  <img id="tournamentDayTrophyImg" src="./assets/tournament-day-golden-glove.png" alt="" class="tournament-day-block__trophy-img" width="80" height="80" />
                 </div>
                 <div class="feature__body tournament-day-block__body">
                   <div class="feature__title tournament-day-block__name" id="tournamentDayName">—</div>
@@ -246,6 +246,14 @@
                   <span class="tournament-day-block__cta">Расписание &gt;&gt;</span>
                 </div>
               </a>
+              <button
+                type="button"
+                class="tournament-day-share-btn"
+                id="tournamentDayShareBtn"
+                aria-label="Позвать друга на турнир дня"
+              >
+                Позвать друга
+              </button>
             </div>
 
             <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
@@ -2006,7 +2014,7 @@
                     <tr><td>Среда</td><td>Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>50 000₽</td><td>18:00</td></tr>
                     <tr><td>Четверг</td><td>Нокаут Мистери</td><td>1 000₽</td><td>R:1 000₽</td><td>150 000₽</td><td>18:00</td></tr>
                     <tr><td>Пятница</td><td>Нокаут Прогрессив</td><td>500₽</td><td>R:500₽</td><td>100 000₽</td><td>18:00</td></tr>
-                    <tr><td>Суббота</td><td>Фриролл</td><td>Бесплатно</td><td>R:250₽ / A:500₽</td><td>100 000₽</td><td>18:00</td></tr>
+                    <tr><td>Суббота</td><td><span class="schedule-freeroll-name">Фриролл</span></td><td>Бесплатно</td><td>R:500₽ / A:1 000₽</td><td>150 000₽</td><td>18:00</td></tr>
                     <tr><td>Воскресенье</td><td>Турнир Недели Нокаут Меджик</td><td>2 000₽</td><td>R:2 000₽</td><td>250 000₽</td><td>18:00</td></tr>
                   </tbody>
                 </table>
@@ -2388,8 +2396,8 @@
                 <p><em>По материалам чата клуба «Два туза». Цитаты героя сохранены.</em></p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="13" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="13" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="13" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2409,8 +2417,8 @@
                 <p><a href="#" class="gazette-modal__rating-link" data-view-target="spring-rating" data-close-gazette="1">Посмотреть рейтинг весны</a></p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="12" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="12" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="12" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2429,8 +2437,8 @@
                 <p><a href="#" class="gazette-modal__rating-link" data-view-target="spring-rating" data-close-gazette="1">Посмотреть рейтинг весны</a></p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="11" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="11" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="11" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2458,8 +2466,8 @@
                 <p><a href="#" class="gazette-modal__rating-link" data-view-target="spring-rating" data-close-gazette="1">Посмотреть рейтинг весны</a></p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="10" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="10" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="10" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2483,8 +2491,8 @@
                 <p>🔥 <a href="#" class="gazette-modal__rating-link" data-view-target="winter-rating" data-close-gazette="1">Посмотреть все цифры можно в рейтинге зимы</a> — там каждая копейка, каждый турнир и каждый титан на своих местах.</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="9" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="9" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="9" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2505,8 +2513,8 @@
                 <p>Турнир вышел достойным, а бой — зрелищным, с таким количеством коллов и чеков, что зрители в чате уже требуют рематч. Клуб аплодирует стоя и с опаской смотрит на столы: если эти двое ещё раз столкнутся в хедз-апе, от столов останутся только осколки.</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="8" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="8" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="8" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2526,8 +2534,8 @@
                 <p>«Вааар конечно лютая машина», — комментирует ПокерМанки. Вчера тот выиграл утренний турнир за 800₽, в вечернем столкнулся с глыбой и занял 2-е место — но тем не менее третий месяц подряд штурмует турниры без передышки и держится <a href="#" class="gazette-modal__rating-link" data-view-target="winter-rating" data-close-gazette="1">в топе клубного рейтинга</a> с огромным отрывом. 😱 Драма на столе не утихает!</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="7" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="7" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="7" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2545,8 +2553,8 @@
                 <p>В Турнире за 300₽ вчера разыграли 108 000₽ призовых — за первое место отдали больше тридцати тысяч. Два дня подряд Амалия показывает лучший результат в клубе по выигрышам и на этой неделе пока никого не пустила вперёд. В Турнире Вторника она шла к финалу рука об руку с Аспирином, как два лучших друга они бились спина к спине с врагами из других клубов. Но далее Амалия потеряла Аспирина по пути — тот вылетел шестым с 6400₽. Конечно её настрой угас, силы покинули, вера в себя иссякла и вылетела из турнира и она: в итоге четвёртое место и 8700₽. Останутся ли они друзьями после такого и были ли они друзьями на самом деле или их объединяла холодная жажда призов? По выигрышам за неделю Амалия по-прежнему первая в клубе — <a href="#" class="gazette-modal__rating-link" data-view-target="winter-rating" data-close-gazette="1">рейтинг не врёт</a>.</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="6" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="6" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="6" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2565,8 +2573,8 @@
                 <p>Ожидают, что вскоре родятся ещё парочка смайлов — в духе легендарного «Нужно больше золота!» Игроки клуба уже шлют идеи: кто-то хочет эмодзи с кучей монет, кто-то — с лихом в мантии и тузом в рукаве. Как бы то ни было, покер и Варкрафт на одной странице — это уже история, и мы за ней следим.</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="5" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="5" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="5" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2586,8 +2594,8 @@
                 <p>В чате на сообщение об отмене уже поставили четыре рукопожатия — символ солидарности с теми, кто не смирился. Редакция будет следить за развитием драмы.</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="4" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="4" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="4" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2605,8 +2613,8 @@
                 <p>Невероятная развязка вчерашнего мэджика за 500₽! Гидрограф крушил всех подряд, сносил ноки одного за другим — в том числе жирный топ на 20к — и уже набрал 39к ноками. Казалось, победа в кармане. Но на его пути встал Кряк: хладнокровно придушил надежды, вскрыл блефы и только усмехался: «Кряк-кряк!» В итоге Кряк забирает 30 000₽, Гидрографу достаётся 51 000₽. Инсайдеры шепчут: если бы Кряк его не остановил, Гидрограф унёс бы все 66 000₽. И всё это в турнире за пять сотен. Драма на столе — такого вы ещё не видели!</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="3" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="3" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="3" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2621,8 +2629,8 @@
                 <p class="gazette-modal__photo-caption">В топе рейтинга всю зиму, выстрелы по 200–300к. Эксперты: «Вот почему его называют легендой клуба».</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="2" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="2" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="2" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
@@ -2640,8 +2648,8 @@
                 <p>Шок на турнире понедельника: Кулер запушил T8o и выбил АК по окончании реги. Стол взорвался — такое решение кто-то назвал «инвалидным». Кулер парировал жёстко. Накал зашкаливал, но до рукоприкладства, по счастью, не дошло: оба остыли и договорились, что имели в виду «совсем другое». Остаётся вопрос: кто прав — тот, кто рискует, или тот, кого выбили? Читатели в комментариях уже делятся на два лагеря.</p>
               </div>
               <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="1" aria-label="Переслать новость">Переслать</button>
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="1" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
-                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="1" aria-label="Поделиться новостью">Поделиться</button>
               </p>
               <p class="gazette-modal__subscribe-in-article">
                 <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
