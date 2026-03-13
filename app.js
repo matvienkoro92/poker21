@@ -300,6 +300,17 @@ var CURRENT_WEEK_DATES = ["23.02.2026", "24.02.2026", "25.02.2026", "26.02.2026"
 var MARCH_PAST_WEEK_DATES = ["02.03.2026", "03.03.2026", "04.03.2026", "05.03.2026", "06.03.2026", "07.03.2026", "08.03.2026"];
 /** Рейтинг весны: даты текущей недели по марту (топы этой недели) */
 var MARCH_CURRENT_WEEK_DATES = ["09.03.2026", "10.03.2026", "11.03.2026", "12.03.2026", "13.03.2026", "14.03.2026", "15.03.2026"];
+
+function updateSpringRatingPromoDateFromVar() {
+  try {
+    if (typeof SPRING_RATING_UPDATED === "undefined") return;
+    var el = document.querySelector(".feature--rating-spring-promo .feature__title-updated");
+    if (!el) return;
+    el.textContent = "обновлено " + SPRING_RATING_UPDATED;
+  } catch (e) {
+    if (typeof console !== "undefined" && console.warn) console.warn("updateSpringRatingPromoDateFromVar", e);
+  }
+}
 // Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?Mart_week_1=1, Топы Марта = BASE?mart=1
 // Укажите сюда полный URL (например https://t.me/... или ссылку на пост), параметры допишутся автоматически
 var SPRING_TOP_LINK_BASE = "https://t.me/Poker_dvatuza_bot/DvaTuza";
@@ -1334,9 +1345,13 @@ function runGazetteAndTasksInit() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", runGazetteAndTasksInit);
+  document.addEventListener("DOMContentLoaded", function () {
+    runGazetteAndTasksInit();
+    updateSpringRatingPromoDateFromVar();
+  });
 } else {
   runGazetteAndTasksInit();
+  updateSpringRatingPromoDateFromVar();
 }
 
 setTimeout(function () {
