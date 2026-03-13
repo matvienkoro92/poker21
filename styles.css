@@ -5621,6 +5621,17 @@ html.app-view-home .feature--rating-spring-promo:hover,
   opacity: 0.7;
   cursor: not-allowed;
 }
+.raffles-hero__share-row .raffles-subscribe-btn[data-subscribed="1"] {
+  opacity: 0.4;
+  color: rgba(15, 23, 42, 0.6);
+  background: rgba(251, 191, 36, 0.2);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+.raffles-hero__share-row .raffles-subscribe-btn[data-subscribed="1"]:hover {
+  opacity: 0.55;
+  background: rgba(251, 191, 36, 0.28);
+  border-color: rgba(251, 191, 36, 0.5);
+}
 
 .raffle-completed-card {
   padding: 14px 16px;
@@ -6752,16 +6763,35 @@ a.home-mini-icon-item {
   background: linear-gradient(180deg, rgba(107, 142, 35, 0.22), rgba(85, 107, 47, 0.28));
   border-color: rgba(181, 196, 138, 0.4);
 }
-.winter-rating.spring-rating .winter-rating__subscribe-btn,
-.winter-rating.spring-rating .winter-rating__share-btn {
+.winter-rating.spring-rating .winter-rating__subscribe-btn {
   color: rgba(181, 196, 138, 0.92);
   background: rgba(107, 142, 35, 0.12);
   border-color: rgba(181, 196, 138, 0.35);
 }
-.winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled),
-.winter-rating.spring-rating .winter-rating__share-btn:hover {
+.winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled) {
   background: rgba(107, 142, 35, 0.22);
   border-color: rgba(181, 196, 138, 0.5);
+}
+.winter-rating.spring-rating .winter-rating__subscribe-btn[data-subscribed="1"] {
+  opacity: 0.38;
+  color: rgba(181, 196, 138, 0.5);
+  background: rgba(107, 142, 35, 0.06);
+  border-color: rgba(181, 196, 138, 0.2);
+}
+.winter-rating.spring-rating .winter-rating__subscribe-btn[data-subscribed="1"]:hover {
+  opacity: 0.5;
+  background: rgba(107, 142, 35, 0.1);
+}
+.winter-rating.spring-rating .winter-rating__share-btn {
+  color: #0f172a;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  border-color: rgba(251, 191, 36, 0.9);
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.winter-rating.spring-rating .winter-rating__share-btn:hover {
+  background: linear-gradient(135deg, #fde68a, #fdba74);
+  border-color: rgba(251, 191, 36, 1);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .winter-rating.spring-rating .winter-rating__week-top-btn {
   background: linear-gradient(180deg, rgba(107, 142, 35, 0.12), rgba(74, 93, 35, 0.22));
@@ -6793,16 +6823,25 @@ a.home-mini-icon-item {
   border-color: rgba(107, 142, 35, 0.4);
   color: #4a5d23;
 }
-[data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn,
-[data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn {
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn {
   color: #556b2f;
   background: rgba(107, 142, 35, 0.15);
   border-color: rgba(107, 142, 35, 0.45);
 }
-[data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled),
-[data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn:hover {
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__subscribe-btn:hover:not(:disabled) {
   background: rgba(107, 142, 35, 0.25);
   border-color: rgba(107, 142, 35, 0.6);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn {
+  color: #0f172a;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  border-color: rgba(251, 191, 36, 0.9);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+}
+[data-theme="light"] .winter-rating.spring-rating .winter-rating__share-btn:hover {
+  background: linear-gradient(135deg, #fde68a, #fdba74);
+  border-color: rgba(251, 191, 36, 1);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
 }
 [data-theme="light"] .winter-rating.spring-rating .winter-rating__week-top-btn {
   background: linear-gradient(180deg, rgba(213, 224, 184, 0.5), rgba(181, 196, 138, 0.4));
@@ -7167,17 +7206,22 @@ a.home-mini-icon-item {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(56, 189, 248, 0.12);
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
+.winter-rating__actions-row .winter-rating__subscribe-btn {
+  box-shadow: 0 1px 4px rgba(56, 189, 248, 0.12);
+}
+.winter-rating__actions-row .winter-rating__share-btn {
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
 .winter-rating__actions-row .winter-rating__share-btn:hover {
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .winter-rating.spring-rating .winter-rating__actions-row .winter-rating__share-btn {
-  box-shadow: 0 1px 4px rgba(107, 142, 35, 0.15);
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .winter-rating.spring-rating .winter-rating__actions-row .winter-rating__share-btn:hover {
-  box-shadow: 0 2px 8px rgba(107, 142, 35, 0.25);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 @media (max-width: 480px) {
   .winter-rating__actions-row {
@@ -7216,33 +7260,59 @@ a.home-mini-icon-item {
   opacity: 0.7;
   cursor: not-allowed;
 }
+.winter-rating__subscribe-btn[data-subscribed="1"] {
+  opacity: 0.38;
+  color: rgba(186, 230, 253, 0.5);
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(186, 230, 253, 0.25);
+}
+.winter-rating__subscribe-btn[data-subscribed="1"]:hover {
+  opacity: 0.5;
+  background: rgba(56, 189, 248, 0.12);
+}
 .winter-rating__share-btn {
   display: inline-block;
   padding: 10px 18px;
   font-size: 14px;
   font-weight: 600;
-  color: #bae6fd;
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(186, 230, 253, 0.5);
+  color: #0f172a;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  border: 1px solid rgba(251, 191, 36, 0.9);
   border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .winter-rating__share-btn:hover {
-  background: rgba(56, 189, 248, 0.28);
-  border-color: rgba(186, 230, 253, 0.7);
+  background: linear-gradient(135deg, #fde68a, #fdba74);
+  border-color: rgba(251, 191, 36, 1);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
-[data-theme="light"] .winter-rating__subscribe-btn,
-[data-theme="light"] .winter-rating__share-btn {
+[data-theme="light"] .winter-rating__subscribe-btn {
   color: #0369a1;
   background: rgba(56, 189, 248, 0.12);
   border-color: rgba(56, 189, 248, 0.4);
 }
-[data-theme="light"] .winter-rating__subscribe-btn:hover:not(:disabled),
-[data-theme="light"] .winter-rating__share-btn:hover {
+[data-theme="light"] .winter-rating__subscribe-btn:hover:not(:disabled) {
   background: rgba(56, 189, 248, 0.22);
   border-color: rgba(56, 189, 248, 0.6);
+}
+[data-theme="light"] .winter-rating__subscribe-btn[data-subscribed="1"] {
+  opacity: 0.4;
+  color: rgba(3, 105, 161, 0.5);
+  background: rgba(56, 189, 248, 0.06);
+}
+[data-theme="light"] .winter-rating__share-btn {
+  color: #0f172a;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  border-color: rgba(251, 191, 36, 0.9);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+}
+[data-theme="light"] .winter-rating__share-btn:hover {
+  background: linear-gradient(135deg, #fde68a, #fdba74);
+  border-color: rgba(251, 191, 36, 1);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
 }
 .winter-rating__date-share {
   margin: 16px 12px 20px;
@@ -7260,32 +7330,32 @@ a.home-mini-icon-item {
   font-size: 16px;
   min-height: 50px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .winter-rating__date-share .winter-rating__date-share-btn:hover {
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
 [data-theme="light"] .winter-rating__date-share .winter-rating__date-share-btn {
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
 }
 [data-theme="light"] .winter-rating__date-share .winter-rating__date-share-btn:hover {
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
 }
 .winter-rating__spring-league-share-wrap .winter-rating__share-btn {
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(56, 189, 248, 0.12);
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .winter-rating__spring-league-share-wrap .winter-rating__share-btn:hover {
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .winter-rating.spring-rating .winter-rating__spring-league-share-wrap .winter-rating__share-btn {
-  box-shadow: 0 1px 4px rgba(107, 142, 35, 0.15);
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .winter-rating.spring-rating .winter-rating__spring-league-share-wrap .winter-rating__share-btn:hover {
-  box-shadow: 0 2px 8px rgba(107, 142, 35, 0.25);
+  box-shadow: 0 6px 22px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .winter-rating__nick-btn {
   font: inherit;
