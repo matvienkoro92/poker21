@@ -578,7 +578,7 @@ function runGazetteAndTasksInit() {
         var headlineEl = article && article.querySelector(".gazette-modal__headline");
         var headline = headlineEl ? headlineEl.textContent.trim() : "";
         var shareText = headline.length > 0 ? headline : "Новая новость в газете «Вестник Два туза»";
-        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shareText);
+        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shareText + "\n" + link);
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
         else if (tg && tg.openLink) tg.openLink(shareUrl);
@@ -7016,7 +7016,7 @@ function closeDailyPredictionModal() {
       var link = appUrl + "?startapp=daily_prediction";
       var shortText = "Моё покерное предсказание на сегодня:";
       if (prediction) shortText += "\n\n" + prediction;
-      shortText += "\n\nПосмотрите своё предсказание здесь —";
+      shortText += "\n\nПосмотрите своё предсказание здесь —\n" + link;
       var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(shortText);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) {
@@ -7994,9 +7994,7 @@ function initRaffles() {
     var RAFFLE_SUBSCRIBED_KEY = "poker_raffles_subscribed";
     function setRaffleSubscribeState(subscribed) {
       rafflesSubscribeBtn.disabled = false;
-      rafflesSubscribeBtn.textContent = subscribed
-        ? "Отписаться от розыгрышей"
-        : "Подписаться на розыгрыши";
+      rafflesSubscribeBtn.textContent = subscribed ? "Отписаться" : "Подписаться";
       rafflesSubscribeBtn.dataset.subscribed = subscribed ? "1" : "0";
     }
     try {
@@ -8691,7 +8689,7 @@ function initRaffles() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
-      var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает билеты на турниры бесплатно, заходи участвуй)");
+      var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает билеты на турниры бесплатно, заходи участвуй)\n" + link);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
     });
@@ -8715,7 +8713,9 @@ function initRaffles() {
         " билетов на сумму " +
         (totalPrize || 0) +
         "₽ на " +
-        tournamentName;
+        tournamentName +
+        "\n" +
+        link;
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text);
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
@@ -12079,14 +12079,16 @@ if (document.readyState === "loading") {
       text =
         "Привет, сегодня Фриролл на " +
         guarantee +
-        " в Poker21. Скачать можно здесь:";
+        " в Poker21. Скачать можно здесь:\n" +
+        link;
     } else {
       text =
         "Привет, сегодня " +
         name +
         " в " +
         time +
-        " в Poker21. Скачать можно здесь:";
+        " в Poker21. Скачать можно здесь:\n" +
+        link;
     }
     var shareUrl =
       "https://t.me/share/url?url=" +

@@ -1512,23 +1512,14 @@
           <!-- Розыгрыши -->
           <div class="view" data-view="raffles">
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <p class="raffles-tagline">Розыгрыши билетов на турниры клуба</p>
             <header class="raffles-hero" aria-hidden="true">
-              <div class="raffles-hero__suits">
-                <span class="raffles-hero__suit" aria-hidden="true">♠</span>
-                <span class="raffles-hero__suit" aria-hidden="true">♥</span>
-                <span class="raffles-hero__suit raffles-hero__suit--red" aria-hidden="true">♦</span>
-                <span class="raffles-hero__suit raffles-hero__suit--red" aria-hidden="true">♣</span>
-              </div>
-              <p class="raffles-hero__club">TWO ACES</p>
-              <p class="raffles-hero__tagline">Розыгрыши билетов на турниры клуба</p>
               <img src="./assets/raffles-hero.png" alt="" class="raffles-hero__img" width="720" height="288" />
+              <p class="raffles-subscribe-text">Получать уведомления о новых розыгрышах в Telegram</p>
               <div class="raffles-hero__share-row">
                 <button type="button" class="raffles-hero__share-btn raffles-hero__share-btn--primary" id="rafflesInviteFriendBtn" aria-label="Позвать друга">Позвать друга</button>
-                <button type="button" class="raffles-hero__share-btn" id="rafflesCopyLinkBtn" aria-label="Скопировать ссылку на розыгрыши">Скопировать ссылку</button>
-              </div>
-              <div class="raffles-subscribe-wrap">
-                <p class="raffles-subscribe-text">Получать уведомления о новых розыгрышах в Telegram</p>
-                <button type="button" class="raffles-subscribe-btn" id="rafflesSubscribeBtn">Подписаться на розыгрыши</button>
+                <button type="button" class="raffles-hero__share-btn raffles-hero__share-btn--copy-icon" id="rafflesCopyLinkBtn" aria-label="Скопировать ссылку на розыгрыши"><span class="raffles-hero__copy-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
+                <button type="button" class="raffles-hero__share-btn raffles-hero__share-btn--primary raffles-subscribe-btn" id="rafflesSubscribeBtn">Подписаться</button>
               </div>
             </header>
 
