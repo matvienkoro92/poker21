@@ -12014,7 +12014,8 @@ function updateTournamentDayBlock() {
     var guaranteeStr = state.t ? state.t.guarantee : "";
     window._tournamentDayShare = {
       name: nameStr,
-      time: "18:00"
+      time: "18:00",
+      guarantee: guaranteeStr
     };
     els.forEach(function (el) {
       el.textContent = nameStr;
@@ -12061,6 +12062,7 @@ if (document.readyState === "loading") {
   btn.addEventListener("click", function () {
     var share = window._tournamentDayShare || {};
     var name = (share.name || "").trim() || "турнир клуба";
+    var guarantee = (share.guarantee || "").trim();
     var time = (share.time || "18:00").trim();
     var appEl = document.getElementById("app");
     var appUrl =
@@ -12068,12 +12070,20 @@ if (document.readyState === "loading") {
       "https://t.me/Poker_dvatuza_bot/DvaTuza";
     appUrl = appUrl.replace(/\/$/, "");
     var link = appUrl + "?startapp=schedule";
-    var text =
-      "Привет, сегодня " +
-      name +
-      " в " +
-      time +
-      ". Вот ссылка на приложение:";
+    var text;
+    if (name === "Фриролл" && guarantee) {
+      text =
+        "Привет, сегодня Фриролл на " +
+        guarantee +
+        " в Poker21. Скачать можно здесь:";
+    } else {
+      text =
+        "Привет, сегодня " +
+        name +
+        " в " +
+        time +
+        " в Poker21. Скачать можно здесь:";
+    }
     var shareUrl =
       "https://t.me/share/url?url=" +
       encodeURIComponent(link) +
