@@ -1591,6 +1591,19 @@ setTimeout(function () {
     var subsBtn = document.getElementById("winterRatingNotifySubsBtn");
     var hint = document.getElementById("winterRatingNotifyHint");
     if (!btn && !subsBtn) return;
+    function updateSpringRatingPromoDateToToday() {
+      var el = document.querySelector(".feature--rating-spring-promo .feature__title-updated");
+      if (!el) return;
+      var now = new Date();
+      var dd = String(now.getDate()).padStart(2, "0");
+      var mm = String(now.getMonth() + 1).padStart(2, "0");
+      var yyyy = now.getFullYear();
+      var dateStr = dd + "." + mm + "." + yyyy;
+      el.textContent = "обновлено " + dateStr;
+      if (typeof SPRING_RATING_UPDATED !== "undefined") {
+        SPRING_RATING_UPDATED = dateStr;
+      }
+    }
     function sendRequest(button, url, body, pendingText, successText, errorPrefix, onSuccess) {
       var base = getApiBase();
       var initData = tg && tg.initData ? tg.initData : "";
@@ -1668,7 +1681,13 @@ setTimeout(function () {
           { action: "spring_rating_notify" },
           "Отправляем…",
           "Сообщение отправлено в общий чат.",
-          "Ошибка"
+          "Ошибка",
+          function (data) {
+            if (hint) {
+              hint.textContent = "Сообщение отправлено в общий чат.";
+            }
+            updateSpringRatingPromoDateToToday();
+          }
         );
       });
     }
