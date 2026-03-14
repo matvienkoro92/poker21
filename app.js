@@ -11419,11 +11419,13 @@ function initChat() {
         if (!f || !f.type.startsWith("image/")) return;
         resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
           generalImage = dataUrl;
+          updateGeneralSendBtnIcon();
           if (generalImagePreview) {
             generalImagePreview.innerHTML = '<img class="chat-image-preview__thumb" src="' + dataUrl.replace(/"/g, "&quot;") + '" alt="" /><button type="button" class="chat-image-preview__remove">Убрать</button>';
             generalImagePreview.classList.add("chat-image-preview--visible");
             generalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
               generalImage = null; generalFileInput.value = "";
+              updateGeneralSendBtnIcon();
               generalImagePreview.classList.remove("chat-image-preview--visible"); generalImagePreview.innerHTML = "";
             });
           }
@@ -11521,11 +11523,15 @@ function initChat() {
     var generalVoiceBtn = document.getElementById("chatGeneralVoiceBtn");
     var generalVoiceRemove = document.getElementById("chatGeneralVoiceRemove");
     var generalVoicePreviewEl = document.getElementById("chatGeneralVoicePreview");
+    var generalSendBtnRef = generalSendBtn;
+    var sendBtnRef = sendBtn;
     (function initVoiceRecording() {
       var voiceTarget = null;
       var voiceStream = null;
       var voiceChunks = [];
       var voiceRecorder = null;
+      var generalBtn = generalVoiceBtn || generalSendBtnRef;
+      var personalBtn = document.getElementById("chatPersonalVoiceBtn") || sendBtnRef;
       function stopAndDiscard() {
         voiceTarget = null;
         if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
@@ -11542,17 +11548,15 @@ function initChat() {
           return;
         }
         voiceTarget = target;
-        if (target === "general" && generalVoiceBtn) {
-          generalVoiceBtn.classList.add("chat-voice-btn--recording");
-          generalVoiceBtn.title = "Остановить запись";
+        if (target === "general") {
+          if (generalBtn) { generalBtn.classList.add("chat-voice-btn--recording"); generalBtn.title = "Остановить запись"; }
           if (generalVoicePreviewEl) {
             generalVoicePreviewEl.classList.remove("chat-voice-preview--hidden");
             generalVoicePreviewEl.classList.add("chat-voice-preview--recording");
           }
         }
         if (target === "personal") {
-          var pvb = document.getElementById("chatPersonalVoiceBtn");
-          if (pvb) { pvb.classList.add("chat-voice-btn--recording"); pvb.title = "Остановить запись"; }
+          if (personalBtn) { personalBtn.classList.add("chat-voice-btn--recording"); personalBtn.title = "Остановить запись"; }
           var pvPrev = document.getElementById("chatPersonalVoicePreview");
           if (pvPrev) {
             pvPrev.classList.remove("chat-voice-preview--hidden");
@@ -11582,11 +11586,15 @@ function initChat() {
               voiceStream = null;
             }
             if (voiceChunks.length === 0) {
-              if (savedTarget === "general" && generalVoicePreviewEl) {
-                generalVoicePreviewEl.classList.remove("chat-voice-preview--recording");
-                generalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+              if (savedTarget === "general") {
+                if (generalBtn) { generalBtn.classList.remove("chat-voice-btn--recording"); generalBtn.title = "Голосовое сообщение"; }
+                if (generalVoicePreviewEl) {
+                  generalVoicePreviewEl.classList.remove("chat-voice-preview--recording");
+                  generalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+                }
               }
               if (savedTarget === "personal") {
+                if (personalBtn) { personalBtn.classList.remove("chat-voice-btn--recording"); personalBtn.title = "Голосовое сообщение"; }
                 var pvH = document.getElementById("chatPersonalVoicePreview");
                 if (pvH) { pvH.classList.remove("chat-voice-preview--recording"); pvH.classList.add("chat-voice-preview--hidden"); }
               }
@@ -11600,12 +11608,14 @@ function initChat() {
               var dataUrl = reader.result;
               if (savedTarget === "general") {
                 generalVoice = dataUrl;
+                if (typeof updateGeneralSendBtnIcon === "function") updateGeneralSendBtnIcon();
                 if (generalVoicePreviewEl) {
                   generalVoicePreviewEl.classList.remove("chat-voice-preview--recording");
                   generalVoicePreviewEl.classList.remove("chat-voice-preview--hidden");
                 }
               } else if (savedTarget === "personal") {
                 personalVoice = dataUrl;
+                if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
                 var pv = document.getElementById("chatPersonalVoicePreview");
                 if (pv) {
                   pv.classList.remove("chat-voice-preview--recording");
@@ -11619,18 +11629,17 @@ function initChat() {
           voiceRecorder.start(1000);
         }).catch(function () {
           voiceTarget = null;
-          if (generalVoiceBtn && target === "general") { generalVoiceBtn.classList.remove("chat-voice-btn--recording"); generalVoiceBtn.title = "Голосовое сообщение"; if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); } }
+          if (target === "general" && generalBtn) { generalBtn.classList.remove("chat-voice-btn--recording"); generalBtn.title = "Голосовое сообщение"; if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); } }
           if (target === "personal") {
-            var pvb = document.getElementById("chatPersonalVoiceBtn");
-            if (pvb) { pvb.classList.remove("chat-voice-btn--recording"); pvb.title = "Голосовое сообщение"; }
+            if (personalBtn) { personalBtn.classList.remove("chat-voice-btn--recording"); personalBtn.title = "Голосовое сообщение"; }
             var pvErr = document.getElementById("chatPersonalVoicePreview");
             if (pvErr) { pvErr.classList.remove("chat-voice-preview--recording"); pvErr.classList.add("chat-voice-preview--hidden"); }
           }
           if (tg && tg.showAlert) tg.showAlert("Нет доступа к микрофону");
         });
       }
-      if (generalVoiceBtn) {
-        generalVoiceBtn.addEventListener("click", function (e) {
+      if (generalBtn) {
+        generalBtn.addEventListener("click", function (e) {
           e.preventDefault();
           if (voiceTarget === "general") {
             if (voiceRecorder) {
@@ -11642,15 +11651,17 @@ function initChat() {
               voiceTarget = null;
               if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
             }
-            generalVoiceBtn.classList.remove("chat-voice-btn--recording");
-            generalVoiceBtn.title = "Голосовое сообщение";
+            generalBtn.classList.remove("chat-voice-btn--recording");
+            generalBtn.title = "Голосовое сообщение";
+            if (generalSendBtnRef && typeof updateGeneralSendBtnIcon === "function") updateGeneralSendBtnIcon();
           } else if (voiceTarget === "personal") {
             stopAndDiscard();
-            var pvbEl = document.getElementById("chatPersonalVoiceBtn");
-            if (pvbEl) pvbEl.classList.remove("chat-voice-btn--recording");
+            if (personalBtn) personalBtn.classList.remove("chat-voice-btn--recording");
             var pvPrev = document.getElementById("chatPersonalVoicePreview");
             if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
             startRecording("general");
+          } else if ((generalInput && generalInput.value.trim()) || generalImage || generalVoice) {
+            sendGeneral();
           } else {
             startRecording("general");
           }
@@ -11660,6 +11671,7 @@ function initChat() {
         generalVoiceRemove.addEventListener("click", function () {
           generalVoice = null;
           generalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+          if (typeof updateGeneralSendBtnIcon === "function") updateGeneralSendBtnIcon();
         });
       }
       var generalVoiceSend = document.getElementById("chatGeneralVoiceSend");
@@ -11677,14 +11689,14 @@ function initChat() {
             voiceTarget = null;
             if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
           }
-          if (generalVoiceBtn) { generalVoiceBtn.classList.remove("chat-voice-btn--recording"); generalVoiceBtn.title = "Голосовое сообщение"; }
+          if (generalBtn) { generalBtn.classList.remove("chat-voice-btn--recording"); generalBtn.title = "Голосовое сообщение"; }
+          if (generalSendBtnRef && typeof updateGeneralSendBtnIcon === "function") updateGeneralSendBtnIcon();
         }
       });
-      var personalVoiceBtn = document.getElementById("chatPersonalVoiceBtn");
       var personalVoiceRemove = document.getElementById("chatPersonalVoiceRemove");
       var personalVoicePreviewEl = document.getElementById("chatPersonalVoicePreview");
-      if (personalVoiceBtn) {
-        personalVoiceBtn.addEventListener("click", function (e) {
+      if (personalBtn) {
+        personalBtn.addEventListener("click", function (e) {
           e.preventDefault();
           if (voiceTarget === "personal") {
             if (voiceRecorder) {
@@ -11697,13 +11709,16 @@ function initChat() {
               var pvPrev = document.getElementById("chatPersonalVoicePreview");
               if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
             }
-            personalVoiceBtn.classList.remove("chat-voice-btn--recording");
-            personalVoiceBtn.title = "Голосовое сообщение";
+            personalBtn.classList.remove("chat-voice-btn--recording");
+            personalBtn.title = "Голосовое сообщение";
+            if (sendBtnRef && typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
           } else if (voiceTarget === "general") {
             stopAndDiscard();
-            if (generalVoiceBtn) generalVoiceBtn.classList.remove("chat-voice-btn--recording");
+            if (generalBtn) generalBtn.classList.remove("chat-voice-btn--recording");
             if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
             startRecording("personal");
+          } else if ((inputEl && inputEl.value.trim()) || personalImage || personalVoice) {
+            sendMessage();
           } else {
             startRecording("personal");
           }
@@ -11713,6 +11728,7 @@ function initChat() {
         personalVoiceRemove.addEventListener("click", function () {
           personalVoice = null;
           personalVoicePreviewEl.classList.add("chat-voice-preview--hidden");
+          if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
         });
       }
       var personalVoiceSend = document.getElementById("chatPersonalVoiceSend");
@@ -11731,11 +11747,27 @@ function initChat() {
             var pvPrev = document.getElementById("chatPersonalVoicePreview");
             if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
           }
-          var pvb = document.getElementById("chatPersonalVoiceBtn");
-          if (pvb) { pvb.classList.remove("chat-voice-btn--recording"); pvb.title = "Голосовое сообщение"; }
+          if (personalBtn) { personalBtn.classList.remove("chat-voice-btn--recording"); personalBtn.title = "Голосовое сообщение"; }
+          if (sendBtnRef && typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
         }
       });
     })();
+    function updateGeneralSendBtnIcon() {
+      if (!generalSendBtn) return;
+      var hasContent = (generalInput && generalInput.value.trim()) || generalImage || generalVoice;
+      generalSendBtn.textContent = hasContent ? "\u2191" : "\uD83C\uDFA4";
+      generalSendBtn.title = hasContent ? "Отправить" : "Голосовое сообщение";
+      generalSendBtn.setAttribute("aria-label", hasContent ? "Отправить" : "Записать голосовое");
+      generalSendBtn.classList.toggle("chat-send-btn--mic", !hasContent);
+    }
+    function updatePersonalSendBtnIcon() {
+      if (!sendBtn) return;
+      var hasContent = (inputEl && inputEl.value.trim()) || personalImage || personalVoice;
+      sendBtn.textContent = hasContent ? "\u2191" : "\uD83C\uDFA4";
+      sendBtn.title = hasContent ? "Отправить" : "Голосовое сообщение";
+      sendBtn.setAttribute("aria-label", hasContent ? "Отправить" : "Записать голосовое");
+      sendBtn.classList.toggle("chat-send-btn--mic", !hasContent);
+    }
     function resizeChatTextarea(ta) {
       if (!ta || ta.nodeName !== "TEXTAREA") return;
       ta.style.height = "auto";
@@ -11744,11 +11776,12 @@ function initChat() {
       ta.style.height = h + "px";
     }
     if (generalInput) {
-      generalInput.addEventListener("input", function () { resizeChatTextarea(generalInput); });
+      generalInput.addEventListener("input", function () { resizeChatTextarea(generalInput); updateGeneralSendBtnIcon(); });
       generalInput.addEventListener("focus", function () { resizeChatTextarea(generalInput); });
+      generalInput.addEventListener("change", updateGeneralSendBtnIcon);
       resizeChatTextarea(generalInput);
     }
-    if (generalSendBtn) generalSendBtn.addEventListener("click", sendGeneral);
+    updateGeneralSendBtnIcon();
     var generalReplyCancel = document.querySelector("#chatGeneralReplyPreview .chat-reply-preview__cancel");
     if (generalReplyCancel) generalReplyCancel.addEventListener("click", function () {
       generalReplyTo = null;
@@ -11765,11 +11798,13 @@ function initChat() {
         if (!f || !f.type.startsWith("image/")) return;
         resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
           personalImage = dataUrl;
+          updatePersonalSendBtnIcon();
           if (personalImagePreview) {
             personalImagePreview.innerHTML = '<img class="chat-image-preview__thumb" src="' + dataUrl.replace(/"/g, "&quot;") + '" alt="" /><button type="button" class="chat-image-preview__remove">Убрать</button>';
             personalImagePreview.classList.add("chat-image-preview--visible");
             personalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
               personalImage = null; personalFileInput.value = "";
+              updatePersonalSendBtnIcon();
               personalImagePreview.classList.remove("chat-image-preview--visible"); personalImagePreview.innerHTML = "";
             });
           }
@@ -11777,12 +11812,13 @@ function initChat() {
         personalFileInput.value = "";
       });
     }
-    if (sendBtn) sendBtn.addEventListener("click", sendMessage);
     if (inputEl) {
-      inputEl.addEventListener("input", function () { resizeChatTextarea(inputEl); });
+      inputEl.addEventListener("input", function () { resizeChatTextarea(inputEl); updatePersonalSendBtnIcon(); });
       inputEl.addEventListener("focus", function () { resizeChatTextarea(inputEl); });
+      inputEl.addEventListener("change", updatePersonalSendBtnIcon);
       resizeChatTextarea(inputEl);
     }
+    updatePersonalSendBtnIcon();
     var personalReplyCancel = document.querySelector("#chatPersonalReplyPreview .chat-reply-preview__cancel");
     if (personalReplyCancel) personalReplyCancel.addEventListener("click", function () {
       personalReplyTo = null;
