@@ -11359,7 +11359,22 @@ function initChat() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    }).then(function (r) { return r.json(); }).then(function (data) {
+    }).then(function (r) {
+      if (!r.ok) {
+        return r.text().then(function (t) {
+          var errMsg = "Не удалось отправить";
+          if (r.status === 413) errMsg = "Файл слишком большой. Попробуйте документ до 8 МБ.";
+          else {
+            try {
+              var j = JSON.parse(t);
+              if (j && j.error) errMsg = j.error;
+            } catch (e) {}
+          }
+          return { ok: false, error: errMsg };
+        });
+      }
+      return r.json();
+    }).then(function (data) {
       sendingPrivate = false;
       if (data && data.ok) {
         var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
@@ -11380,7 +11395,7 @@ function initChat() {
       sendingPrivate = false;
       var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
       if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
-      if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+      if (tg && tg.showAlert) tg.showAlert("Ошибка сети или файл слишком большой");
     });
   }
 
@@ -11869,6 +11884,12 @@ function initChat() {
         var f = personalFileInput.files && personalFileInput.files[0];
         if (!f) return;
         if (f.type === "application/pdf") {
+          var maxPdfBytes = 8 * 1024 * 1024;
+          if (f.size > maxPdfBytes) {
+            if (tg && tg.showAlert) tg.showAlert("Файл слишком большой. Максимум 8 МБ.");
+            personalFileInput.value = "";
+            return;
+          }
           var reader = new FileReader();
           reader.onload = function () {
             var dataUrl = reader.result;
