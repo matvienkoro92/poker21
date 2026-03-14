@@ -2252,6 +2252,14 @@ html.app-view-home .card .card__content {
   font-weight: 600;
   color: var(--accent);
 }
+.chat-msg__avatar-spacer {
+  width: 36px;
+  min-width: 36px;
+  flex-shrink: 0;
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
 .chat-msg__body {
   flex: 1;
   min-width: 0;

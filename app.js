@@ -10461,7 +10461,12 @@ function initChat() {
       generalMessages.innerHTML = '<p class="chat-empty">Нет сообщений. Напишите первым!</p>';
       return;
     }
-    var html = messages.map(function (m) {
+    var html = messages.map(function (m, i) {
+      var prev = i > 0 ? messages[i - 1] : null;
+      var next = i < messages.length - 1 ? messages[i + 1] : null;
+      var sameUser = function (a, b) { return a && b && a.from === b.from; };
+      var isFirstInGroup = !prev || !sameUser(prev, m);
+      var isLastInGroup = !next || !sameUser(next, m);
       var isOwn = myId && m.from === myId;
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var dataAttrs = "";
@@ -10481,7 +10486,9 @@ function initChat() {
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
-      var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
+      var avatarEl = isLastInGroup
+        ? (m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>')
+        : '<span class="chat-msg__avatar-spacer"></span>';
       var nameStr = escapeHtml(m.fromName || "Игрок");
       var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
       var rankCard = m.fromStatus != null ? (levelToStatusCard(m.fromStatus) || String(m.fromStatus)) : "2\u2663";
@@ -10511,7 +10518,8 @@ function initChat() {
         reactionsHtml = pills.join("");
       }
       var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span></div>' : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtn + '<div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
+      var metaBlock = isFirstInGroup ? nameEl + adminBadge : "";
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtn + '<div class="chat-msg__meta">' + metaBlock + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
@@ -11050,7 +11058,12 @@ function initChat() {
       messagesEl.innerHTML = '<p class="chat-empty">Нет сообщений.</p>';
       return;
     }
-    var html = messages.map(function (m) {
+    var html = messages.map(function (m, i) {
+      var prev = i > 0 ? messages[i - 1] : null;
+      var next = i < messages.length - 1 ? messages[i + 1] : null;
+      var sameUser = function (a, b) { return a && b && a.from === b.from; };
+      var isFirstInGroup = !prev || !sameUser(prev, m);
+      var isLastInGroup = !next || !sameUser(next, m);
       var isOwn = myId && m.from === myId;
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var dataAttrs = "";
@@ -11069,7 +11082,9 @@ function initChat() {
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
       var adminBadge = m.fromAdmin ? '<span class="chat-msg__admin">(админ)</span>' : "";
       var editedBadge = m.edited ? '<span class="chat-msg__edited">(отредактировано)</span>' : "";
-      var avatarEl = m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>';
+      var avatarEl = isLastInGroup
+        ? (m.fromAvatar ? '<img class="chat-msg__avatar" src="' + escapeHtml(m.fromAvatar) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (m.fromName || "И")[0] + '</span>')
+        : '<span class="chat-msg__avatar-spacer"></span>';
       var nameStrP = escapeHtml(m.fromName || "Игрок");
       var p21StrP = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
       var rankCardP = m.fromStatus != null ? (levelToStatusCard(m.fromStatus) || String(m.fromStatus)) : "2\u2663";
@@ -11092,7 +11107,8 @@ function initChat() {
         reactionsHtmlP = pillsP.join("");
       }
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span></div>' : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtnP + '<div class="chat-msg__meta">' + nameElP + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
+      var metaBlockP = isFirstInGroup ? nameElP + adminBadge : "";
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtnP + '<div class="chat-msg__meta">' + metaBlockP + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;
     var prevScrollHeightP = messagesEl.scrollHeight;
