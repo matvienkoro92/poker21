@@ -220,7 +220,7 @@ function getAssetUrl(relativePath) {
       open(t.src);
       return;
     }
-    if (t.classList && t.classList.contains("chat-contact__avatar") && t.src) {
+    if (t.classList && t.classList.contains("chat-contact__avatar") && t.src && !(t.closest && t.closest(".chat-contact"))) {
       e.preventDefault();
       e.stopPropagation();
       open(t.src);
@@ -11114,11 +11114,12 @@ function initChat() {
           var firstChar = function (name) { return (name || "?").toString().replace(/^@/, "")[0] || "?"; };
           contactsEl.innerHTML = data.contacts.map(function (c) {
             var dtSpan = c.dtId ? '<span class="chat-contact__dt">' + escapeHtml(c.dtId) + '</span>' : "";
+            var onlineBadge = c.online ? '<span class="chat-contact__online" aria-label="онлайн">онлайн</span>' : "";
             var initial = firstChar(c.name);
             var avatarEl = c.avatar
               ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
               : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
-            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '</span></button>';
+            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + onlineBadge + '</span>' + dtSpan + '</span></button>';
           }).join("");
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
             btn.addEventListener("click", function () { openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName); });
@@ -11879,7 +11880,7 @@ function initChat() {
       personalFileInput.addEventListener("change", function () {
         var f = personalFileInput.files && personalFileInput.files[0];
         if (!f || !f.type.startsWith("image/")) return;
-        resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
+        resizeImage(f, 800, 800, 0.88).then(function (dataUrl) {
           personalImage = dataUrl;
           updatePersonalSendBtnIcon();
           if (personalImagePreview) {
