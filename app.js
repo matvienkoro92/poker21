@@ -10485,12 +10485,18 @@ function initChat() {
       var nameStr = escapeHtml(m.fromName || "Игрок");
       var p21Str = m.fromP21Id ? escapeHtml(m.fromP21Id) : "\u2014";
       var rankCard = m.fromStatus != null ? (levelToStatusCard(m.fromStatus) || String(m.fromStatus)) : "2\u2663";
-      var rankRow = '<div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">' + escapeHtml(rankCard) + '</span></div>';
-      var p21Row = '<div class="chat-msg__p21-line">P21_ID: ' + p21Str + "</div>";
-      var nameRow = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStr + "</span></div>";
-      var metaBlock = nameRow + p21Row + rankRow;
+      var respectVal = m.fromRespect !== undefined && m.fromRespect !== null ? (m.fromRespect === 0 ? "\u2014" : String(m.fromRespect)) : "\u2014";
+      var respectClass = "chat-msg__respect";
+      if (m.fromRespect > 0) respectClass += " chat-msg__respect--positive";
+      else if (m.fromRespect < 0) respectClass += " chat-msg__respect--negative";
+      var respectDataAttrs = !isOwn && m.from ? ' data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
+      var sep = '<span class="chat-msg__meta-sep"> · </span>';
+      var metaLineParts = '<span class="chat-msg__name">' + nameStr + "</span>" + sep + '<span class="chat-msg__p21-inline">P21: ' + p21Str + "</span>" + sep + '<span class="chat-msg__rank-inline">' + escapeHtml(rankCard) + "</span>";
+      var respectPart = '<span class="chat-msg__respect-row chat-msg__respect-inline"' + respectDataAttrs + '><span class="' + respectClass + '" title="Уважение в чате">Уважение: ' + escapeHtml(respectVal) + "</span></span>";
       var pmAvatarAttr = !isOwn && m.fromAvatar ? ' data-pm-avatar="' + escapeHtml(m.fromAvatar) + '"' : "";
-      var nameEl = isOwn ? metaBlock : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' + pmAvatarAttr + '>' + metaBlock + "</button>";
+      var nameEl = isOwn
+        ? '<div class="chat-msg__meta-line">' + metaLineParts + sep + respectPart + "</div>"
+        : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' + pmAvatarAttr + '><div class="chat-msg__meta-line">' + metaLineParts + "</div></button>" + sep + respectPart;
       var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
@@ -10505,17 +10511,7 @@ function initChat() {
         reactionsHtml = pills.join("");
       }
       var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span></div>' : "";
-      var respectVal = m.fromRespect !== undefined && m.fromRespect !== null ? (m.fromRespect === 0 ? "\u2014" : String(m.fromRespect)) : "\u2014";
-      var respectClass = "chat-msg__respect";
-      if (m.fromRespect > 0) respectClass += " chat-msg__respect--positive";
-      else if (m.fromRespect < 0) respectClass += " chat-msg__respect--negative";
-      var respectDataAttrs = !isOwn && m.from ? ' data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' : "";
-      var respectHtml = '<div class="chat-msg__respect-row"' + respectDataAttrs + '><span class="' + respectClass + '" title="Уважение в чате">Уважение: ' + escapeHtml(respectVal) + '</span></div>';
-      if (!isOwn && m.from) {
-        var profileAvatarAttr = m.fromAvatar ? ' data-user-avatar="' + escapeHtml(m.fromAvatar) + '"' : "";
-        respectHtml += '<div class="chat-msg__profile-row" data-user-id="' + escapeHtml(m.from) + '" data-user-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' + profileAvatarAttr + '><span class="chat-msg__profile-link">Посмотреть профиль</span></div>';
-      }
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtn + '<div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + respectHtml + reactionsRow + '</div></div></div>';
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtn + '<div class="chat-msg__meta">' + nameEl + adminBadge + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
@@ -10596,14 +10592,6 @@ function initChat() {
         modal.classList.add("respect-voters-modal--open");
         modal.setAttribute("aria-hidden", "false");
         if (typeof window._loadRespectVotersList === "function") window._loadRespectVotersList(id);
-      });
-    });
-    generalMessages.querySelectorAll(".chat-msg__profile-row[data-user-id]").forEach(function (row) {
-      row.addEventListener("click", function () {
-        var id = row.dataset.userId;
-        var name = row.dataset.userName;
-        var avatar = row.dataset.userAvatar || "";
-        if (id) openChatUserModalById(id, name, avatar);
       });
     });
     generalMessages.querySelectorAll(".chat-msg__delete").forEach(function (btn) {

@@ -2384,6 +2384,19 @@ html.app-view-home .card .card__content {
 .chat-msg--other {
   align-self: flex-start;
 }
+.chat-msg__meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  line-height: 1.4;
+}
+.chat-msg__meta-sep {
+  margin: 0 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  user-select: none;
+}
 .chat-msg__name-row {
   display: flex;
   align-items: center;
@@ -2395,6 +2408,21 @@ html.app-view-home .card .card__content {
   font-size: 12px;
   font-weight: 600;
   color: var(--accent);
+}
+.chat-msg__p21-inline {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.chat-msg__rank-inline {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+}
+.chat-msg__respect-inline {
+  cursor: pointer;
+}
+.chat-msg__respect-inline:hover .chat-msg__respect {
+  text-decoration: underline;
 }
 .chat-msg__p21-line {
   font-size: 11px;
@@ -2550,6 +2578,10 @@ html.app-view-home .card .card__content {
   margin-top: 2px;
   text-align: right;
 }
+.chat-msg__respect-inline.chat-msg__respect-row {
+  margin-top: 0;
+  text-align: left;
+}
 .chat-msg__respect-row[data-user-id] {
   cursor: pointer;
 }
@@ -2565,18 +2597,6 @@ html.app-view-home .card .card__content {
 }
 .chat-msg__respect--negative {
   color: #ef4444;
-}
-.chat-msg__profile-row {
-  margin-top: 2px;
-  text-align: right;
-  cursor: pointer;
-}
-.chat-msg__profile-row:hover .chat-msg__profile-link {
-  text-decoration: underline;
-}
-.chat-msg__profile-link {
-  font-size: 11px;
-  color: var(--text-muted);
 }
 .chat-msg__edited {
   font-size: 10px;
@@ -2816,9 +2836,9 @@ html.app-view-home .card .card__content {
   cursor: pointer;
 }
 .chat-msg__image {
-  max-width: min(100%, 420px);
+  max-width: min(100%, 280px);
   width: 100%;
-  max-height: 420px;
+  max-height: 280px;
   border-radius: 10px;
   display: block;
   margin-top: 4px;
