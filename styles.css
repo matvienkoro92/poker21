@@ -5641,9 +5641,17 @@ html.app-view-home .feature--rating-spring-promo:hover,
 }
 .raffle-id-note {
   margin: 0 0 12px;
-  font-size: 17px;
+  padding-left: 20px;
+  font-size: 15px;
   font-weight: 600;
   color: #fff;
+  list-style: disc;
+}
+.raffle-id-note li {
+  margin-bottom: 4px;
+}
+.raffle-id-note li:last-child {
+  margin-bottom: 0;
 }
 [data-theme="light"] .raffle-id-note { color: var(--text); }
 .raffle-stats-block {

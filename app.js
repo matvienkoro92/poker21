@@ -8387,12 +8387,7 @@ function initRaffles() {
     }
     var prizesHtml = "";
     groups.forEach(function (g, i) {
-      var count = Math.max(0, parseInt(g.count, 10) || 0);
-      var nominal = parsePrizeValue(g.prize);
-      var sum = nominal > 0 ? nominal * count : 0;
-      var sumText = sum > 0 ? " · сумма группы: " + sum + " р" : "";
-      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") +
-        " (мест: " + count + ", сумма каждого приза: " + (nominal || 0) + " р" + sumText + ")</div>";
+      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") + "</div>";
     });
     rafflePrizes.innerHTML = prizesHtml || "<p class=\"raffle-no-prizes\">Призы не указаны</p>";
     var me = getMyUserId();
@@ -8457,8 +8452,13 @@ function initRaffles() {
   }
 
   function loadRaffles(switchToCompleted) {
-    if (!base || !initData) return;
-    var url = base + "/api/raffles?initData=" + encodeURIComponent(initData) + "&_t=" + Date.now();
+    if (!base) return;
+    var hostname = typeof window !== "undefined" && window.location && window.location.hostname ? window.location.hostname : "";
+    var baseStr = (base || "").toString();
+    var isLocal = /localhost|127\.0\.0\.1/i.test(hostname) || /localhost|127\.0\.0\.1/i.test(baseStr);
+    var init = initData || (isLocal ? "local" : "");
+    if (!init && !isLocal) return;
+    var url = base + "/api/raffles?initData=" + encodeURIComponent(init) + "&_t=" + Date.now() + (isLocal ? "&demo=1" : "");
     fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
