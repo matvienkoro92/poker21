@@ -9901,7 +9901,6 @@ function initChat() {
   var switcherOptions = document.querySelectorAll(".chat-switcher-option");
   if (!generalView || !personalView || !generalMessages) return;
 
-  var chatHandledInTouchend = false;
   var base = getApiBase();
   var initData = tg && tg.initData ? tg.initData : "";
 
@@ -10264,9 +10263,11 @@ function initChat() {
     if (convView) convView.classList.add("chat-conv-view--hidden");
     generalView.style.display = "none";
     loadContacts();
+    updateAdminShiftOnline();
     updateChatHeaderStats();
     updateUnreadDots();
   }
+  var scrollGeneralToBottomOnNextRender = false;
   function openClubChat() {
     if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
     if (generalView) {
@@ -10275,6 +10276,7 @@ function initChat() {
     }
     if (personalView) personalView.classList.add("chat-personal-view--hidden");
     window.chatGeneralUnread = false;
+    scrollGeneralToBottomOnNextRender = true;
     loadGeneral();
     updateChatHeaderStats();
   }
@@ -10457,6 +10459,7 @@ function initChat() {
           }
         }
         updateUnreadDots();
+        if (typeof updateDialogUnreadBadges === "function") updateDialogUnreadBadges();
       } else if (chatActiveTab === "general" && generalMessages) {
         generalMessages.innerHTML = "<p class=\"chat-empty\">" + (data && data.error ? escapeHtml(data.error) : "Ошибка загрузки") + "</p>";
       }
@@ -10599,7 +10602,8 @@ function initChat() {
     generalMessages.innerHTML = html;
     function restoreScroll() {
       var maxScroll = generalMessages.scrollHeight - generalMessages.clientHeight;
-      if (wasNearBottom || maxScroll <= 0) {
+      if (scrollGeneralToBottomOnNextRender || wasNearBottom || maxScroll <= 0) {
+        if (scrollGeneralToBottomOnNextRender) scrollGeneralToBottomOnNextRender = false;
         generalMessages.scrollTop = generalMessages.scrollHeight;
       } else {
         generalMessages.scrollTop = Math.min(prevScrollTop, Math.max(0, maxScroll));
@@ -11104,12 +11108,35 @@ function initChat() {
     loadMessages();
   }
 
+  function updateDialogUnreadBadges() {
+    var clubEl = document.getElementById("chatDialogClubUnread");
+    if (clubEl) {
+      var n = window.chatGeneralUnreadCount || 0;
+      clubEl.textContent = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      clubEl.classList.toggle("chat-dialog-item__unread--visible", n > 0);
+      clubEl.setAttribute("aria-hidden", n > 0 ? "false" : "true");
+    }
+    var adminUnread = window.chatAdminUnread || {};
+    dialogsView.querySelectorAll(".chat-dialog-item__unread[data-dialog-unread-for]").forEach(function (el) {
+      var id = el.getAttribute("data-dialog-unread-for");
+      var n = id ? (adminUnread[id] || 0) : 0;
+      el.textContent = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      el.classList.toggle("chat-dialog-item__unread--visible", n > 0);
+      el.setAttribute("aria-hidden", n > 0 ? "false" : "true");
+    });
+  }
+
   function loadContacts() {
     if (!contactsEl) return;
-    var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=contacts";
+    var lastViewedParam = "";
+    try {
+      lastViewedParam = "&lastViewed=" + encodeURIComponent(JSON.stringify(lastViewedPersonal));
+    } catch (e) {}
+    var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=contacts" + lastViewedParam;
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.ok && Array.isArray(data.contacts)) {
         chatIsAdmin = !!data.isAdmin;
+        window.chatAdminUnread = data.adminUnread || {};
         var total = data.participantsCount != null ? data.participantsCount : "—";
         var online = data.onlineCount != null ? data.onlineCount : "—";
         window.lastListStats = total + " конт · " + online + " онл";
@@ -11123,15 +11150,16 @@ function initChat() {
             var adminBadge = c.admin ? '<span class="chat-contact__admin" aria-label="админ">админ</span>' : "";
             var onlineBadge = c.online ? '<span class="chat-contact__online" aria-label="онлайн">онлайн</span>' : "";
             var badgesBlock = (adminBadge || onlineBadge) ? '<span class="chat-contact__badges">' + adminBadge + onlineBadge + '</span>' : "";
+            var unreadBadge = (c.unreadCount > 0) ? '<span class="chat-contact__unread chat-contact__unread--visible" aria-label="Непрочитано: ' + (c.unreadCount > 99 ? '99+' : c.unreadCount) + '">' + (c.unreadCount > 99 ? "99+" : c.unreadCount) + '</span>' : '';
             var initial = firstChar(c.name);
             var avatarEl = c.avatar
               ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
               : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
-            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span></button>';
+            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
           }).join("");
+          updateDialogUnreadBadges();
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
             btn.addEventListener("click", function () {
-              if (chatHandledInTouchend) { chatHandledInTouchend = false; return; }
               openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
             });
           });
@@ -11973,26 +12001,33 @@ function initChat() {
     dialogsView.querySelectorAll(".chat-dialog-item img.chat-dialog-item__avatar[src]").forEach(function (img) {
       var s = img.getAttribute("src") || "";
       if (s.indexOf("dep-manager") !== -1) img.src = assetBase + (s.indexOf("vika") !== -1 ? "dep-manager-vika.png" : "dep-manager.png");
+      else if (s.indexOf("logo-two-aces") !== -1) img.src = assetBase + "logo-two-aces.png";
     });
   }
 
+  function updateAdminShiftOnline() {
+    if (!dialogsView) return;
+    var moscowHour = parseInt(new Date().toLocaleString("en-GB", { timeZone: "Europe/Moscow", hour: "2-digit", hour12: false }), 10);
+    if (isNaN(moscowHour)) moscowHour = new Date().getUTCHours() + 3;
+    if (moscowHour < 0) moscowHour += 24;
+    if (moscowHour >= 24) moscowHour -= 24;
+    dialogsView.querySelectorAll(".chat-dialog-item[data-shift-start][data-shift-end]").forEach(function (btn) {
+      var start = parseInt(btn.dataset.shiftStart, 10);
+      var end = parseInt(btn.dataset.shiftEnd, 10);
+      var onShift = false;
+      if (start <= end) onShift = moscowHour >= start && moscowHour < end;
+      else onShift = moscowHour >= start || moscowHour < end;
+      var onEl = btn.querySelector(".chat-dialog-item__online");
+      if (onEl) onEl.classList.toggle("chat-dialog-item__online--visible", !!onShift);
+    });
+  }
+  updateAdminShiftOnline();
+
   if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
-  if (chatDialogClub) chatDialogClub.addEventListener("click", function (e) {
-    if (chatHandledInTouchend) { chatHandledInTouchend = false; return; }
-    openClubChat();
-  });
+  if (chatDialogClub) chatDialogClub.addEventListener("click", function () { openClubChat(); });
   if (dialogsView) {
-    dialogsView.addEventListener("touchend", function (e) {
-      var btn = e.target && e.target.closest ? (e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null;
-      if (btn && window.__touchWasScroll && !window.__touchWasScroll()) {
-        e.preventDefault();
-        btn.click();
-        setTimeout(function () { chatHandledInTouchend = true; }, 0);
-      }
-    }, { passive: false });
     dialogsView.querySelectorAll(".chat-dialog-item[data-chat-user-id]").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        if (chatHandledInTouchend) { chatHandledInTouchend = false; return; }
         var raw = (btn.dataset.chatUserId || "").trim();
         var userName = btn.dataset.chatUserName || "Менеджер";
         if (!raw) return;

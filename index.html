@@ -1106,36 +1106,41 @@
               <h2 class="chat-title--small">Чаты</h2>
               <div class="chat-dialogs-list">
                 <button type="button" class="chat-dialog-item chat-dialog-item--pinned" data-chat-type="club" id="chatDialogClub">
-                  <span class="chat-dialog-item__avatar chat-dialog-item__avatar--icon" aria-hidden="true">💬</span>
-                  <span class="chat-dialog-item__label">Чат клуба</span>
+                  <img class="chat-dialog-item__avatar" src="./assets/logo-two-aces.png" alt="" />
+                  <span class="chat-dialog-item__label">Чат клуба Два туза</span>
+                  <span class="chat-dialog-item__unread" id="chatDialogClubUnread" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна" data-chat-hours="06:00–18:00 мск">
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна" data-chat-hours="06:00–18:00 мск" data-shift-start="6" data-shift-end="18">
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
                     <span class="chat-dialog-item__label">Анна</span>
                     <span class="chat-dialog-item__hours">06:00–18:00 мск</span>
+                    <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
                   </span>
+                  <span class="chat-dialog-item__unread" data-dialog-unread-for="tg_2144406710" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика" data-chat-hours="18:00–02:00 мск">
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика" data-chat-hours="18:00–02:00 мск" data-shift-start="18" data-shift-end="2">
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager-vika.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
                     <span class="chat-dialog-item__label">Вика</span>
                     <span class="chat-dialog-item__hours">18:00–02:00 мск</span>
+                    <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
                   </span>
+                  <span class="chat-dialog-item__unread" data-dialog-unread-for="tg_1897001087" aria-hidden="true"></span>
                 </button>
                 <button type="button" class="chat-dialog-item" data-chat-user-id="tg_roman" data-chat-user-name="Роман">
                   <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
                   <span class="chat-dialog-item__label">Роман</span>
                 </button>
+                <div class="chat-find-by-id chat-find-by-id--dialogs">
+                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
+                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
+                </div>
                 <div class="chat-dialogs-section">
                   <p class="chat-subtitle">Чаты с игроками</p>
                   <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
                     <p class="chat-empty">Загрузка...</p>
                   </div>
-                </div>
-                <div class="chat-find-by-id chat-find-by-id--dialogs">
-                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
-                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
                 </div>
               </div>
             </div>
