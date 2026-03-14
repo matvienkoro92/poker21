@@ -54,6 +54,10 @@
     if (mode === "radio7") btn.classList.add("radio-toggle--radio7");
     var labelEl = btn.querySelector(".radio-toggle__label");
     if (labelEl) labelEl.textContent = shortLabels[mode] !== undefined ? shortLabels[mode] : shortLabels[""];
+    var listenEl = document.getElementById("radioToggleListen");
+    if (listenEl) {
+      listenEl.setAttribute("aria-hidden", mode ? "false" : "true");
+    }
     var titles = { "": "Радио: выкл", chill: "Радио: чил", lounge: "Радио: Lounge", "90s": "Радио: русские 90‑е", radio7: "Радио 7 на семи холмах" };
     btn.title = titles[mode] || titles[""];
     btn.setAttribute("aria-label", btn.title);
@@ -1936,9 +1940,15 @@ if (tg) {
 
   function updateHeaderGreeting() {
     var el = document.getElementById("headerGreeting");
-    if (!el) return;
-    var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-    el.textContent = u && u.first_name ? "Привет, " + u.first_name + "!" : "Привет, Роман";
+    if (el) {
+      var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+      el.textContent = u && u.first_name ? "Привет, " + u.first_name + "!" : "Привет, Роман";
+    }
+    var idEl = document.getElementById("headerUserId");
+    if (idEl) {
+      var cached = sessionStorage.getItem("poker_dt_id") || (typeof localStorage !== "undefined" && localStorage.getItem("poker_dt_id"));
+      idEl.textContent = cached || "\u2014";
+    }
   }
 
   // Нет Telegram — показываем баннер «Откройте в Telegram»
@@ -2373,7 +2383,8 @@ function setView(viewName) {
   }
   var headerGreeting = document.getElementById("headerGreeting");
   var headerSwitcherWrap = document.getElementById("headerChatSwitcherWrap");
-  if (headerGreeting) headerGreeting.classList.toggle("header-greeting--hidden", viewName === "chat");
+  var greetingWrap = headerGreeting && headerGreeting.closest(".header-greeting-wrap");
+  if (greetingWrap) greetingWrap.classList.toggle("header-greeting--hidden", viewName === "chat");
   if (headerSwitcherWrap) headerSwitcherWrap.classList.toggle("header-chat-switcher--hidden", viewName !== "chat");
   if (viewName === "chat") {
     document.documentElement.classList.add("app-view-chat");
@@ -6221,6 +6232,8 @@ function updateProfileDtId() {
         sessionStorage.setItem("poker_dt_id", data.dtId);
         if (typeof localStorage !== "undefined") localStorage.setItem("poker_dt_id", data.dtId);
         el.textContent = data.dtId;
+        var headerIdEl = document.getElementById("headerUserId");
+        if (headerIdEl) headerIdEl.textContent = data.dtId;
       } else {
         el.textContent = cached || "\u2014";
       }
@@ -11310,14 +11323,28 @@ function initChat() {
     if (backBtn) backBtn.addEventListener("click", showList);
     if (findByIdBtn && findByIdInput) {
       function findByIdAndOpen() {
-        var raw = (findByIdInput.value || "").trim().toUpperCase();
-        var id = raw.startsWith("ID") ? raw : "ID" + raw;
-        if (id.length !== 8 || !/^ID\d{6}$/.test(id)) {
-          if (tg && tg.showAlert) tg.showAlert("Введите ID в формате ID123456");
-          return;
+        var raw = (findByIdInput.value || "").trim();
+        var byId = false;
+        var idPart = raw.replace(/^@/, "").toUpperCase();
+        if (/^\d{6}$/.test(idPart) || (/^ID\d{6}$/.test(idPart))) {
+          byId = true;
+        } else if (idPart.startsWith("ID") && idPart.length === 8 && /^ID\d{6}$/.test(idPart)) {
+          byId = true;
+        }
+        var url;
+        if (byId) {
+          var id = idPart.startsWith("ID") ? idPart : "ID" + idPart;
+          url = base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData);
+        } else {
+          var nick = raw.replace(/^@/, "").trim();
+          if (!nick) {
+            if (tg && tg.showAlert) tg.showAlert("Введите ID (ID123456) или ник (@username)");
+            return;
+          }
+          url = base + "/api/users?username=" + encodeURIComponent(nick) + "&initData=" + encodeURIComponent(initData);
         }
         findByIdBtn.disabled = true;
-        fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+        fetch(url)
           .then(function (r) { return r.json(); })
           .then(function (data) {
             findByIdBtn.disabled = false;

@@ -121,7 +121,10 @@
             </div>
           </a>
           <div class="header-actions">
-            <span class="header-greeting" id="headerGreeting">Привет, Роман</span>
+            <span class="header-greeting-wrap">
+              <span class="header-greeting" id="headerGreeting">Привет, Роман</span>
+              <span class="header-user-id">Ваш ID: <span id="headerUserId">—</span></span>
+            </span>
             <div class="header-actions__row">
               <button type="button" class="radio-toggle theme-toggle" id="radioToggle" title="Радио: выкл" aria-label="Радио: выкл">
                 <span class="radio-toggle__icon radio-toggle__icon--off" aria-hidden="true">🎵</span>
@@ -129,7 +132,10 @@
                 <span class="radio-toggle__icon radio-toggle__icon--lounge" aria-hidden="true">🛋</span>
                 <span class="radio-toggle__icon radio-toggle__icon--90s" aria-hidden="true">📻</span>
                 <span class="radio-toggle__icon radio-toggle__icon--radio7" aria-hidden="true">7️⃣</span>
-                <span class="radio-toggle__label" id="radioToggleLabel">Выкл</span>
+                <span class="radio-toggle__text">
+                  <span class="radio-toggle__label" id="radioToggleLabel">Выкл</span>
+                  <span class="radio-toggle__listen" id="radioToggleListen" aria-hidden="true">Слушает <span id="headerRadioListenersCount">10</span></span>
+                </span>
               </button>
               <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему">
                 <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">🌙</span>
@@ -140,7 +146,6 @@
                 <span class="pwa-install-btn__label">Поделиться</span>
               </button>
             </div>
-            <p class="header-radio-listeners" id="headerRadioListeners" aria-live="polite">Слушает: <span id="headerRadioListenersCount">10</span></p>
             <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
               <img id="authUserAvatar" class="auth-user__avatar" alt="" />
               <span id="authUserText"></span>
@@ -1145,7 +1150,7 @@
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
               <div class="chat-list-view" id="chatListView">
                 <div class="chat-find-by-id">
-                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInput" placeholder="ID123456 — написать по ID" maxlength="10" autocomplete="off" />
+                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInput" placeholder="ID или @ник — найти и написать" maxlength="35" autocomplete="off" />
                   <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtn">Найти</button>
                 </div>
                 <p class="subtitle chat-subtitle">Выберите пользователя</p>
