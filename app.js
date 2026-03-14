@@ -12088,6 +12088,12 @@ updateVisitorCounter();
           .catch(function () { btn.disabled = false; alert("Ошибка сети"); });
       });
     });
+    var modalBox = listWrap.closest(".visitors-admin-modal__box");
+    if (modalBox && listWrap.scrollIntoView) {
+      setTimeout(function () {
+        listWrap.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function () {

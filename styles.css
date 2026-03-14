@@ -11616,7 +11616,8 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   width: 100%;
   max-width: 560px;
   max-height: 85vh;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   background: var(--card-bg);
@@ -11786,8 +11787,6 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   margin-top: 8px;
 }
 .visitors-admin-modal__list-wrap {
-  flex: 1;
-  overflow-y: auto;
   min-height: 120px;
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
