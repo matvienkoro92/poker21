@@ -9900,6 +9900,7 @@ function initChat() {
   var switcherOptions = document.querySelectorAll(".chat-switcher-option");
   if (!generalView || !personalView || !generalMessages) return;
 
+  var chatHandledInTouchend = false;
   var base = getApiBase();
   var initData = tg && tg.initData ? tg.initData : "";
 
@@ -10464,6 +10465,7 @@ function initChat() {
   var personalReplyTo = null;
   var generalImage = null;
   var personalImage = null;
+  var personalDocument = null;
   var generalVoice = null;
   var personalVoice = null;
   var chatCtxMsg = null;
@@ -10735,7 +10737,7 @@ function initChat() {
       ctxOpenedForEl = el;
       if (!ctxMenu) return;
       var isOwn = !!msg.own;
-      var canEdit = isOwn && !msg.hasImage && !msg.hasVoice;
+      var canEdit = isOwn && !msg.hasImage && !msg.hasVoice && !msg.hasDocument;
       var canDelete = isOwn || !!chatIsAdmin;
       ctxMenu.querySelectorAll("[data-action=\"delete\"]").forEach(function (item) {
         item.style.display = canDelete ? "" : "none";
@@ -10808,6 +10810,7 @@ function initChat() {
         var text = textEl ? (textEl.textContent || "").trim() : "";
         var hasImage = !!el.querySelector(".chat-msg__image");
         var hasVoice = !!el.querySelector(".chat-msg__voice");
+        var hasDocument = !!el.querySelector(".chat-msg__document");
         var isOwn = el.classList.contains("chat-msg--own");
         showMenu(el, {
           id: el.dataset.msgId,
@@ -10816,6 +10819,7 @@ function initChat() {
           text: text,
           hasImage: hasImage,
           hasVoice: hasVoice,
+          hasDocument: hasDocument,
           own: isOwn,
           msgText: isOwn ? (el.dataset.msgText || "").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') : "",
         });
@@ -10869,7 +10873,7 @@ function initChat() {
         }
         if (action === "reply") {
           generalReplyTo = personalReplyTo = null;
-          var quotePreviewText = (msg.text && msg.text.slice(0, 60)) || (msg.hasImage ? "[Фото]" : msg.hasVoice ? "[Голосовое сообщение]" : "");
+          var quotePreviewText = (msg.text && msg.text.slice(0, 60)) || (msg.hasImage ? "[Фото]" : msg.hasVoice ? "[Голосовое сообщение]" : msg.hasDocument ? "[Документ]" : "");
           if (msg.text && msg.text.length > 60) quotePreviewText += "…";
           if (src === "general") {
             generalReplyTo = msg;
@@ -11122,7 +11126,10 @@ function initChat() {
             return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + onlineBadge + '</span>' + dtSpan + '</span></button>';
           }).join("");
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
-            btn.addEventListener("click", function () { openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName); });
+            btn.addEventListener("click", function () {
+              if (chatHandledInTouchend) { chatHandledInTouchend = false; return; }
+              openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
+            });
           });
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
@@ -11160,7 +11167,7 @@ function initChat() {
       var dataAttrs = "";
       if (isOwn && m.id) {
         dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-own="true"';
-        if (!m.image && !m.voice && (m.text != null)) dataAttrs += ' data-msg-text="' + escapeHtml(String(m.text || "")) + '"';
+        if (!m.image && !m.voice && !m.document && (m.text != null)) dataAttrs += ' data-msg-text="' + escapeHtml(String(m.text || "")) + '"';
       } else if (!isOwn && m.id) {
         dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"';
       }
@@ -11168,6 +11175,7 @@ function initChat() {
       var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
+      var documentBlock = m.document ? '<a class="chat-msg__document" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '" target="_blank" rel="noopener noreferrer">📄 ' + escapeHtml(m.documentName || "document.pdf") + '</a>' : "";
       var cornerDelBtnP = "";
       var editBtnP = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
@@ -11184,7 +11192,7 @@ function initChat() {
       var nameRowP = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + nameStrP + "</span></div>";
       var metaBlockP = nameRowP + p21RowP + rankRowP;
       var nameElP = isOwn ? metaBlockP : '<span class="chat-msg__name-block">' + metaBlockP + "</span>";
-      var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
+      var textBlock = (text || imgBlock || voiceBlock || documentBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + documentBlock + text + '</div>' : "";
       var reactionsHtmlP = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
         var pillsP = [];
@@ -11318,7 +11326,7 @@ function initChat() {
   }
 
   var sendingPrivate = false;
-  function appendOptimisticPersonalMessage(text, image, voice, replyTo) {
+  function appendOptimisticPersonalMessage(text, image, voice, document, replyTo) {
     if (!messagesEl) return;
     var emptyEl = messagesEl.querySelector(".chat-empty");
     if (emptyEl) messagesEl.innerHTML = "";
@@ -11330,9 +11338,10 @@ function initChat() {
     var textContent = "";
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
+    else if (document && document.dataUrl && document.fileName) textContent = '<a class="chat-msg__document" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '" target="_blank" rel="noopener noreferrer">📄 ' + escapeHtml(document.fileName) + '</a>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
-    var optBodyClassP = "chat-msg__body" + (text && !image && !voice ? " chat-msg__body--has-text" : "");
+    var optBodyClassP = "chat-msg__body" + (text && !image && !voice && !document ? " chat-msg__body--has-text" : "");
     var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="' + optBodyClassP + '"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
@@ -11341,23 +11350,26 @@ function initChat() {
   }
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
-    if ((!text && !personalImage && !personalVoice) || !chatWithUserId || !initData || sendingPrivate) return;
+    if ((!text && !personalImage && !personalVoice && !personalDocument) || !chatWithUserId || !initData || sendingPrivate) return;
     sendingPrivate = true;
     if (sendBtn) sendBtn.disabled = true;
     var body = { initData: initData, with: chatWithUserId, text: text };
     if (personalImage) body.image = personalImage;
     if (personalVoice) body.voice = personalVoice;
+    if (personalDocument) { body.document = personalDocument.dataUrl; body.documentName = personalDocument.fileName; }
     if (personalReplyTo) {
-      var replyTextP = (personalReplyTo.text && String(personalReplyTo.text).trim()) || (personalReplyTo.hasImage ? "[Фото]" : personalReplyTo.hasVoice ? "[Голосовое сообщение]" : "\u2014");
+      var replyTextP = (personalReplyTo.text && String(personalReplyTo.text).trim()) || (personalReplyTo.hasImage ? "[Фото]" : personalReplyTo.hasVoice ? "[Голосовое сообщение]" : personalReplyTo.hasDocument ? "[Документ]" : "\u2014");
       body.replyTo = { id: personalReplyTo.id, from: personalReplyTo.from, fromName: personalReplyTo.fromName || "Игрок", text: replyTextP };
     }
     var optText = text;
     var optImage = personalImage || null;
     var optVoice = personalVoice || null;
+    var optDocument = personalDocument ? { dataUrl: personalDocument.dataUrl, fileName: personalDocument.fileName } : null;
     var optReply = personalReplyTo ? { fromName: personalReplyTo.fromName || "Игрок", text: personalReplyTo.text || "" } : null;
     if (inputEl) inputEl.value = "";
     personalReplyTo = null;
     personalImage = null;
+    personalDocument = null;
     personalVoice = null;
     var prevEl = document.getElementById("chatPersonalReplyPreview");
     if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
@@ -11365,7 +11377,7 @@ function initChat() {
     if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
     var voicePrevP = document.getElementById("chatPersonalVoicePreview");
     if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
-    appendOptimisticPersonalMessage(optText, optImage, optVoice, optReply);
+    appendOptimisticPersonalMessage(optText, optImage, optVoice, optDocument, optReply);
     if (sendBtn) sendBtn.disabled = false;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -11801,7 +11813,7 @@ function initChat() {
             if (generalBtn) generalBtn.classList.remove("chat-voice-btn--recording");
             if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); }
             startRecording("personal");
-          } else if ((inputEl && inputEl.value.trim()) || personalImage || personalVoice) {
+          } else if ((inputEl && inputEl.value.trim()) || personalImage || personalVoice || personalDocument) {
             sendMessage();
           } else {
             startRecording("personal");
@@ -11846,7 +11858,7 @@ function initChat() {
     }
     function updatePersonalSendBtnIcon() {
       if (!sendBtn) return;
-      var hasContent = (inputEl && inputEl.value.trim()) || personalImage || personalVoice;
+      var hasContent = (inputEl && inputEl.value.trim()) || personalImage || personalVoice || personalDocument;
       sendBtn.textContent = hasContent ? "\u2191" : "\uD83C\uDFA4";
       sendBtn.title = hasContent ? "Отправить" : "Голосовое сообщение";
       sendBtn.setAttribute("aria-label", hasContent ? "Отправить" : "Записать голосовое");
@@ -11879,7 +11891,31 @@ function initChat() {
       personalAttachBtn.addEventListener("click", function () { personalFileInput.click(); });
       personalFileInput.addEventListener("change", function () {
         var f = personalFileInput.files && personalFileInput.files[0];
-        if (!f || !f.type.startsWith("image/")) return;
+        if (!f) return;
+        if (f.type === "application/pdf") {
+          var reader = new FileReader();
+          reader.onload = function () {
+            var dataUrl = reader.result;
+            if (dataUrl && typeof dataUrl === "string" && dataUrl.indexOf("data:application/pdf") === 0) {
+              personalDocument = { dataUrl: dataUrl, fileName: (f.name || "document.pdf").replace(/[^\w\s.-]/g, "") || "document.pdf" };
+              updatePersonalSendBtnIcon();
+              if (personalImagePreview) {
+                personalImagePreview.innerHTML = '<span class="chat-image-preview__doc">📄 ' + escapeHtml(personalDocument.fileName) + '</span><button type="button" class="chat-image-preview__remove">Убрать</button>';
+                personalImagePreview.classList.add("chat-image-preview--visible");
+                personalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
+                  personalDocument = null; personalFileInput.value = "";
+                  updatePersonalSendBtnIcon();
+                  personalImagePreview.classList.remove("chat-image-preview--visible"); personalImagePreview.innerHTML = "";
+                });
+              }
+            } else if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл");
+          };
+          reader.onerror = function () { if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл"); };
+          reader.readAsDataURL(f);
+          personalFileInput.value = "";
+          return;
+        }
+        if (!f.type.startsWith("image/")) return;
         resizeImage(f, 800, 800, 0.88).then(function (dataUrl) {
           personalImage = dataUrl;
           updatePersonalSendBtnIcon();
@@ -11913,11 +11949,32 @@ function initChat() {
 
   showDialogs();
 
-  if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
-  if (chatDialogClub) chatDialogClub.addEventListener("click", openClubChat);
   if (dialogsView) {
+    var assetPath = (window.location.pathname || "").replace(/\/[^/]*$/, "") || "/";
+    var assetBase = assetPath.replace(/\/?$/, "/") + "assets/";
+    dialogsView.querySelectorAll(".chat-dialog-item img.chat-dialog-item__avatar[src]").forEach(function (img) {
+      var s = img.getAttribute("src") || "";
+      if (s.indexOf("dep-manager") !== -1) img.src = assetBase + (s.indexOf("vika") !== -1 ? "dep-manager-vika.png" : "dep-manager.png");
+    });
+  }
+
+  if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
+  if (chatDialogClub) chatDialogClub.addEventListener("click", function (e) {
+    if (chatHandledInTouchend) { chatHandledInTouchend = false; return; }
+    openClubChat();
+  });
+  if (dialogsView) {
+    dialogsView.addEventListener("touchend", function (e) {
+      var btn = e.target && e.target.closest ? (e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null;
+      if (btn && window.__touchWasScroll && !window.__touchWasScroll()) {
+        e.preventDefault();
+        btn.click();
+        setTimeout(function () { chatHandledInTouchend = true; }, 0);
+      }
+    }, { passive: false });
     dialogsView.querySelectorAll(".chat-dialog-item[data-chat-user-id]").forEach(function (btn) {
       btn.addEventListener("click", function () {
+        if (chatHandledInTouchend) { chatHandledInTouchend = false; return; }
         var raw = (btn.dataset.chatUserId || "").trim();
         var userName = btn.dataset.chatUserName || "Менеджер";
         if (!raw) return;

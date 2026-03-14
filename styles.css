@@ -2989,6 +2989,30 @@ html.app-view-home .card .card__content {
 .chat-msg__voice::-webkit-media-controls-panel {
   background: var(--block-bg);
 }
+.chat-msg__document {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: var(--block-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 14px;
+  max-width: 100%;
+  word-break: break-all;
+}
+.chat-msg__document:hover,
+.chat-msg__document:focus {
+  opacity: 0.9;
+  text-decoration: underline;
+}
+.chat-image-preview__doc {
+  font-size: 14px;
+  color: var(--text-color);
+}
 img.chat-msg__avatar,
 img.chat-contact__avatar {
   cursor: pointer;
@@ -3295,6 +3319,13 @@ img.chat-contact__avatar {
   min-height: 0;
   overflow: hidden;
   padding: 0 12px 12px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.chat-dialog-item,
+.chat-contact {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .chat-dialogs-view--hidden { display: none !important; }
 .chat-dialogs-list {
@@ -3335,6 +3366,11 @@ img.chat-contact__avatar {
   border-radius: 50%;
   object-fit: cover;
   background: rgba(148, 163, 184, 0.2);
+  display: block;
+  vertical-align: middle;
+}
+.chat-dialog-item img.chat-dialog-item__avatar {
+  font-size: 0;
 }
 .chat-dialog-item__avatar--icon {
   display: flex;
