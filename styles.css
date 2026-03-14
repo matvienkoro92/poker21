@@ -5662,10 +5662,15 @@ html.app-view-home .feature--rating-spring-promo:hover,
 }
 .raffle-stat {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 600;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.raffle-stat--timer { color: var(--accent-2); font-weight: 500; }
+.raffle-stat--timer { color: var(--accent-2); font-weight: 600; }
 .raffle-meta { margin: 0 0 4px; font-size: 14px; color: var(--text-muted); }
 .raffle-end { margin: 0; font-size: inherit; color: inherit; }
 .raffle-channel-note {
