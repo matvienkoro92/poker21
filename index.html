@@ -1114,6 +1114,7 @@
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
                     <span class="chat-dialog-item__label">Анна</span>
+                    <span class="chat-dialog-item__role">админ</span>
                     <span class="chat-dialog-item__hours">06:00–18:00 мск</span>
                     <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
                   </span>
@@ -1123,6 +1124,7 @@
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager-vika.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
                     <span class="chat-dialog-item__label">Вика</span>
+                    <span class="chat-dialog-item__role">админ</span>
                     <span class="chat-dialog-item__hours">18:00–02:00 мск</span>
                     <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
                   </span>
@@ -2297,19 +2299,13 @@
           <span class="bottom-nav__label">Главная</span>
         </button>
         <div class="bottom-nav__chat-wrap">
-          <button type="button" class="bottom-nav__item" data-view-target="chat" id="chatNavBtn" aria-expanded="false" aria-haspopup="true">
+          <button type="button" class="bottom-nav__item" data-view-target="chat" id="chatNavBtn">
             <span class="bottom-nav__icon-wrap">
               <span class="bottom-nav__icon">💬</span>
               <span class="bottom-nav__badge" id="chatNavBadge" aria-live="polite" aria-label="Непрочитанных сообщений">0</span>
             </span>
             <span class="bottom-nav__label" id="chatNavLabel">Чаты</span>
-            <span class="bottom-nav__arrow-up" id="chatNavArrow" aria-hidden="true">▲</span>
           </button>
-          <div class="bottom-nav__chat-dropdown bottom-nav__chat-dropdown--hidden" id="chatNavDropdown" role="menu" aria-hidden="true">
-            <button type="button" class="bottom-nav__chat-option" data-chat-tab="general">Чат клуба</button>
-            <button type="button" class="bottom-nav__chat-option" data-chat-tab="personal">ЛС</button>
-            <button type="button" class="bottom-nav__chat-option" data-chat-tab="admins">Чат с админами</button>
-          </div>
         </div>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>
