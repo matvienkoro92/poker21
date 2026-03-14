@@ -2268,10 +2268,10 @@ html.app-view-home .card .card__content {
   position: relative;
 }
 .chat-msg--own .chat-msg__body {
-  background: #2d2640;
-  border: 1px solid rgba(168, 85, 247, 0.35);
+  background: #3d3255;
+  border: 1px solid rgba(168, 85, 247, 0.55);
   border-bottom-right-radius: 6px;
-  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.35), 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 .chat-msg--own .chat-msg__body::before {
   content: "";
@@ -2282,7 +2282,7 @@ html.app-view-home .card .card__content {
   height: 0;
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
-  border-left: 8px solid #2d2640;
+  border-left: 8px solid #3d3255;
 }
 .chat-msg--own .chat-msg__avatar,
 .chat-msg--own .chat-msg__avatar-spacer {
@@ -2308,12 +2308,12 @@ html.app-view-home .card .card__content {
   border-right: 8px solid #1e293b;
 }
 [data-theme="light"] .chat-msg--own .chat-msg__body {
-  background: #f3e8ff;
-  border-color: rgba(168, 85, 247, 0.45);
-  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #ede9fe;
+  border: 1px solid rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 [data-theme="light"] .chat-msg--own .chat-msg__body::before {
-  border-left-color: #f3e8ff;
+  border-left-color: #ede9fe;
 }
 [data-theme="light"] .chat-msg--other .chat-msg__body {
   background: #e2e8f0;
@@ -2522,6 +2522,16 @@ html.app-view-home .card .card__content {
 .chat-msg__body--has-text .chat-msg__footer {
   margin-top: 4px;
 }
+/* Свои сообщения с текстом: время справа от последней строки */
+.chat-msg--own .chat-msg__body--has-text .chat-msg__text {
+  display: inline;
+}
+.chat-msg--own .chat-msg__body--has-text .chat-msg__footer {
+  display: inline;
+  margin-left: 8px;
+  margin-top: 0;
+  vertical-align: bottom;
+}
 .chat-msg__reactions-wrap {
   display: flex;
   align-items: center;
@@ -2605,6 +2615,7 @@ html.app-view-home .card .card__content {
   font-size: 11px;
   color: var(--text-muted);
   margin-left: auto;
+  white-space: nowrap;
 }
 .chat-msg__respect-row {
   margin-top: 2px;
