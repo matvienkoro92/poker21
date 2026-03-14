@@ -4921,6 +4921,13 @@ function getWinterRatingPlayerSummary(nick) {
         var p = t.players && t.players.find(function (r) { return winterRatingSamePlayer(r.nick, nick); });
         if (p) {
           var reward = p.reward != null ? p.reward : 0;
+          var league = t.league != null ? Number(t.league) : null;
+          if (league == null && isSpringRatingMode() && String(dateStr).indexOf(".03.") !== -1 && t.buyin != null) {
+            var buyin = Number(t.buyin);
+            if (buyin === buyin) {
+              league = buyin >= 500 ? 1 : (buyin >= 100 ? 2 : 1);
+            }
+          }
           out.push({
             date: dateStr,
             time: t.time || "",
@@ -4928,6 +4935,7 @@ function getWinterRatingPlayerSummary(nick) {
             place: p.place,
             points: winterRatingPointsForPlace(p.place, reward),
             reward: reward,
+            league: league,
           });
         }
       });
@@ -4966,12 +4974,18 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
   var sortDirBtn = document.getElementById("winterRatingPlayerModalSortDir");
   if (!fullSummary || !tableWrap) return;
   var monthVal = monthSelect && monthSelect.value ? monthSelect.value : "all";
+  var leagueSelect = document.getElementById("winterRatingPlayerModalLeague");
+  var leagueVal = leagueSelect && leagueSelect.value ? leagueSelect.value : "all";
   var sortBy = (sortByBtn && sortByBtn.textContent.indexOf("выигрыш") !== -1) ? "reward" : "date";
   var sortDesc = (sortDirBtn && sortDirBtn.textContent.indexOf("↑") === -1);
   var list = monthVal === "all" ? fullSummary.slice() : fullSummary.filter(function (s) {
     var parts = String(s.date).split(".");
     return parts.length === 3 && parts[1] + "." + parts[2] === monthVal;
   });
+  if (leagueVal === "1" || leagueVal === "2") {
+    var leagueNum = parseInt(leagueVal, 10);
+    list = list.filter(function (s) { return s.league === leagueNum; });
+  }
   list.sort(function (a, b) {
     var cmp = 0;
     if (sortBy === "date") {
@@ -4987,9 +5001,18 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
     var displayList = list.length > PLAYER_MODAL_TOURNAMENTS_LIMIT && !expanded
       ? list.slice(0, PLAYER_MODAL_TOURNAMENTS_LIMIT)
       : list;
+    var totalPointsFiltered = 0;
+    for (var pi = 0; pi < list.length; pi++) { totalPointsFiltered += Number(list[pi].points) || 0; }
+    var totalRewardFiltered = 0;
+    for (var ri = 0; ri < list.length; ri++) { totalRewardFiltered += Number(list[ri].reward) || 0; }
+    if (monthVal === "all" && modal._winterPlayerModalNick === "Waaar" && !isSpringRatingMode()) totalRewardFiltered += 588225;
+    var totalRewardFilteredStr = totalRewardFiltered ? formatRewardRound(totalRewardFiltered) : "0";
     var headers = "<th>Дата</th><th class=\"winter-rating-player-modal__th-tournament\">Турнир</th><th>Место</th>";
     if (showPoints) headers += "<th>Баллы</th>";
     headers += "<th>Выигрыш</th>";
+    var footerCells = "<td colspan=\"3\" class=\"winter-rating-player-modal__total-label\">Итого</td>";
+    if (showPoints) footerCells += "<td class=\"winter-rating-player-modal__total-value\">" + totalPointsFiltered + "</td>";
+    footerCells += "<td class=\"winter-rating-player-modal__total-value\">" + totalRewardFilteredStr + "</td>";
     var tableHtml = "<table class=\"winter-rating__table winter-rating-player-modal__table\"><thead><tr>" + headers + "</tr></thead><tbody>" +
       displayList.map(function (s, i) {
         var placeStr = winterRatingPlaceCell(s.place);
@@ -5007,7 +5030,7 @@ function applyWinterRatingPlayerModalFilterAndRender(modal) {
         var rewardClass = rewardNum > 100000 ? " winter-rating-player-modal__tr--reward-high" : (rewardNum > 50000 ? " winter-rating-player-modal__tr--reward-mid" : "");
         var trClass = (isNewMonth ? " winter-rating-player-modal__tr--month-start" : "") + rewardClass;
         return "<tr class=\"" + trClass.replace(/^ /, "") + "\"><td>" + dateCell + "</td><td class=\"winter-rating-player-modal__td-tournament\">" + tourCell + "</td><td>" + placeStr + "</td>" + ptsCell + "<td>" + rewardStr + "</td></tr>";
-      }).join("") + "</tbody></table>";
+      }).join("") + "</tbody><tfoot><tr class=\"winter-rating-player-modal__total-row\">" + footerCells + "</tr></tfoot></table>";
     var showAllHtml = list.length > PLAYER_MODAL_TOURNAMENTS_LIMIT
       ? "<div class=\"winter-rating-player-modal__show-all-wrap\"><button type=\"button\" class=\"winter-rating-player-modal__show-all-btn\" aria-label=\"Раскрыть или свернуть список\">" + (expanded ? "Свернуть" : "Показать все (" + list.length + ")") + "</button></div>"
       : "";
@@ -5102,6 +5125,10 @@ function openWinterRatingPlayerModal(nick, options) {
   modal._winterPlayerModalShowPoints = !useGazetteStyle;
   modal._winterPlayerModalNick = normalizeWinterNick(nick);
   if (monthSelect) monthSelect.value = "all";
+  var leagueWrap = document.getElementById("winterRatingPlayerModalLeagueWrap");
+  var leagueSelect = document.getElementById("winterRatingPlayerModalLeague");
+  if (leagueWrap) leagueWrap.style.display = (isSpringRatingMode() && summary.length) ? "" : "none";
+  if (leagueSelect) leagueSelect.value = "all";
   if (sortByBtn) sortByBtn.textContent = "Сортировать: По дате";
   if (sortDirBtn) { sortDirBtn.textContent = "↓"; sortDirBtn.title = "По убыванию"; }
   var toolbar = modal.querySelector(".winter-rating-player-modal__toolbar");
@@ -5179,6 +5206,12 @@ function initWinterRatingPlayerModal() {
   var sortDirBtn = document.getElementById("winterRatingPlayerModalSortDir");
   if (monthSelect) {
     monthSelect.addEventListener("change", function () {
+      if (modal._winterPlayerModalFullSummary) applyWinterRatingPlayerModalFilterAndRender(modal);
+    });
+  }
+  var leagueSelect = document.getElementById("winterRatingPlayerModalLeague");
+  if (leagueSelect) {
+    leagueSelect.addEventListener("change", function () {
       if (modal._winterPlayerModalFullSummary) applyWinterRatingPlayerModalFilterAndRender(modal);
     });
   }

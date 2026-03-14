@@ -7808,6 +7808,18 @@ a.home-mini-icon-item {
 .winter-rating-player-modal__table tr.winter-rating-player-modal__tr--reward-high td {
   background-color: rgba(34, 197, 94, 0.35);
 }
+.winter-rating-player-modal__table tfoot tr.winter-rating-player-modal__total-row td {
+  border-top: 2px solid var(--border-subtle);
+  padding-top: 10px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.08);
+}
+.winter-rating-player-modal__table .winter-rating-player-modal__total-label {
+  text-align: right;
+}
+.winter-rating-player-modal__table .winter-rating-player-modal__total-value {
+  text-align: left;
+}
 .winter-rating-player-modal__empty {
   margin: 0;
   font-size: 14px;
