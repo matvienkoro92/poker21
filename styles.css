@@ -2836,13 +2836,14 @@ html.app-view-home .card .card__content {
   cursor: pointer;
 }
 .chat-msg__image {
-  max-width: min(100%, 280px);
+  max-width: min(100%, 240px);
   width: 100%;
-  max-height: 280px;
+  max-height: 240px;
   border-radius: 10px;
   display: block;
   margin-top: 4px;
   cursor: pointer;
+  object-fit: contain;
 }
 .chat-voice-preview {
   display: flex;
@@ -3069,6 +3070,65 @@ img.chat-contact__avatar {
 }
 .chat-send-btn:hover { opacity: 0.9; }
 .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.chat-emoji-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-emoji-btn:hover {
+  opacity: 1;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.chat-emoji-picker {
+  position: fixed;
+  z-index: 1001;
+  padding: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+.chat-emoji-picker.chat-emoji-picker--hidden {
+  display: none;
+}
+.chat-emoji-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.chat-emoji-picker__emoji {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-emoji-picker__emoji:hover {
+  background: rgba(148, 163, 184, 0.2);
+}
 
 .chat-header-row {
   display: flex;

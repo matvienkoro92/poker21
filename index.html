@@ -1136,6 +1136,7 @@
                   <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить картинку">📎</button>
                   <button type="button" class="chat-voice-btn" id="chatGeneralVoiceBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
                   <textarea class="chat-input chat-input--textarea" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" rows="1" autocomplete="off"></textarea>
+                  <button type="button" class="chat-emoji-btn" id="chatGeneralEmojiBtn" title="Смайлики" aria-label="Смайлики">😀</button>
                   <button type="button" class="chat-send-btn chat-send-btn--icon" id="chatGeneralSendBtn" aria-label="Отправить">↑</button>
                 </div>
               </div>
@@ -1182,6 +1183,7 @@
                       <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить картинку">📎</button>
                       <button type="button" class="chat-voice-btn" id="chatPersonalVoiceBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
                       <textarea class="chat-input chat-input--textarea" id="chatInput" placeholder="Сообщение..." maxlength="500" rows="1" autocomplete="off"></textarea>
+                      <button type="button" class="chat-emoji-btn" id="chatPersonalEmojiBtn" title="Смайлики" aria-label="Смайлики">😀</button>
                       <button type="button" class="chat-send-btn chat-send-btn--icon" id="chatSendBtn" aria-label="Отправить">↑</button>
                     </div>
                   </div>
@@ -1195,6 +1197,9 @@
               <button type="button" class="chat-reaction-picker__emoji" data-emoji="😮">😮</button>
               <button type="button" class="chat-reaction-picker__emoji" data-emoji="😢">😢</button>
               <button type="button" class="chat-reaction-picker__emoji" data-emoji="🙏">🙏</button>
+            </div>
+            <div class="chat-emoji-picker chat-emoji-picker--hidden" id="chatEmojiPicker" role="dialog" aria-label="Смайлики" aria-hidden="true">
+              <div class="chat-emoji-picker__grid" id="chatEmojiPickerGrid"></div>
             </div>
             <div class="chat-ctx-backdrop" id="chatContextBackdrop" aria-hidden="true"></div>
             <div class="chat-ctx-menu" id="chatContextMenu" role="menu" aria-hidden="true">

@@ -11389,7 +11389,7 @@ function initChat() {
       generalFileInput.addEventListener("change", function () {
         var f = generalFileInput.files && generalFileInput.files[0];
         if (!f || !f.type.startsWith("image/")) return;
-        resizeImage(f).then(function (dataUrl) {
+        resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
           generalImage = dataUrl;
           if (generalImagePreview) {
             generalImagePreview.innerHTML = '<img class="chat-image-preview__thumb" src="' + dataUrl.replace(/"/g, "&quot;") + '" alt="" /><button type="button" class="chat-image-preview__remove">Убрать</button>';
@@ -11401,6 +11401,93 @@ function initChat() {
           }
         }).catch(function () { if (tg && tg.showAlert) tg.showAlert("Не удалось обработать изображение"); });
         generalFileInput.value = "";
+      });
+    }
+    var CHAT_EMOJIS = ["😀","😃","😄","😁","😅","😂","🤣","😊","😇","🙂","😉","😍","🥰","😘","😗","😋","😛","😜","🤪","😎","🤩","🥳","👍","👎","👏","🙌","🤝","🙏","❤️","🧡","💛","💚","💙","💜","🖤","🤍","💔","🔥","⭐","✨","💯","🎉","🎊","🤔","😐","😑","😶","🙄","😏","😣","😢","😭","😤","😡","🤬","😈","💀","👋","✌️","🤞","💪","🐶","🐱","🎲","♠️","♥️","♦️","♣️"];
+    var chatEmojiPicker = document.getElementById("chatEmojiPicker");
+    var chatEmojiPickerGrid = document.getElementById("chatEmojiPickerGrid");
+    var chatGeneralEmojiBtn = document.getElementById("chatGeneralEmojiBtn");
+    var chatPersonalEmojiBtn = document.getElementById("chatPersonalEmojiBtn");
+    var chatEmojiPickerTargetInput = null;
+    var chatEmojiPickerClose = null;
+    function insertEmojiAtCursor(ta, emoji) {
+      if (!ta) return;
+      var start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+      var end = ta.selectionEnd != null ? ta.selectionEnd : start;
+      var text = ta.value;
+      var maxLen = ta.getAttribute("maxlength") ? parseInt(ta.getAttribute("maxlength"), 10) : 500;
+      var newText = text.slice(0, start) + emoji + text.slice(end);
+      if (newText.length > maxLen) newText = newText.slice(0, maxLen);
+      ta.value = newText;
+      ta.selectionStart = ta.selectionEnd = Math.min(start + emoji.length, newText.length);
+      ta.focus();
+      if (typeof resizeChatTextarea === "function") resizeChatTextarea(ta);
+    }
+    function hideChatEmojiPicker() {
+      if (!chatEmojiPicker) return;
+      chatEmojiPicker.classList.add("chat-emoji-picker--hidden");
+      chatEmojiPicker.setAttribute("aria-hidden", "true");
+      chatEmojiPickerTargetInput = null;
+      if (chatEmojiPickerClose) {
+        document.removeEventListener("click", chatEmojiPickerClose);
+        chatEmojiPickerClose = null;
+      }
+    }
+    if (chatEmojiPickerGrid && CHAT_EMOJIS.length) {
+      CHAT_EMOJIS.forEach(function (emoji) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chat-emoji-picker__emoji";
+        btn.textContent = emoji;
+        btn.setAttribute("aria-label", "Вставить " + emoji);
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (chatEmojiPickerTargetInput) insertEmojiAtCursor(chatEmojiPickerTargetInput, emoji);
+          hideChatEmojiPicker();
+        });
+        chatEmojiPickerGrid.appendChild(btn);
+      });
+    }
+    if (chatGeneralEmojiBtn && chatEmojiPicker && generalInput) {
+      chatGeneralEmojiBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (chatEmojiPicker.classList.contains("chat-emoji-picker--hidden")) {
+          chatEmojiPickerTargetInput = generalInput;
+          var rect = chatGeneralEmojiBtn.getBoundingClientRect();
+          chatEmojiPicker.style.left = Math.max(8, Math.min(rect.right - 160, window.innerWidth - 268)) + "px";
+          chatEmojiPicker.style.top = (rect.top - 206) + "px";
+          chatEmojiPicker.classList.remove("chat-emoji-picker--hidden");
+          chatEmojiPicker.setAttribute("aria-hidden", "false");
+          chatEmojiPickerClose = function (ev) {
+            if (ev.target && !chatEmojiPicker.contains(ev.target) && ev.target !== chatGeneralEmojiBtn && !chatGeneralEmojiBtn.contains(ev.target)) {
+              hideChatEmojiPicker();
+            }
+          };
+          setTimeout(function () { document.addEventListener("click", chatEmojiPickerClose); }, 0);
+        } else if (chatEmojiPickerTargetInput === generalInput) {
+          hideChatEmojiPicker();
+        }
+      });
+    }
+    if (chatPersonalEmojiBtn && chatEmojiPicker && inputEl) {
+      chatPersonalEmojiBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (chatEmojiPicker.classList.contains("chat-emoji-picker--hidden")) {
+          chatEmojiPickerTargetInput = inputEl;
+          var rect = chatPersonalEmojiBtn.getBoundingClientRect();
+          chatEmojiPicker.style.left = Math.max(8, Math.min(rect.right - 160, window.innerWidth - 268)) + "px";
+          chatEmojiPicker.style.top = (rect.top - 206) + "px";
+          chatEmojiPicker.classList.remove("chat-emoji-picker--hidden");
+          chatEmojiPicker.setAttribute("aria-hidden", "false");
+          chatEmojiPickerClose = function (ev) {
+            if (ev.target && !chatEmojiPicker.contains(ev.target) && ev.target !== chatPersonalEmojiBtn && !chatPersonalEmojiBtn.contains(ev.target)) {
+              hideChatEmojiPicker();
+            }
+          };
+          setTimeout(function () { document.addEventListener("click", chatEmojiPickerClose); }, 0);
+        } else if (chatEmojiPickerTargetInput === inputEl) {
+          hideChatEmojiPicker();
+        }
       });
     }
     var generalVoiceBtn = document.getElementById("chatGeneralVoiceBtn");
@@ -11648,7 +11735,7 @@ function initChat() {
       personalFileInput.addEventListener("change", function () {
         var f = personalFileInput.files && personalFileInput.files[0];
         if (!f || !f.type.startsWith("image/")) return;
-        resizeImage(f).then(function (dataUrl) {
+        resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
           personalImage = dataUrl;
           if (personalImagePreview) {
             personalImagePreview.innerHTML = '<img class="chat-image-preview__thumb" src="' + dataUrl.replace(/"/g, "&quot;") + '" alt="" /><button type="button" class="chat-image-preview__remove">Убрать</button>';
