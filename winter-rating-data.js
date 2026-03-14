@@ -2024,7 +2024,7 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "10.03.2026": ["rating-10-03-2026-league2-1.png", "rating-10-03-2026-league2-2.png", "rating-10-03-2026-league2-3.png"],
   "11.03.2026": ["rating-11-03-2026-league2-1.png", "rating-11-03-2026-league2-2.png", "rating-11-03-2026-league2-3.png", "rating-11-03-2026-league2-4.png"],
   "12.03.2026": ["rating-12-03-2026-league2-1.png", "rating-12-03-2026-league2-2.png"],
-  "13.03.2026": ["rating-13-03-2026-league2-1.png", "rating-13-03-2026-league2-2.png"]
+  "13.03.2026": ["rating-13-03-2026-league2-1.png", "rating-13-03-2026-league2-2.png", "rating-13-03-2026-league2-3.png"]
 };
 var SPRING_RATING_UPDATED = "13.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
@@ -2279,6 +2279,7 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   ],
   "13.03.2026": [
     { time: "06:00", name: "Tai 7 1/2 KO 20k", buyin: 20000, league: 1, players: [{ nick: "ArsenalFan", place: 2, reward: 8000 }, { nick: "nikola233", place: 0, reward: 0 }] },
+    { time: "14:00", name: "Tournament Rebuy", buyin: 7900, league: 2, players: [{ nick: "Shkarubo", place: 2, reward: 3110 }, { nick: "Че643", place: 3, reward: 1860 }, { nick: "Tanechka", place: 4, reward: 1490 }, { nick: "mr.Fox", place: 5, reward: 1360 }, { nick: "MiracleDivice", place: 6, reward: 0 }] },
     { time: "17:00", name: "Rebuy MTT", buyin: 28000, league: 1, players: [{ nick: "MilkyWay77", place: 1, reward: 22200 }, { nick: "|---777---|", place: 2, reward: 15000 }, { nick: "FrankL", place: 3, reward: 9000 }, { nick: "Vaduxa_tiran", place: 5, reward: 6600 }, { nick: "king00001", place: 6, reward: 0 }] },
     { time: "18:00", name: "Пятница Прогрессив", buyin: 91500, league: 1, players: [{ nick: "TonniHalf", place: 1, reward: 41968.72 }, { nick: "Malek3084", place: 2, reward: 13851.56 }, { nick: "Аспирин", place: 4, reward: 9277.96 }, { nick: "Waaar", place: 5, reward: 7100.62 }, { nick: "Samy", place: 7, reward: 4830.61 }] },
     { time: "18:00", name: "NLH Bounty 400K", buyin: 20000, league: 1, players: [{ nick: "Waaarr", place: 5, reward: 21428 }, { nick: "machete", place: 0, reward: 349 }, { nick: "siropchik", place: 31, reward: 212 }, { nick: "Bota007", place: 0, reward: 0 }, { nick: "Asta la Vista", place: 113, reward: 0 }] },
