@@ -10522,7 +10522,8 @@ function initChat() {
       }
       var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span></div>' : "";
       var metaBlock = isFirstInGroup ? nameEl + adminBadge : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtn + '<div class="chat-msg__meta">' + metaBlock + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
+      var bodyClass = "chat-msg__body" + (text && text.trim() ? " chat-msg__body--has-text" : "");
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="' + bodyClass + '">' + cornerDelBtn + '<div class="chat-msg__meta">' + metaBlock + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
@@ -10933,7 +10934,8 @@ function initChat() {
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
-    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var optBodyClass = "chat-msg__body" + (text && !image && !voice ? " chat-msg__body--has-text" : "");
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="' + optBodyClass + '"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
     generalMessages.appendChild(wrap.firstElementChild);
@@ -11117,7 +11119,8 @@ function initChat() {
       }
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span></div>' : "";
       var metaBlockP = isFirstInGroup ? nameElP + adminBadge : "";
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="chat-msg__body">' + cornerDelBtnP + '<div class="chat-msg__meta">' + metaBlockP + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
+      var bodyClassP = "chat-msg__body" + (text && text.trim() ? " chat-msg__body--has-text" : "");
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="' + bodyClassP + '">' + cornerDelBtnP + '<div class="chat-msg__meta">' + metaBlockP + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;
     var prevScrollHeightP = messagesEl.scrollHeight;
@@ -11249,7 +11252,8 @@ function initChat() {
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
-    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var optBodyClassP = "chat-msg__body" + (text && !image && !voice ? " chat-msg__body--has-text" : "");
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="' + optBodyClassP + '"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
     messagesEl.appendChild(wrap.firstElementChild);
@@ -12505,6 +12509,12 @@ function updateTournamentDayBlock() {
       return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
     })();
     timerEls.forEach(function (el) { el.textContent = timerStr; });
+    var trophyImg = document.getElementById("tournamentDayTrophyImg");
+    var scheduleTrophyImg = document.getElementById("scheduleTournamentDayTrophyImg");
+    var trophyFile = nameStr === "Фриролл" ? "tournament-day-trophy.png" : nameStr === "Турнир Недели Нокаут Меджик" ? "tournament-day-sunday.png" : "tournament-day-golden-glove.png";
+    var trophySrc = typeof getAssetUrl === "function" ? getAssetUrl(trophyFile) : "";
+    if (trophyImg && trophySrc) trophyImg.src = trophySrc;
+    if (scheduleTrophyImg && trophySrc) scheduleTrophyImg.src = trophySrc;
   }
   formatTimer();
   if (window._tournamentDayTimer) clearInterval(window._tournamentDayTimer);
@@ -12512,11 +12522,6 @@ function updateTournamentDayBlock() {
 }
 
 function initTournamentDayBlock() {
-  var trophyImg = document.getElementById("tournamentDayTrophyImg");
-  var scheduleTrophyImg = document.getElementById("scheduleTournamentDayTrophyImg");
-  var trophySrc = typeof getAssetUrl === "function" ? getAssetUrl("tournament-day-golden-glove.png") : "";
-  if (trophyImg && trophySrc) trophyImg.src = trophySrc;
-  if (scheduleTrophyImg && trophySrc) scheduleTrophyImg.src = trophySrc;
   updateTournamentDayBlock();
 }
 if (document.readyState === "loading") {
