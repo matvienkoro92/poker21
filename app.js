@@ -2005,7 +2005,8 @@ const footer = document.querySelector(".card__footer");
 // На главной при загрузке — класс для layout без :has() (устройства без поддержки, убирает отступ внизу)
 (function () {
   var initialView = document.querySelector(".view--active[data-view]");
-  if (initialView && initialView.getAttribute("data-view") === "home") {
+  var viewName = initialView ? initialView.getAttribute("data-view") : "";
+  if (viewName === "home") {
     document.documentElement.classList.add("app-view-home");
   }
 })();

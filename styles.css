@@ -13877,6 +13877,9 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   display: flex;
   justify-content: center;
 }
+.bottom-nav__chat-wrap--hidden {
+  display: none !important;
+}
 .bottom-nav__chat-wrap .bottom-nav__item {
   max-width: 100%;
   flex-direction: row;
