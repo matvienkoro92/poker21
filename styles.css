@@ -12717,6 +12717,37 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .equilator-card-slot--diamond { color: #2563eb; }
 .equilator-card-slot--club { color: #16a34a; }
 .equilator-card-slot__text { font-variant-numeric: tabular-nums; }
+.equilator-slot-wrap {
+  display: inline-flex;
+  position: relative;
+  align-items: flex-start;
+}
+.equilator-card-slot__reset {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: #fff;
+  background: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: background 0.15s;
+}
+.equilator-card-slot__reset:hover {
+  background: #ef4444;
+}
+.equilator-card-slot__reset--hidden {
+  display: none !important;
+}
 .equilator-board-row {
   display: flex;
   flex-wrap: wrap;

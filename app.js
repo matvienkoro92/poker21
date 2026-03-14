@@ -9455,6 +9455,8 @@ function initEquilator() {
       var prevCards = preservedCards && preservedCards[o] ? preservedCards[o] : [null, null];
       for (var c = 0; c < 2; c++) {
         var slotId = "opp" + (o * 2 + c + 1);
+        var wrap = document.createElement("div");
+        wrap.className = "equilator-slot-wrap";
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "equilator-card-slot";
@@ -9462,15 +9464,25 @@ function initEquilator() {
         btn.setAttribute("aria-label", "Оппонент " + (o + 1) + " карта " + (c + 1));
         var card = prevCards[c];
         if (card) {
-          btn.setAttribute("data-rank", card.r);
-          btn.setAttribute("data-suit", card.s);
-          btn.innerHTML = "<span class=\"equilator-card-slot__text\">" + ((RANKS_DISPLAY[card.r] || card.r) + (SUITS_SYM[card.s] || card.s)) + "</span>";
-          btn.classList.add("equilator-card-slot--" + (card.s === "s" ? "spade" : card.s === "h" ? "heart" : card.s === "d" ? "diamond" : "club"));
+          var rankStr = (RANKS[card.r - 2] != null) ? RANKS[card.r - 2] : String(card.r);
+          var suitStr = (SUITS[card.s] != null) ? SUITS[card.s] : String(card.s);
+          btn.setAttribute("data-rank", rankStr);
+          btn.setAttribute("data-suit", suitStr);
+          btn.innerHTML = "<span class=\"equilator-card-slot__text\">" + ((RANKS_DISPLAY[rankStr] || rankStr) + (SUITS_SYM[suitStr] || suitStr)) + "</span>";
+          btn.classList.add("equilator-card-slot--" + (suitStr === "s" ? "spade" : suitStr === "h" ? "heart" : suitStr === "d" ? "diamond" : "club"));
         } else {
           btn.innerHTML = "<span class=\"equilator-card-slot__text\">—</span>";
         }
         btn.addEventListener("click", function (e) { e.preventDefault(); openPicker(this.getAttribute("data-equilator-slot")); });
-        cardsWrap.appendChild(btn);
+        wrap.appendChild(btn);
+        var resetBtn = document.createElement("button");
+        resetBtn.type = "button";
+        resetBtn.className = "equilator-card-slot__reset" + (card ? "" : " equilator-card-slot__reset--hidden");
+        resetBtn.setAttribute("data-equilator-slot", slotId);
+        resetBtn.setAttribute("aria-label", "Сбросить карту");
+        resetBtn.textContent = "×";
+        wrap.appendChild(resetBtn);
+        cardsWrap.appendChild(wrap);
       }
       row.appendChild(cardsWrap);
       oppCardsContainer.appendChild(row);
@@ -9500,6 +9512,20 @@ function initEquilator() {
     });
     return used;
   }
+  function clearSlot(slotId) {
+    var el = slotEl(slotId);
+    if (!el) return;
+    el.removeAttribute("data-rank");
+    el.removeAttribute("data-suit");
+    var textEl = el.querySelector(".equilator-card-slot__text");
+    if (textEl) textEl.textContent = "—";
+    el.classList.remove("equilator-card-slot--spade", "equilator-card-slot--heart", "equilator-card-slot--diamond", "equilator-card-slot--club");
+    var wrap = el.parentElement;
+    if (wrap && wrap.classList.contains("equilator-slot-wrap")) {
+      var resetBtn = wrap.querySelector(".equilator-card-slot__reset");
+      if (resetBtn) resetBtn.classList.add("equilator-card-slot__reset--hidden");
+    }
+  }
   function setSlotCard(slotId, rank, suit) {
     var el = slotEl(slotId);
     if (!el) return;
@@ -9510,6 +9536,11 @@ function initEquilator() {
     if (textEl) textEl.textContent = label;
     el.classList.remove("equilator-card-slot--spade", "equilator-card-slot--heart", "equilator-card-slot--diamond", "equilator-card-slot--club");
     if (suit) el.classList.add("equilator-card-slot--" + (suit === "s" ? "spade" : suit === "h" ? "heart" : suit === "d" ? "diamond" : "club"));
+    var wrap = el.parentElement;
+    if (wrap && wrap.classList.contains("equilator-slot-wrap")) {
+      var resetBtn = wrap.querySelector(".equilator-card-slot__reset");
+      if (resetBtn) resetBtn.classList.remove("equilator-card-slot__reset--hidden");
+    }
   }
   function openPicker(forSlotId) {
     activeSlotId = forSlotId;
@@ -9586,6 +9617,15 @@ function initEquilator() {
   BASE_SLOT_IDS.forEach(function (id) {
     var el = slotEl(id);
     if (el) el.addEventListener("click", function (e) { e.preventDefault(); openPicker(id); });
+  });
+  var formEl = document.querySelector(".equilator-form");
+  if (formEl) formEl.addEventListener("click", function (e) {
+    var resetBtn = e.target && e.target.closest ? e.target.closest(".equilator-card-slot__reset") : null;
+    if (resetBtn && resetBtn.dataset.equilatorSlot) {
+      e.preventDefault();
+      e.stopPropagation();
+      clearSlot(resetBtn.dataset.equilatorSlot);
+    }
   });
   if (pickerClose) pickerClose.addEventListener("click", closePicker);
   var getHero = function () {
