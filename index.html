@@ -1119,31 +1119,40 @@
               <h2 class="chat-title--small">Чаты</h2>
               <div class="chat-dialogs-list">
                 <button type="button" class="chat-dialog-item chat-dialog-item--pinned" data-chat-type="club" id="chatDialogClub">
-                  <span class="chat-dialog-item__icon" aria-hidden="true">💬</span>
+                  <span class="chat-dialog-item__avatar chat-dialog-item__avatar--icon" aria-hidden="true">💬</span>
                   <span class="chat-dialog-item__label">Чат клуба</span>
                 </button>
-                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">
-                  <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
-                  <span class="chat-dialog-item__label">Анна</span>
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна" data-chat-hours="06:00–18:00 мск">
+                  <img class="chat-dialog-item__avatar" src="./assets/dep-manager.png" alt="" />
+                  <span class="chat-dialog-item__label-wrap">
+                    <span class="chat-dialog-item__label">Анна</span>
+                    <span class="chat-dialog-item__hours">06:00–18:00 мск</span>
+                  </span>
                 </button>
-                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика">
-                  <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
-                  <span class="chat-dialog-item__label">Вика</span>
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика" data-chat-hours="18:00–02:00 мск">
+                  <img class="chat-dialog-item__avatar" src="./assets/dep-manager-vika.png" alt="" />
+                  <span class="chat-dialog-item__label-wrap">
+                    <span class="chat-dialog-item__label">Вика</span>
+                    <span class="chat-dialog-item__hours">18:00–02:00 мск</span>
+                  </span>
                 </button>
                 <button type="button" class="chat-dialog-item" data-chat-user-id="tg_roman" data-chat-user-name="Роман">
                   <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
                   <span class="chat-dialog-item__label">Роман</span>
                 </button>
+                <div class="chat-find-by-id chat-find-by-id--dialogs">
+                  <p class="chat-find-by-id__label">Введите Username из телеграма или ID из этого приложения</p>
+                  <div class="chat-find-by-id__row">
+                    <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник" maxlength="35" autocomplete="off" />
+                    <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
+                  </div>
+                </div>
                 <div class="chat-dialogs-section">
                   <p class="chat-subtitle">Чаты с игроками</p>
                   <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
                     <p class="chat-empty">Загрузка...</p>
                   </div>
                 </div>
-              </div>
-              <div class="chat-find-by-id chat-find-by-id--dialogs">
-                <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник — найти и написать" maxlength="35" autocomplete="off" />
-                <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
               </div>
             </div>
             <div class="chat-general-view chat-general-view--hidden" id="chatGeneralView">

@@ -11111,13 +11111,28 @@ function initChat() {
         if (data.contacts.length === 0) {
           contactsEl.innerHTML = '<p class="chat-empty">Пока нет личных переписок. Напишите кому-то по ID выше или дождитесь ответа.</p>';
         } else {
+          var firstChar = function (name) { return (name || "?").toString().replace(/^@/, "")[0] || "?"; };
           contactsEl.innerHTML = data.contacts.map(function (c) {
             var dtSpan = c.dtId ? '<span class="chat-contact__dt">' + escapeHtml(c.dtId) + '</span>' : "";
-            var avatarEl = c.avatar ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" />' : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + (c.name || "?")[0] + '</span>';
-            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '</span></button>';
+            var initial = firstChar(c.name);
+            var avatarEl = c.avatar
+              ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
+              : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
+            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '</span></button>';
           }).join("");
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
             btn.addEventListener("click", function () { openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName); });
+          });
+          contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
+            img.onerror = function () {
+              var contact = this.closest(".chat-contact");
+              if (!contact) return;
+              var initial = contact.dataset.chatInitial || "?";
+              var place = document.createElement("span");
+              place.className = "chat-contact__avatar chat-contact__avatar--placeholder";
+              place.textContent = initial;
+              if (this.parentNode) this.parentNode.replaceChild(place, this);
+            };
           });
         }
       }
