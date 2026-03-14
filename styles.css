@@ -2507,7 +2507,7 @@ html.app-view-home .card .card__content {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 1px;
+  margin-top: -2px;
   flex-wrap: wrap;
 }
 .chat-msg__reactions-wrap {
