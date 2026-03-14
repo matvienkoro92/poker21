@@ -265,11 +265,11 @@
                     <div class="feature__title">Эквилятор</div>
                   </div>
                 </a>
-                <a href="#" class="feature feature--link feature--app" data-view-target="poker-tasks">
+                <a href="#" class="feature feature--link feature--app" data-view-target="learn-play-hub">
                   <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📚</span></div>
                   <div class="feature__body">
                     <div class="feature__title">Научиться играть</div>
-                    <div class="feature__desc">50 задач, таймер, стрик</div>
+                    <div class="feature__desc">Задачи и видео-уроки</div>
                   </div>
                 </a>
                 <a href="#" class="feature feature--link feature--app" data-view-target="streams" aria-label="Стримы">
@@ -1668,10 +1668,34 @@
 
           </div>
 
-          <!-- Научиться играть — Tournament Pro Challenge -->
+          <!-- Научиться играть — хаб: Задачи и Видео-уроки -->
+          <div class="view" data-view="learn-play-hub">
+            <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+            <h1 class="title">Научиться играть</h1>
+            <p class="learn-play-hub__desc">Задачи на турнирный покер и видео-уроки по темам.</p>
+            <div class="learn-play-hub__buttons">
+              <a href="#" class="feature feature--link feature--app learn-play-hub__btn" data-view-target="video-lessons">
+                <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🎬</span></div>
+                <div class="feature__body">
+                  <div class="feature__title">Видео-уроки</div>
+                  <div class="feature__desc">15 уроков по темам покера</div>
+                </div>
+              </a>
+              <a href="#" class="feature feature--link feature--app learn-play-hub__btn" data-view-target="poker-tasks">
+                <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📋</span></div>
+                <div class="feature__body">
+                  <div class="feature__title">Задачи</div>
+                  <div class="feature__desc">80 уровней, 500+ MTT задач, таймер, стрик</div>
+                </div>
+              </a>
+              <a href="https://t.me/Roman1787443?text=Здравствуйте%2C%20хочу%20записаться%20на%20первую%20бесплатную%20тренировку" class="learn-play-hub__training-btn" target="_blank" rel="noopener noreferrer" aria-label="Записаться на первую бесплатную тренировку в Telegram">Записаться на первую бесплатную тренировку</a>
+            </div>
+          </div>
+
+          <!-- Научиться играть — Tournament Pro Challenge (Задачи) -->
           <div class="view" data-view="poker-tasks">
             <div class="poker-tasks__start" id="pokerTasksStartScreen">
-              <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+              <button type="button" class="bonus-game-back" data-view-target="learn-play-hub" aria-label="Назад в раздел Научиться играть">← Назад</button>
               <h1 class="title">Tournament Pro Challenge</h1>
               <p class="poker-tasks__desc">80 уровней, 500+ MTT задач с прогрессивной сложностью. 5 задач в день. Таймер от нуля, бонусы за скорость и стрик.</p>
               <div class="poker-tasks__mtt-stats" id="pokerTasksMttStats">
@@ -1725,10 +1749,179 @@
               </div>
             </div>
             <div class="poker-streak-result-screen poker-streak-result-screen--hidden" id="pokerStreakResultScreen">
-              <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
+              <button type="button" class="bonus-game-back" data-view-target="learn-play-hub" aria-label="Назад в раздел Научиться играть">← Назад</button>
               <h2 class="title">Итоги сессии</h2>
               <div class="poker-streak-result-stats" id="pokerStreakResultStats"></div>
               <button type="button" class="primary-button" id="pokerStreakPlayAgainBtn">Ещё задачи</button>
+            </div>
+          </div>
+
+          <!-- Видео-уроки (15 уроков по темам) -->
+          <div class="view" data-view="video-lessons">
+            <button type="button" class="bonus-game-back" data-view-target="learn-play-hub" aria-label="Назад">← Назад</button>
+            <h1 class="title">Видео-уроки</h1>
+            <p class="video-lessons__intro">Нажмите на урок — откроется плеер с видео.</p>
+            <div class="video-lessons__list" id="videoLessonsList">
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/zP4fadqf3vHPEA" data-lesson-num="1" aria-expanded="false">
+                  <span class="video-lessons__num">1</span>
+                  <span class="video-lessons__title">Префлоп-диапазоны</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <p class="video-lessons__desc">
+                  ✅ Какие карты разыгрываем<br>
+                  ✅ Как разыгрываем эти карты<br>
+                  ✅ Сколько ставим<br>
+                  ✅ Для чего ставим
+                </p>
+                <a href="./assets/prilozhenie-k-obucheniyu.pdf" target="_blank" rel="noopener noreferrer" class="video-lessons__attachment" download="Приложение к обучению.pdf">Приложение к обучению (PDF)</a>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer1">
+                  <div class="video-lessons__player-inner">
+                    <iframe class="video-lessons__iframe" title="Урок 1 — Префлоп-диапазоны" src="" data-video-src="https://disk.yandex.ru/i/zP4fadqf3vHPEA"></iframe>
+                    <a href="https://disk.yandex.ru/i/zP4fadqf3vHPEA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть видео в браузере</a>
+                  </div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="2" aria-expanded="false">
+                  <span class="video-lessons__num">2</span>
+                  <span class="video-lessons__title">Урок 2</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer2">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="3" aria-expanded="false">
+                  <span class="video-lessons__num">3</span>
+                  <span class="video-lessons__title">Урок 3</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer3">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="4" aria-expanded="false">
+                  <span class="video-lessons__num">4</span>
+                  <span class="video-lessons__title">Урок 4</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer4">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="5" aria-expanded="false">
+                  <span class="video-lessons__num">5</span>
+                  <span class="video-lessons__title">Урок 5</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer5">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="6" aria-expanded="false">
+                  <span class="video-lessons__num">6</span>
+                  <span class="video-lessons__title">Урок 6</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer6">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="7" aria-expanded="false">
+                  <span class="video-lessons__num">7</span>
+                  <span class="video-lessons__title">Урок 7</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer7">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="8" aria-expanded="false">
+                  <span class="video-lessons__num">8</span>
+                  <span class="video-lessons__title">Урок 8</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer8">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="9" aria-expanded="false">
+                  <span class="video-lessons__num">9</span>
+                  <span class="video-lessons__title">Урок 9</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer9">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="10" aria-expanded="false">
+                  <span class="video-lessons__num">10</span>
+                  <span class="video-lessons__title">Урок 10</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer10">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="11" aria-expanded="false">
+                  <span class="video-lessons__num">11</span>
+                  <span class="video-lessons__title">Урок 11</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer11">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="12" aria-expanded="false">
+                  <span class="video-lessons__num">12</span>
+                  <span class="video-lessons__title">Урок 12</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer12">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="13" aria-expanded="false">
+                  <span class="video-lessons__num">13</span>
+                  <span class="video-lessons__title">Урок 13</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer13">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="14" aria-expanded="false">
+                  <span class="video-lessons__num">14</span>
+                  <span class="video-lessons__title">Урок 14</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer14">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
+              <div class="video-lessons__card">
+                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="15" aria-expanded="false">
+                  <span class="video-lessons__num">15</span>
+                  <span class="video-lessons__title">Урок 15</span>
+                  <span class="video-lessons__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer15">
+                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                </div>
+              </div>
             </div>
           </div>
 

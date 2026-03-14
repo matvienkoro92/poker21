@@ -4537,6 +4537,192 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .view[data-view="poker-tasks"].poker-tasks--task-visible {
   min-height: 85vh;
 }
+
+/* Научиться играть — хаб */
+.learn-play-hub__desc {
+  margin: 8px 0 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.learn-play-hub__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.learn-play-hub__btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  text-align: left;
+  border-radius: 14px;
+  background: var(--block-bg);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s, background 0.2s;
+}
+.learn-play-hub__btn:hover {
+  border-color: var(--accent);
+  background: rgba(251, 146, 60, 0.08);
+}
+.learn-play-hub__training-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  color: #111827;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.learn-play-hub__training-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.5);
+}
+
+/* Видео-уроки */
+.video-lessons__intro {
+  margin: 8px 0 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.video-lessons__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.video-lessons__card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--block-bg);
+  transition: border-color 0.2s;
+}
+.video-lessons__card:hover {
+  border-color: rgba(251, 146, 60, 0.4);
+}
+.video-lessons__card.video-lessons__card--open {
+  border-color: var(--accent);
+}
+.video-lessons__desc {
+  margin: 0 0 8px;
+  padding: 0 16px 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.video-lessons__attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 16px 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid rgba(251, 146, 60, 0.4);
+  border-radius: 10px;
+  background: rgba(251, 146, 60, 0.08);
+  transition: background 0.2s, border-color 0.2s;
+}
+.video-lessons__attachment:hover {
+  background: rgba(251, 146, 60, 0.15);
+  border-color: var(--accent);
+}
+.video-lessons__attachment::before {
+  content: "📎";
+  font-size: 1em;
+}
+.video-lessons__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 15px;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.video-lessons__item:hover {
+  background: rgba(251, 146, 60, 0.06);
+}
+.video-lessons__item[aria-expanded="true"] .video-lessons__chevron {
+  transform: rotate(180deg);
+}
+.video-lessons__num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+  background: rgba(251, 146, 60, 0.15);
+  border-radius: 8px;
+}
+.video-lessons__title {
+  flex: 1;
+}
+.video-lessons__chevron {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+.video-lessons__player-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-out;
+}
+.video-lessons__player-wrap.video-lessons__player-wrap--hidden {
+  max-height: 0;
+}
+.video-lessons__player-wrap:not(.video-lessons__player-wrap--hidden) {
+  max-height: 420px;
+}
+.video-lessons__player-inner {
+  padding: 0 12px 12px;
+}
+.video-lessons__iframe {
+  display: block;
+  width: 100%;
+  height: 220px;
+  border: none;
+  border-radius: 10px;
+  background: #000;
+}
+.video-lessons__open-external {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.video-lessons__open-external:hover {
+  text-decoration: underline;
+}
+.video-lessons__no-video {
+  margin: 0;
+  padding: 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .poker-tasks__start {
   padding-bottom: 20px;
 }

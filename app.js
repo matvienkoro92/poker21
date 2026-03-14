@@ -2353,6 +2353,7 @@ function setView(viewName) {
   if (viewName === "plasterer-game") initPlastererGame();
   if (viewName === "raffles") initRaffles();
   if (viewName === "equilator") initEquilator();
+  if (viewName === "video-lessons") initVideoLessons();
   if (viewName === "poker-tasks") {
     var startScreen = document.getElementById("pokerTasksStartScreen");
     var streakScreen = document.getElementById("pokerStreakScreen");
@@ -7018,6 +7019,61 @@ document.addEventListener("click", function (e) {
     if (tg && tg.showAlert) tg.showAlert("Задачи ещё загружаются. Обновите страницу."); else alert("Задачи ещё загружаются. Обновите страницу.");
   }
 }, true);
+
+document.addEventListener("click", function (e) {
+  var trainingBtn = e.target && e.target.closest ? e.target.closest(".learn-play-hub__training-btn") : null;
+  if (trainingBtn) {
+    var href = trainingBtn.getAttribute("href");
+    if (href && href.indexOf("t.me") !== -1) {
+      e.preventDefault();
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(href);
+      else if (tg && tg.openLink) tg.openLink(href);
+      else window.open(href, "_blank", "noopener,noreferrer");
+    }
+    return;
+  }
+  var attachment = e.target && e.target.closest ? e.target.closest(".video-lessons__attachment") : null;
+  if (attachment) {
+    var href = attachment.getAttribute("href");
+    if (href) {
+      e.preventDefault();
+      var url = href.indexOf("http") === 0 ? href : (function () { try { return new URL(href, window.location.href).href; } catch (err) { return href; } })();
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.openLink) tg.openLink(url);
+      else window.open(url, "_blank", "noopener,noreferrer");
+    }
+    return;
+  }
+  var item = e.target && e.target.closest ? e.target.closest(".video-lessons__item") : null;
+  if (!item) return;
+  e.preventDefault();
+  var card = item.closest(".video-lessons__card");
+  var playerWrap = card ? card.querySelector(".video-lessons__player-wrap") : null;
+  if (!card || !playerWrap) return;
+  var isOpen = !playerWrap.classList.contains("video-lessons__player-wrap--hidden");
+  document.querySelectorAll(".video-lessons__player-wrap").forEach(function (w) {
+    w.classList.add("video-lessons__player-wrap--hidden");
+  });
+  document.querySelectorAll(".video-lessons__item[aria-expanded]").forEach(function (btn) {
+    btn.setAttribute("aria-expanded", "false");
+  });
+  document.querySelectorAll(".video-lessons__card--open").forEach(function (c) {
+    c.classList.remove("video-lessons__card--open");
+  });
+  if (!isOpen) {
+    playerWrap.classList.remove("video-lessons__player-wrap--hidden");
+    item.setAttribute("aria-expanded", "true");
+    card.classList.add("video-lessons__card--open");
+    var url = item.getAttribute("data-video-url");
+    if (url && url !== "#") {
+      var iframe = playerWrap.querySelector(".video-lessons__iframe[data-video-src]");
+      if (iframe && !iframe.src) iframe.src = iframe.getAttribute("data-video-src") || url;
+    }
+  }
+});
+
+function initVideoLessons() {}
 
 (function initChillRadio() {
   var radio = document.getElementById("chillRadio");
