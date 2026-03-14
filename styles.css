@@ -5677,20 +5677,42 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffle-prize { font-size: 13px; color: var(--text); margin-bottom: 4px; }
 .raffle-join-invite-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 12px;
 }
-.raffle-join-invite-row .raffle-join-btn { margin-bottom: 0; }
-.raffle-join-invite-row .raffle-leave-btn { margin-left: 0; margin-bottom: 0; }
+.raffle-join-invite-row .raffle-join-btn,
+.raffle-join-invite-row .raffle-leave-btn {
+  margin: 0;
+  margin-bottom: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  min-width: 0;
+  width: auto;
+  flex: 1 1 auto;
+  flex-shrink: 1;
+}
+.raffle-join-invite-row .raffles-hero__share-btn--inline {
+  padding: 8px 14px;
+  font-size: 13px;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-shrink: 1;
+}
 .raffle-join-leave-cell {
   display: flex;
   min-width: 0;
+  flex: 1 1 auto;
 }
 .raffle-join-leave-cell .raffle-join-btn,
 .raffle-join-leave-cell .raffle-leave-btn {
   margin: 0;
+}
+/* В ячейке только одна кнопка видна: Участвовать до входа, Отменить участие — после */
+.raffle-join-leave-cell .raffle-join-btn.raffle-join-btn--hidden,
+.raffle-join-leave-cell .raffle-leave-btn.raffle-leave-btn--hidden {
+  display: none !important;
 }
 .raffle-join-btn--hidden { display: none; }
 .raffle-join-btn { margin-bottom: 12px; }
@@ -5804,12 +5826,12 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffles-tab {
   flex: 1 1 0;
   min-width: 0;
-  padding: 10px 12px;
+  padding: 10px 8px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -5817,6 +5839,9 @@ html.app-view-home .feature--rating-spring-promo:hover,
 }
 .raffles-tab:hover { color: var(--text); background: rgba(148, 163, 184, 0.1); }
 .raffles-tab.raffles-tab--active { background: var(--accent-soft); color: var(--accent); }
+@media (max-width: 360px) {
+  .raffles-tab { font-size: 11px; padding: 8px 6px; }
+}
 .raffles-panel { margin-top: 0; }
 .raffles-panel.raffles-panel--hidden { display: none; }
 .raffles-completed-list { display: flex; flex-direction: column; gap: 12px; }
