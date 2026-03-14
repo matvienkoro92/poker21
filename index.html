@@ -1140,15 +1140,15 @@
                   <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
                   <span class="chat-dialog-item__label">Роман</span>
                 </button>
-                <div class="chat-find-by-id chat-find-by-id--dialogs">
-                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
-                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
-                </div>
                 <div class="chat-dialogs-section">
                   <p class="chat-subtitle">Чаты с игроками</p>
                   <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
                     <p class="chat-empty">Загрузка...</p>
                   </div>
+                </div>
+                <div class="chat-find-by-id chat-find-by-id--dialogs">
+                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
+                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
                 </div>
               </div>
             </div>
@@ -1181,8 +1181,8 @@
             <div class="chat-admins-view chat-admins-view--hidden" id="chatAdminsView">
               <p class="chat-admins-view__text">Напишите админам в Telegram:</p>
               <div class="chat-admins-view__buttons">
-                <button type="button" class="chat-manager-btn" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">Анна</button>
-                <button type="button" class="chat-manager-btn" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика">Вика</button>
+                <button type="button" class="chat-manager-btn" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна"><span class="chat-manager-btn__name">Анна</span><span class="chat-admins-view__online" aria-label="онлайн">онлайн</span></button>
+                <button type="button" class="chat-manager-btn" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика"><span class="chat-manager-btn__name">Вика</span><span class="chat-admins-view__online" aria-label="онлайн">онлайн</span></button>
               </div>
             </div>
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
@@ -2027,59 +2027,25 @@
             <p class="cashout-now-subtitle" aria-live="polite"></p>
 
             <div class="cashout-manager-block" data-manager="anna">
-              <p class="subtitle">
-                ⏰ 06:00–18:00 мск — <a href="https://t.me/qweenpoker" target="_blank" rel="noopener noreferrer" class="manager-link">@qweenpoker</a>
-              </p>
+              <p class="subtitle">⏰ 06:00–18:00 мск — Анна</p>
               <div class="cashout-media">
-                <a
-                  href="https://t.me/qweenpoker"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="cashout-image-link"
-                >
-                  <img
-                    src="./assets/dep-manager.png"
-                    alt="Менеджер Анна принимает депозит. Написать в Telegram @qweenpoker"
-                    class="cashout-image"
-                  />
-                </a>
+                <img
+                  src="./assets/dep-manager.png"
+                  alt="Менеджер Анна"
+                  class="cashout-image"
+                />
               </div>
-              <a
-                href="https://t.me/qweenpoker"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="cashout-anna-btn"
-              >
-                Написать Анне
-              </a>
             </div>
 
             <div class="cashout-manager-block" data-manager="vika">
-              <p class="subtitle cashout-manager-subtitle">
-                ⏰ 18:00–02:00 мск — <a href="https://t.me/vikipoker" target="_blank" rel="noopener noreferrer" class="manager-link">@vikipoker</a>
-              </p>
+              <p class="subtitle cashout-manager-subtitle">⏰ 18:00–02:00 мск — Вика</p>
               <div class="cashout-media">
-                <a
-                  href="https://t.me/vikipoker"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="cashout-image-link"
-                >
-                  <img
-                    src="./assets/dep-manager-vika.png"
-                    alt="Менеджер Вика принимает депозит. Написать в Telegram @vikipoker"
-                    class="cashout-image"
-                  />
-                </a>
+                <img
+                  src="./assets/dep-manager-vika.png"
+                  alt="Менеджер Вика"
+                  class="cashout-image"
+                />
               </div>
-              <a
-                href="https://t.me/vikipoker"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="cashout-anna-btn"
-              >
-                Написать Вике
-              </a>
             </div>
           </div>
 

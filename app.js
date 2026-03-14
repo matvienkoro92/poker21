@@ -10247,6 +10247,7 @@ function initChat() {
       if (generalView) { generalView.classList.add("chat-general-view--hidden"); generalView.style.display = "none"; }
       if (personalView) personalView.classList.add("chat-personal-view--hidden");
       if (adminsView) adminsView.classList.remove("chat-admins-view--hidden");
+      loadAdminsOnline();
     }
     if (tab === "personal") window.chatPersonalUnread = false;
     updateChatHeaderStats();
@@ -11118,12 +11119,14 @@ function initChat() {
           var firstChar = function (name) { return (name || "?").toString().replace(/^@/, "")[0] || "?"; };
           contactsEl.innerHTML = data.contacts.map(function (c) {
             var dtSpan = c.dtId ? '<span class="chat-contact__dt">' + escapeHtml(c.dtId) + '</span>' : "";
+            var adminBadge = c.admin ? '<span class="chat-contact__admin" aria-label="админ">админ</span>' : "";
             var onlineBadge = c.online ? '<span class="chat-contact__online" aria-label="онлайн">онлайн</span>' : "";
+            var badgesBlock = (adminBadge || onlineBadge) ? '<span class="chat-contact__badges">' + adminBadge + onlineBadge + '</span>' : "";
             var initial = firstChar(c.name);
             var avatarEl = c.avatar
               ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
               : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
-            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + onlineBadge + '</span>' + dtSpan + '</span></button>';
+            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span></button>';
           }).join("");
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
             btn.addEventListener("click", function () {
@@ -11145,6 +11148,20 @@ function initChat() {
         }
       }
     }).catch(function () { contactsEl.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
+  }
+
+  function loadAdminsOnline() {
+    if (!adminsView || !initData) return;
+    var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=adminOnline";
+    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      if (!data || !data.ok || !Array.isArray(data.onlineAdminIds)) return;
+      var onlineSet = new Set(data.onlineAdminIds);
+      adminsView.querySelectorAll(".chat-manager-btn[data-chat-user-id]").forEach(function (btn) {
+        var id = btn.dataset.chatUserId;
+        var onEl = btn.querySelector(".chat-admins-view__online");
+        if (onEl) onEl.classList.toggle("chat-admins-view__online--visible", onlineSet.has(id));
+      });
+    }).catch(function () {});
   }
 
   function renderMessages(messages) {
@@ -12042,6 +12059,7 @@ function initChat() {
     if (chatWithUserId) loadMessages();
     else if (dialogsView && !dialogsView.classList.contains("chat-dialogs-view--hidden")) loadContacts();
     else if (chatActiveTab === "personal") loadContacts();
+    else if (chatActiveTab === "admins" && adminsView && !adminsView.classList.contains("chat-admins-view--hidden")) loadAdminsOnline();
   }, 10000);
 }
 

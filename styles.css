@@ -3467,6 +3467,16 @@ img.chat-contact__avatar {
 .chat-admins-view__buttons .chat-manager-btn:hover {
   background: var(--accent-soft);
 }
+.chat-manager-btn__name { margin-right: 6px; }
+.chat-admins-view__online {
+  display: none;
+  font-size: 11px;
+  color: var(--accent-2, #22c55e);
+  font-weight: 500;
+}
+.chat-admins-view__online.chat-admins-view__online--visible {
+  display: inline;
+}
 .chat-list-view {
   flex: 1;
   min-height: 0;
@@ -3581,11 +3591,24 @@ img.chat-contact__avatar {
 .chat-contact__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .chat-contact__name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .chat-contact__name { font-weight: 500; }
+.chat-contact__badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.chat-contact__admin {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
 .chat-contact__online {
   font-size: 11px;
   color: var(--accent-2, #22c55e);
   font-weight: 500;
-  flex-shrink: 0;
 }
 .chat-contact__dt { font-size: 12px; color: var(--text-muted); font-family: monospace; }
 
