@@ -2301,6 +2301,14 @@ function setView(viewName) {
       idle(function () { initChat(); });
     }
   }
+  if (viewName === "chat") {
+    if (!window.chatListenersAttached && typeof initChat === "function") {
+      var idleChat = window.requestIdleCallback || function (cb) { setTimeout(cb, 100); };
+      idleChat(function () { initChat(); });
+    } else if (window.chatListenersAttached && typeof window.chatShowDialogs === "function") {
+      window.chatShowDialogs();
+    }
+  }
   if (viewName === "winter-rating") {
     var winterView = document.querySelector('[data-view="winter-rating"]');
     var springView = document.querySelector('[data-view="spring-rating"]');
@@ -9865,6 +9873,7 @@ var chatIsAdmin = false;
 var chatListenersAttached = false;
 
 function initChat() {
+  var dialogsView = document.getElementById("chatDialogsView");
   var generalView = document.getElementById("chatGeneralView");
   var personalView = document.getElementById("chatPersonalView");
   var adminsView = document.getElementById("chatAdminsView");
@@ -9876,7 +9885,11 @@ function initChat() {
   var contactsEl = document.getElementById("chatContacts");
   var findByIdInput = document.getElementById("chatFindByIdInput");
   var findByIdBtn = document.getElementById("chatFindByIdBtn");
+  var findByIdInputDialogs = document.getElementById("chatFindByIdInputDialogs");
+  var findByIdBtnDialogs = document.getElementById("chatFindByIdBtnDialogs");
   var backBtn = document.getElementById("chatBackBtn");
+  var chatGeneralBackBtn = document.getElementById("chatGeneralBackBtn");
+  var chatDialogClub = document.getElementById("chatDialogClub");
   var convTitle = document.getElementById("chatConvTitle");
   var messagesEl = document.getElementById("chatMessages");
   var inputEl = document.getElementById("chatInput");
@@ -10008,8 +10021,8 @@ function initChat() {
           var uname = chatUserModalUserName || "Игрок";
           closeChatUserModal();
           if (typeof setView === "function") setView("chat");
-          setTab("personal");
-          showConv(uid, uname);
+          if (typeof window.chatOpenConvFromDialogs === "function") window.chatOpenConvFromDialogs(uid, uname);
+          else { setTab("personal"); showConv(uid, uname); }
         }
       });
     }
@@ -10211,19 +10224,70 @@ function initChat() {
   function setTab(tab) {
     chatActiveTab = tab;
     closeSwitcherDropdown();
-    generalView.style.display = tab === "general" ? "" : "none";
-    personalView.classList.toggle("chat-personal-view--hidden", tab !== "personal");
-    if (adminsView) adminsView.classList.toggle("chat-admins-view--hidden", tab !== "admins");
-    if (tab === "general") { window.chatGeneralUnread = false; loadGeneral(); }
-    else if (tab === "personal") {
-      window.chatPersonalUnread = false;
-      if (chatWithUserId) loadMessages();
-      else loadContacts();
+    if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
+    if (tab === "general") {
+      if (generalView) { generalView.classList.remove("chat-general-view--hidden"); generalView.style.display = ""; }
+      if (personalView) personalView.classList.add("chat-personal-view--hidden");
+      if (adminsView) adminsView.classList.add("chat-admins-view--hidden");
+      window.chatGeneralUnread = false;
+      loadGeneral();
+    } else if (tab === "personal") {
+      if (!chatWithUserId) {
+        showDialogs();
+        updateChatHeaderStats();
+        updateUnreadDots();
+        return;
+      }
+      if (generalView) { generalView.classList.add("chat-general-view--hidden"); generalView.style.display = "none"; }
+      if (personalView) personalView.classList.remove("chat-personal-view--hidden");
+      if (adminsView) adminsView.classList.add("chat-admins-view--hidden");
+      loadMessages();
+    } else if (tab === "admins") {
+      if (generalView) { generalView.classList.add("chat-general-view--hidden"); generalView.style.display = "none"; }
+      if (personalView) personalView.classList.add("chat-personal-view--hidden");
+      if (adminsView) adminsView.classList.remove("chat-admins-view--hidden");
     }
+    if (tab === "personal") window.chatPersonalUnread = false;
     updateChatHeaderStats();
     updateUnreadDots();
   }
+  function showDialogs() {
+    chatWithUserId = null;
+    chatWithUserName = null;
+    if (dialogsView) dialogsView.classList.remove("chat-dialogs-view--hidden");
+    if (generalView) generalView.classList.add("chat-general-view--hidden");
+    if (personalView) personalView.classList.add("chat-personal-view--hidden");
+    if (listView) listView.classList.add("chat-list-view--hidden");
+    if (convView) convView.classList.add("chat-conv-view--hidden");
+    generalView.style.display = "none";
+    loadContacts();
+    updateChatHeaderStats();
+    updateUnreadDots();
+  }
+  function openClubChat() {
+    if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
+    if (generalView) {
+      generalView.classList.remove("chat-general-view--hidden");
+      generalView.style.display = "";
+    }
+    if (personalView) personalView.classList.add("chat-personal-view--hidden");
+    window.chatGeneralUnread = false;
+    loadGeneral();
+    updateChatHeaderStats();
+  }
+  function openConvFromDialogs(userId, userName) {
+    if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
+    if (generalView) generalView.classList.add("chat-general-view--hidden");
+    generalView.style.display = "none";
+    if (personalView) personalView.classList.remove("chat-personal-view--hidden");
+    if (listView) listView.classList.add("chat-list-view--hidden");
+    if (convView) convView.classList.remove("chat-conv-view--hidden");
+    setTab("personal");
+    showConv(userId, userName || userId);
+  }
   window.chatSetTab = setTab;
+  window.chatShowDialogs = showDialogs;
+  window.chatOpenConvFromDialogs = openConvFromDialogs;
 
   var CHAT_LAST_VIEWED_KEY = "chat_last_viewed";
   var stored = null;
@@ -11053,7 +11117,7 @@ function initChat() {
             return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + dtSpan + '</span></button>';
           }).join("");
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
-            btn.addEventListener("click", function () { showConv(btn.dataset.chatId, btn.dataset.chatName); });
+            btn.addEventListener("click", function () { openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName); });
           });
         }
       }
@@ -11329,7 +11393,7 @@ function initChat() {
       }
       setTab(chatActiveTab);
       if (chatWithUserId) showConv(chatWithUserId, chatWithUserName);
-      else showList();
+      else showDialogs();
     };
     document.querySelectorAll(".chat-manager-btn--tg").forEach(function (link) {
       link.addEventListener("click", function (e) {
@@ -11368,7 +11432,7 @@ function initChat() {
         }
       });
     });
-    if (backBtn) backBtn.addEventListener("click", showList);
+    if (backBtn) backBtn.addEventListener("click", showDialogs);
     if (findByIdBtn && findByIdInput) {
       function findByIdAndOpen() {
         var raw = (findByIdInput.value || "").trim();
@@ -11831,14 +11895,79 @@ function initChat() {
     });
   }
 
-  setTab(chatActiveTab);
-  if (chatWithUserId) showConv(chatWithUserId, chatWithUserName);
-  else showList();
+  showDialogs();
+
+  if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
+  if (chatDialogClub) chatDialogClub.addEventListener("click", openClubChat);
+  if (dialogsView) {
+    dialogsView.querySelectorAll(".chat-dialog-item[data-chat-user-id]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var raw = (btn.dataset.chatUserId || "").trim();
+        var userName = btn.dataset.chatUserName || "Менеджер";
+        if (!raw) return;
+        function doShow(tgUserId) { openConvFromDialogs(tgUserId, userName); }
+        if (raw.startsWith("tg_") && raw !== "tg_roman") {
+          doShow(raw);
+        } else if (raw === "tg_roman") {
+          if (tg && tg.showAlert) tg.showAlert("Напишите Роману в Telegram");
+          return;
+        } else if (/^ID\d{6}$/.test(raw.toUpperCase())) {
+          var id = raw.toUpperCase();
+          fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (data && data.ok && data.userId) doShow(data.userId);
+              else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+            })
+            .catch(function () { if (tg && tg.showAlert) tg.showAlert("Ошибка сети"); });
+        } else {
+          doShow("tg_" + raw);
+        }
+      });
+    });
+  }
+  if (findByIdBtnDialogs && findByIdInputDialogs) {
+    function findByIdAndOpenDialogs() {
+      var raw = (findByIdInputDialogs.value || "").trim();
+      var idPart = raw.replace(/^@/, "").toUpperCase();
+      var byId = /^\d{6}$/.test(idPart) || /^ID\d{6}$/.test(idPart) || (idPart.startsWith("ID") && idPart.length === 8 && /^ID\d{6}$/.test(idPart));
+      var url;
+      if (byId) {
+        var id = idPart.startsWith("ID") ? idPart : "ID" + idPart;
+        url = base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData);
+      } else {
+        var nick = raw.replace(/^@/, "").trim();
+        if (!nick) {
+          if (tg && tg.showAlert) tg.showAlert("Введите ID (ID123456) или ник (@username)");
+          return;
+        }
+        url = base + "/api/users?username=" + encodeURIComponent(nick) + "&initData=" + encodeURIComponent(initData);
+      }
+      findByIdBtnDialogs.disabled = true;
+      fetch(url)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          findByIdBtnDialogs.disabled = false;
+          findByIdInputDialogs.value = "";
+          if (data && data.ok && data.userId) openConvFromDialogs(data.userId, data.userName || data.userId);
+          else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+        })
+        .catch(function () {
+          findByIdBtnDialogs.disabled = false;
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+        });
+    }
+    findByIdBtnDialogs.addEventListener("click", findByIdAndOpenDialogs);
+    findByIdInputDialogs.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); findByIdAndOpenDialogs(); }
+    });
+  }
 
   if (chatPollInterval) clearInterval(chatPollInterval);
   chatPollInterval = setInterval(function () {
     loadGeneral();
     if (chatWithUserId) loadMessages();
+    else if (dialogsView && !dialogsView.classList.contains("chat-dialogs-view--hidden")) loadContacts();
     else if (chatActiveTab === "personal") loadContacts();
   }, 10000);
 }

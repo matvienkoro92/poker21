@@ -1113,9 +1113,41 @@
             <div id="springRatingSectionPlaceholder"></div>
           </div>
 
-          <!-- Чат: общий + личные + админы -->
+          <!-- Чат: сначала список диалогов, затем чат клуба / личные -->
           <div class="view" data-view="chat">
-            <div class="chat-general-view" id="chatGeneralView">
+            <div class="chat-dialogs-view" id="chatDialogsView">
+              <h2 class="chat-title--small">Чаты</h2>
+              <div class="chat-dialogs-list">
+                <button type="button" class="chat-dialog-item chat-dialog-item--pinned" data-chat-type="club" id="chatDialogClub">
+                  <span class="chat-dialog-item__icon" aria-hidden="true">💬</span>
+                  <span class="chat-dialog-item__label">Чат клуба</span>
+                </button>
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна">
+                  <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
+                  <span class="chat-dialog-item__label">Анна</span>
+                </button>
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика">
+                  <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
+                  <span class="chat-dialog-item__label">Вика</span>
+                </button>
+                <button type="button" class="chat-dialog-item" data-chat-user-id="tg_roman" data-chat-user-name="Роман">
+                  <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
+                  <span class="chat-dialog-item__label">Роман</span>
+                </button>
+                <div class="chat-dialogs-section">
+                  <p class="chat-subtitle">Чаты с игроками</p>
+                  <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
+                    <p class="chat-empty">Загрузка...</p>
+                  </div>
+                </div>
+              </div>
+              <div class="chat-find-by-id chat-find-by-id--dialogs">
+                <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник — найти и написать" maxlength="35" autocomplete="off" />
+                <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
+              </div>
+            </div>
+            <div class="chat-general-view chat-general-view--hidden" id="chatGeneralView">
+              <button type="button" class="chat-back-btn" id="chatGeneralBackBtn">← К чатам</button>
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
               </div>
@@ -1148,15 +1180,8 @@
               </div>
             </div>
             <div class="chat-personal-view chat-personal-view--hidden" id="chatPersonalView">
-              <div class="chat-list-view" id="chatListView">
-                <div class="chat-find-by-id">
-                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInput" placeholder="ID или @ник — найти и написать" maxlength="35" autocomplete="off" />
-                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtn">Найти</button>
-                </div>
-                <p class="subtitle chat-subtitle">Выберите пользователя</p>
-                <div class="chat-contacts" id="chatContacts">
-                  <p class="chat-empty">Загрузка...</p>
-                </div>
+              <div class="chat-list-view chat-list-view--hidden" id="chatListView">
+                <!-- Список контактов перенесён в экран диалогов (chatDialogsView) -->
               </div>
               <div class="chat-conv-view chat-conv-view--hidden" id="chatConvView">
                 <button type="button" class="chat-back-btn" id="chatBackBtn">← Назад</button>
