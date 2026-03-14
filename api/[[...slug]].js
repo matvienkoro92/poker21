@@ -40,6 +40,7 @@ const handlers = {
   "twitch-viewers": () => require(path.join(handlersDir, "twitch-viewers.js")),
   respect: () => require(path.join(handlersDir, "respect.js")),
   friends: () => require(path.join(handlersDir, "friends.js")),
+  "share-button-stats": () => require(path.join(handlersDir, "share-button-stats.js")),
 };
 
 module.exports = async function handler(req, res) {

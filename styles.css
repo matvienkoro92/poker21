@@ -11180,6 +11180,9 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 
 .footer-admin-visitors {
   margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .footer-admin-visitors--hidden {
   display: none !important;
@@ -11214,6 +11217,92 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .visitors-admin-modal[aria-hidden="false"] {
   opacity: 1;
   visibility: visible;
+}
+
+.share-stats-admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+.share-stats-admin-modal[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+}
+.share-stats-admin-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+.share-stats-admin-modal__box {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow: auto;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+}
+.share-stats-admin-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.share-stats-admin-modal__close:hover {
+  color: var(--text);
+  background: var(--bg-elevated);
+}
+.share-stats-admin-modal__title {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+.share-stats-admin-modal__hint {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.share-stats-admin-modal__table-wrap {
+  overflow-x: auto;
+}
+.share-stats-admin-modal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.share-stats-admin-modal__table th,
+.share-stats-admin-modal__table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border, #334155);
+}
+.share-stats-admin-modal__table th {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.share-stats-admin-modal__table td {
+  color: var(--text);
+}
+.share-stats-admin-modal__table tbody tr:last-child td {
+  border-bottom: none;
 }
 .visitors-admin-modal__backdrop {
   position: absolute;
@@ -11883,12 +11972,81 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   font-size: 14px;
   color: var(--text-muted);
 }
-.tournament-day-block--schedule {
-  display: block;
-  width: 100%;
+.tournament-day-schedule-wrap {
   margin: 16px 0 20px;
-  padding: 18px 20px;
+}
+.tournament-day-schedule-wrap__title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  min-height: 72px;
+  margin: 0;
   box-sizing: border-box;
+  background: #000 !important;
+  border: 1px solid rgba(251, 146, 60, 0.5);
+  border-radius: 16px 16px 0 0;
+  border-bottom: none;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(251, 146, 60, 0.2) !important;
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule .feature__icon {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 50%;
+  min-width: 120px;
+  max-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+}
+.tournament-day-schedule-wrap .tournament-day-block__trophy-img {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule .tournament-day-block__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule .tournament-day-block__name {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgb(251, 146, 60);
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule .tournament-day-block__meta {
+  font-size: 14px;
+  line-height: 1.3;
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule .tournament-day-block__meta .tournament-day-block__timer {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.tournament-day-schedule-wrap .tournament-day-block--schedule .tournament-day-block__name.tournament-day-name--freeroll {
+  font-size: 22px;
+  font-weight: 800;
+}
+.tournament-day-schedule-wrap .tournament-day-share-btn {
+  border-radius: 0 0 16px 16px;
+}
+[data-theme="light"] .tournament-day-schedule-wrap .tournament-day-block--schedule {
+  background: #000 !important;
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(249, 115, 22, 0.15) !important;
 }
 .tournament-day-block--schedule .tournament-day-block__body {
   min-width: 0;
@@ -12023,6 +12181,13 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 [data-theme="light"] .schedule-section--tournament-day .schedule-table th {
   background: rgba(249, 115, 22, 0.2);
   color: var(--text);
+}
+.schedule-row--today td {
+  background: rgba(251, 146, 60, 0.35) !important;
+  font-weight: 600;
+}
+[data-theme="light"] .schedule-row--today td {
+  background: rgba(255, 237, 213, 0.95) !important;
 }
 
 /* Эквилятор */

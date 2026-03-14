@@ -583,6 +583,7 @@ function runGazetteAndTasksInit() {
         if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
         else if (tg && tg.openLink) tg.openLink(shareUrl);
         else window.open(shareUrl, "_blank");
+        if (typeof recordShareButtonClick === "function") recordShareButtonClick("gazette_article");
       } else {
         if (typeof navigator.clipboard !== "undefined" && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(link).then(function () {
@@ -5254,6 +5255,7 @@ function initWinterRatingPlayerModal() {
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
       else if (tg && tg.openLink) tg.openLink(shareUrl);
       else window.open(shareUrl, "_blank");
+      if (typeof recordShareButtonClick === "function") recordShareButtonClick("winter_rating_player_share");
     });
   }
 }
@@ -7087,6 +7089,7 @@ function closeDailyPredictionModal() {
       } else {
         window.open(shareUrl, "_blank");
       }
+      if (typeof recordShareButtonClick === "function") recordShareButtonClick("daily_prediction");
     });
   }
   document.addEventListener("keydown", function (e) {
@@ -8753,6 +8756,7 @@ function initRaffles() {
       var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает билеты на турниры бесплатно, заходи участвуй)\n" + link);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
+      if (typeof recordShareButtonClick === "function") recordShareButtonClick("raffle_hero");
     });
   }
 
@@ -8780,6 +8784,7 @@ function initRaffles() {
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent(text);
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
+      if (typeof recordShareButtonClick === "function") recordShareButtonClick("raffle_card");
     });
   }
 
@@ -11530,6 +11535,18 @@ function getApiBase() {
   return "";
 }
 
+function recordShareButtonClick(buttonId) {
+  var base = getApiBase();
+  if (!base) return;
+  try {
+    fetch(base + "/api/share-button-stats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ buttonId: buttonId })
+    }).catch(function () {});
+  } catch (e) {}
+}
+
 function updateVisitorCounter() {
   const elTotal = document.getElementById("visitorTotal");
   const elUnique = document.getElementById("visitorUnique");
@@ -11986,6 +12003,64 @@ updateVisitorCounter();
   });
 })();
 
+(function initShareStatsAdminModal() {
+  var SHARE_BUTTON_LABELS = {
+    tournament_day: "Турнир дня (Позвать друга)",
+    daily_prediction: "Предсказание на день",
+    gazette_article: "Газета (новость)",
+    winter_rating_week_top: "Рейтинг — топы недели",
+    winter_rating_spring_top: "Рейтинг весны — топы",
+    winter_rating_player_share: "Рейтинг — карточка игрока",
+    winter_rating_date: "Рейтинг — дата",
+    raffle_hero: "Розыгрыши — пригласить друга",
+    raffle_card: "Розыгрыш — карточка (пригласить)"
+  };
+  var btn = document.getElementById("adminShareStatsBtn");
+  var modal = document.getElementById("shareStatsAdminModal");
+  var closeBtn = document.getElementById("shareStatsAdminModalClose");
+  var backdrop = document.getElementById("shareStatsAdminModalBackdrop");
+  var tbody = document.getElementById("shareStatsAdminTableBody");
+  if (!btn || !modal || !tbody) return;
+  function closeShareStatsModal() {
+    modal.setAttribute("aria-hidden", "true");
+    if (document.body) document.body.style.overflow = "";
+  }
+  function openShareStatsModal() {
+    modal.setAttribute("aria-hidden", "false");
+    if (document.body) document.body.style.overflow = "hidden";
+    tbody.innerHTML = "<tr><td colspan=\"2\">Загрузка…</td></tr>";
+    var base = getApiBase();
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) {
+      tbody.innerHTML = "<tr><td colspan=\"2\">Нет initData. Откройте в Telegram.</td></tr>";
+      return;
+    }
+    fetch(base + "/api/share-button-stats?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.ok || !data.stats) {
+          tbody.innerHTML = "<tr><td colspan=\"2\">Нет данных</td></tr>";
+          return;
+        }
+        var ids = Object.keys(SHARE_BUTTON_LABELS);
+        var rows = ids.map(function (id) {
+          var label = SHARE_BUTTON_LABELS[id] || id;
+          var count = data.stats[id] != null ? data.stats[id] : 0;
+          return "<tr><td>" + String(label).replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</td><td>" + count + "</td></tr>";
+        });
+        if (rows.length === 0) rows.push("<tr><td colspan=\"2\">Нет записей</td></tr>");
+        tbody.innerHTML = rows.join("");
+      })
+      .catch(function () {
+        tbody.innerHTML = "<tr><td colspan=\"2\">Ошибка загрузки</td></tr>";
+      });
+  }
+  btn.addEventListener("click", openShareStatsModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeShareStatsModal);
+  if (backdrop) backdrop.addEventListener("click", closeShareStatsModal);
+})();
+
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
 function getMskHour() {
@@ -12109,9 +12184,10 @@ function updateTournamentDayBlock() {
 
 function initTournamentDayBlock() {
   var trophyImg = document.getElementById("tournamentDayTrophyImg");
-  if (trophyImg && typeof getAssetUrl === "function") {
-    trophyImg.src = getAssetUrl("tournament-day-golden-glove.png");
-  }
+  var scheduleTrophyImg = document.getElementById("scheduleTournamentDayTrophyImg");
+  var trophySrc = typeof getAssetUrl === "function" ? getAssetUrl("tournament-day-golden-glove.png") : "";
+  if (trophyImg && trophySrc) trophyImg.src = trophySrc;
+  if (scheduleTrophyImg && trophySrc) scheduleTrophyImg.src = trophySrc;
   updateTournamentDayBlock();
 }
 if (document.readyState === "loading") {
@@ -12120,11 +12196,8 @@ if (document.readyState === "loading") {
   initTournamentDayBlock();
 }
 
-// Поделиться турниром дня с другом (кнопка под блоком «Турнир дня» на главной)
-(function initTournamentDayShareButton() {
-  var btn = document.getElementById("tournamentDayShareBtn");
-  if (!btn) return;
-  btn.addEventListener("click", function () {
+// Поделиться турниром дня с другом (кнопка под блоком «Турнир дня» на главной и на экране расписания)
+function handleTournamentDayShare() {
     var share = window._tournamentDayShare || {};
     var name = (share.name || "").trim() || "турнир клуба";
     var guarantee = (share.guarantee || "").trim();
@@ -12158,7 +12231,26 @@ if (document.readyState === "loading") {
     if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
     else if (tg && tg.openLink) tg.openLink(shareUrl);
     else window.open(shareUrl, "_blank");
+    if (typeof recordShareButtonClick === "function") recordShareButtonClick("tournament_day");
+}
+(function initTournamentDayShareButton() {
+  [document.getElementById("tournamentDayShareBtn"), document.getElementById("scheduleTournamentDayShareBtn")].forEach(function (btn) {
+    if (btn) btn.addEventListener("click", handleTournamentDayShare);
   });
+})();
+
+(function initScheduleTournamentDayToday() {
+  var wrap = document.querySelector(".schedule-table-wrap--tournament-day");
+  if (!wrap) return;
+  var rows = wrap.querySelectorAll("tbody tr");
+  if (rows.length !== 7) return;
+  var dayIndex = (new Date().getDay() + 6) % 7;
+  var todayRow = rows[dayIndex];
+  if (todayRow) {
+    todayRow.classList.add("schedule-row--today");
+    var firstCell = todayRow.querySelector("td");
+    if (firstCell) firstCell.textContent = "СЕГОДНЯ";
+  }
 })();
 
 (function preinitChat() {

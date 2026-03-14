@@ -306,6 +306,7 @@
               </p>
               <p class="footer-admin-visitors footer-admin-visitors--hidden" id="footerAdminVisitorsWrap">
                 <button type="button" class="footer-admin-visitors__btn" id="adminVisitorsBtn">Посетители</button>
+                <button type="button" class="footer-admin-visitors__btn" id="adminShareStatsBtn">Статистика кнопок</button>
               </p>
             </footer>
 
@@ -1978,17 +1979,8 @@
             <h1 class="title schedule-title">Расписание турниров на неделю</h1>
             <p class="schedule-subtitle">Poker 21+</p>
 
-            <div class="tournament-day-block tournament-day-block--schedule feature feature--app" aria-label="Турнир дня">
-              <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">🏆</span></div>
-              <div class="feature__body tournament-day-block__body">
-                <span class="tournament-day-block__badge">Турнир дня</span>
-                <div class="feature__title tournament-day-block__name" id="scheduleTournamentDayName">—</div>
-                <div class="feature__desc tournament-day-block__meta"><span id="scheduleTournamentDayBuyin">—</span> · <span id="scheduleTournamentDayGuarantee">—</span> · 18:00<br><span class="tournament-day-block__timer-label" id="scheduleTournamentDayTimerLabel"></span><span class="tournament-day-block__timer" id="scheduleTournamentDayTimer">—</span></div>
-              </div>
-            </div>
-
             <section class="schedule-section schedule-section--tournament-day">
-              <h2 class="schedule-section__title"><span class="schedule-section__title-badge">Турнир дня</span> — 18:00 Мск</h2>
+              <h2 class="schedule-section__title">Турниры дня в 18:00 МСК</h2>
               <div class="schedule-table-wrap schedule-table-wrap--tournament-day">
                 <table class="schedule-table">
                   <thead>
@@ -2190,6 +2182,26 @@
             <span class="visitors-admin-modal__broadcast-file-name" id="visitorsBroadcastFileName"></span>
           </label>
           <button type="button" class="visitors-admin-modal__show-btn primary-button" id="visitorsBroadcastSendBtn">Отправить</button>
+        </div>
+      </div>
+      <!-- Модалка «Статистика кнопок Переслать» (только админ) -->
+      <div class="share-stats-admin-modal" id="shareStatsAdminModal" role="dialog" aria-modal="true" aria-label="Статистика кнопок Переслать" aria-hidden="true">
+        <div class="share-stats-admin-modal__backdrop" id="shareStatsAdminModalBackdrop"></div>
+        <div class="share-stats-admin-modal__box">
+          <button type="button" class="share-stats-admin-modal__close" id="shareStatsAdminModalClose" aria-label="Закрыть">×</button>
+          <h2 class="share-stats-admin-modal__title">Статистика кнопок Переслать</h2>
+          <p class="share-stats-admin-modal__hint">Количество открытий «Переслать» (если сообщение было отправлено).</p>
+          <div class="share-stats-admin-modal__table-wrap">
+            <table class="share-stats-admin-modal__table">
+              <thead>
+                <tr>
+                  <th>Кнопка</th>
+                  <th>Отправок</th>
+                </tr>
+              </thead>
+              <tbody id="shareStatsAdminTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
       <!-- Модалка партнёрства: 4 листа (3 шага + предисловие) -->
