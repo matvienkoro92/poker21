@@ -11368,27 +11368,20 @@ function initChat() {
     if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
     appendOptimisticPersonalMessage(optText, optImage, optVoice, optDocument, optReply);
     if (sendBtn) sendBtn.disabled = false;
-    fetch(base + "/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then(function (r) {
-      if (!r.ok) {
-        return r.text().then(function (t) {
-          var errMsg = "Не удалось отправить";
-          if (r.status === 413) errMsg = "Файл слишком большой. Попробуйте документ до 8 МБ.";
-          else {
-            try {
-              var j = JSON.parse(t);
-              if (j && j.error) errMsg = j.error;
-            } catch (e) {}
-          }
-          return { ok: false, error: errMsg };
-        });
+    var hasUpload = !!(body.document || body.image || body.voice);
+    var progressWrap = document.getElementById("chatPersonalUploadProgress");
+    var progressFill = document.getElementById("chatPersonalUploadProgressFill");
+    var progressLabel = document.getElementById("chatPersonalUploadProgressLabel");
+    function hideProgress() {
+      if (progressWrap) {
+        progressWrap.classList.remove("chat-upload-progress--visible");
+        progressWrap.setAttribute("aria-hidden", "true");
       }
-      return r.json();
-    }).then(function (data) {
+      if (progressFill) progressFill.style.width = "0%";
+    }
+    function handleResponse(data) {
       sendingPrivate = false;
+      hideProgress();
       if (data && data.ok) {
         var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
         if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
@@ -11404,12 +11397,68 @@ function initChat() {
         if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
         if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
       }
-    }).catch(function () {
+    }
+    function handleError() {
       sendingPrivate = false;
+      hideProgress();
       var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
       if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
       if (tg && tg.showAlert) tg.showAlert("Ошибка сети или файл слишком большой");
-    });
+    }
+    if (hasUpload && progressWrap && progressFill && typeof XMLHttpRequest !== "undefined") {
+      if (progressLabel) progressLabel.textContent = "Отправка…";
+      progressWrap.classList.add("chat-upload-progress--visible");
+      progressWrap.setAttribute("aria-hidden", "false");
+      progressFill.style.width = "0%";
+      var bodyStr = JSON.stringify(body);
+      var xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", function (e) {
+        if (e.lengthComputable && progressFill) progressFill.style.width = Math.round((e.loaded / e.total) * 100) + "%";
+        else if (progressFill) progressFill.style.width = "50%";
+      });
+      xhr.addEventListener("load", function () {
+        var data = null;
+        try {
+          data = JSON.parse(xhr.responseText || "{}");
+        } catch (err) {}
+        if (xhr.status >= 200 && xhr.status < 300) {
+          handleResponse(data);
+        } else {
+          var errMsg = "Не удалось отправить";
+          if (xhr.status === 413) errMsg = "Файл слишком большой. Попробуйте документ до 8 МБ.";
+          else if (data && data.error) errMsg = data.error;
+          handleResponse({ ok: false, error: errMsg });
+        }
+      });
+      xhr.addEventListener("error", handleError);
+      xhr.addEventListener("abort", handleError);
+      xhr.open("POST", base + "/api/chat");
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(bodyStr);
+    } else {
+      fetch(base + "/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then(function (r) {
+        if (!r.ok) {
+          return r.text().then(function (t) {
+            var errMsg = "Не удалось отправить";
+            if (r.status === 413) errMsg = "Файл слишком большой. Попробуйте документ до 8 МБ.";
+            else {
+              try {
+                var j = JSON.parse(t);
+                if (j && j.error) errMsg = j.error;
+              } catch (e) {}
+            }
+            return { ok: false, error: errMsg };
+          });
+        }
+        return r.json();
+      }).then(function (data) {
+        handleResponse(data);
+      }).catch(handleError);
+    }
   }
 
   if (!chatListenersAttached) {

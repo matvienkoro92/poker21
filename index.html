@@ -1196,6 +1196,10 @@
                       <button type="button" class="chat-reply-preview__cancel" title="Отменить ответ">✕</button>
                     </div>
                     <div class="chat-image-preview" id="chatPersonalImagePreview"></div>
+                    <div class="chat-upload-progress chat-upload-progress--hidden" id="chatPersonalUploadProgress" role="status" aria-live="polite" aria-hidden="true">
+                      <span class="chat-upload-progress__label" id="chatPersonalUploadProgressLabel">Отправка...</span>
+                      <div class="chat-upload-progress__bar"><div class="chat-upload-progress__fill" id="chatPersonalUploadProgressFill"></div></div>
+                    </div>
                     <div class="chat-voice-preview chat-voice-preview--hidden" id="chatPersonalVoicePreview">
                       <span class="chat-voice-preview__recording chat-voice-preview__recording--hidden" id="chatPersonalVoiceRecording">🔴 Идёт запись... <button type="button" class="chat-voice-preview__stop-btn" id="chatPersonalVoiceStop">Остановить</button></span>
                       <span class="chat-voice-preview__label chat-voice-preview__label--recorded">Голосовое сообщение</span>
