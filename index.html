@@ -256,22 +256,6 @@
               </button>
             </div>
 
-            <div class="home-stream-wrap">
-              <h2 class="home-stream-wrap__title">Трансляция турнира</h2>
-              <div class="home-stream-embed">
-                <iframe
-                  src="https://vk.com/video_ext.php?oid=-162791956&id=456239100"
-                  allowfullscreen
-                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                  class="home-stream-iframe"
-                  title="Трансляция турнира"
-                ></iframe>
-              </div>
-              <p class="home-stream-link-row">
-                <a href="https://vkvideo.ru/video-162791956_456239100" target="_blank" rel="noopener noreferrer" class="home-stream-link">Открыть в VK</a>
-              </p>
-            </div>
-
             <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
             <div class="games-apps-block">
                 <div class="games-apps-grid">
@@ -2062,7 +2046,10 @@
 
           <!-- Профиль -->
           <div class="view" data-view="profile">
-            <h1 class="title">Профиль</h1>
+            <div class="profile-header-row">
+              <h1 class="title">Профиль</h1>
+              <span class="profile-header-id">ID: <span id="profileUserId">—</span></span>
+            </div>
             <p class="profile-greeting">
               Привет, <span id="profileUserName">имя</span>, здесь все твои достижения в клубе Два туза.
             </p>
