@@ -3305,13 +3305,6 @@ img.chat-contact__avatar {
   cursor: not-allowed;
   pointer-events: none;
 }
-.view[data-view="chat"] {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
 .chat-dialogs-view {
   display: flex;
   flex-direction: column;
