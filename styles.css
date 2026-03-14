@@ -2573,6 +2573,7 @@ html.app-view-home .card .card__content {
 .chat-msg__time {
   font-size: 11px;
   color: var(--text-muted);
+  margin-left: auto;
 }
 .chat-msg__respect-row {
   margin-top: 2px;
