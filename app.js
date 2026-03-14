@@ -10174,6 +10174,13 @@ function initChat() {
       return '<a href="' + escapeHtml(href).replace(/"/g, "&quot;") + '" class="chat-msg__link" target="_blank" rel="noopener noreferrer">' + url + '</a>';
     });
   }
+  function linkAppIds(escapedText) {
+    if (!escapedText) return "";
+    return String(escapedText).replace(/\b(ID\d{6})\b/gi, function (_, id) {
+      var idUp = id.toUpperCase();
+      return '<button type="button" class="chat-msg__id-link" data-app-id="' + escapeHtml(idUp) + '">' + escapeHtml(idUp) + '</button>';
+    });
+  }
 
   window.lastGeneralStats = "";
   window.lastListStats = "";
@@ -10321,6 +10328,27 @@ function initChat() {
       }
     }
   });
+  document.body.addEventListener("click", function (e) {
+    var idLink = e.target && e.target.closest ? e.target.closest(".chat-msg__id-link") : null;
+    if (!idLink || !idLink.dataset || !idLink.dataset.appId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var id = idLink.dataset.appId;
+    if (!id || !/^ID\d{6}$/.test(id)) return;
+    fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.ok && data.userId) {
+          showConv(data.userId, data.userName || data.userId);
+          setTab("personal");
+        } else {
+          if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+        }
+      })
+      .catch(function () {
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+      });
+  });
 
   function loadGeneral() {
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=general";
@@ -10444,7 +10472,7 @@ function initChat() {
         dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"';
       }
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
-      var text = linkUrls(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;")));
+      var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
       var cornerDelBtn = "";
@@ -10901,7 +10929,7 @@ function initChat() {
     var textContent = "";
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
-    else if (text) textContent = linkUrls(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>")));
+    else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
     var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
@@ -11045,7 +11073,7 @@ function initChat() {
         dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"';
       }
       var time = m.time ? new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
-      var text = linkUrls(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;")));
+      var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
       var cornerDelBtnP = "";
@@ -11203,7 +11231,7 @@ function initChat() {
     var textContent = "";
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
-    else if (text) textContent = linkUrls(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>")));
+    else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
     var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
