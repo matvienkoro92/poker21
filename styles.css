@@ -2224,8 +2224,7 @@ html.app-view-home .card .card__content {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
-  width: 100%;
-  max-width: 100%;
+  max-width: 85%;
   font-size: 14px;
   line-height: 1.4;
   display: flex;
@@ -2234,7 +2233,6 @@ html.app-view-home .card .card__content {
   display: flex;
   gap: 6px;
   align-items: flex-end;
-  width: 100%;
 }
 .chat-msg--own .chat-msg__row { flex-direction: row-reverse; }
 .chat-msg__avatar {
@@ -2405,10 +2403,10 @@ html.app-view-home .card .card__content {
 }
 .chat-msg__name-btn:hover .chat-msg__name { text-decoration: underline; }
 .chat-msg--own {
-  align-self: stretch;
+  align-self: flex-end;
 }
 .chat-msg--other {
-  align-self: stretch;
+  align-self: flex-start;
 }
 .chat-msg__meta-line {
   display: flex;
@@ -3121,13 +3119,11 @@ img.chat-contact__avatar {
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
-  opacity: 0.7;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .chat-emoji-btn:hover {
-  opacity: 1;
   background: rgba(148, 163, 184, 0.15);
 }
 
