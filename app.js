@@ -10191,6 +10191,7 @@ function initChat() {
     }
     if (personalView) personalView.classList.add("chat-personal-view--hidden");
     window.chatGeneralUnread = false;
+    chatActiveTab = "general";
     scrollGeneralToBottomOnNextRender = true;
     loadGeneral();
     updateChatHeaderStats();
@@ -10369,8 +10370,8 @@ function initChat() {
         updateChatHeaderStats();
         if (isChatViewActive && chatActiveTab === "general" && !chatIsEditingMessage) {
           var sig = generalMessagesSignature(messages);
-          if (sig !== lastGeneralMessagesSig) {
-            lastGeneralMessagesSig = sig;
+          if (scrollGeneralToBottomOnNextRender || sig !== lastGeneralMessagesSig) {
+            if (sig !== lastGeneralMessagesSig) lastGeneralMessagesSig = sig;
             renderGeneralMessages(messages);
           }
         }
@@ -11087,11 +11088,11 @@ function initChat() {
             });
             btn.addEventListener("touchend", function (e) {
               if (e.target !== btn && !btn.contains(e.target)) return;
-              if (window.__touchWasScroll && window.__touchWasScroll()) return;
               e.preventDefault();
+              e.stopPropagation();
               btn._chatContactHandledInTouchend = true;
               openContact();
-            }, { passive: false });
+            }, { passive: false, capture: true });
           });
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
@@ -11107,6 +11108,18 @@ function initChat() {
         }
       }
     }).catch(function () { contactsEl.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
+  }
+
+  if (contactsEl && !contactsEl._chatContactDelegationBound) {
+    contactsEl._chatContactDelegationBound = true;
+    contactsEl.addEventListener("touchend", function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest(".chat-contact") : null;
+      if (!btn || !btn.dataset.chatId) return;
+      e.preventDefault();
+      e.stopPropagation();
+      btn._chatContactHandledInTouchend = true;
+      openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
+    }, { capture: true, passive: false });
   }
 
   function loadAdminsOnline() {
