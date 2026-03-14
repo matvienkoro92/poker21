@@ -2317,8 +2317,9 @@ html.app-view-home .card .card__content {
   margin-bottom: 2px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
+  min-width: 0;
 }
 .chat-msg__msg-actions {
   margin-left: auto;
@@ -2373,8 +2374,11 @@ html.app-view-home .card .card__content {
   color: #fff;
 }
 .chat-msg__name-btn {
-  display: block;
-  width: 100%;
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
   background: none;
   border: none;
   padding: 0;
@@ -2384,6 +2388,9 @@ html.app-view-home .card .card__content {
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+}
+.chat-msg__meta .chat-msg__name-btn {
+  flex-shrink: 1;
 }
 .chat-msg__name-btn:hover .chat-msg__name { text-decoration: underline; }
 .chat-msg--own {
@@ -2395,15 +2402,17 @@ html.app-view-home .card .card__content {
 .chat-msg__meta-line {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0;
   line-height: 1.4;
+  min-width: 0;
 }
 .chat-msg__meta-sep {
   margin: 0 4px;
   font-size: 11px;
   color: var(--text-muted);
   user-select: none;
+  flex-shrink: 0;
 }
 .chat-msg__name-row {
   display: flex;
@@ -2428,6 +2437,8 @@ html.app-view-home .card .card__content {
 }
 .chat-msg__respect-inline {
   cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .chat-msg__respect-inline:hover .chat-msg__respect {
   text-decoration: underline;
@@ -2845,14 +2856,15 @@ html.app-view-home .card .card__content {
   cursor: pointer;
 }
 .chat-msg__image {
-  max-width: min(100%, 240px);
-  width: 100%;
-  max-height: 240px;
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
   border-radius: 10px;
   display: block;
   margin-top: 4px;
   cursor: pointer;
-  object-fit: contain;
 }
 .chat-voice-preview {
   display: flex;
@@ -3006,9 +3018,8 @@ img.chat-contact__avatar {
 }
 .image-lightbox__close {
   position: absolute;
-  bottom: max(12px, env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
   z-index: 2;
   width: 44px;
   height: 44px;

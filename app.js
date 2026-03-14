@@ -10464,10 +10464,13 @@ function initChat() {
     var html = messages.map(function (m, i) {
       var prev = i > 0 ? messages[i - 1] : null;
       var next = i < messages.length - 1 ? messages[i + 1] : null;
-      var sameUser = function (a, b) { return a && b && a.from === b.from; };
+      var sameUser = function (a, b) {
+        if (!a || !b || a.from == null || a.from === "" || b.from == null || b.from === "") return false;
+        return String(a.from) === String(b.from);
+      };
       var isFirstInGroup = !prev || !sameUser(prev, m);
       var isLastInGroup = !next || !sameUser(next, m);
-      var isOwn = myId && m.from === myId;
+      var isOwn = myId && String(m.from) === String(myId);
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var dataAttrs = "";
       if (isOwn && m.id) {
@@ -10920,6 +10923,9 @@ function initChat() {
     if (!generalMessages) return;
     var emptyEl = generalMessages.querySelector(".chat-empty");
     if (emptyEl) generalMessages.innerHTML = "";
+    var authAvatarEl = document.getElementById("authUserAvatar");
+    var myAvatarUrl = (authAvatarEl && authAvatarEl.src && authAvatarEl.src.indexOf("data:") !== 0 && authAvatarEl.src.indexOf("http") === 0) ? authAvatarEl.src : "";
+    var optAvatarEl = myAvatarUrl ? '<img class="chat-msg__avatar" src="' + escapeHtml(myAvatarUrl) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span>';
     var time = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     var replyBlock = replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(replyTo.fromName || "Игрок") + ":</strong> " + escapeHtml(String(replyTo.text || "").slice(0, 80)) + (String(replyTo.text || "").length > 80 ? "…" : "") + "</div>" : "";
     var textContent = "";
@@ -10927,7 +10933,7 @@ function initChat() {
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
-    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
     generalMessages.appendChild(wrap.firstElementChild);
@@ -11061,10 +11067,13 @@ function initChat() {
     var html = messages.map(function (m, i) {
       var prev = i > 0 ? messages[i - 1] : null;
       var next = i < messages.length - 1 ? messages[i + 1] : null;
-      var sameUser = function (a, b) { return a && b && a.from === b.from; };
+      var sameUser = function (a, b) {
+        if (!a || !b || a.from == null || a.from === "" || b.from == null || b.from === "") return false;
+        return String(a.from) === String(b.from);
+      };
       var isFirstInGroup = !prev || !sameUser(prev, m);
       var isLastInGroup = !next || !sameUser(next, m);
-      var isOwn = myId && m.from === myId;
+      var isOwn = myId && String(m.from) === String(myId);
       var cls = isOwn ? "chat-msg chat-msg--own" : "chat-msg chat-msg--other";
       var dataAttrs = "";
       if (isOwn && m.id) {
@@ -11230,6 +11239,9 @@ function initChat() {
     if (!messagesEl) return;
     var emptyEl = messagesEl.querySelector(".chat-empty");
     if (emptyEl) messagesEl.innerHTML = "";
+    var authAvatarEl = document.getElementById("authUserAvatar");
+    var myAvatarUrl = (authAvatarEl && authAvatarEl.src && authAvatarEl.src.indexOf("data:") !== 0 && authAvatarEl.src.indexOf("http") === 0) ? authAvatarEl.src : "";
+    var optAvatarEl = myAvatarUrl ? '<img class="chat-msg__avatar" src="' + escapeHtml(myAvatarUrl) + '" alt="" />' : '<span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span>';
     var time = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     var replyBlock = replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(replyTo.fromName || "Игрок") + ":</strong> " + escapeHtml(String(replyTo.text || "").slice(0, 80)) + (String(replyTo.text || "").length > 80 ? "…" : "") + "</div>" : "";
     var textContent = "";
@@ -11237,7 +11249,7 @@ function initChat() {
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
-    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row"><span class="chat-msg__avatar chat-msg__avatar--placeholder">' + (myChatName[0] || "Я") + '</span><div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+    var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="chat-msg__body"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
     messagesEl.appendChild(wrap.firstElementChild);
