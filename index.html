@@ -1203,7 +1203,7 @@
                     <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить" aria-haspopup="true" aria-expanded="false" aria-controls="chatGeneralAttachDropdown">📎</button>
                     <div class="chat-attach-dropdown chat-attach-dropdown--hidden" id="chatGeneralAttachDropdown" role="menu" aria-hidden="true">
                       <button type="button" class="chat-attach-dropdown__item" data-action="photo" role="menuitem">Фото</button>
-                      <button type="button" class="chat-attach-dropdown__item" data-action="document" role="menuitem">Документ PDF</button>
+                      <button type="button" class="chat-attach-dropdown__item" data-action="document" role="menuitem">PDF файл</button>
                     </div>
                   </div>
                   <textarea class="chat-input chat-input--textarea" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" rows="1" autocomplete="off"></textarea>
@@ -1248,8 +1248,15 @@
                       <button type="button" class="chat-voice-preview__send" id="chatPersonalVoiceSend" title="Отправить">↑</button>
                     </div>
                     <div class="chat-input-wrap">
-                      <input type="file" class="chat-input-file" id="chatPersonalFileInput" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" style="display:none" />
-                      <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить фото или PDF">📎</button>
+                      <div class="chat-attach-wrap">
+                        <input type="file" class="chat-input-file" id="chatPersonalFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
+                        <input type="file" class="chat-input-file" id="chatPersonalPdfInput" accept="application/pdf" style="display:none" aria-hidden="true" />
+                        <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить" aria-haspopup="true" aria-expanded="false" aria-controls="chatPersonalAttachDropdown">📎</button>
+                        <div class="chat-attach-dropdown chat-attach-dropdown--hidden" id="chatPersonalAttachDropdown" role="menu" aria-hidden="true">
+                          <button type="button" class="chat-attach-dropdown__item" data-action="photo" role="menuitem">Фото</button>
+                          <button type="button" class="chat-attach-dropdown__item" data-action="document" role="menuitem">PDF файл</button>
+                        </div>
+                      </div>
                       <textarea class="chat-input chat-input--textarea" id="chatInput" placeholder="Сообщение..." maxlength="500" rows="1" autocomplete="off"></textarea>
                       <button type="button" class="chat-emoji-btn" id="chatPersonalEmojiBtn" title="Смайлики" aria-label="Смайлики">😀</button>
                       <button type="button" class="chat-send-btn chat-send-btn--icon chat-send-btn--mic" id="chatSendBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>

@@ -12223,43 +12223,43 @@ function initChat() {
       if (p) { p.classList.remove("chat-reply-preview--visible"); p.querySelector(".chat-reply-preview__text").textContent = ""; }
     });
     var personalFileInput = document.getElementById("chatPersonalFileInput");
+    var personalPdfInput = document.getElementById("chatPersonalPdfInput");
     var personalAttachBtn = document.getElementById("chatPersonalAttachBtn");
+    var personalAttachDropdown = document.getElementById("chatPersonalAttachDropdown");
     var personalImagePreview = document.getElementById("chatPersonalImagePreview");
+    function closePersonalAttachDropdown() {
+      if (personalAttachDropdown) { personalAttachDropdown.classList.add("chat-attach-dropdown--hidden"); personalAttachDropdown.setAttribute("aria-hidden", "true"); }
+      if (personalAttachBtn) personalAttachBtn.setAttribute("aria-expanded", "false");
+      document.removeEventListener("click", personalAttachDropdownOutside);
+    }
+    function personalAttachDropdownOutside(e) {
+      if (personalAttachDropdown && !personalAttachDropdown.contains(e.target) && personalAttachBtn && !personalAttachBtn.contains(e.target)) closePersonalAttachDropdown();
+    }
     if (personalAttachBtn && personalFileInput) {
-      personalAttachBtn.addEventListener("click", function () { personalFileInput.click(); });
+      personalAttachBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (personalAttachDropdown && personalAttachDropdown.classList.contains("chat-attach-dropdown--hidden")) {
+          personalAttachDropdown.classList.remove("chat-attach-dropdown--hidden");
+          personalAttachDropdown.setAttribute("aria-hidden", "false");
+          personalAttachBtn.setAttribute("aria-expanded", "true");
+          setTimeout(function () { document.addEventListener("click", personalAttachDropdownOutside); }, 0);
+        } else closePersonalAttachDropdown();
+      });
+      if (personalAttachDropdown) {
+        personalAttachDropdown.querySelectorAll(".chat-attach-dropdown__item").forEach(function (item) {
+          item.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var action = item.getAttribute("data-action");
+            if (action === "photo") personalFileInput.click();
+            else if (action === "document" && personalPdfInput) personalPdfInput.click();
+            closePersonalAttachDropdown();
+          });
+        });
+      }
       personalFileInput.addEventListener("change", function () {
         var f = personalFileInput.files && personalFileInput.files[0];
-        if (!f) return;
-        if (f.type === "application/pdf") {
-          var maxPdfBytes = 8 * 1024 * 1024;
-          if (f.size > maxPdfBytes) {
-            if (tg && tg.showAlert) tg.showAlert("Файл слишком большой. Максимум 8 МБ.");
-            personalFileInput.value = "";
-            return;
-          }
-          var reader = new FileReader();
-          reader.onload = function () {
-            var dataUrl = reader.result;
-            if (dataUrl && typeof dataUrl === "string" && dataUrl.indexOf("data:application/pdf") === 0) {
-              personalDocument = { dataUrl: dataUrl, fileName: (f.name || "document.pdf").replace(/[^\w\s.-]/g, "") || "document.pdf" };
-              updatePersonalSendBtnIcon();
-              if (personalImagePreview) {
-                personalImagePreview.innerHTML = '<span class="chat-image-preview__doc">📄 ' + escapeHtml(personalDocument.fileName) + '</span><button type="button" class="chat-image-preview__remove">Убрать</button>';
-                personalImagePreview.classList.add("chat-image-preview--visible");
-                personalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
-                  personalDocument = null; personalFileInput.value = "";
-                  updatePersonalSendBtnIcon();
-                  personalImagePreview.classList.remove("chat-image-preview--visible"); personalImagePreview.innerHTML = "";
-                });
-              }
-            } else if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл");
-          };
-          reader.onerror = function () { if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл"); };
-          reader.readAsDataURL(f);
-          personalFileInput.value = "";
-          return;
-        }
-        if (!f.type.startsWith("image/")) return;
+        if (!f || !f.type.startsWith("image/")) return;
+        personalDocument = null;
         resizeImage(f, 800, 800, 0.88).then(function (dataUrl) {
           personalImage = dataUrl;
           updatePersonalSendBtnIcon();
@@ -12275,6 +12275,38 @@ function initChat() {
         }).catch(function () { if (tg && tg.showAlert) tg.showAlert("Не удалось обработать изображение"); });
         personalFileInput.value = "";
       });
+      if (personalPdfInput) {
+        personalPdfInput.addEventListener("change", function () {
+          var f = personalPdfInput.files && personalPdfInput.files[0];
+          if (!f || f.type !== "application/pdf") return;
+          if (f.size > 8 * 1024 * 1024) {
+            if (tg && tg.showAlert) tg.showAlert("Файл слишком большой. Максимум 8 МБ.");
+            personalPdfInput.value = "";
+            return;
+          }
+          personalImage = null;
+          var reader = new FileReader();
+          reader.onload = function () {
+            var dataUrl = reader.result;
+            if (dataUrl && typeof dataUrl === "string" && dataUrl.indexOf("data:application/pdf") === 0) {
+              personalDocument = { dataUrl: dataUrl, fileName: (f.name || "document.pdf").replace(/[^\w\s.-]/g, "") || "document.pdf" };
+              updatePersonalSendBtnIcon();
+              if (personalImagePreview) {
+                personalImagePreview.innerHTML = '<span class="chat-image-preview__doc">📄 ' + escapeHtml(personalDocument.fileName) + '</span><button type="button" class="chat-image-preview__remove">Убрать</button>';
+                personalImagePreview.classList.add("chat-image-preview--visible");
+                personalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
+                  personalDocument = null; personalPdfInput.value = "";
+                  updatePersonalSendBtnIcon();
+                  personalImagePreview.classList.remove("chat-image-preview--visible"); personalImagePreview.innerHTML = "";
+                });
+              }
+            } else if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл");
+          };
+          reader.onerror = function () { if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл"); };
+          reader.readAsDataURL(f);
+          personalPdfInput.value = "";
+        });
+      }
     }
     if (inputEl) {
       inputEl.addEventListener("input", function () { resizeChatTextarea(inputEl); updatePersonalSendBtnIcon(); });
