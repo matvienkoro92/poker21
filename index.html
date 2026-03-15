@@ -1100,16 +1100,24 @@
             <div id="springRatingSectionPlaceholder"></div>
           </div>
 
-          <!-- Чат: сначала список диалогов, затем чат клуба / личные -->
+          <!-- Чат: поиск → Чаты → клубный чат → Админы → Игроки -->
           <div class="view" data-view="chat">
             <div class="chat-dialogs-view" id="chatDialogsView">
+              <div class="chat-find-by-id chat-find-by-id--dialogs chat-find-by-id--top">
+                <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
+                <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
+              </div>
               <h2 class="chat-title--small">Чаты</h2>
               <div class="chat-dialogs-list">
-                <button type="button" class="chat-dialog-item chat-dialog-item--pinned" data-chat-type="club" id="chatDialogClub">
-                  <img class="chat-dialog-item__avatar" src="./assets/logo-two-aces.png" alt="" />
-                  <span class="chat-dialog-item__label">Чат клуба Два туза</span>
+                <button type="button" class="chat-dialog-item chat-dialog-item--club" data-chat-type="club" id="chatDialogClub">
+                  <img class="chat-dialog-item__avatar chat-dialog-item__avatar--club" src="./assets/logo-two-aces.png" alt="" />
+                  <span class="chat-dialog-item__club-wrap">
+                    <span class="chat-dialog-item__label">Чат клуба Два туза</span>
+                    <span class="chat-dialog-item__preview" id="chatDialogClubPreview">Загрузка…</span>
+                  </span>
                   <span class="chat-dialog-item__unread" id="chatDialogClubUnread" aria-hidden="true"></span>
                 </button>
+                <p class="chat-section-title">Админы</p>
                 <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна" data-chat-hours="06:00–18:00 мск" data-shift-start="6" data-shift-end="18">
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
@@ -1134,15 +1142,9 @@
                   <span class="chat-dialog-item__icon" aria-hidden="true">👤</span>
                   <span class="chat-dialog-item__label">Роман</span>
                 </button>
-                <div class="chat-find-by-id chat-find-by-id--dialogs">
-                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
-                  <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
-                </div>
-                <div class="chat-dialogs-section">
-                  <p class="chat-subtitle">Чаты с игроками</p>
-                  <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
-                    <p class="chat-empty">Загрузка...</p>
-                  </div>
+                <p class="chat-section-title">Игроки</p>
+                <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
+                  <p class="chat-empty">Загрузка...</p>
                 </div>
               </div>
             </div>

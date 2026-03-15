@@ -10176,6 +10176,8 @@ function initChat() {
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.add("chat-conv-view--hidden");
     generalView.style.display = "none";
+    if (window._chatGeneralCache && window._chatGeneralCache.messages && typeof updateClubChatPreview === "function") updateClubChatPreview(window._chatGeneralCache.messages);
+    else loadGeneral();
     loadContacts();
     updateAdminShiftOnline();
     updateChatHeaderStats();
@@ -10377,6 +10379,7 @@ function initChat() {
         }
         updateUnreadDots();
         if (typeof updateDialogUnreadBadges === "function") updateDialogUnreadBadges();
+        if (typeof updateClubChatPreview === "function") updateClubChatPreview(messages);
       } else if (chatActiveTab === "general" && generalMessages) {
         generalMessages.innerHTML = "<p class=\"chat-empty\">" + (data && data.error ? escapeHtml(data.error) : "Ошибка загрузки") + "</p>";
       }
@@ -11034,13 +11037,31 @@ function initChat() {
       clubEl.setAttribute("aria-hidden", n > 0 ? "false" : "true");
     }
     var adminUnread = window.chatAdminUnread || {};
-    dialogsView.querySelectorAll(".chat-dialog-item__unread[data-dialog-unread-for]").forEach(function (el) {
+    if (dialogsView) dialogsView.querySelectorAll(".chat-dialog-item__unread[data-dialog-unread-for]").forEach(function (el) {
       var id = el.getAttribute("data-dialog-unread-for");
       var n = id ? (adminUnread[id] || 0) : 0;
       el.textContent = n > 99 ? "99+" : (n > 0 ? String(n) : "");
       el.classList.toggle("chat-dialog-item__unread--visible", n > 0);
       el.setAttribute("aria-hidden", n > 0 ? "false" : "true");
     });
+  }
+
+  function updateClubChatPreview(messages) {
+    var el = document.getElementById("chatDialogClubPreview");
+    if (!el) return;
+    if (!messages || messages.length === 0) {
+      el.textContent = "Нет сообщений";
+      return;
+    }
+    var last = messages[messages.length - 1];
+    var name = (last.fromName || "Игрок").trim();
+    var snippet = "";
+    if (last.image) snippet = "[Фото]";
+    else if (last.voice) snippet = "[Голосовое]";
+    else if (last.document) snippet = "[Документ]";
+    else if (last.text) snippet = String(last.text).trim().replace(/\s+/g, " ").slice(0, 50);
+    if (snippet && snippet.length >= 50) snippet += "…";
+    el.textContent = snippet ? name + ": " + snippet : name;
   }
 
   function loadContacts() {
