@@ -8698,10 +8698,12 @@ function initRaffles() {
     }
   }
 
+  var raffleTicketTournamentWrap = document.getElementById("raffleTicketTournamentWrap");
   function buildTicketGroupInputs() {
     if (!raffleTicketGroupCount || !raffleTicketWinnersWrap || !raffleTicketGroups) return;
     var n = Math.max(1, Math.min(10, parseInt(raffleTicketGroupCount.value, 10) || 1));
     raffleTicketWinnersWrap.classList.toggle("raffle-ticket-winners-wrap--single", n === 1);
+    if (raffleTicketTournamentWrap) raffleTicketTournamentWrap.style.display = n === 1 ? "" : "none";
     if (n === 1) {
       raffleTicketGroups.innerHTML = "";
       return;
@@ -8710,7 +8712,15 @@ function initRaffles() {
     for (var i = 0; i < n; i++) {
       var div = document.createElement("div");
       div.className = "raffle-ticket-group-row";
-      div.innerHTML = "<label class=\"randomizer-label\"><span class=\"randomizer-label__text\">Группа " + (i + 1) + " — мест:</span><input type=\"number\" class=\"raffle-ticket-group-count randomizer-input\" min=\"0\" max=\"100\" value=\"1\" data-group-index=\"" + i + "\" /></label>";
+      var tournamentSelect = raffleTicketTournamentSelect ? raffleTicketTournamentSelect.cloneNode(true) : null;
+      if (tournamentSelect) {
+        tournamentSelect.removeAttribute("id");
+        tournamentSelect.className = "randomizer-input raffle-tournament-select raffle-ticket-group-tournament";
+        tournamentSelect.setAttribute("data-group-index", String(i));
+        tournamentSelect.setAttribute("aria-label", "Турнир для группы " + (i + 1));
+      }
+      var selectHtml = tournamentSelect ? tournamentSelect.outerHTML : "<select class=\"randomizer-input raffle-tournament-select raffle-ticket-group-tournament\" data-group-index=\"" + i + "\" aria-label=\"Турнир для группы " + (i + 1) + "\"><option value=\"\">— Выберите турнир —</option></select>";
+      div.innerHTML = "<label class=\"randomizer-label\"><span class=\"randomizer-label__text\">Группа " + (i + 1) + " — турнир:</span>" + selectHtml + "</label><label class=\"randomizer-label\"><span class=\"randomizer-label__text\">мест:</span><input type=\"number\" class=\"raffle-ticket-group-count randomizer-input\" min=\"0\" max=\"100\" value=\"1\" data-group-index=\"" + i + "\" /></label>";
       raffleTicketGroups.appendChild(div);
     }
     updateRaffleCreateTotal();
@@ -8874,13 +8884,27 @@ function initRaffles() {
         if (raffleTicketGroupCount && parseInt(raffleTicketGroupCount.value, 10) === 1) {
           var c = Math.max(0, parseInt(raffleTicketWinnersCount.value, 10) || 0);
           totalWinners = c;
-          if (c > 0) groups.push({ count: c, prize: prizeText });
+          var singleTournamentName = "";
+          if (raffleTicketTournamentSelect && raffleTicketTournamentSelect.selectedIndex >= 0) {
+            var singleOpt = raffleTicketTournamentSelect.options[raffleTicketTournamentSelect.selectedIndex];
+            singleTournamentName = (singleOpt && (singleOpt.getAttribute("data-name") || singleOpt.textContent || "").trim()) || "";
+          }
+          var singlePrize = prizeText + (singleTournamentName ? " — " + singleTournamentName : "");
+          if (c > 0) groups.push({ count: c, prize: singlePrize });
         } else if (raffleTicketGroups) {
-          var inputs = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-count");
-          for (var i = 0; i < inputs.length; i++) {
-            var cnt = Math.max(0, parseInt(inputs[i].value, 10) || 0);
+          var rows = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-row");
+          for (var i = 0; i < rows.length; i++) {
+            var countInput = rows[i].querySelector(".raffle-ticket-group-count");
+            var groupSelect = rows[i].querySelector(".raffle-ticket-group-tournament");
+            var cnt = countInput ? Math.max(0, parseInt(countInput.value, 10) || 0) : 0;
+            var groupTournamentName = "";
+            if (groupSelect && groupSelect.selectedIndex >= 0) {
+              var groupOpt = groupSelect.options[groupSelect.selectedIndex];
+              groupTournamentName = (groupOpt && (groupOpt.getAttribute("data-name") || groupOpt.textContent || "").trim()) || "";
+            }
+            var groupPrize = prizeText + (groupTournamentName ? " — " + groupTournamentName : "");
             totalWinners += cnt;
-            if (cnt > 0) groups.push({ count: cnt, prize: prizeText });
+            if (cnt > 0) groups.push({ count: cnt, prize: groupPrize });
           }
         }
         if (groups.length === 0) {

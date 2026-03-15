@@ -1601,6 +1601,7 @@
 
                 <!-- Форма: Розыгрыш билетов на турниры -->
                 <div class="raffle-create-form__panel raffle-create-form__panel--tickets" id="raffleCreatePanelTickets">
+                  <div class="raffle-ticket-tournament-wrap" id="raffleTicketTournamentWrap">
                   <label class="randomizer-label">
                     <span class="randomizer-label__text">Турнир из расписания:</span>
                     <select id="raffleTicketTournamentSelect" class="randomizer-input raffle-tournament-select" aria-label="Выберите турнир">
@@ -1626,6 +1627,7 @@
                       <option value="custom">Свой вариант (ввести вручную)</option>
                     </select>
                   </label>
+                  </div>
                   <label class="randomizer-label raffle-ticket-amount-wrap" id="raffleTicketAmountWrap">
                     <span class="randomizer-label__text">Сумма каждого билета (₽):</span>
                     <input type="number" id="raffleTicketAmount" class="randomizer-input" min="0" step="1" value="0" />

@@ -6196,7 +6196,8 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffle-ticket-winners-wrap--single .raffle-ticket-groups { display: none; }
 .raffle-ticket-winners-wrap:not(.raffle-ticket-winners-wrap--single) .raffle-ticket-single-winners { display: none; }
 .raffle-ticket-groups { display: flex; flex-direction: column; gap: 8px; }
-.raffle-ticket-group-row { display: flex; align-items: center; gap: 8px; }
+.raffle-ticket-group-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.raffle-ticket-group-row .raffle-tournament-select { min-width: 180px; }
 .raffle-create-form__total { margin: 8px 0 0; font-size: 15px; font-weight: 600; color: var(--accent-2); }
 .raffle-groups { display: flex; flex-direction: column; gap: 8px; }
 .raffle-group-row { display: flex; flex-direction: column; gap: 4px; }

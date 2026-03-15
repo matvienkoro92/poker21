@@ -2009,7 +2009,8 @@ var SPRING_RATING_IMAGES_LEAGUE1 = {
   "10.03.2026": ["rating-10-03-2026-1.png", "rating-10-03-2026-2.png", "rating-10-03-2026-3.png", "rating-10-03-2026-4.png", "rating-10-03-2026-5.png", "rating-10-03-2026-6.png", "rating-10-03-2026-7.png"],
   "11.03.2026": ["rating-11-03-2026-1.png", "rating-11-03-2026-2.png", "rating-11-03-2026-3.png", "rating-11-03-2026-4.png", "rating-11-03-2026-5.png", "rating-11-03-2026-6.png"],
   "12.03.2026": ["rating-12-03-2026-1.png", "rating-12-03-2026-2.png", "rating-12-03-2026-3.png", "rating-12-03-2026-4.png", "rating-12-03-2026-5.png", "rating-12-03-2026-6.png", "rating-12-03-2026-7.png"],
-  "13.03.2026": ["rating-13-03-2026-1.png", "rating-13-03-2026-2.png", "rating-13-03-2026-3.png", "rating-13-03-2026-4.png", "rating-13-03-2026-5.png"]
+  "13.03.2026": ["rating-13-03-2026-1.png", "rating-13-03-2026-2.png", "rating-13-03-2026-3.png", "rating-13-03-2026-4.png", "rating-13-03-2026-5.png"],
+  "14.03.2026": ["rating-14-03-2026-1.png", "rating-14-03-2026-2.png"]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
   "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
@@ -2024,9 +2025,10 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "10.03.2026": ["rating-10-03-2026-league2-1.png", "rating-10-03-2026-league2-2.png", "rating-10-03-2026-league2-3.png"],
   "11.03.2026": ["rating-11-03-2026-league2-1.png", "rating-11-03-2026-league2-2.png", "rating-11-03-2026-league2-3.png", "rating-11-03-2026-league2-4.png"],
   "12.03.2026": ["rating-12-03-2026-league2-1.png", "rating-12-03-2026-league2-2.png"],
-  "13.03.2026": ["rating-13-03-2026-league2-1.png", "rating-13-03-2026-league2-2.png", "rating-13-03-2026-league2-3.png"]
+  "13.03.2026": ["rating-13-03-2026-league2-1.png", "rating-13-03-2026-league2-2.png", "rating-13-03-2026-league2-3.png"],
+  "14.03.2026": []
 };
-var SPRING_RATING_UPDATED = "13.03.2026";
+var SPRING_RATING_UPDATED = "14.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "01.03.2026": [
     { time: "10:00", buyin: 500, players: [{ nick: "asianflushie", place: 0, reward: 4989 }] },
@@ -2286,5 +2288,9 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "20:00", name: "Hyper Turbo 300", buyin: 300, league: 2, players: [{ nick: "Sarmat1305", place: 4, reward: 7791 }, { nick: "allex 1983", place: 27, reward: 550 }, { nick: "Стифмастер", place: 0, reward: 0 }, { nick: "Бабник", place: 0, reward: 0 }, { nick: "cheb43", place: 42, reward: 0 }] },
     { time: "21:00", name: "MOK MTT", buyin: 18000, league: 2, players: [{ nick: "Грек777", place: 2, reward: 6010 }, { nick: "PlayerHyeEr", place: 4, reward: 1160 }, { nick: "DiagPro161", place: 5, reward: 940 }, { nick: "Mr.V", place: 6, reward: 840 }, { nick: "Prokopenya", place: 7, reward: 0 }] },
     { time: "23:00", name: "Night magic 100K", buyin: 100000, league: 1, players: [{ nick: "nikola233", place: 3, reward: 9276 }, { nick: "siropchik", place: 9, reward: 1628 }, { nick: "Фокс", place: 11, reward: 0 }, { nick: "nachyn", place: 0, reward: 0 }, { nick: "Asta la Vista", place: 0, reward: 0 }] }
+  ],
+  "14.03.2026": [
+    { time: "12:00", name: "DV Rebuy", buyin: 23200, league: 1, players: [{ nick: "Waaar", place: 1, reward: 16600 }, { nick: "FrankL", place: 8, reward: 0 }, { nick: "Aigulchik", place: 9, reward: 0 }, { nick: "WB@._", place: 11, reward: 0 }, { nick: "Malek3084", place: 14, reward: 0 }] },
+    { time: "20:00", name: "HOK Magic", buyin: 35000, league: 1, players: [{ nick: "Waaar", place: 1, reward: 32000 }, { nick: "WiNifly", place: 2, reward: 36000 }, { nick: "γύψος", place: 5, reward: 3800 }, { nick: "Mr.V", place: 6, reward: 3400 }, { nick: "Malek3084", place: 7, reward: 0 }] }
   ]
 };
