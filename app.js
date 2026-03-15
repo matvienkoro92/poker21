@@ -8369,6 +8369,13 @@ function initRaffles() {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  /** Подмена старого «билет» на «беккинг-билет» при отображении (для данных из БД до переименования). */
+  function raffleDisplayPrizeText(s) {
+    if (s == null || typeof s !== "string") return s;
+    var ph = "\x01BECKING_PH\x02";
+    return s.replace(/беккинг-билет/gi, ph).replace(/Билет/g, "Беккинг-билет").replace(/билет/g, "беккинг-билет").split(ph).join("беккинг-билет");
+  }
+
   function buildRaffleWinnerRowHtml(w, raffleId, isAdmin) {
     var uid = (w.userId || "").replace(/"/g, "&quot;");
     var status = w.winnerStatus;
@@ -8500,7 +8507,7 @@ function initRaffles() {
     groups.forEach(function (g, i) {
       var cnt = g.count != null ? parseInt(g.count, 10) : 0;
       var cntStr = isNaN(cnt) ? "0" : String(cnt);
-      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + " (" + cntStr + " побед.): " + escapeHtml(g.prize || "—") + "</div>";
+      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + " (" + cntStr + " побед.): " + escapeHtml(raffleDisplayPrizeText(g.prize || "—")) + "</div>";
     });
     rafflePrizes.innerHTML = prizesHtml || "<p class=\"raffle-no-prizes\">Призы не указаны</p>";
     var me = getMyUserId();
@@ -8539,7 +8546,7 @@ function initRaffles() {
       var winHtml = "";
       Object.keys(byGroup).forEach(function (g) {
         var prize = byGroup[g][0] && byGroup[g][0].prize ? byGroup[g][0].prize : "";
-        winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(prize) : "") + "</strong><ul>";
+        winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(raffleDisplayPrizeText(prize)) : "") + "</strong><ul>";
         byGroup[g].forEach(function (w) {
           winHtml += buildRaffleWinnerRowHtml(w, raffle.id, rafflesIsAdmin);
         });
@@ -8732,7 +8739,7 @@ function initRaffles() {
               var winHtml = "";
               Object.keys(byGroup).forEach(function (g) {
                 var prize = byGroup[g][0] && byGroup[g][0].prize ? byGroup[g][0].prize : "";
-                winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(prize) : "") + "</strong><ul>";
+                winHtml += "<li class=\"raffle-winner-group\"><strong>" + escapeHtml(g) + (prize ? ": " + escapeHtml(raffleDisplayPrizeText(prize)) : "") + "</strong><ul>";
                 byGroup[g].forEach(function (w) {
                   winHtml += buildRaffleWinnerRowHtml(w, raffle.id, rafflesIsAdmin);
                 });
@@ -9043,7 +9050,7 @@ function initRaffles() {
       var groups = raffle.groups || [];
       var total = raffle.totalWinners || 0;
       var totalPrize = getRaffleTotalPrize(raffle);
-      var tournamentName = (raffle.title || (groups[0] && groups[0].prize) || "").trim() || "турнир клуба";
+      var tournamentName = raffleDisplayPrizeText((raffle.title || (groups[0] && groups[0].prize) || "").trim()) || "турнир клуба";
       var appEl = document.getElementById("app");
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");

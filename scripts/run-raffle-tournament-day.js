@@ -41,7 +41,7 @@ const body = {
   action: "create",
   totalWinners: 5,
   title: "5 беккинг-билетов на турнир дня (500₽)",
-  groups: [{ count: 5, prize: "Билет на турнир дня (500₽)" }],
+  groups: [{ count: 5, prize: "Беккинг-билет на турнир дня (500₽)" }],
   endDate: endDate.toISOString(),
 };
 
