@@ -1901,18 +1901,26 @@ if (tg) {
   tg.ready();
   if (tg.expand) tg.expand();
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
-  // При открытии по ссылке (t.me/bot/AppName) на части устройств приложение открывается в компактном виде.
-  // Повторные вызовы expand() с задержкой и при смене viewport помогают развернуть на полный экран.
+  // По ссылке t.me/Poker_dvatuza_bot/DvaTuza всегда открываем в полный экран.
+  // Повторные вызовы expand() с задержкой и при событиях помогают развернуть на части устройств.
   function tryExpand() {
-    if (tg.expand && (!tg.isExpanded)) tg.expand();
+    if (tg.expand) tg.expand();
   }
   setTimeout(tryExpand, 100);
   setTimeout(tryExpand, 400);
+  setTimeout(tryExpand, 800);
+  setTimeout(tryExpand, 1500);
   if (tg.onEvent && typeof tg.onEvent === "function") {
     tg.onEvent("viewportChanged", function (e) {
       if (e && e.isStateStable) tryExpand();
     });
   }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") tryExpand();
+  });
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) tryExpand();
+  });
   document.addEventListener("click", function expandOnFirstClick() {
     tryExpand();
     document.removeEventListener("click", expandOnFirstClick);
@@ -11294,8 +11302,7 @@ function initChat() {
             function openContact() {
               openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
             }
-            if (typeof bindChatDialogTap === "function") bindChatDialogTap(btn, openContact);
-            else { btn.addEventListener("click", openContact); }
+            btn.addEventListener("click", openContact);
           });
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
