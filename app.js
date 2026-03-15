@@ -11113,7 +11113,10 @@ function initChat() {
     var optVoice = generalVoice || null;
     var optDocument = generalDocument ? { dataUrl: generalDocument.dataUrl, fileName: generalDocument.fileName } : null;
     var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
-    if (generalInput) generalInput.value = "";
+    if (generalInput) {
+      generalInput.value = "";
+      generalInput.blur();
+    }
     generalReplyTo = null;
     generalImage = null;
     generalDocument = null;
@@ -11562,7 +11565,10 @@ function initChat() {
     var optVoice = personalVoice || null;
     var optDocument = personalDocument ? { dataUrl: personalDocument.dataUrl, fileName: personalDocument.fileName } : null;
     var optReply = personalReplyTo ? { fromName: personalReplyTo.fromName || "Игрок", text: personalReplyTo.text || "" } : null;
-    if (inputEl) inputEl.value = "";
+    if (inputEl) {
+      inputEl.value = "";
+      inputEl.blur();
+    }
     personalReplyTo = null;
     personalImage = null;
     personalDocument = null;
