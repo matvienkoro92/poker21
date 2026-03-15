@@ -9818,6 +9818,10 @@ function initChat() {
   var chatGeneralBackBtn = document.getElementById("chatGeneralBackBtn");
   var chatDialogClub = document.getElementById("chatDialogClub");
   var convTitle = document.getElementById("chatConvTitle");
+  var convTitleIdWrap = document.getElementById("chatConvTitleIdWrap");
+  var convTitleId = document.getElementById("chatConvTitleId");
+  var convTitleCopy = document.getElementById("chatConvTitleCopy");
+  var CHAT_ADMIN_IDS = ["tg_2144406710", "tg_1897001087", "tg_roman"];
   var messagesEl = document.getElementById("chatMessages");
   var inputEl = document.getElementById("chatInput");
   var sendBtn = document.getElementById("chatSendBtn");
@@ -11024,6 +11028,21 @@ function initChat() {
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     if (convTitle) convTitle.textContent = userName || userId;
+    if (convTitleIdWrap && convTitleId && convTitleCopy) {
+      var isAdmin = CHAT_ADMIN_IDS.indexOf(userId) !== -1;
+      if (isAdmin) {
+        convTitleIdWrap.classList.remove("chat-conv-title__id-wrap--hidden");
+        convTitleId.textContent = userId.replace(/^tg_/, "") || userId;
+        convTitleCopy.onclick = function () {
+          var toCopy = userId;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(toCopy).then(function () { if (tg && tg.showAlert) tg.showAlert("ID скопирован"); }, function () { if (tg && tg.showAlert) tg.showAlert("Не удалось скопировать"); });
+          } else { if (tg && tg.showAlert) tg.showAlert("Копирование недоступно"); }
+        };
+      } else {
+        convTitleIdWrap.classList.add("chat-conv-title__id-wrap--hidden");
+      }
+    }
     updateChatHeaderStats();
     loadMessages();
   }
@@ -11581,9 +11600,37 @@ function initChat() {
     }
     var generalFileInput = document.getElementById("chatGeneralFileInput");
     var generalAttachBtn = document.getElementById("chatGeneralAttachBtn");
+    var generalAttachDropdown = document.getElementById("chatGeneralAttachDropdown");
     var generalImagePreview = document.getElementById("chatGeneralImagePreview");
+    function closeGeneralAttachDropdown() {
+      if (generalAttachDropdown) { generalAttachDropdown.classList.add("chat-attach-dropdown--hidden"); generalAttachDropdown.setAttribute("aria-hidden", "true"); }
+      if (generalAttachBtn) generalAttachBtn.setAttribute("aria-expanded", "false");
+      document.removeEventListener("click", generalAttachDropdownOutside);
+    }
+    function generalAttachDropdownOutside(e) {
+      if (generalAttachDropdown && !generalAttachDropdown.contains(e.target) && generalAttachBtn && !generalAttachBtn.contains(e.target)) closeGeneralAttachDropdown();
+    }
     if (generalAttachBtn && generalFileInput) {
-      generalAttachBtn.addEventListener("click", function () { generalFileInput.click(); });
+      generalAttachBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (generalAttachDropdown && generalAttachDropdown.classList.contains("chat-attach-dropdown--hidden")) {
+          generalAttachDropdown.classList.remove("chat-attach-dropdown--hidden");
+          generalAttachDropdown.setAttribute("aria-hidden", "false");
+          generalAttachBtn.setAttribute("aria-expanded", "true");
+          setTimeout(function () { document.addEventListener("click", generalAttachDropdownOutside); }, 0);
+        } else closeGeneralAttachDropdown();
+      });
+      if (generalAttachDropdown) {
+        generalAttachDropdown.querySelectorAll(".chat-attach-dropdown__item").forEach(function (item) {
+          item.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var action = item.getAttribute("data-action");
+            if (action === "photo") generalFileInput.click();
+            else if (action === "contact" && typeof openConvFromDialogs === "function") openConvFromDialogs(item.getAttribute("data-user-id"), item.getAttribute("data-user-name"));
+            closeGeneralAttachDropdown();
+          });
+        });
+      }
       generalFileInput.addEventListener("change", function () {
         var f = generalFileInput.files && generalFileInput.files[0];
         if (!f || !f.type.startsWith("image/")) return;
@@ -12058,6 +12105,8 @@ function initChat() {
   updateAdminShiftOnline();
 
   if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
+  var chatGeneralAdminsBtn = document.getElementById("chatGeneralAdminsBtn");
+  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () { setTab("admins"); });
   if (chatDialogClub) {
     chatDialogClub.addEventListener("click", function (e) {
       if (chatDialogClub._chatClubHandledInTouchend) {
@@ -12116,6 +12165,67 @@ function initChat() {
     });
   }
   if (findByIdBtnDialogs && findByIdInputDialogs) {
+    var suggestEl = document.getElementById("chatFindSuggest");
+    var suggestListEl = document.getElementById("chatFindSuggestList");
+    var findSuggestDebounce = null;
+    var lastSuggestions = [];
+
+    function hideSuggest() {
+      if (suggestEl) {
+        suggestEl.classList.add("chat-find-suggest--hidden");
+        suggestEl.setAttribute("aria-hidden", "true");
+        if (findByIdInputDialogs) findByIdInputDialogs.setAttribute("aria-expanded", "false");
+      }
+      lastSuggestions = [];
+    }
+    function showSuggest(items) {
+      lastSuggestions = items || [];
+      if (!suggestListEl || !suggestEl) return;
+      if (!items || items.length === 0) {
+        hideSuggest();
+        return;
+      }
+      suggestListEl.innerHTML = items.map(function (s) {
+        var name = (s.userName || s.userId || "").replace(/^@/, "");
+        return '<button type="button" class="chat-find-suggest__item" data-user-id="' + escapeHtml(s.userId) + '" data-user-name="' + escapeHtml(s.userName || s.userId) + '">' + escapeHtml(s.userName || s.userId) + '</button>';
+      }).join("");
+      suggestEl.classList.remove("chat-find-suggest--hidden");
+      suggestEl.setAttribute("aria-hidden", "false");
+      if (findByIdInputDialogs) findByIdInputDialogs.setAttribute("aria-expanded", "true");
+      suggestListEl.querySelectorAll(".chat-find-suggest__item").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          openConvFromDialogs(btn.dataset.userId, btn.dataset.userName);
+          findByIdInputDialogs.value = "";
+          hideSuggest();
+        });
+      });
+    }
+    function fetchSuggest() {
+      var raw = (findByIdInputDialogs.value || "").trim().replace(/^@/, "");
+      if (raw.length < 1) { hideSuggest(); return; }
+      var byId = /^\d{6}$/.test(raw) || /^ID\d{6}$/i.test(raw);
+      if (byId) { hideSuggest(); return; }
+      var url = base + "/api/users?username=" + encodeURIComponent(raw) + "&suggest=1&initData=" + encodeURIComponent(initData);
+      fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+        if (data && data.ok && Array.isArray(data.suggestions)) showSuggest(data.suggestions);
+        else hideSuggest();
+      }).catch(function () { hideSuggest(); });
+    }
+
+    findByIdInputDialogs.addEventListener("input", function () {
+      clearTimeout(findSuggestDebounce);
+      var raw = (findByIdInputDialogs.value || "").trim();
+      if (raw.length < 1) { hideSuggest(); return; }
+      findSuggestDebounce = setTimeout(fetchSuggest, 280);
+    });
+    findByIdInputDialogs.addEventListener("focus", function () {
+      if (lastSuggestions.length) showSuggest(lastSuggestions);
+    });
+    findByIdInputDialogs.addEventListener("blur", function () {
+      setTimeout(hideSuggest, 220);
+    });
+    if (suggestEl) suggestEl.addEventListener("mousedown", function (e) { e.preventDefault(); });
+
     function findByIdAndOpenDialogs() {
       var raw = (findByIdInputDialogs.value || "").trim();
       var idPart = raw.replace(/^@/, "").toUpperCase();
@@ -12127,11 +12237,12 @@ function initChat() {
       } else {
         var nick = raw.replace(/^@/, "").trim();
         if (!nick) {
-          if (tg && tg.showAlert) tg.showAlert("Введите ID (ID123456) или ник (@username)");
+          if (tg && tg.showAlert) tg.showAlert("Введите ID (ID123456) или ник в Telegram");
           return;
         }
         url = base + "/api/users?username=" + encodeURIComponent(nick) + "&initData=" + encodeURIComponent(initData);
       }
+      hideSuggest();
       findByIdBtnDialogs.disabled = true;
       fetch(url)
         .then(function (r) { return r.json(); })
@@ -12148,7 +12259,16 @@ function initChat() {
     }
     findByIdBtnDialogs.addEventListener("click", findByIdAndOpenDialogs);
     findByIdInputDialogs.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") { e.preventDefault(); findByIdAndOpenDialogs(); }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (suggestEl && !suggestEl.classList.contains("chat-find-suggest--hidden") && lastSuggestions.length > 0) {
+          openConvFromDialogs(lastSuggestions[0].userId, lastSuggestions[0].userName || lastSuggestions[0].userId);
+          findByIdInputDialogs.value = "";
+          hideSuggest();
+        } else {
+          findByIdAndOpenDialogs();
+        }
+      }
     });
   }
 

@@ -1104,7 +1104,12 @@
           <div class="view" data-view="chat">
             <div class="chat-dialogs-view" id="chatDialogsView">
               <div class="chat-find-by-id chat-find-by-id--dialogs chat-find-by-id--top">
-                <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или @ник в тг" maxlength="35" autocomplete="off" />
+                <div class="chat-find-input-wrap">
+                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или ник в тг" maxlength="35" autocomplete="off" aria-autocomplete="list" aria-controls="chatFindSuggestList" aria-expanded="false" />
+                  <div class="chat-find-suggest chat-find-suggest--hidden" id="chatFindSuggest" role="listbox" aria-hidden="true">
+                    <div class="chat-find-suggest__list" id="chatFindSuggestList"></div>
+                  </div>
+                </div>
                 <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
               </div>
               <h2 class="chat-title--small">Чаты</h2>
@@ -1121,20 +1126,28 @@
                 <button type="button" class="chat-dialog-item" data-chat-user-id="tg_2144406710" data-chat-user-name="Анна" data-chat-hours="06:00–18:00 мск" data-shift-start="6" data-shift-end="18">
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
-                    <span class="chat-dialog-item__label">Анна</span>
-                    <span class="chat-dialog-item__role">админ</span>
-                    <span class="chat-dialog-item__hours">06:00–18:00 мск</span>
-                    <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
+                    <span class="chat-dialog-item__label-block">
+                      <span class="chat-dialog-item__label">Анна</span>
+                      <span class="chat-dialog-item__role">админ</span>
+                    </span>
+                    <span class="chat-dialog-item__right">
+                      <span class="chat-dialog-item__hours">06:00–18:00 мск</span>
+                      <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
+                    </span>
                   </span>
                   <span class="chat-dialog-item__unread" data-dialog-unread-for="tg_2144406710" aria-hidden="true"></span>
                 </button>
                 <button type="button" class="chat-dialog-item" data-chat-user-id="tg_1897001087" data-chat-user-name="Вика" data-chat-hours="18:00–02:00 мск" data-shift-start="18" data-shift-end="2">
                   <img class="chat-dialog-item__avatar" src="./assets/dep-manager-vika.png" alt="" />
                   <span class="chat-dialog-item__label-wrap">
-                    <span class="chat-dialog-item__label">Вика</span>
-                    <span class="chat-dialog-item__role">админ</span>
-                    <span class="chat-dialog-item__hours">18:00–02:00 мск</span>
-                    <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
+                    <span class="chat-dialog-item__label-block">
+                      <span class="chat-dialog-item__label">Вика</span>
+                      <span class="chat-dialog-item__role">админ</span>
+                    </span>
+                    <span class="chat-dialog-item__right">
+                      <span class="chat-dialog-item__hours">18:00–02:00 мск</span>
+                      <span class="chat-dialog-item__online" aria-label="онлайн">онлайн</span>
+                    </span>
                   </span>
                   <span class="chat-dialog-item__unread" data-dialog-unread-for="tg_1897001087" aria-hidden="true"></span>
                 </button>
@@ -1149,7 +1162,10 @@
               </div>
             </div>
             <div class="chat-general-view chat-general-view--hidden" id="chatGeneralView">
-              <button type="button" class="chat-back-btn" id="chatGeneralBackBtn">← К чатам</button>
+              <div class="chat-general-header">
+                <button type="button" class="chat-back-btn" id="chatGeneralBackBtn">← К чатам</button>
+                <button type="button" class="chat-general-admins-btn" id="chatGeneralAdminsBtn" title="Написать админам">Написать админам</button>
+              </div>
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
               </div>
@@ -1166,8 +1182,15 @@
                   <button type="button" class="chat-voice-preview__send" id="chatGeneralVoiceSend" title="Отправить">↑</button>
                 </div>
                 <div class="chat-input-wrap">
-                  <input type="file" class="chat-input-file" id="chatGeneralFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
-                  <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить картинку">📎</button>
+                  <div class="chat-attach-wrap">
+                    <input type="file" class="chat-input-file" id="chatGeneralFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
+                    <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить" aria-haspopup="true" aria-expanded="false" aria-controls="chatGeneralAttachDropdown">📎</button>
+                    <div class="chat-attach-dropdown chat-attach-dropdown--hidden" id="chatGeneralAttachDropdown" role="menu" aria-hidden="true">
+                      <button type="button" class="chat-attach-dropdown__item" data-action="photo" role="menuitem">Фото</button>
+                      <button type="button" class="chat-attach-dropdown__item" data-action="contact" data-user-id="tg_2144406710" data-user-name="Анна" role="menuitem">Аня</button>
+                      <button type="button" class="chat-attach-dropdown__item" data-action="contact" data-user-id="tg_1897001087" data-user-name="Вика" role="menuitem">Вика</button>
+                    </div>
+                  </div>
                   <textarea class="chat-input chat-input--textarea" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" rows="1" autocomplete="off"></textarea>
                   <button type="button" class="chat-emoji-btn" id="chatGeneralEmojiBtn" title="Смайлики" aria-label="Смайлики">😀</button>
                   <button type="button" class="chat-send-btn chat-send-btn--icon chat-send-btn--mic" id="chatGeneralSendBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>
@@ -1187,7 +1210,13 @@
               </div>
               <div class="chat-conv-view chat-conv-view--hidden" id="chatConvView">
                 <button type="button" class="chat-back-btn" id="chatBackBtn">← Назад</button>
-                <h2 class="chat-title--small" id="chatConvTitle">Чат</h2>
+                <div class="chat-conv-header">
+                  <h2 class="chat-title--small" id="chatConvTitle">Чат</h2>
+                  <span class="chat-conv-title__id-wrap chat-conv-title__id-wrap--hidden" id="chatConvTitleIdWrap">
+                    <span class="chat-conv-title__id" id="chatConvTitleId"></span>
+                    <button type="button" class="chat-conv-title__copy" id="chatConvTitleCopy" title="Копировать ID">Копировать</button>
+                  </span>
+                </div>
                 <div class="chat-container">
                   <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
                     <p class="chat-empty">Загрузка...</p>
