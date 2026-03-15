@@ -7045,6 +7045,7 @@ document.addEventListener("click", function (e) {
 var viewHandledInTouchend = false;
 
 function handleViewLinkClick(e) {
+  if (e.target && e.target.closest && e.target.closest("#chatDialogsView")) return;
   if (viewHandledInTouchend) {
     viewHandledInTouchend = false;
     e.preventDefault();
@@ -11298,11 +11299,6 @@ function initChat() {
             return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
           }).join("");
           updateDialogUnreadBadges();
-          contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
-            btn.addEventListener("click", function () {
-              openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
-            });
-          });
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
               var contact = this.closest(".chat-contact");
@@ -12399,12 +12395,23 @@ function initChat() {
     }
   }
 
-  if (chatDialogClub) {
-    chatDialogClub.addEventListener("click", function () { openClubChat(); });
-  }
   if (dialogsView) {
-    dialogsView.querySelectorAll(".chat-dialog-item[data-chat-user-id]").forEach(function (btn) {
-      btn.addEventListener("click", function () { runDialogActionForBtn(btn); });
+    dialogsView.addEventListener("click", function (e) {
+      var el = e.target && e.target.closest ? e.target.closest(".chat-dialog-item--club, .chat-dialog-item[data-chat-user-id], .chat-contact") : null;
+      if (!el || !dialogsView.contains(el)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (el.classList && el.classList.contains("chat-dialog-item--club")) {
+        openClubChat();
+        return;
+      }
+      if (el.classList && el.classList.contains("chat-contact") && el.dataset.chatId) {
+        openConvFromDialogs(el.dataset.chatId, el.dataset.chatName);
+        return;
+      }
+      if (el.getAttribute && el.getAttribute("data-chat-user-id")) {
+        runDialogActionForBtn(el);
+      }
     });
   }
   if (findByIdBtnDialogs && findByIdInputDialogs) {
