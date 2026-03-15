@@ -927,6 +927,21 @@ html.app-view-home .card .card__content {
   padding-left: 0;
   padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
 }
+/* При вводе сообщения (клавиатура открыта) скрываем верхнее и нижнее меню — окно чата на всю высоту */
+body.chat-keyboard-open .bottom-nav {
+  display: none !important;
+}
+body.chat-keyboard-open .card__header {
+  display: none !important;
+}
+body.chat-keyboard-open .view--active[data-view="chat"] .chat-input-area,
+body.chat-keyboard-open .chat-general-view .chat-input-area,
+body.chat-keyboard-open .chat-container .chat-input-area {
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+body.chat-keyboard-open .app {
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
 .chat-switcher-row {
   display: flex;
   justify-content: center;

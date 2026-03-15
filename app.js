@@ -266,6 +266,46 @@ function getAssetUrl(relativePath) {
       window.open(link.href, "_blank", "noopener,noreferrer");
     }
   });
+
+  document.body.addEventListener("click", function (e) {
+    var link = e.target && e.target.closest ? e.target.closest("a.chat-msg__document-link") : null;
+    if (!link || !link.href) return;
+    var href = link.getAttribute("href");
+    if (!href || href.indexOf("data:") !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var fileName = link.getAttribute("download") || "document.pdf";
+    var isDownload = link.hasAttribute("download");
+    if (isDownload) {
+      try {
+        var m = href.match(/^data:([^;]+);base64,(.+)$/);
+        if (m && m[2]) {
+          var binary = atob(m[2]);
+          var arr = new Uint8Array(binary.length);
+          for (var i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+          var blob = new Blob([arr], { type: (m[1] || "application/pdf").split(";")[0] });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = fileName || "document.pdf";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      } catch (err) {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) window.Telegram.WebApp.showAlert("Не удалось скачать. Попробуйте ещё раз.");
+      }
+    } else {
+      var w = window.open(href, "_blank", "noopener,noreferrer");
+      if (!w) {
+        try { window.location.href = href; } catch (ignore) {}
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+          window.Telegram.WebApp.showAlert("Нажмите «Скачать» и откройте файл в приложении для PDF.");
+        }
+      }
+    }
+  });
 })();
 
 (function initSpringRatingLeagueTabs() {
@@ -11492,6 +11532,7 @@ function initChat() {
           window.chatPersonalUnread = true;
           window.chatPersonalUnreadCount = unreadCount > 0 ? unreadCount : 1;
         } else {
+          window.chatPersonalUnread = false;
           window.chatPersonalUnreadCount = 0;
         }
         if (Array.isArray(messages) && !chatIsEditingMessage) {
@@ -11687,6 +11728,27 @@ function initChat() {
   if (!chatListenersAttached) {
     chatListenersAttached = true;
     window.chatListenersAttached = true;
+    (function () {
+      function setChatKeyboardOpen(open) {
+        if (open) document.body.classList.add("chat-keyboard-open");
+        else document.body.classList.remove("chat-keyboard-open");
+      }
+      function onChatInputFocus() { setChatKeyboardOpen(true); }
+      function onChatInputBlur() {
+        setTimeout(function () {
+          var active = document.activeElement;
+          if (active !== generalInput && active !== inputEl) setChatKeyboardOpen(false);
+        }, 0);
+      }
+      if (generalInput) {
+        generalInput.addEventListener("focus", onChatInputFocus);
+        generalInput.addEventListener("blur", onChatInputBlur);
+      }
+      if (inputEl) {
+        inputEl.addEventListener("focus", onChatInputFocus);
+        inputEl.addEventListener("blur", onChatInputBlur);
+      }
+    })();
     window.chatRefresh = function () {
       if (chatActiveTab === "general" && generalMessages && window._chatGeneralCache && window._chatGeneralCache.messages && window._chatGeneralCache.messages.length) {
         renderGeneralMessages(window._chatGeneralCache.messages);
