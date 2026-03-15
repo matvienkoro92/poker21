@@ -3516,17 +3516,19 @@ img.chat-contact__avatar {
 .chat-dialog-item__unread,
 .chat-contact__unread {
   display: none;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
   background: var(--accent, #a855f7);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 20px;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 .chat-dialog-item__unread.chat-dialog-item__unread--visible,
 .chat-contact__unread.chat-contact__unread--visible {

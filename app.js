@@ -10149,6 +10149,7 @@ function initChat() {
       if (personalView) personalView.classList.add("chat-personal-view--hidden");
       if (adminsView) adminsView.classList.add("chat-admins-view--hidden");
       window.chatGeneralUnread = false;
+      scrollGeneralToBottomOnNextRender = true;
       loadGeneral();
     } else if (tab === "personal") {
       if (!chatWithUserId) {
@@ -10160,6 +10161,7 @@ function initChat() {
       if (generalView) { generalView.classList.add("chat-general-view--hidden"); generalView.style.display = "none"; }
       if (personalView) personalView.classList.remove("chat-personal-view--hidden");
       if (adminsView) adminsView.classList.add("chat-admins-view--hidden");
+      scrollPersonalToBottomOnNextRender = true;
       loadMessages();
     } else if (tab === "admins") {
       if (generalView) { generalView.classList.add("chat-general-view--hidden"); generalView.style.display = "none"; }
@@ -10188,6 +10190,7 @@ function initChat() {
     updateUnreadDots();
   }
   var scrollGeneralToBottomOnNextRender = false;
+  var scrollPersonalToBottomOnNextRender = false;
   function openClubChat() {
     if (typeof window.closeChatNavDropdown === "function") window.closeChatNavDropdown();
     if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
@@ -11044,6 +11047,7 @@ function initChat() {
       }
     }
     updateChatHeaderStats();
+    scrollPersonalToBottomOnNextRender = true;
     loadMessages();
   }
 
@@ -11051,17 +11055,21 @@ function initChat() {
     var clubEl = document.getElementById("chatDialogClubUnread");
     if (clubEl) {
       var n = window.chatGeneralUnreadCount || 0;
-      clubEl.textContent = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      var txt = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      clubEl.textContent = txt;
       clubEl.classList.toggle("chat-dialog-item__unread--visible", n > 0);
       clubEl.setAttribute("aria-hidden", n > 0 ? "false" : "true");
+      clubEl.setAttribute("aria-label", n > 0 ? "Непрочитанных: " + txt : "");
     }
     var adminUnread = window.chatAdminUnread || {};
     if (dialogsView) dialogsView.querySelectorAll(".chat-dialog-item__unread[data-dialog-unread-for]").forEach(function (el) {
       var id = el.getAttribute("data-dialog-unread-for");
       var n = id ? (adminUnread[id] || 0) : 0;
-      el.textContent = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      var txt = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      el.textContent = txt;
       el.classList.toggle("chat-dialog-item__unread--visible", n > 0);
       el.setAttribute("aria-hidden", n > 0 ? "false" : "true");
+      el.setAttribute("aria-label", n > 0 ? "Непрочитанных: " + txt : "");
     });
   }
 
@@ -11087,13 +11095,18 @@ function initChat() {
     if (!contactsEl) return;
     var lastViewedParam = "";
     try {
-      lastViewedParam = "&lastViewed=" + encodeURIComponent(JSON.stringify(lastViewedPersonal));
+      var lv = Object.assign({}, lastViewedPersonal || {});
+      if (lastViewedGeneral != null) lv.general = lastViewedGeneral;
+      lastViewedParam = "&lastViewed=" + encodeURIComponent(JSON.stringify(lv));
     } catch (e) {}
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=contacts" + lastViewedParam;
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.ok && Array.isArray(data.contacts)) {
         chatIsAdmin = !!data.isAdmin;
         window.chatAdminUnread = data.adminUnread || {};
+        var genUnread = data.generalUnreadCount != null ? data.generalUnreadCount : 0;
+        window.chatGeneralUnreadCount = genUnread;
+        window.chatGeneralUnread = genUnread > 0;
         var total = data.participantsCount != null ? data.participantsCount : "—";
         var online = data.onlineCount != null ? data.onlineCount : "—";
         window.lastListStats = total + " конт · " + online + " онл";
@@ -11120,17 +11133,12 @@ function initChat() {
               openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
             }
             btn.addEventListener("click", function (e) {
-              if (btn._chatContactHandledInTouchend) {
-                btn._chatContactHandledInTouchend = false;
-                return;
-              }
               openContact();
             });
             btn.addEventListener("touchend", function (e) {
               if (e.target !== btn && !btn.contains(e.target)) return;
               e.preventDefault();
               e.stopPropagation();
-              btn._chatContactHandledInTouchend = true;
               openContact();
             }, { passive: false, capture: true });
           });
@@ -11157,7 +11165,6 @@ function initChat() {
       if (!btn || !btn.dataset.chatId) return;
       e.preventDefault();
       e.stopPropagation();
-      btn._chatContactHandledInTouchend = true;
       openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
     }, { capture: true, passive: false });
   }
@@ -11245,7 +11252,8 @@ function initChat() {
     messagesEl.innerHTML = html;
     function restoreScrollP() {
       var maxScrollP = messagesEl.scrollHeight - messagesEl.clientHeight;
-      if (wasNearBottomP || maxScrollP <= 0) {
+      if (scrollPersonalToBottomOnNextRender || wasNearBottomP || maxScrollP <= 0) {
+        if (scrollPersonalToBottomOnNextRender) scrollPersonalToBottomOnNextRender = false;
         messagesEl.scrollTop = messagesEl.scrollHeight;
       } else {
         messagesEl.scrollTop = Math.min(prevScrollTopP, Math.max(0, maxScrollP));
@@ -12106,20 +12114,15 @@ function initChat() {
 
   if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
   var chatGeneralAdminsBtn = document.getElementById("chatGeneralAdminsBtn");
-  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () { setTab("admins"); });
+  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () { showDialogs(); });
   if (chatDialogClub) {
     chatDialogClub.addEventListener("click", function (e) {
-      if (chatDialogClub._chatClubHandledInTouchend) {
-        chatDialogClub._chatClubHandledInTouchend = false;
-        return;
-      }
       openClubChat();
     });
     chatDialogClub.addEventListener("touchend", function (e) {
       if (e.target !== chatDialogClub && !chatDialogClub.contains(e.target)) return;
       if (window.__touchWasScroll && window.__touchWasScroll()) return;
       e.preventDefault();
-      chatDialogClub._chatClubHandledInTouchend = true;
       openClubChat();
     }, { passive: false });
   }
@@ -12149,17 +12152,12 @@ function initChat() {
         }
       }
       btn.addEventListener("click", function (e) {
-        if (btn._chatDialogHandledInTouchend) {
-          btn._chatDialogHandledInTouchend = false;
-          return;
-        }
         runDialogAction();
       });
       btn.addEventListener("touchend", function (e) {
         if (e.target !== btn && !btn.contains(e.target)) return;
         if (window.__touchWasScroll && window.__touchWasScroll()) return;
         e.preventDefault();
-        btn._chatDialogHandledInTouchend = true;
         runDialogAction();
       }, { passive: false });
     });
