@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Создать розыгрыш: 5 билетов на турнир дня (500₽), итоги в 17:00 МСК.
+ * Создать розыгрыш: 5 беккинг-билетов на турнир дня (500₽), итоги в 17:00 МСК.
  * Требует CRON_SECRET и URL приложения (из Vercel или .env).
  *
  * Использование:
@@ -40,7 +40,7 @@ const endDate = new Date(Date.UTC(y, mo, da, 14, 0, 0, 0));
 const body = {
   action: "create",
   totalWinners: 5,
-  title: "5 билетов на турнир дня (500₽)",
+  title: "5 беккинг-билетов на турнир дня (500₽)",
   groups: [{ count: 5, prize: "Билет на турнир дня (500₽)" }],
   endDate: endDate.toISOString(),
 };

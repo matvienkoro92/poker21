@@ -9029,7 +9029,7 @@ function initRaffles() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
-      var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает билеты на турниры бесплатно, заходи участвуй)\n" + link);
+      var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает беккинг-билеты на турниры бесплатно, заходи участвуй)\n" + link);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
       if (typeof recordShareButtonClick === "function") recordShareButtonClick("raffle_hero");
@@ -9051,7 +9051,7 @@ function initRaffles() {
       var text =
         "Разыгрываем " +
         (total || 0) +
-        " билетов на сумму " +
+        " беккинг-билетов на сумму " +
         (totalPrize || 0) +
         "₽ на " +
         tournamentName +
@@ -9120,7 +9120,7 @@ function initRaffles() {
             var singleOpt = raffleTicketTournamentSelect.options[raffleTicketTournamentSelect.selectedIndex];
             singleTournamentName = (singleOpt && (singleOpt.getAttribute("data-name") || singleOpt.textContent || "").trim()) || "";
           }
-          var singlePrizeText = singleBuyin > 0 ? "Билет " + (singleBuyin % 1 === 0 ? singleBuyin : singleBuyin.toFixed(2)) + " ₽" : "Билет на турнир";
+          var singlePrizeText = singleBuyin > 0 ? "Беккинг-билет " + (singleBuyin % 1 === 0 ? singleBuyin : singleBuyin.toFixed(2)) + " ₽" : "Беккинг-билет на турнир";
           var singlePrize = singlePrizeText + (singleTournamentName ? " — " + singleTournamentName : "");
           if (c > 0) groups.push({ count: c, prize: singlePrize });
         } else if (raffleTicketGroups) {
@@ -9138,7 +9138,7 @@ function initRaffles() {
               var groupOpt = groupSelect.options[groupSelect.selectedIndex];
               groupTournamentName = (groupOpt && (groupOpt.getAttribute("data-name") || groupOpt.textContent || "").trim()) || "";
             }
-            var groupPrizeText = groupBuyin > 0 ? "Билет " + (groupBuyin % 1 === 0 ? groupBuyin : groupBuyin.toFixed(2)) + " ₽" : "Билет на турнир";
+            var groupPrizeText = groupBuyin > 0 ? "Беккинг-билет " + (groupBuyin % 1 === 0 ? groupBuyin : groupBuyin.toFixed(2)) + " ₽" : "Беккинг-билет на турнир";
             var groupPrize = groupPrizeText + (groupTournamentName ? " — " + groupTournamentName : "");
             totalWinners += cnt;
             if (cnt > 0) groups.push({ count: cnt, prize: groupPrize });
@@ -9148,7 +9148,7 @@ function initRaffles() {
           if (tg && tg.showAlert) tg.showAlert("Укажите количество победителей");
           return;
         }
-        title = "Розыгрыш билетов на турниры";
+        title = "Розыгрыш беккинг-билетов на турниры";
       } else {
         var groupInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-count") : [];
         var prizeInputs = raffleGroupsEl ? raffleGroupsEl.querySelectorAll(".raffle-group-prize") : [];
@@ -12601,7 +12601,14 @@ function initChat() {
     if (raw.startsWith("tg_") && raw !== "tg_roman") {
       doShow(raw);
     } else if (raw === "tg_roman") {
-      if (tg && tg.showAlert) tg.showAlert("Напишите Роману в Telegram");
+      var romanUsername = "roman1787443";
+      fetch(base + "/api/users?username=" + encodeURIComponent(romanUsername) + "&initData=" + encodeURIComponent(initData))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.ok && data.userId) doShow(data.userId);
+          else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
+        })
+        .catch(function () { if (tg && tg.showAlert) tg.showAlert("Ошибка сети"); });
       return;
     } else if (/^ID\d{6}$/.test(raw.toUpperCase())) {
       var id = raw.toUpperCase();

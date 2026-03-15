@@ -6330,7 +6330,7 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffles-hero__copy-icon svg {
   display: block;
 }
-/* Карточка розыгрыша в виде билета */
+/* Карточка розыгрыша в виде беккинг-билета */
 .raffle-card--ticket {
   position: relative;
   margin-bottom: 24px;
@@ -6377,7 +6377,7 @@ html.app-view-home .feature--rating-spring-promo:hover,
   box-shadow: 0 4px 16px rgba(249, 115, 22, 0.4);
 }
 
-/* Завершённые розыгрыши — акцент «билет разыгран» */
+/* Завершённые розыгрыши — акцент «беккинг-билет разыгран» */
 .raffle-completed-card { border-left: 4px solid var(--accent-2); }
 .raffle-completed-card__winners-title { color: var(--accent-2); }
 
