@@ -10083,7 +10083,6 @@ function initChat() {
   var convTitle = document.getElementById("chatConvTitle");
   var convTitleIdWrap = document.getElementById("chatConvTitleIdWrap");
   var convTitleId = document.getElementById("chatConvTitleId");
-  var convTitleCopy = document.getElementById("chatConvTitleCopy");
   var CHAT_ADMIN_IDS = ["tg_2144406710", "tg_1897001087", "tg_roman"];
   var messagesEl = document.getElementById("chatMessages");
   var inputEl = document.getElementById("chatInput");
@@ -11316,18 +11315,10 @@ function initChat() {
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     if (convTitle) convTitle.textContent = userName || userId;
-    if (convTitleIdWrap && convTitleId && convTitleCopy) {
+    if (convTitleIdWrap && convTitleId) {
       convTitleIdWrap.classList.remove("chat-conv-title__id-wrap--hidden");
       var displayId = (dtIdFromContact && String(dtIdFromContact).trim()) || "—";
       convTitleId.textContent = displayId;
-      convTitleCopy.onclick = function () {
-        var toCopy = (convTitleId && convTitleId.textContent) || "";
-        if (toCopy === "—") toCopy = "";
-        if (!toCopy) { if (tg && tg.showAlert) tg.showAlert("ID пока неизвестен"); return; }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(toCopy).then(function () { if (tg && tg.showAlert) tg.showAlert("ID скопирован"); }, function () { if (tg && tg.showAlert) tg.showAlert("Не удалось скопировать"); });
-        } else { if (tg && tg.showAlert) tg.showAlert("Копирование недоступно"); }
-      };
     }
     updateChatHeaderStats();
     scrollPersonalToBottomOnNextRender = true;
@@ -11401,19 +11392,50 @@ function initChat() {
         if (data.contacts.length === 0) {
           contactsEl.innerHTML = '<p class="chat-empty">Пока нет личных переписок. Напишите кому-то по ID выше или дождитесь ответа.</p>';
         } else {
+          var block = contactsEl.querySelector(".chat-dialogs-block");
+          var existing = block ? block.querySelectorAll(".chat-contact") : [];
+          var sameList = existing.length === data.contacts.length && data.contacts.every(function (c, i) {
+            var btn = existing[i];
+            return btn && btn.dataset.chatId === c.id;
+          });
+          if (sameList && existing.length > 0) {
+            data.contacts.forEach(function (c, i) {
+              var btn = existing[i];
+              if (!btn) return;
+              btn.dataset.chatOnline = c.online ? "1" : "0";
+              var onEl = btn.querySelector(".chat-contact__online");
+              if (onEl) {
+                var nowVisible = !!c.online;
+                if (onEl.classList.contains("chat-contact__online--visible") !== nowVisible) {
+                  onEl.classList.toggle("chat-contact__online--visible", nowVisible);
+                }
+              }
+              var unreadEl = btn.querySelector(".chat-contact__unread");
+              var needUnread = c.unreadCount > 0;
+              var unreadText = c.unreadCount > 99 ? "99+" : String(c.unreadCount);
+              if (unreadEl) {
+                unreadEl.classList.toggle("chat-contact__unread--visible", needUnread);
+                unreadEl.textContent = unreadText;
+                unreadEl.setAttribute("aria-label", needUnread ? "Непрочитано: " + unreadText : "");
+              }
+            });
+            updateDialogUnreadBadges();
+            return;
+          }
           var firstChar = function (name) { return (name || "?").toString().replace(/^@/, "")[0] || "?"; };
-          contactsEl.innerHTML = data.contacts.map(function (c) {
-            var dtSpan = c.dtId ? '<span class="chat-contact__dt">' + escapeHtml(c.dtId) + '</span>' : "";
-            var adminBadge = c.admin ? '<span class="chat-contact__admin" aria-label="админ">админ</span>' : "";
-            var onlineBadge = c.online ? '<span class="chat-contact__online" aria-label="онлайн">онлайн</span>' : "";
-            var badgesBlock = (adminBadge || onlineBadge) ? '<span class="chat-contact__badges">' + adminBadge + onlineBadge + '</span>' : "";
-            var unreadBadge = (c.unreadCount > 0) ? '<span class="chat-contact__unread chat-contact__unread--visible" aria-label="Непрочитано: ' + (c.unreadCount > 99 ? '99+' : c.unreadCount) + '">' + (c.unreadCount > 99 ? "99+" : c.unreadCount) + '</span>' : '';
+          var contactButtons = data.contacts.map(function (c) {
+            var roleClass = c.admin ? " chat-contact__role--admin" : "";
+            var roleText = c.admin ? "Админ" : "Игрок";
+            var onlineHtml = '<span class="chat-contact__online' + (c.online ? ' chat-contact__online--visible' : '') + '" aria-label="онлайн">онлайн</span>';
+            var unreadNum = c.unreadCount > 0 ? (c.unreadCount > 99 ? "99+" : String(c.unreadCount)) : "";
+            var unreadBadge = '<span class="chat-contact__unread' + (c.unreadCount > 0 ? ' chat-contact__unread--visible' : '') + '" aria-label="' + (c.unreadCount > 0 ? 'Непрочитано: ' + (c.unreadCount > 99 ? '99+' : c.unreadCount) : '') + '">' + unreadNum + '</span>';
             var initial = firstChar(c.name);
             var avatarEl = c.avatar
               ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
               : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
-            return '<button type="button" class="chat-contact" tabindex="-1" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '"' + (c.dtId ? ' data-chat-dt-id="' + escapeHtml(c.dtId) + '"' : '') + '>' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
+            return '<button type="button" class="chat-contact" tabindex="-1" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '" data-chat-online="' + (c.online ? "1" : "0") + '"' + (c.dtId ? ' data-chat-dt-id="' + escapeHtml(c.dtId) + '"' : '') + '>' + avatarEl + '<span class="chat-contact__label-wrap"><span class="chat-contact__label-block"><span class="chat-contact__label">' + escapeHtml(c.name) + '</span><span class="chat-contact__role' + roleClass + '">' + escapeHtml(roleText) + '</span></span><span class="chat-contact__right">' + onlineHtml + '</span></span>' + unreadBadge + '</button>';
           }).join("");
+          contactsEl.innerHTML = '<div class="chat-dialogs-block">' + contactButtons + '</div>';
           updateDialogUnreadBadges();
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
@@ -12591,7 +12613,11 @@ function initChat() {
       if (start <= end) onShift = moscowHour >= start && moscowHour < end;
       else onShift = moscowHour >= start || moscowHour < end;
       var onEl = btn.querySelector(".chat-dialog-item__online");
-      if (onEl) onEl.classList.toggle("chat-dialog-item__online--visible", !!onShift);
+      if (!onEl) return;
+      var currentlyVisible = onEl.classList.contains("chat-dialog-item__online--visible");
+      if (currentlyVisible !== !!onShift) {
+        onEl.classList.toggle("chat-dialog-item__online--visible", !!onShift);
+      }
     });
   }
   updateAdminShiftOnline();
