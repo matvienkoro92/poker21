@@ -13516,7 +13516,7 @@ function updateTournamentDayBlock() {
     timerEls.forEach(function (el) { el.textContent = timerStr; });
     var trophyImg = document.getElementById("tournamentDayTrophyImg");
     var scheduleTrophyImg = document.getElementById("scheduleTournamentDayTrophyImg");
-    var trophyFile = nameStr === "Фриролл" ? "tournament-day-trophy.png" : nameStr === "Турнир Недели Нокаут Меджик" ? "tournament-day-sunday.png" : "tournament-day-golden-glove.png";
+    var trophyFile = nameStr === "Фриролл" ? "tournament-day-trophy.png" : nameStr === "Турнир Недели Нокаут Меджик" ? "tournament-day-sunday.png" : "tournament-day-two-aces.png";
     var trophySrc = typeof getAssetUrl === "function" ? getAssetUrl(trophyFile) : "";
     if (trophyImg && trophySrc) trophyImg.src = trophySrc;
     if (scheduleTrophyImg && trophySrc) scheduleTrophyImg.src = trophySrc;

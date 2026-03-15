@@ -3607,6 +3607,19 @@ img.chat-contact__avatar {
 .chat-dialogs-block .chat-dialog-item:last-child::after {
   display: none;
 }
+/* Общая обводка: админы и игроки в одном блоке */
+.chat-dialogs-list > .chat-dialogs-block {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.chat-dialogs-list .chat-contacts {
+  margin-top: 0;
+}
+.chat-dialogs-list .chat-contacts .chat-dialogs-block {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
 .chat-dialog-item {
   display: flex;
   align-items: center;
@@ -3840,7 +3853,6 @@ img.chat-contact__avatar {
   outline: none;
 }
 .chat-find-suggest__item strong { color: var(--accent); }
-.chat-dialogs-list .chat-contacts { margin-top: 6px; }
 .chat-general-view {
   display: flex;
   flex-direction: column;
@@ -10779,6 +10791,14 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   padding: 5px 0;
   font-size: 17px;
 }
+/* Рейтинг весны: убираем отступ между кнопкой «Назад» и листочками */
+.view--active[data-view="spring-rating"] .bonus-game-back {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.view--active[data-view="spring-rating"] .winter-rating {
+  margin-top: 0;
+}
 /* Рейтинг весны: скрываем верхнее и нижнее меню */
 .card:has(.view--active[data-view="spring-rating"]) .card__header {
   display: none !important;
@@ -10813,6 +10833,12 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .card:has(.view--active[data-view="streams"]) .card__header,
 .card:has(.view--active[data-view="equilator"]) .card__header,
 .card:has(.view--active[data-view="winter-rating"]) .card__header {
+  display: none !important;
+}
+/* Скачать, Депозит, Профиль: скрываем только верхнее меню */
+.card:has(.view--active[data-view="download"]) .card__header,
+.card:has(.view--active[data-view="cashout"]) .card__header,
+.card:has(.view--active[data-view="profile"]) .card__header {
   display: none !important;
 }
 .app:has(.view--active[data-view="bonus-game"]) .bottom-nav,
