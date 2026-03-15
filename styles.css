@@ -909,7 +909,10 @@ html.app-view-home .card .card__content {
 .view--active[data-view="chat"] .chat-messages {
   max-height: none;
   min-height: 0;
-  flex: 1;
+  flex: 1 1 0;
+  height: 0;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
   background-color: transparent;
   background-image: none;
   border: none;
@@ -3383,7 +3386,7 @@ img.chat-contact__avatar {
   min-height: 0;
   overflow: hidden;
   padding: 0 12px 12px;
-  touch-action: manipulation;
+  touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
 }
 .chat-dialog-item,
@@ -3399,9 +3402,10 @@ img.chat-contact__avatar {
 }
 .chat-dialogs-view--hidden { display: none !important; }
 .chat-dialogs-list {
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
-  overflow-y: auto;
+  height: 0;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
@@ -3409,6 +3413,9 @@ img.chat-contact__avatar {
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
+  position: relative;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .chat-dialog-item {
   display: flex;
@@ -3613,13 +3620,17 @@ img.chat-contact__avatar {
 }
 .chat-general-view--hidden { display: none !important; }
 .chat-general-view .chat-messages {
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
+  height: 0;
   max-height: none;
-  overflow-y: auto;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  position: relative;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .chat-general-view .chat-input-area {
   flex-shrink: 0;
@@ -3675,12 +3686,16 @@ img.chat-contact__avatar {
   display: inline;
 }
 .chat-list-view {
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
-  overflow-y: auto;
+  height: 0;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  position: relative;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .chat-list-view--hidden { display: none !important; }
 .chat-conv-view {
@@ -3702,13 +3717,17 @@ img.chat-contact__avatar {
   width: 100%;
 }
 .chat-container .chat-messages {
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
+  height: 0;
   max-height: none;
-  overflow-y: auto;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  position: relative;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
@@ -6216,6 +6235,21 @@ html.app-view-home .feature--rating-spring-promo:hover,
 .raffle-current--hidden { display: none; }
 .raffle-empty--hidden { display: none; }
 .raffle-empty { color: var(--text-muted); margin: 12px 0; }
+.raffle-empty .raffle-loading__text { display: inline-block; vertical-align: middle; }
+.raffle-loading__spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border: 2px solid var(--text-muted);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: raffle-loading-spin 0.7s linear infinite;
+}
+@keyframes raffle-loading-spin {
+  to { transform: rotate(360deg); }
+}
 .raffle-card {
   margin-bottom: 24px;
   padding: 16px;

@@ -367,7 +367,6 @@ function getTopByDates(dates) {
 function runGazetteAndTasksInit() {
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
-  var GAZETTE_VERSION = "2026-03-08";  // Меняй при добавлении новых новостей — тогда снова загорится красная точка
   var modal = document.getElementById("gazetteModal");
   var pickEl = document.getElementById("gazetteModalPick");
   var newsEl = document.getElementById("gazetteModalNews");
@@ -379,9 +378,20 @@ function runGazetteAndTasksInit() {
   var backdrop = document.getElementById("gazetteModalBackdrop");
   var unreadDot = document.getElementById("gazetteUnreadDot");
   if (modal && pickEl && newsEl) {
+  function getGazetteVersion() {
+    var articles = document.querySelectorAll("[data-gazette-article]");
+    var max = 0;
+    for (var i = 0; i < articles.length; i++) {
+      var n = parseInt(articles[i].getAttribute("data-gazette-article"), 10);
+      if (!isNaN(n) && n > max) max = n;
+    }
+    return max > 0 ? String(max) : "0";
+  }
   function hasUnreadGazette() {
     try {
-      return (localStorage.getItem(GAZETTE_READ_KEY) || "") !== GAZETTE_VERSION;
+      var current = getGazetteVersion();
+      var read = localStorage.getItem(GAZETTE_READ_KEY) || "0";
+      return read !== current;
     } catch (e) {
       return true;
     }
@@ -392,7 +402,7 @@ function runGazetteAndTasksInit() {
   }
   function markGazetteRead() {
     try {
-      localStorage.setItem(GAZETTE_READ_KEY, GAZETTE_VERSION);
+      localStorage.setItem(GAZETTE_READ_KEY, getGazetteVersion());
     } catch (e) {}
     updateGazetteUnreadDot();
   }
@@ -1368,9 +1378,7 @@ if (document.readyState === "loading") {
 }
 
 setTimeout(function () {
-  if (document.body && document.body.getAttribute("data-view") === "home" && typeof fetchRaffleBadge === "function") {
-    fetchRaffleBadge();
-  }
+  if (typeof fetchRaffleBadge === "function") fetchRaffleBadge();
 }, 300);
 
 // Рейтинг: кнопки «Топы прошлой недели» и «Топы текущей недели» (в кнопке — топ-3, по клику — модалка с полным списком)
@@ -1893,6 +1901,26 @@ if (tg) {
   tg.ready();
   if (tg.expand) tg.expand();
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
+  // При открытии по ссылке (t.me/bot/AppName) на части устройств приложение открывается в компактном виде.
+  // Повторные вызовы expand() с задержкой и при смене viewport помогают развернуть на полный экран.
+  function tryExpand() {
+    if (tg.expand && (!tg.isExpanded)) tg.expand();
+  }
+  setTimeout(tryExpand, 100);
+  setTimeout(tryExpand, 400);
+  if (tg.onEvent && typeof tg.onEvent === "function") {
+    tg.onEvent("viewportChanged", function (e) {
+      if (e && e.isStateStable) tryExpand();
+    });
+  }
+  document.addEventListener("click", function expandOnFirstClick() {
+    tryExpand();
+    document.removeEventListener("click", expandOnFirstClick);
+  }, { once: true, capture: true });
+  document.addEventListener("touchstart", function expandOnFirstTouch() {
+    tryExpand();
+    document.removeEventListener("touchstart", expandOnFirstTouch);
+  }, { once: true, passive: true, capture: true });
   // requestFullscreen() не вызываем: после него на части устройств (iOS) перестают работать клики по кнопкам
   // Адаптация под тему Telegram
   const themeParams = tg.themeParams || {};
@@ -8425,7 +8453,7 @@ function initRaffles() {
 
     function showRafflesLoading() {
       if (raffleEmpty) {
-        raffleEmpty.textContent = "Загрузка…";
+        raffleEmpty.innerHTML = "<span class=\"raffle-loading__spinner\" aria-hidden=\"true\"></span><span class=\"raffle-loading__text\">Подождите, Розыгрыш загружается</span>";
         raffleEmpty.classList.remove("raffle-empty--hidden");
       }
       if (raffleCurrent) raffleCurrent.classList.add("raffle-current--hidden");
@@ -12303,7 +12331,12 @@ function initChat() {
       }
     }, { passive: true, capture: true });
     function runDialogsViewAction(e) {
-      var target = e.target && e.target.closest ? (e.target.closest("button, [role=\"button\"]") || e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null;
+      var clientX = e.changedTouches ? (e.changedTouches[0] && e.changedTouches[0].clientX) : e.clientX;
+      var clientY = e.changedTouches ? (e.changedTouches[0] && e.changedTouches[0].clientY) : e.clientY;
+      var hitEl = (typeof document.elementFromPoint === "function" && clientX != null && clientY != null)
+        ? document.elementFromPoint(clientX, clientY) : (e.target || null);
+      var target = (hitEl && hitEl.closest ? (hitEl.closest("button, [role=\"button\"]") || hitEl.closest(".chat-dialog-item") || hitEl.closest(".chat-contact")) : null)
+        || (e.target && e.target.closest ? (e.target.closest("button, [role=\"button\"]") || e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null);
       if (!target || !dialogsView.contains(target)) return false;
       if (chatDialogClub && (target === chatDialogClub || chatDialogClub.contains(target))) {
         openClubChat();
