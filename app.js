@@ -11299,30 +11299,9 @@ function initChat() {
           }).join("");
           updateDialogUnreadBadges();
           contactsEl.querySelectorAll(".chat-contact").forEach(function (btn) {
-            function openContact() {
+            btn.addEventListener("click", function () {
               openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
-            }
-            btn.addEventListener("click", openContact);
-            var contactTouchMoved = false;
-            btn.addEventListener("touchstart", function () { contactTouchMoved = false; }, { passive: true });
-            btn.addEventListener("touchmove", function (e) {
-              if (e.touches && e.touches[0] && !contactTouchMoved) {
-                var t = e.currentTarget;
-                var start = t._contactTouchStart;
-                if (start && (Math.abs(e.touches[0].clientX - start.x) > 15 || Math.abs(e.touches[0].clientY - start.y) > 15)) contactTouchMoved = true;
-              }
-            }, { passive: true });
-            btn.addEventListener("touchstart", function (e) {
-              if (e.touches && e.touches[0]) e.currentTarget._contactTouchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }, { passive: true });
-            btn.addEventListener("touchend", function (e) {
-              if (contactTouchMoved) return;
-              if (e.target !== btn && !btn.contains(e.target)) return;
-              e.preventDefault();
-              e.stopPropagation();
-              btn._contactOpenedAt = Date.now();
-              openContact();
-            }, { passive: false });
+            });
           });
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
@@ -12420,104 +12399,12 @@ function initChat() {
     }
   }
 
-  var dialogsTouchStartX = 0, dialogsTouchStartY = 0, dialogsTouchMoved = false;
-  if (dialogsView) {
-    dialogsView.addEventListener("touchstart", function (e) {
-      if (e.changedTouches && e.changedTouches[0]) {
-        dialogsTouchStartX = e.changedTouches[0].clientX;
-        dialogsTouchStartY = e.changedTouches[0].clientY;
-        dialogsTouchMoved = false;
-      }
-    }, { passive: true, capture: true });
-    dialogsView.addEventListener("touchmove", function (e) {
-      if (e.touches && e.touches[0] && !dialogsTouchMoved) {
-        var dx = e.touches[0].clientX - dialogsTouchStartX;
-        var dy = e.touches[0].clientY - dialogsTouchStartY;
-        if (dx * dx + dy * dy > 256) dialogsTouchMoved = true;
-      }
-    }, { passive: true, capture: true });
-    function runDialogsViewAction(e) {
-      var isTouch = e.changedTouches && e.changedTouches.length > 0;
-      var clientX = isTouch ? (e.changedTouches[0] && e.changedTouches[0].clientX) : e.clientX;
-      var clientY = isTouch ? (e.changedTouches[0] && e.changedTouches[0].clientY) : e.clientY;
-      var hitEl = isTouch && e.target
-        ? e.target
-        : ((typeof document.elementFromPoint === "function" && clientX != null && clientY != null)
-          ? document.elementFromPoint(clientX, clientY) : (e.target || null));
-      hitEl = hitEl || e.target;
-      var target = (hitEl && hitEl.closest ? (hitEl.closest("button, [role=\"button\"]") || hitEl.closest(".chat-dialog-item") || hitEl.closest(".chat-contact")) : null)
-        || (e.target && e.target.closest ? (e.target.closest("button, [role=\"button\"]") || e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null);
-      if (!target || !dialogsView.contains(target)) return false;
-      if (chatDialogClub && (target === chatDialogClub || chatDialogClub.contains(target))) {
-        openClubChat();
-        return true;
-      }
-      var dialogItem = target.closest(".chat-dialog-item[data-chat-user-id]");
-      if (dialogItem) {
-        runDialogActionForBtn(dialogItem);
-        return true;
-      }
-      var contactBtn = target.closest(".chat-contact");
-      if (contactBtn && contactBtn.dataset.chatId) {
-        if (contactBtn._contactOpenedAt && (Date.now() - contactBtn._contactOpenedAt) < 500) return true;
-        openConvFromDialogs(contactBtn.dataset.chatId, contactBtn.dataset.chatName);
-        return true;
-      }
-      return false;
-    }
-    var dialogsViewLastTapTime = 0;
-    dialogsView.addEventListener("touchend", function (e) {
-      if (dialogsTouchMoved) return;
-      if (runDialogsViewAction(e)) {
-        dialogsViewLastTapTime = Date.now();
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, { passive: false, capture: true });
-    dialogsView.addEventListener("click", function (e) {
-      if (Date.now() - dialogsViewLastTapTime < 350) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      if (runDialogsViewAction(e)) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, { passive: false, capture: true });
-  }
-
-  function bindChatDialogTap(btn, onTap) {
-    var touchStartY = 0, touchStartX = 0, touchMoved = false;
-    btn.addEventListener("touchstart", function (e) {
-      if (e.changedTouches && e.changedTouches[0]) {
-        touchStartX = e.changedTouches[0].clientX;
-        touchStartY = e.changedTouches[0].clientY;
-        touchMoved = false;
-      }
-    }, { passive: true });
-    btn.addEventListener("touchmove", function (e) {
-      if (e.touches && e.touches[0] && !touchMoved) {
-        var dx = e.touches[0].clientX - touchStartX;
-        var dy = e.touches[0].clientY - touchStartY;
-        if (dx * dx + dy * dy > 400) touchMoved = true;
-      }
-    }, { passive: true });
-    btn.addEventListener("touchend", function (e) {
-      if (e.target !== btn && !btn.contains(e.target)) return;
-      if (touchMoved) return;
-      e.preventDefault();
-      e.stopPropagation();
-      onTap();
-    }, { passive: false });
-    btn.addEventListener("click", function (e) { onTap(); });
-  }
   if (chatDialogClub) {
-    bindChatDialogTap(chatDialogClub, openClubChat);
+    chatDialogClub.addEventListener("click", function () { openClubChat(); });
   }
   if (dialogsView) {
     dialogsView.querySelectorAll(".chat-dialog-item[data-chat-user-id]").forEach(function (btn) {
-      bindChatDialogTap(btn, function () { runDialogActionForBtn(btn); });
+      btn.addEventListener("click", function () { runDialogActionForBtn(btn); });
     });
   }
   if (findByIdBtnDialogs && findByIdInputDialogs) {
