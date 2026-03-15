@@ -1124,6 +1124,7 @@
                 <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
               </div>
               <h2 class="chat-title--small">Чаты</h2>
+              <div class="chat-dialogs-list-wrap">
               <div class="chat-dialogs-list">
                 <button type="button" class="chat-dialog-item chat-dialog-item--club" data-chat-type="club" id="chatDialogClub">
                   <img class="chat-dialog-item__avatar chat-dialog-item__avatar--club" src="./assets/logo-two-aces.png" alt="" />
@@ -1171,14 +1172,17 @@
                   <p class="chat-empty">Загрузка...</p>
                 </div>
               </div>
+              </div>
             </div>
             <div class="chat-general-view chat-general-view--hidden" id="chatGeneralView">
               <div class="chat-general-header">
                 <button type="button" class="chat-back-btn" id="chatGeneralBackBtn">← К чатам</button>
                 <button type="button" class="chat-general-admins-btn" id="chatGeneralAdminsBtn" title="Написать админам">Написать админам</button>
               </div>
+              <div class="chat-messages-wrap">
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
                 <p class="chat-empty">Загрузка...</p>
+              </div>
               </div>
               <div class="chat-input-area">
                 <div class="chat-reply-preview" id="chatGeneralReplyPreview">
@@ -1195,9 +1199,11 @@
                 <div class="chat-input-wrap">
                   <div class="chat-attach-wrap">
                     <input type="file" class="chat-input-file" id="chatGeneralFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" />
+                    <input type="file" class="chat-input-file" id="chatGeneralPdfInput" accept="application/pdf" style="display:none" aria-hidden="true" />
                     <button type="button" class="chat-attach-btn" id="chatGeneralAttachBtn" title="Прикрепить" aria-haspopup="true" aria-expanded="false" aria-controls="chatGeneralAttachDropdown">📎</button>
                     <div class="chat-attach-dropdown chat-attach-dropdown--hidden" id="chatGeneralAttachDropdown" role="menu" aria-hidden="true">
                       <button type="button" class="chat-attach-dropdown__item" data-action="photo" role="menuitem">Фото</button>
+                      <button type="button" class="chat-attach-dropdown__item" data-action="document" role="menuitem">Документ PDF</button>
                     </div>
                   </div>
                   <textarea class="chat-input chat-input--textarea" id="chatGeneralInput" placeholder="Сообщение в общий чат..." maxlength="500" rows="1" autocomplete="off"></textarea>
@@ -1220,8 +1226,10 @@
                   </span>
                 </div>
                 <div class="chat-container">
+                  <div class="chat-messages-wrap">
                   <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
                     <p class="chat-empty">Загрузка...</p>
+                  </div>
                   </div>
                   <div class="chat-input-area">
                     <div class="chat-reply-preview" id="chatPersonalReplyPreview">
@@ -1241,7 +1249,7 @@
                     </div>
                     <div class="chat-input-wrap">
                       <input type="file" class="chat-input-file" id="chatPersonalFileInput" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" style="display:none" />
-                      <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить картинку">📎</button>
+                      <button type="button" class="chat-attach-btn" id="chatPersonalAttachBtn" title="Прикрепить фото или PDF">📎</button>
                       <textarea class="chat-input chat-input--textarea" id="chatInput" placeholder="Сообщение..." maxlength="500" rows="1" autocomplete="off"></textarea>
                       <button type="button" class="chat-emoji-btn" id="chatPersonalEmojiBtn" title="Смайлики" aria-label="Смайлики">😀</button>
                       <button type="button" class="chat-send-btn chat-send-btn--icon chat-send-btn--mic" id="chatSendBtn" title="Голосовое сообщение" aria-label="Записать голосовое">🎤</button>

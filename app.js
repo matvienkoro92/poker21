@@ -10542,6 +10542,7 @@ function initChat() {
   var personalReplyTo = null;
   var generalImage = null;
   var personalImage = null;
+  var generalDocument = null;
   var personalDocument = null;
   var generalVoice = null;
   var personalVoice = null;
@@ -10618,7 +10619,7 @@ function initChat() {
       var dataAttrs = "";
       if (isOwn && m.id) {
         dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-own="true"';
-        if (!m.image && !m.voice && (m.text != null)) dataAttrs += ' data-msg-text="' + escapeHtml(String(m.text || "")) + '"';
+        if (!m.image && !m.voice && !m.document && (m.text != null)) dataAttrs += ' data-msg-text="' + escapeHtml(String(m.text || "")) + '"';
       } else if (!isOwn && m.id) {
         dataAttrs = ' data-msg-id="' + escapeHtml(m.id) + '" data-msg-from="' + escapeHtml(m.from || "") + '" data-msg-from-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"';
       }
@@ -10626,6 +10627,7 @@ function initChat() {
       var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
+      var documentBlock = m.document ? '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(m.documentName || "document.pdf") + ' <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '">Скачать</a></span>' : "";
       var cornerDelBtn = "";
       var editBtn = "";
       var blockBtn = "";
@@ -10650,7 +10652,7 @@ function initChat() {
       var nameEl = isOwn
         ? '<div class="chat-msg__meta-line">' + metaLineParts + sep + respectPart + "</div>"
         : '<button type="button" class="chat-msg__name-btn" data-pm-id="' + escapeHtml(m.from) + '" data-pm-name="' + escapeHtml(m.fromName || m.fromDtId || "Игрок") + '"' + pmAvatarAttr + '><div class="chat-msg__meta-line">' + metaLineParts + "</div></button>" + sep + respectPart;
-      var textBlock = (text || imgBlock || voiceBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + text + '</div>' : "";
+      var textBlock = (text || imgBlock || voiceBlock || documentBlock) ? '<div class="chat-msg__text">' + imgBlock + voiceBlock + documentBlock + text + '</div>' : "";
       var reactionsHtml = "";
       if (m.id && m.reactions && typeof m.reactions === "object") {
         var pills = [];
@@ -11070,7 +11072,7 @@ function initChat() {
   }
 
   var sendingGeneral = false;
-  function appendOptimisticGeneralMessage(text, image, voice, replyTo) {
+  function appendOptimisticGeneralMessage(text, image, voice, document, replyTo) {
     if (!generalMessages) return;
     var emptyEl = generalMessages.querySelector(".chat-empty");
     if (emptyEl) generalMessages.innerHTML = "";
@@ -11082,9 +11084,10 @@ function initChat() {
     var textContent = "";
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
+    else if (document && document.dataUrl && document.fileName) textContent = '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(document.fileName) + ' <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '">Скачать</a></span>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
-    var optBodyClass = "chat-msg__body" + (text && !image && !voice ? " chat-msg__body--has-text" : "");
+    var optBodyClass = "chat-msg__body" + (text && !image && !voice && !document ? " chat-msg__body--has-text" : "");
     var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="' + optBodyClass + '"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
     var wrap = document.createElement("div");
     wrap.innerHTML = html;
@@ -11093,24 +11096,27 @@ function initChat() {
   }
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
-    if ((!text && !generalImage && !generalVoice) || !initData || sendingGeneral) return;
+    if ((!text && !generalImage && !generalVoice && !generalDocument) || !initData || sendingGeneral) return;
     if (!initData) { if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram."); return; }
     sendingGeneral = true;
     if (generalSendBtn) generalSendBtn.disabled = true;
     var body = { initData: initData, text: text };
     if (generalImage) body.image = generalImage;
     if (generalVoice) body.voice = generalVoice;
+    if (generalDocument) { body.document = generalDocument.dataUrl; body.documentName = generalDocument.fileName; }
     if (generalReplyTo) {
-      var replyText = (generalReplyTo.text && String(generalReplyTo.text).trim()) || (generalReplyTo.hasImage ? "[Фото]" : generalReplyTo.hasVoice ? "[Голосовое сообщение]" : "\u2014");
+      var replyText = (generalReplyTo.text && String(generalReplyTo.text).trim()) || (generalReplyTo.hasImage ? "[Фото]" : generalReplyTo.hasVoice ? "[Голосовое сообщение]" : generalReplyTo.hasDocument ? "[Документ]" : "\u2014");
       body.replyTo = { id: generalReplyTo.id, from: generalReplyTo.from, fromName: generalReplyTo.fromName || "Игрок", text: replyText };
     }
     var optText = text;
     var optImage = generalImage || null;
     var optVoice = generalVoice || null;
+    var optDocument = generalDocument ? { dataUrl: generalDocument.dataUrl, fileName: generalDocument.fileName } : null;
     var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
     if (generalInput) generalInput.value = "";
     generalReplyTo = null;
     generalImage = null;
+    generalDocument = null;
     generalVoice = null;
     var prevEl = document.getElementById("chatGeneralReplyPreview");
     if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
@@ -11118,7 +11124,7 @@ function initChat() {
     if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
     var voicePrev = document.getElementById("chatGeneralVoicePreview");
     if (voicePrev) voicePrev.classList.add("chat-voice-preview--hidden");
-    appendOptimisticGeneralMessage(optText, optImage, optVoice, optReply);
+    appendOptimisticGeneralMessage(optText, optImage, optVoice, optDocument, optReply);
     if (generalSendBtn) generalSendBtn.disabled = false;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -11347,7 +11353,7 @@ function initChat() {
       var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
-      var documentBlock = m.document ? '<a class="chat-msg__document" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '" target="_blank" rel="noopener noreferrer">📄 ' + escapeHtml(m.documentName || "document.pdf") + '</a>' : "";
+      var documentBlock = m.document ? '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(m.documentName || "document.pdf") + ' <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '">Скачать</a></span>' : "";
       var cornerDelBtnP = "";
       var editBtnP = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
@@ -11514,7 +11520,7 @@ function initChat() {
       var textContent = "";
       if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(String(image)) + '" alt="Картинка" />';
       else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(String(voice)) + '"></audio>';
-      else if (document && document.dataUrl && document.fileName) textContent = '<a class="chat-msg__document" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '" target="_blank" rel="noopener noreferrer">📄 ' + escapeHtml(document.fileName) + '</a>';
+      else if (document && document.dataUrl && document.fileName) textContent = '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(document.fileName) + ' <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '">Скачать</a></span>';
       else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(String(text)).replace(/\n/g, "<br>"))));
       var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(nameStr) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
       var optBodyClassP = "chat-msg__body" + (text && !image && !voice && !document ? " chat-msg__body--has-text" : "");
@@ -11767,6 +11773,7 @@ function initChat() {
       });
     }
     var generalFileInput = document.getElementById("chatGeneralFileInput");
+    var generalPdfInput = document.getElementById("chatGeneralPdfInput");
     var generalAttachBtn = document.getElementById("chatGeneralAttachBtn");
     var generalAttachDropdown = document.getElementById("chatGeneralAttachDropdown");
     var generalImagePreview = document.getElementById("chatGeneralImagePreview");
@@ -11794,6 +11801,7 @@ function initChat() {
             e.stopPropagation();
             var action = item.getAttribute("data-action");
             if (action === "photo") generalFileInput.click();
+            else if (action === "document" && generalPdfInput) generalPdfInput.click();
             else if (action === "contact" && typeof openConvFromDialogs === "function") openConvFromDialogs(item.getAttribute("data-user-id"), item.getAttribute("data-user-name"));
             closeGeneralAttachDropdown();
           });
@@ -11802,6 +11810,7 @@ function initChat() {
       generalFileInput.addEventListener("change", function () {
         var f = generalFileInput.files && generalFileInput.files[0];
         if (!f || !f.type.startsWith("image/")) return;
+        generalDocument = null;
         resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
           generalImage = dataUrl;
           updateGeneralSendBtnIcon();
@@ -11817,6 +11826,38 @@ function initChat() {
         }).catch(function () { if (tg && tg.showAlert) tg.showAlert("Не удалось обработать изображение"); });
         generalFileInput.value = "";
       });
+      if (generalPdfInput) {
+        generalPdfInput.addEventListener("change", function () {
+          var f = generalPdfInput.files && generalPdfInput.files[0];
+          if (!f || f.type !== "application/pdf") return;
+          if (f.size > 8 * 1024 * 1024) {
+            if (tg && tg.showAlert) tg.showAlert("Файл слишком большой. Максимум 8 МБ.");
+            generalPdfInput.value = "";
+            return;
+          }
+          generalImage = null;
+          var reader = new FileReader();
+          reader.onload = function () {
+            var dataUrl = reader.result;
+            if (dataUrl && typeof dataUrl === "string" && dataUrl.indexOf("data:application/pdf") === 0) {
+              generalDocument = { dataUrl: dataUrl, fileName: (f.name || "document.pdf").replace(/[^\w\s.-]/g, "") || "document.pdf" };
+              updateGeneralSendBtnIcon();
+              if (generalImagePreview) {
+                generalImagePreview.innerHTML = '<span class="chat-image-preview__doc">📄 ' + escapeHtml(generalDocument.fileName) + '</span><button type="button" class="chat-image-preview__remove">Убрать</button>';
+                generalImagePreview.classList.add("chat-image-preview--visible");
+                generalImagePreview.querySelector(".chat-image-preview__remove").addEventListener("click", function () {
+                  generalDocument = null; generalPdfInput.value = "";
+                  updateGeneralSendBtnIcon();
+                  generalImagePreview.classList.remove("chat-image-preview--visible"); generalImagePreview.innerHTML = "";
+                });
+              }
+            } else if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл");
+          };
+          reader.onerror = function () { if (tg && tg.showAlert) tg.showAlert("Не удалось прочитать файл"); };
+          reader.readAsDataURL(f);
+          generalPdfInput.value = "";
+        });
+      }
     }
     var CHAT_EMOJIS = ["😀","😃","😄","😁","😅","😂","🤣","😊","😇","🙂","😉","😍","🥰","😘","😗","😋","😛","😜","🤪","😎","🤩","🥳","👍","👎","👏","🙌","🤝","🙏","❤️","🧡","💛","💚","💙","💜","🖤","🤍","💔","🔥","⭐","✨","💯","🎉","🎊","🤔","😐","😑","😶","🙄","😏","😣","😢","😭","😤","😡","🤬","😈","💀","👋","✌️","🤞","💪","🐶","🐱","🎲","♠️","♥️","♦️","♣️"];
     var chatEmojiPicker = document.getElementById("chatEmojiPicker");
@@ -12045,7 +12086,7 @@ function initChat() {
             var pvPrev = document.getElementById("chatPersonalVoicePreview");
             if (pvPrev) { pvPrev.classList.remove("chat-voice-preview--recording"); pvPrev.classList.add("chat-voice-preview--hidden"); }
             startRecording("general");
-          } else if ((generalInput && generalInput.value.trim()) || generalImage || generalVoice) {
+          } else if ((generalInput && generalInput.value.trim()) || generalImage || generalVoice || generalDocument) {
             sendGeneral();
           } else {
             startRecording("general");
@@ -12147,7 +12188,7 @@ function initChat() {
     })();
     function updateGeneralSendBtnIcon() {
       if (!generalSendBtn) return;
-      var hasContent = (generalInput && generalInput.value.trim()) || generalImage || generalVoice;
+      var hasContent = (generalInput && generalInput.value.trim()) || generalImage || generalVoice || generalDocument;
       generalSendBtn.textContent = hasContent ? "\u2191" : "\uD83C\uDFA4";
       generalSendBtn.title = hasContent ? "Отправить" : "Голосовое сообщение";
       generalSendBtn.setAttribute("aria-label", hasContent ? "Отправить" : "Записать голосовое");
