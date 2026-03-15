@@ -2387,10 +2387,6 @@ function setView(viewName) {
   if (viewName === "chat") {
     document.documentElement.classList.add("app-view-chat");
     document.documentElement.classList.remove("app-view-winter-rating", "app-view-home");
-    window.chatGeneralUnread = false;
-    window.chatPersonalUnread = false;
-    window.chatGeneralUnreadCount = 0;
-    window.chatPersonalUnreadCount = 0;
     updateChatNavDot();
     if (window.chatListenersAttached && typeof window.chatRefresh === "function") {
       window.chatRefresh();
@@ -11379,6 +11375,10 @@ function initChat() {
       if (!initData && (text || personalImage || personalVoice || personalDocument) && tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram");
       return;
     }
+    if (!messagesEl) {
+      if (tg && tg.showAlert) tg.showAlert("Ошибка: чат не загружен");
+      return;
+    }
     sendingPrivate = true;
     if (sendBtn) sendBtn.disabled = true;
     var body = { initData: initData, with: chatWithUserId, text: text };
@@ -11405,8 +11405,18 @@ function initChat() {
     if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
     var voicePrevP = document.getElementById("chatPersonalVoicePreview");
     if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
-    appendOptimisticPersonalMessage(optText, optImage, optVoice, optDocument, optReply);
+    try {
+      appendOptimisticPersonalMessage(optText, optImage, optVoice, optDocument, optReply);
+    } catch (err) {
+      sendingPrivate = false;
+      if (sendBtn) sendBtn.disabled = false;
+      if (inputEl) inputEl.value = optText;
+      if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
+      if (tg && tg.showAlert) tg.showAlert("Ошибка отправки");
+      return;
+    }
     if (sendBtn) sendBtn.disabled = false;
+    if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
     var hasUpload = !!(body.document || body.image || body.voice);
     var progressWrap = document.getElementById("chatPersonalUploadProgress");
     var progressFill = document.getElementById("chatPersonalUploadProgressFill");
@@ -11434,6 +11444,8 @@ function initChat() {
       } else {
         var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
         if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+        if (inputEl) inputEl.value = optText;
+        if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
         if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
       }
     }
@@ -11442,6 +11454,8 @@ function initChat() {
       hideProgress();
       var opt = messagesEl && messagesEl.querySelector('[data-optimistic="true"]');
       if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+      if (inputEl) inputEl.value = optText;
+      if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
       if (tg && tg.showAlert) tg.showAlert("Ошибка сети или файл слишком большой");
     }
     if (hasUpload && progressWrap && progressFill && typeof XMLHttpRequest !== "undefined") {
