@@ -1190,13 +1190,11 @@ html.app-view-home .card .card__content {
 .gazette-modal__pick[hidden] {
   display: none !important;
 }
-/* Кнопка «На главную» на первом экране газеты — не перекрывается кнопкой закрыть */
+/* Кнопка «На главную» под заголовком «Вестник Два туза», слева */
 .gazette-modal__pick-back-bar {
-  position: relative;
-  z-index: 3;
-  margin: -50px -52px 16px -20px;
-  padding: 8px 52px 8px 20px;
-  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 0;
+  text-align: left;
 }
 .gazette-modal__pick-back-bar .gazette-modal__back--to-home {
   margin: 0;
