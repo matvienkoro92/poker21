@@ -2992,6 +2992,12 @@ body.chat-keyboard-open .app {
   color: var(--accent);
   font-weight: 600;
 }
+.chat-voice-preview__timer {
+  display: inline-block;
+  min-width: 1.8em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 .chat-voice-preview__recording--hidden {
   display: none;
 }

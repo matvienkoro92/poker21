@@ -2546,6 +2546,54 @@ function updateRaffleBadge(hasActive) {
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
 }
 
+var MAIN_VIEW_ORDER = ["home", "chat", "download", "cashout", "profile"];
+var SWIPE_MIN_DIST = 60;
+var SWIPE_MAX_VERTICAL_RATIO = 0.6;
+
+(function initSwipeNav() {
+  var startX = 0;
+  var startY = 0;
+  function getCurrentView() {
+    var active = document.querySelector(".view--active[data-view]");
+    return active ? active.getAttribute("data-view") : null;
+  }
+  function goToAdjacent(direction) {
+    var current = getCurrentView();
+    var idx = MAIN_VIEW_ORDER.indexOf(current);
+    if (idx < 0) return;
+    if (direction === 1 && idx < MAIN_VIEW_ORDER.length - 1) {
+      setView(MAIN_VIEW_ORDER[idx + 1]);
+    } else if (direction === -1 && idx > 0) {
+      setView(MAIN_VIEW_ORDER[idx - 1]);
+    }
+  }
+  function onTouchStart(e) {
+    if (e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }
+  function onTouchEnd(e) {
+    if (e.changedTouches.length !== 1) return;
+    var current = getCurrentView();
+    if (MAIN_VIEW_ORDER.indexOf(current) < 0) return;
+    var endX = e.changedTouches[0].clientX;
+    var endY = e.changedTouches[0].clientY;
+    var dx = endX - startX;
+    var dy = endY - startY;
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
+    if (absDx < SWIPE_MIN_DIST) return;
+    if (absDy > absDx * SWIPE_MAX_VERTICAL_RATIO) return;
+    if (dx < 0) goToAdjacent(1);
+    else goToAdjacent(-1);
+  }
+  var card = document.querySelector(".card");
+  if (card) {
+    card.addEventListener("touchstart", onTouchStart, { passive: true });
+    card.addEventListener("touchend", onTouchEnd, { passive: true });
+  }
+})();
+
 // Рейтинг Турнирщиков зимы — 01.12 по конец февраля. Логика баллов: см. «Хпокер баллы» (XPOKER_BALLS / winterRatingPointsForPlace).
 // Учитывать данные и с синих, и с красных скринов. Синий скрин («Игровые данные»): призовые в наших единицах = выигрыш из скрина × 100. Красный скрин: призовые так же (выигрыш × 100), места и игроки — как на скрине.
 var WINTER_RATING_START = new Date(2025, 11, 1);  // 01.12.2025
@@ -11784,21 +11832,20 @@ function initChat() {
       function onChatInputFocus() {
         scrollDocumentToZero();
         var el = getVisibleMessagesEl();
-        var savedScroll = el ? el.scrollTop : 0;
         document.documentElement.classList.add("chat-keyboard-open");
         document.body.classList.add("chat-keyboard-open");
         scrollDocumentToZero();
-        function restore() {
+        function scrollMessagesToBottom() {
           scrollDocumentToZero();
-          if (el) el.scrollTop = savedScroll;
+          if (el) el.scrollTop = el.scrollHeight;
         }
         requestAnimationFrame(function () {
-          restore();
-          requestAnimationFrame(restore);
+          scrollMessagesToBottom();
+          requestAnimationFrame(scrollMessagesToBottom);
         });
-        setTimeout(restore, 50);
-        setTimeout(restore, 150);
-        setTimeout(restore, 400);
+        setTimeout(scrollMessagesToBottom, 50);
+        setTimeout(scrollMessagesToBottom, 150);
+        setTimeout(scrollMessagesToBottom, 400);
       }
       function onChatInputBlur() {
         setTimeout(function () {
@@ -12105,10 +12152,36 @@ function initChat() {
       var voiceStream = null;
       var voiceChunks = [];
       var voiceRecorder = null;
+      var voiceRecordStartTime = null;
+      var voiceRecordTimerInterval = null;
+      var generalTimerEl = document.getElementById("chatGeneralVoiceTimer");
+      var personalTimerEl = document.getElementById("chatPersonalVoiceTimer");
       var generalBtn = generalVoiceBtn || generalSendBtnRef;
       var personalBtn = document.getElementById("chatPersonalVoiceBtn") || sendBtnRef;
+      function stopVoiceTimer() {
+        if (voiceRecordTimerInterval) {
+          clearInterval(voiceRecordTimerInterval);
+          voiceRecordTimerInterval = null;
+        }
+        voiceRecordStartTime = null;
+      }
+      function updateVoiceTimer() {
+        if (voiceRecordStartTime == null) return;
+        var sec = Math.floor((Date.now() - voiceRecordStartTime) / 1000);
+        if (generalTimerEl) generalTimerEl.textContent = String(sec);
+        if (personalTimerEl) personalTimerEl.textContent = String(sec);
+      }
+      function startVoiceTimer() {
+        stopVoiceTimer();
+        voiceRecordStartTime = Date.now();
+        if (generalTimerEl) generalTimerEl.textContent = "0";
+        if (personalTimerEl) personalTimerEl.textContent = "0";
+        updateVoiceTimer();
+        voiceRecordTimerInterval = setInterval(updateVoiceTimer, 1000);
+      }
       function stopAndDiscard() {
         voiceTarget = null;
+        stopVoiceTimer();
         if (voiceRecorder && voiceRecorder.state !== "inactive") voiceRecorder.stop();
         voiceRecorder = null;
         if (voiceStream) {
@@ -12154,6 +12227,7 @@ function initChat() {
           var savedTarget = target;
           voiceRecorder.ondataavailable = function (e) { if (e.data && e.data.size > 0) voiceChunks.push(e.data); };
           voiceRecorder.onstop = function () {
+            stopVoiceTimer();
             var mime = (voiceRecorder && voiceRecorder.mimeType) ? voiceRecorder.mimeType : "audio/webm";
             voiceRecorder = null;
             if (voiceStream) {
@@ -12202,8 +12276,10 @@ function initChat() {
             reader.readAsDataURL(blob);
           };
           voiceRecorder.start(1000);
+          startVoiceTimer();
         }).catch(function () {
           voiceTarget = null;
+          stopVoiceTimer();
           if (target === "general" && generalBtn) { generalBtn.classList.remove("chat-voice-btn--recording"); generalBtn.title = "Голосовое сообщение"; if (generalVoicePreviewEl) { generalVoicePreviewEl.classList.remove("chat-voice-preview--recording"); generalVoicePreviewEl.classList.add("chat-voice-preview--hidden"); } }
           if (target === "personal") {
             if (personalBtn) { personalBtn.classList.remove("chat-voice-btn--recording"); personalBtn.title = "Голосовое сообщение"; }
@@ -12217,6 +12293,7 @@ function initChat() {
         generalBtn.addEventListener("click", function (e) {
           e.preventDefault();
           if (voiceTarget === "general") {
+            stopVoiceTimer();
             if (voiceRecorder) {
               try {
                 if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
@@ -12255,6 +12332,7 @@ function initChat() {
       if (generalVoiceStop) generalVoiceStop.addEventListener("click", function (e) {
         e.preventDefault();
         if (voiceTarget === "general") {
+          stopVoiceTimer();
           if (voiceRecorder) {
             try {
               if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
@@ -12272,6 +12350,7 @@ function initChat() {
       var personalVoicePreviewEl = document.getElementById("chatPersonalVoicePreview");
       function runPersonalSendAction() {
         if (voiceTarget === "personal") {
+          stopVoiceTimer();
           if (voiceRecorder) {
             try {
               if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
@@ -12320,6 +12399,7 @@ function initChat() {
       if (personalVoiceStop) personalVoiceStop.addEventListener("click", function (e) {
         e.preventDefault();
         if (voiceTarget === "personal") {
+          stopVoiceTimer();
           if (voiceRecorder) {
             try {
               if (voiceRecorder.state === "recording" && voiceRecorder.requestData) voiceRecorder.requestData();
@@ -12607,11 +12687,21 @@ function initChat() {
       suggestEl.setAttribute("aria-hidden", "false");
       if (findByIdInputDialogs) findByIdInputDialogs.setAttribute("aria-expanded", "true");
       suggestListEl.querySelectorAll(".chat-find-suggest__item").forEach(function (btn) {
-        btn.addEventListener("click", function () {
+        function openFromSuggest() {
           openConvFromDialogs(btn.dataset.userId, btn.dataset.userName);
           findByIdInputDialogs.value = "";
           hideSuggest();
-        });
+        }
+        btn.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openFromSuggest();
+        }, { passive: false, capture: true });
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openFromSuggest();
+        }, { capture: true });
       });
     }
     function fetchSuggest() {
@@ -12636,9 +12726,15 @@ function initChat() {
       if (lastSuggestions.length) showSuggest(lastSuggestions);
     });
     findByIdInputDialogs.addEventListener("blur", function () {
-      setTimeout(hideSuggest, 220);
+      setTimeout(function () {
+        if (document.activeElement && suggestEl && suggestEl.contains(document.activeElement)) return;
+        hideSuggest();
+      }, 220);
     });
-    if (suggestEl) suggestEl.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    if (suggestEl) {
+      suggestEl.addEventListener("mousedown", function (e) { e.preventDefault(); });
+      suggestEl.addEventListener("pointerdown", function (e) { e.preventDefault(); }, { passive: false });
+    }
 
     function findByIdAndOpenDialogs() {
       var raw = (findByIdInputDialogs.value || "").trim();
