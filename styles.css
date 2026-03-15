@@ -951,6 +951,19 @@ body.chat-keyboard-open .bottom-nav {
 body.chat-keyboard-open .card__header {
   display: none !important;
 }
+/* Внутри любого чата (главный или личка): скрываем верхнее и нижнее меню */
+.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .card__header,
+.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .card__header {
+  display: none !important;
+}
+.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .bottom-nav,
+.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
+}
 .view--active[data-view="chat"] .chat-input-area,
 .chat-general-view .chat-input-area,
 .chat-container .chat-input-area {
@@ -3557,9 +3570,33 @@ img.chat-contact__avatar {
   touch-action: pan-y;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+}
+.chat-dialogs-block {
+  background: var(--block-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.chat-dialogs-block .chat-dialog-item {
+  border-radius: 0;
+  border: none;
+  position: relative;
+}
+.chat-dialogs-block .chat-dialog-item::after {
+  content: "";
+  position: absolute;
+  left: 64px;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--border-subtle);
+}
+.chat-dialogs-block .chat-dialog-item:last-child::after {
+  display: none;
 }
 .chat-dialog-item {
   display: flex;
@@ -3623,6 +3660,17 @@ img.chat-contact__avatar {
   color: var(--text-muted);
   font-style: italic;
 }
+.chat-dialog-item__role--admin {
+  color: #f97316;
+  font-style: normal;
+  font-weight: 600;
+}
+.chat-dialog-item__main-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: auto;
+}
 .chat-dialog-item__right {
   flex-shrink: 0;
   display: flex;
@@ -3673,6 +3721,10 @@ img.chat-contact__avatar {
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
+}
+.chat-dialog-item--club .chat-dialog-item__main-label {
+  color: var(--accent, #a855f7);
+  font-weight: 500;
 }
 .chat-dialog-item__preview {
   font-size: 13px;
