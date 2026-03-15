@@ -12396,11 +12396,9 @@ function initChat() {
   }
 
   if (dialogsView) {
-    dialogsView.addEventListener("click", function (e) {
-      var el = e.target && e.target.closest ? e.target.closest(".chat-dialog-item--club, .chat-dialog-item[data-chat-user-id], .chat-contact") : null;
+    function openDialogsViewItem(el) {
       if (!el || !dialogsView.contains(el)) return;
-      e.preventDefault();
-      e.stopPropagation();
+      if (el.blur) el.blur();
       if (el.classList && el.classList.contains("chat-dialog-item--club")) {
         openClubChat();
         return;
@@ -12412,7 +12410,39 @@ function initChat() {
       if (el.getAttribute && el.getAttribute("data-chat-user-id")) {
         runDialogActionForBtn(el);
       }
+    }
+    dialogsView.addEventListener("click", function (e) {
+      var el = e.target && e.target.closest ? e.target.closest(".chat-dialog-item--club, .chat-dialog-item[data-chat-user-id], .chat-contact") : null;
+      if (!el) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openDialogsViewItem(el);
     });
+    var dialogsTouchStart = { x: 0, y: 0 }, dialogsTouchMoved = false;
+    dialogsView.addEventListener("touchstart", function (e) {
+      if (e.touches && e.touches[0]) {
+        dialogsTouchStart.x = e.touches[0].clientX;
+        dialogsTouchStart.y = e.touches[0].clientY;
+        dialogsTouchMoved = false;
+      }
+    }, { passive: true });
+    dialogsView.addEventListener("touchmove", function (e) {
+      if (e.touches && e.touches[0] && !dialogsTouchMoved) {
+        var dx = e.touches[0].clientX - dialogsTouchStart.x;
+        var dy = e.touches[0].clientY - dialogsTouchStart.y;
+        if (dx * dx + dy * dy > 225) dialogsTouchMoved = true;
+      }
+    }, { passive: true });
+    dialogsView.addEventListener("touchend", function (e) {
+      if (dialogsTouchMoved || !e.changedTouches || !e.changedTouches[0]) return;
+      var t = e.changedTouches[0];
+      var el = (typeof document.elementFromPoint === "function" ? document.elementFromPoint(t.clientX, t.clientY) : null) || e.target;
+      el = el && el.closest ? el.closest(".chat-dialog-item--club, .chat-dialog-item[data-chat-user-id], .chat-contact") : null;
+      if (!el) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openDialogsViewItem(el);
+    }, { passive: false });
   }
   if (findByIdBtnDialogs && findByIdInputDialogs) {
     var suggestEl = document.getElementById("chatFindSuggest");
