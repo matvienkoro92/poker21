@@ -267,6 +267,28 @@ function getAssetUrl(relativePath) {
     }
   });
 
+  var pdfViewer = document.getElementById("pdfViewer");
+  var pdfViewerIframe = document.getElementById("pdfViewerIframe");
+  var pdfViewerBackdrop = pdfViewer ? pdfViewer.querySelector(".pdf-viewer__backdrop") : null;
+  var pdfViewerClose = pdfViewer ? pdfViewer.querySelector(".pdf-viewer__close") : null;
+  function openPdfViewer(url) {
+    if (!pdfViewer || !pdfViewerIframe) return;
+    pdfViewerIframe.src = url;
+    pdfViewer.classList.add("pdf-viewer--open");
+    pdfViewer.setAttribute("aria-hidden", "false");
+  }
+  function closePdfViewer() {
+    if (!pdfViewer || !pdfViewerIframe) return;
+    pdfViewer.classList.remove("pdf-viewer--open");
+    pdfViewer.setAttribute("aria-hidden", "true");
+    pdfViewerIframe.removeAttribute("src");
+  }
+  if (pdfViewer && pdfViewerIframe) {
+    if (pdfViewerBackdrop) pdfViewerBackdrop.addEventListener("click", closePdfViewer);
+    if (pdfViewerClose) pdfViewerClose.addEventListener("click", closePdfViewer);
+    window.closePdfViewer = closePdfViewer;
+  }
+
   document.body.addEventListener("click", function (e) {
     var link = e.target && e.target.closest ? e.target.closest("a.chat-msg__document-link") : null;
     if (!link || !link.href) return;
@@ -297,10 +319,11 @@ function getAssetUrl(relativePath) {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) window.Telegram.WebApp.showAlert("Не удалось скачать. Попробуйте ещё раз.");
       }
     } else {
-      var w = window.open(href, "_blank", "noopener,noreferrer");
-      if (!w) {
-        try { window.location.href = href; } catch (ignore) {}
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+      if (pdfViewer && pdfViewerIframe) {
+        openPdfViewer(href);
+      } else {
+        var w = window.open(href, "_blank", "noopener,noreferrer");
+        if (!w && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
           window.Telegram.WebApp.showAlert("Нажмите «Скачать» и откройте файл в приложении для PDF.");
         }
       }
@@ -9998,7 +10021,6 @@ function initChat() {
   var findByIdInput = document.getElementById("chatFindByIdInput");
   var findByIdBtn = document.getElementById("chatFindByIdBtn");
   var findByIdInputDialogs = document.getElementById("chatFindByIdInputDialogs");
-  var findByIdBtnDialogs = document.getElementById("chatFindByIdBtnDialogs");
   var backBtn = document.getElementById("chatBackBtn");
   var chatGeneralBackBtn = document.getElementById("chatGeneralBackBtn");
   var chatDialogClub = document.getElementById("chatDialogClub");
@@ -10676,7 +10698,7 @@ function initChat() {
       var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
-      var documentBlock = m.document ? '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(m.documentName || "document.pdf") + ' <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '">Скачать</a></span>' : "";
+      var documentBlock = m.document ? '<span class="chat-msg__document chat-msg__document-wrap">' + '<a class="chat-msg__document-link chat-msg__document-link--view" href="' + escapeHtml(m.document) + '">📄 ' + escapeHtml(m.documentName || "document.pdf") + '</a> <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '">Скачать</a></span>' : "";
       var cornerDelBtn = "";
       var editBtn = "";
       var blockBtn = "";
@@ -11133,7 +11155,7 @@ function initChat() {
     var textContent = "";
     if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(image) + '" alt="Картинка" />';
     else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(voice) + '"></audio>';
-    else if (document && document.dataUrl && document.fileName) textContent = '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(document.fileName) + ' <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '">Скачать</a></span>';
+    else if (document && document.dataUrl && document.fileName) textContent = '<span class="chat-msg__document chat-msg__document-wrap">' + '<a class="chat-msg__document-link chat-msg__document-link--view" href="' + escapeHtml(document.dataUrl) + '">📄 ' + escapeHtml(document.fileName) + '</a> <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '">Скачать</a></span>';
     else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(text).replace(/\n/g, "<br>"))));
     var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(myChatName) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
     var optBodyClass = "chat-msg__body" + (text && !image && !voice && !document ? " chat-msg__body--has-text" : "");
@@ -11397,7 +11419,7 @@ function initChat() {
       var text = linkUrls(linkAppIds(linkTgUsernames((m.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;"))));
       var imgBlock = m.image ? '<img class="chat-msg__image" src="' + escapeHtml(m.image) + '" alt="Картинка" loading="lazy" />' : "";
       var voiceBlock = m.voice ? '<audio class="chat-msg__voice" controls src="' + escapeHtml(m.voice) + '"></audio>' : "";
-      var documentBlock = m.document ? '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(m.documentName || "document.pdf") + ' <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '">Скачать</a></span>' : "";
+      var documentBlock = m.document ? '<span class="chat-msg__document chat-msg__document-wrap">' + '<a class="chat-msg__document-link chat-msg__document-link--view" href="' + escapeHtml(m.document) + '">📄 ' + escapeHtml(m.documentName || "document.pdf") + '</a> <a class="chat-msg__document-link" href="' + escapeHtml(m.document) + '" download="' + escapeHtml(m.documentName || "document.pdf") + '">Скачать</a></span>' : "";
       var cornerDelBtnP = "";
       var editBtnP = "";
       var replyBlock = m.replyTo ? '<div class="chat-msg__reply"><strong>' + escapeHtml(m.replyTo.fromName || "Игрок") + ':</strong> ' + escapeHtml(String(m.replyTo.text || "").slice(0, 80)) + (String(m.replyTo.text || "").length > 80 ? "…" : "") + '</div>' : "";
@@ -11568,7 +11590,7 @@ function initChat() {
       var textContent = "";
       if (image) textContent = '<img class="chat-msg__image" src="' + escapeHtml(String(image)) + '" alt="Картинка" />';
       else if (voice) textContent = '<audio class="chat-msg__voice" controls src="' + escapeHtml(String(voice)) + '"></audio>';
-      else if (document && document.dataUrl && document.fileName) textContent = '<span class="chat-msg__document chat-msg__document-wrap">📄 ' + escapeHtml(document.fileName) + ' <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" target="_blank" rel="noopener noreferrer">Смотреть</a> <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '">Скачать</a></span>';
+      else if (document && document.dataUrl && document.fileName) textContent = '<span class="chat-msg__document chat-msg__document-wrap">' + '<a class="chat-msg__document-link chat-msg__document-link--view" href="' + escapeHtml(document.dataUrl) + '">📄 ' + escapeHtml(document.fileName) + '</a> <a class="chat-msg__document-link" href="' + escapeHtml(document.dataUrl) + '" download="' + escapeHtml(document.fileName) + '">Скачать</a></span>';
       else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(String(text)).replace(/\n/g, "<br>"))));
       var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(nameStr) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
       var optBodyClassP = "chat-msg__body" + (text && !image && !voice && !document ? " chat-msg__body--has-text" : "");
@@ -11730,15 +11752,70 @@ function initChat() {
     chatListenersAttached = true;
     window.chatListenersAttached = true;
     (function () {
-      function setChatKeyboardOpen(open) {
-        if (open) document.body.classList.add("chat-keyboard-open");
-        else document.body.classList.remove("chat-keyboard-open");
+      function getVisibleMessagesEl() {
+        if (chatActiveTab === "general" && generalView && !generalView.classList.contains("chat-general-view--hidden")) return generalMessages;
+        if (chatActiveTab === "personal" && convView && !convView.classList.contains("chat-conv-view--hidden")) return messagesEl;
+        return null;
       }
-      function onChatInputFocus() { setChatKeyboardOpen(true); }
+      function scrollDocumentToZero() {
+        var se = document.scrollingElement;
+        if (se && se.scrollTop !== 0) se.scrollTop = 0;
+        if (document.documentElement && document.documentElement.scrollTop !== 0) document.documentElement.scrollTop = 0;
+        if (document.body && document.body.scrollTop !== 0) document.body.scrollTop = 0;
+      }
+      function setChatKeyboardOpen(open) {
+        var el = getVisibleMessagesEl();
+        var savedScroll = el ? el.scrollTop : 0;
+        if (open) {
+          document.documentElement.classList.add("chat-keyboard-open");
+          document.body.classList.add("chat-keyboard-open");
+        } else {
+          document.documentElement.classList.remove("chat-keyboard-open");
+          document.body.classList.remove("chat-keyboard-open");
+        }
+        scrollDocumentToZero();
+        if (el && savedScroll > 0) {
+          requestAnimationFrame(function () {
+            el.scrollTop = savedScroll;
+            requestAnimationFrame(function () { el.scrollTop = savedScroll; });
+          });
+        }
+      }
+      function onChatInputFocus() {
+        scrollDocumentToZero();
+        var el = getVisibleMessagesEl();
+        var savedScroll = el ? el.scrollTop : 0;
+        document.documentElement.classList.add("chat-keyboard-open");
+        document.body.classList.add("chat-keyboard-open");
+        scrollDocumentToZero();
+        function restore() {
+          scrollDocumentToZero();
+          if (el) el.scrollTop = savedScroll;
+        }
+        requestAnimationFrame(function () {
+          restore();
+          requestAnimationFrame(restore);
+        });
+        setTimeout(restore, 50);
+        setTimeout(restore, 150);
+        setTimeout(restore, 400);
+      }
       function onChatInputBlur() {
         setTimeout(function () {
           var active = document.activeElement;
-          if (active !== generalInput && active !== inputEl) setChatKeyboardOpen(false);
+          if (active !== generalInput && active !== inputEl) {
+            scrollDocumentToZero();
+            var el = getVisibleMessagesEl();
+            var savedScroll = el ? el.scrollTop : 0;
+            document.documentElement.classList.remove("chat-keyboard-open");
+            document.body.classList.remove("chat-keyboard-open");
+            scrollDocumentToZero();
+            if (el && savedScroll > 0) {
+              requestAnimationFrame(function () {
+                el.scrollTop = savedScroll;
+              });
+            }
+          }
         }, 0);
       }
       if (generalInput) {
@@ -12501,7 +12578,7 @@ function initChat() {
     attachAllChatDialogButtons();
     window.chatAttachDialogButtons = attachAllChatDialogButtons;
   }
-  if (findByIdBtnDialogs && findByIdInputDialogs) {
+  if (findByIdInputDialogs) {
     var suggestEl = document.getElementById("chatFindSuggest");
     var suggestListEl = document.getElementById("chatFindSuggestList");
     var findSuggestDebounce = null;
@@ -12580,21 +12657,17 @@ function initChat() {
         url = base + "/api/users?username=" + encodeURIComponent(nick) + "&initData=" + encodeURIComponent(initData);
       }
       hideSuggest();
-      findByIdBtnDialogs.disabled = true;
       fetch(url)
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          findByIdBtnDialogs.disabled = false;
           findByIdInputDialogs.value = "";
           if (data && data.ok && data.userId) openConvFromDialogs(data.userId, data.userName || data.userId, data.dtId);
           else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
         })
         .catch(function () {
-          findByIdBtnDialogs.disabled = false;
           if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
         });
     }
-    findByIdBtnDialogs.addEventListener("click", findByIdAndOpenDialogs);
     findByIdInputDialogs.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();

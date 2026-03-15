@@ -1115,13 +1115,13 @@
           <div class="view" data-view="chat">
             <div class="chat-dialogs-view" id="chatDialogsView">
               <div class="chat-find-by-id chat-find-by-id--dialogs chat-find-by-id--top">
-                <div class="chat-find-input-wrap">
-                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="ID или ник в тг" maxlength="35" autocomplete="off" aria-autocomplete="list" aria-controls="chatFindSuggestList" aria-expanded="false" />
+                <div class="chat-find-input-wrap chat-find-input-wrap--with-icon">
+                  <span class="chat-find-input-icon" aria-hidden="true">🔍</span>
+                  <input type="text" class="chat-input chat-find-input" id="chatFindByIdInputDialogs" placeholder="Введите ID игрока или его ник в тг" maxlength="35" autocomplete="off" aria-autocomplete="list" aria-controls="chatFindSuggestList" aria-expanded="false" />
                   <div class="chat-find-suggest chat-find-suggest--hidden" id="chatFindSuggest" role="listbox" aria-hidden="true">
                     <div class="chat-find-suggest__list" id="chatFindSuggestList"></div>
                   </div>
                 </div>
-                <button type="button" class="chat-send-btn chat-find-btn" id="chatFindByIdBtnDialogs">Найти</button>
               </div>
               <h2 class="chat-title--small">Чаты</h2>
               <div class="chat-dialogs-list-wrap">
@@ -2376,6 +2376,13 @@
         <div class="image-lightbox__content">
           <img class="image-lightbox__img" src="" alt="" />
           <button type="button" class="image-lightbox__close" aria-label="Закрыть">✕</button>
+        </div>
+      </div>
+      <div class="pdf-viewer" id="pdfViewer" role="dialog" aria-modal="true" aria-label="Просмотр PDF" aria-hidden="true">
+        <button type="button" class="pdf-viewer__backdrop" aria-label="Закрыть"></button>
+        <div class="pdf-viewer__content">
+          <button type="button" class="pdf-viewer__close" aria-label="Назад">← Назад</button>
+          <iframe class="pdf-viewer__iframe" id="pdfViewerIframe" title="PDF"></iframe>
         </div>
       </div>
       <!-- Модалка «Посетители» (только админ) -->

@@ -928,7 +928,19 @@ html.app-view-home .card .card__content {
   padding-left: 0;
   padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
 }
-/* При вводе сообщения (клавиатура открыта) — плавно скрываем меню, окно чата на всю высоту */
+/* При вводе сообщения (клавиатура открыта) — не даём документу прокручиваться, убираем мерцание */
+html.chat-keyboard-open,
+html.chat-keyboard-open body {
+  overflow: hidden !important;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+/* Плавно скрываем нижнее меню */
 body.chat-keyboard-open .bottom-nav {
   transform: translateY(100%);
   opacity: 0;
@@ -3085,6 +3097,14 @@ body.chat-keyboard-open .app {
   font-weight: 500;
   white-space: nowrap;
 }
+.chat-msg__document-link--view {
+  color: inherit;
+}
+.chat-msg__document-link--view:hover,
+.chat-msg__document-link--view:focus {
+  color: var(--accent, #a855f7);
+  text-decoration: underline;
+}
 .chat-msg__document-link:hover,
 .chat-msg__document-link:focus {
   text-decoration: underline;
@@ -3193,6 +3213,66 @@ img.chat-contact__avatar {
 .image-lightbox__close:hover {
   background: rgba(0, 0, 0, 0.7);
 }
+
+.pdf-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  background: #1e293b;
+  padding: 0;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pdf-viewer.pdf-viewer--open {
+  display: flex;
+}
+.pdf-viewer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.pdf-viewer__content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  z-index: 1;
+}
+.pdf-viewer__close {
+  flex-shrink: 0;
+  margin: 8px 12px;
+  padding: 10px 16px;
+  align-self: flex-start;
+  border: none;
+  border-radius: 20px;
+  background: var(--block-bg);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.pdf-viewer__close:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pdf-viewer__iframe {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  background: #fff;
+}
+
 .chat-input {
   flex: 1;
   min-width: 0;
@@ -3605,8 +3685,6 @@ img.chat-contact__avatar {
 .chat-find-by-id--dialogs {
   margin-top: 12px;
   flex-shrink: 0;
-  display: flex;
-  gap: 6px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -3614,6 +3692,36 @@ img.chat-contact__avatar {
   flex: 1;
   min-width: 0;
   position: relative;
+}
+.chat-find-input-wrap--with-icon {
+  position: relative;
+  width: 100%;
+}
+.chat-find-input-wrap--with-icon .chat-find-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 40px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.chat-find-input-wrap--with-icon .chat-find-input::placeholder {
+  font-style: italic;
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+[data-theme="light"] .chat-find-input-wrap--with-icon .chat-find-input {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+.chat-find-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0.7;
 }
 .chat-find-by-id--dialogs .chat-find-input { width: 100%; box-sizing: border-box; }
 .chat-find-suggest {
