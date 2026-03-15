@@ -11296,7 +11296,7 @@ function initChat() {
             var avatarEl = c.avatar
               ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
               : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
-            return '<button type="button" class="chat-contact" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
+            return '<button type="button" class="chat-contact" tabindex="-1" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
           }).join("");
           updateDialogUnreadBadges();
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
@@ -11310,6 +11310,7 @@ function initChat() {
               if (this.parentNode) this.parentNode.replaceChild(place, this);
             };
           });
+          if (typeof window.chatAttachDialogButtons === "function") window.chatAttachDialogButtons();
         }
       }
     }).catch(function () { contactsEl.innerHTML = "<p class=\"chat-empty\">Ошибка</p>"; });
@@ -12399,6 +12400,10 @@ function initChat() {
     function openDialogsViewItem(el) {
       if (!el || !dialogsView.contains(el)) return;
       if (el.blur) el.blur();
+      if (el.classList && el.classList.contains("chat-dialog-item--find-user")) {
+        if (findByIdInputDialogs) findByIdInputDialogs.focus();
+        return;
+      }
       if (el.classList && el.classList.contains("chat-dialog-item--club")) {
         openClubChat();
         return;
@@ -12411,38 +12416,27 @@ function initChat() {
         runDialogActionForBtn(el);
       }
     }
-    dialogsView.addEventListener("click", function (e) {
-      var el = e.target && e.target.closest ? e.target.closest(".chat-dialog-item--club, .chat-dialog-item[data-chat-user-id], .chat-contact") : null;
-      if (!el) return;
-      e.preventDefault();
-      e.stopPropagation();
-      openDialogsViewItem(el);
-    });
-    var dialogsTouchStart = { x: 0, y: 0 }, dialogsTouchMoved = false;
-    dialogsView.addEventListener("touchstart", function (e) {
-      if (e.touches && e.touches[0]) {
-        dialogsTouchStart.x = e.touches[0].clientX;
-        dialogsTouchStart.y = e.touches[0].clientY;
-        dialogsTouchMoved = false;
-      }
-    }, { passive: true });
-    dialogsView.addEventListener("touchmove", function (e) {
-      if (e.touches && e.touches[0] && !dialogsTouchMoved) {
-        var dx = e.touches[0].clientX - dialogsTouchStart.x;
-        var dy = e.touches[0].clientY - dialogsTouchStart.y;
-        if (dx * dx + dy * dy > 225) dialogsTouchMoved = true;
-      }
-    }, { passive: true });
-    dialogsView.addEventListener("touchend", function (e) {
-      if (dialogsTouchMoved || !e.changedTouches || !e.changedTouches[0]) return;
-      var t = e.changedTouches[0];
-      var el = (typeof document.elementFromPoint === "function" ? document.elementFromPoint(t.clientX, t.clientY) : null) || e.target;
-      el = el && el.closest ? el.closest(".chat-dialog-item--club, .chat-dialog-item[data-chat-user-id], .chat-contact") : null;
-      if (!el) return;
-      e.preventDefault();
-      e.stopPropagation();
-      openDialogsViewItem(el);
-    }, { passive: false });
+    var dialogsSelector = ".chat-dialog-item--club, .chat-dialog-item--find-user, .chat-dialog-item[data-chat-user-id], .chat-contact";
+    function attachChatDialogButton(btn) {
+      if (btn._chatDialogAttached) return;
+      btn._chatDialogAttached = true;
+      btn.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDialogsViewItem(btn);
+      }, { passive: false, capture: true });
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDialogsViewItem(btn);
+      }, { capture: true });
+    }
+    function attachAllChatDialogButtons() {
+      if (!dialogsView) return;
+      dialogsView.querySelectorAll(dialogsSelector).forEach(attachChatDialogButton);
+    }
+    attachAllChatDialogButtons();
+    window.chatAttachDialogButtons = attachAllChatDialogButtons;
   }
   if (findByIdBtnDialogs && findByIdInputDialogs) {
     var suggestEl = document.getElementById("chatFindSuggest");
