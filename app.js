@@ -533,6 +533,11 @@ function runGazetteAndTasksInit() {
       showGazetteView("news");
       return;
     }
+    if (e.target && e.target.id === "gazetteModalBackToHome") {
+      e.preventDefault();
+      closeGazette();
+      return;
+    }
     if (e.target && e.target.id === "gazetteModalBackNews" || (e.target.closest && e.target.closest(".gazette-modal__back"))) {
       e.preventDefault();
       showGazetteView("pick");

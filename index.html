@@ -2521,8 +2521,11 @@
           <span class="gazette-modal__deco gazette-modal__deco--bl" aria-hidden="true">A♦</span>
           <span class="gazette-modal__deco gazette-modal__deco--br" aria-hidden="true">A♣</span>
           <button type="button" class="gazette-modal__close" id="gazetteModalClose" aria-label="Закрыть">×</button>
-          <!-- Выбор страницы -->
+          <!-- Выбор страницы (первый экран газеты) -->
           <div class="gazette-modal__pick" id="gazetteModalPick">
+            <div class="gazette-modal__pick-back-bar">
+              <button type="button" class="gazette-modal__back gazette-modal__back--to-home" id="gazetteModalBackToHome" aria-label="На главную">← На главную</button>
+            </div>
             <header class="gazette-modal__header">
               <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Два туза</h2>
               <div class="gazette-modal__rule"></div>
@@ -2603,9 +2606,7 @@
           </div>
           <!-- Страница: Горячие новости -->
           <div class="gazette-modal__content gazette-modal__content--news" id="gazetteModalNews" hidden>
-            <div class="gazette-modal__back-bar">
-              <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад на главную газеты">← На главную</button>
-            </div>
+            <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад к выбору страницы">← К газете</button>
             <div class="gazette-modal__content-masthead">Горячие новости недели</div>
             <div class="gazette-modal__content-rule"></div>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="14">
