@@ -10398,7 +10398,7 @@ function initChat() {
     loadGeneral();
     updateChatHeaderStats();
   }
-  function openConvFromDialogs(userId, userName) {
+  function openConvFromDialogs(userId, userName, dtId) {
     if (typeof window.closeChatNavDropdown === "function") window.closeChatNavDropdown();
     if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
     if (generalView) generalView.classList.add("chat-general-view--hidden");
@@ -10407,7 +10407,7 @@ function initChat() {
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     setTab("personal");
-    showConv(userId, userName || userId);
+    showConv(userId, userName || userId, dtId);
   }
   window.chatSetTab = setTab;
   window.chatShowDialogs = showDialogs;
@@ -10527,7 +10527,7 @@ function initChat() {
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data && data.ok && data.userId) {
-          showConv(data.userId, data.userName || data.userId);
+          showConv(data.userId, data.userName || data.userId, data.dtId);
           setTab("personal");
         } else {
           if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
@@ -11223,7 +11223,7 @@ function initChat() {
     loadContacts();
   }
 
-  function showConv(userId, userName) {
+  function showConv(userId, userName, dtIdFromContact) {
     chatWithUserId = userId;
     chatWithUserName = userName || userId;
     personalReplyTo = null;
@@ -11239,25 +11239,23 @@ function initChat() {
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     if (convTitle) convTitle.textContent = userName || userId;
     if (convTitleIdWrap && convTitleId && convTitleCopy) {
-      var isAdmin = CHAT_ADMIN_IDS.indexOf(userId) !== -1;
-      if (isAdmin) {
-        convTitleIdWrap.classList.remove("chat-conv-title__id-wrap--hidden");
-        convTitleId.textContent = userId.replace(/^tg_/, "") || userId;
-        convTitleCopy.onclick = function () {
-          var toCopy = userId;
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(toCopy).then(function () { if (tg && tg.showAlert) tg.showAlert("ID скопирован"); }, function () { if (tg && tg.showAlert) tg.showAlert("Не удалось скопировать"); });
-          } else { if (tg && tg.showAlert) tg.showAlert("Копирование недоступно"); }
-        };
-      } else {
-        convTitleIdWrap.classList.add("chat-conv-title__id-wrap--hidden");
-      }
+      convTitleIdWrap.classList.remove("chat-conv-title__id-wrap--hidden");
+      var displayId = (dtIdFromContact && String(dtIdFromContact).trim()) || "—";
+      convTitleId.textContent = displayId;
+      convTitleCopy.onclick = function () {
+        var toCopy = (convTitleId && convTitleId.textContent) || "";
+        if (toCopy === "—") toCopy = "";
+        if (!toCopy) { if (tg && tg.showAlert) tg.showAlert("ID пока неизвестен"); return; }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(toCopy).then(function () { if (tg && tg.showAlert) tg.showAlert("ID скопирован"); }, function () { if (tg && tg.showAlert) tg.showAlert("Не удалось скопировать"); });
+        } else { if (tg && tg.showAlert) tg.showAlert("Копирование недоступно"); }
+      };
     }
     updateChatHeaderStats();
     scrollPersonalToBottomOnNextRender = true;
     if (messagesEl) {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-      requestAnimationFrame(function () { messagesEl.scrollTop = messagesEl.scrollHeight; });
+      messagesEl.innerHTML = '<p class="chat-empty">Загрузка...</p>';
+      messagesEl.scrollTop = 0;
     }
     loadMessages();
   }
@@ -11336,7 +11334,7 @@ function initChat() {
             var avatarEl = c.avatar
               ? '<img class="chat-contact__avatar" src="' + escapeHtml(c.avatar) + '" alt="" loading="lazy" />'
               : '<span class="chat-contact__avatar chat-contact__avatar--placeholder">' + initial + '</span>';
-            return '<button type="button" class="chat-contact" tabindex="-1" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '">' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
+            return '<button type="button" class="chat-contact" tabindex="-1" data-chat-id="' + escapeHtml(c.id) + '" data-chat-name="' + escapeHtml(c.name) + '" data-chat-initial="' + escapeHtml(initial) + '"' + (c.dtId ? ' data-chat-dt-id="' + escapeHtml(c.dtId) + '"' : '') + '>' + avatarEl + '<span class="chat-contact__main"><span class="chat-contact__name-row"><span class="chat-contact__name">' + escapeHtml(c.name) + '</span>' + badgesBlock + '</span>' + dtSpan + '</span>' + unreadBadge + '</button>';
           }).join("");
           updateDialogUnreadBadges();
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
@@ -11519,6 +11517,9 @@ function initChat() {
         var ol = data.onlineCount != null ? data.onlineCount : "—";
         window.lastConvStats = pt + " уч · " + ol + " онл";
         updateChatHeaderStats();
+        if (data.otherDtId != null && convTitleId) {
+          convTitleId.textContent = String(data.otherDtId).trim() || "—";
+        }
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
         var lastView = (chatWithUserId && lastViewedPersonal[chatWithUserId] != null) ? lastViewedPersonal[chatWithUserId] : "";
@@ -12471,7 +12472,7 @@ function initChat() {
         return;
       }
       if (el.classList && el.classList.contains("chat-contact") && el.dataset.chatId) {
-        openConvFromDialogs(el.dataset.chatId, el.dataset.chatName);
+        openConvFromDialogs(el.dataset.chatId, el.dataset.chatName, el.dataset.chatDtId);
         return;
       }
       if (el.getAttribute && el.getAttribute("data-chat-user-id")) {
@@ -12585,7 +12586,7 @@ function initChat() {
         .then(function (data) {
           findByIdBtnDialogs.disabled = false;
           findByIdInputDialogs.value = "";
-          if (data && data.ok && data.userId) openConvFromDialogs(data.userId, data.userName || data.userId);
+          if (data && data.ok && data.userId) openConvFromDialogs(data.userId, data.userName || data.userId, data.dtId);
           else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не найдено");
         })
         .catch(function () {

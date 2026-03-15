@@ -912,6 +912,7 @@ html.app-view-home .card .card__content {
   min-height: 0;
   overflow: hidden;
   width: 100%;
+  padding-top: 0;
 }
 .view--active[data-view="chat"] .chat-messages {
   background-color: transparent;
@@ -927,12 +928,24 @@ html.app-view-home .card .card__content {
   padding-left: 0;
   padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
 }
-/* При вводе сообщения (клавиатура открыта) скрываем верхнее и нижнее меню — окно чата на всю высоту */
+/* При вводе сообщения (клавиатура открыта) — плавно скрываем меню, окно чата на всю высоту */
 body.chat-keyboard-open .bottom-nav {
-  display: none !important;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
 }
 body.chat-keyboard-open .card__header {
   display: none !important;
+}
+.view--active[data-view="chat"] .chat-input-area,
+.chat-general-view .chat-input-area,
+.chat-container .chat-input-area {
+  transition: padding-bottom 0.25s ease-out;
+}
+.app {
+  transition: padding-bottom 0.25s ease-out;
 }
 body.chat-keyboard-open .view--active[data-view="chat"] .chat-input-area,
 body.chat-keyboard-open .chat-general-view .chat-input-area,
@@ -3744,13 +3757,52 @@ img.chat-contact__avatar {
   overflow: hidden;
 }
 .chat-conv-view--hidden { display: none !important; }
+.chat-conv-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  min-height: 0;
+}
+.chat-conv-top .chat-back-btn {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.chat-conv-top .chat-conv-header {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+  gap: 6px 10px;
+}
+.chat-conv-top .chat-conv-header .chat-title--small {
+  display: inline;
+  font-size: 15px;
+  margin: 0;
+  margin-right: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 45%;
+}
+.chat-conv-top .chat-conv-title__id-wrap {
+  display: inline-flex;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%;
+}
+.chat-conv-title__copy--icon {
+  padding: 4px 8px;
+  font-size: 14px;
+}
 .chat-container {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 4px;
+  margin-top: 0;
   overflow: hidden;
   width: 100%;
 }
@@ -3849,7 +3901,7 @@ img.chat-contact__avatar {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 14px;
-  margin-bottom: 6px;
+  margin-bottom: 0;
 }
 .chat-conv-header .chat-title--small { margin-bottom: 0; }
 .chat-conv-title__id-wrap {
@@ -14127,6 +14179,7 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   box-sizing: border-box;
   max-width: 100vw;
   overflow: visible;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 }
 .bottom-nav__item {
   flex: 1;
