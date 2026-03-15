@@ -12413,7 +12413,7 @@ function initChat() {
       if (e.touches && e.touches[0] && !dialogsTouchMoved) {
         var dx = e.touches[0].clientX - dialogsTouchStartX;
         var dy = e.touches[0].clientY - dialogsTouchStartY;
-        if (dx * dx + dy * dy > 100) dialogsTouchMoved = true;
+        if (dx * dx + dy * dy > 256) dialogsTouchMoved = true;
       }
     }, { passive: true, capture: true });
     function runDialogsViewAction(e) {
@@ -12443,7 +12443,6 @@ function initChat() {
     var dialogsViewLastTapTime = 0;
     dialogsView.addEventListener("touchend", function (e) {
       if (dialogsTouchMoved) return;
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
       if (runDialogsViewAction(e)) {
         dialogsViewLastTapTime = Date.now();
         e.preventDefault();
@@ -12482,7 +12481,6 @@ function initChat() {
     btn.addEventListener("touchend", function (e) {
       if (e.target !== btn && !btn.contains(e.target)) return;
       if (touchMoved) return;
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
       e.preventDefault();
       e.stopPropagation();
       onTap();
