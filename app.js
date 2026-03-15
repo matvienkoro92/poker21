@@ -7214,6 +7214,31 @@ document.addEventListener("click", function (e) {
 });
 
 document.addEventListener("click", function (e) {
+  var hereBtn = e.target && e.target.closest ? e.target.closest(".cashout-manager-btn--here[data-cashout-chat-user-id]") : null;
+  if (hereBtn) {
+    e.preventDefault();
+    var userId = hereBtn.getAttribute("data-cashout-chat-user-id");
+    var userName = hereBtn.getAttribute("data-cashout-chat-user-name") || "Менеджер";
+    if (userId && typeof setView === "function") {
+      setView("chat");
+      setTimeout(function () {
+        if (typeof window.chatOpenConvFromDialogs === "function") window.chatOpenConvFromDialogs(userId, userName);
+      }, 150);
+    }
+    return;
+  }
+  var tgBtn = e.target && e.target.closest ? e.target.closest("a.cashout-manager-btn--tg[href^=\"https://t.me/\"]") : null;
+  if (tgBtn) {
+    var href = tgBtn.getAttribute("href");
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (href && tg && tg.openLink) {
+      e.preventDefault();
+      tg.openLink(href);
+    }
+  }
+});
+
+document.addEventListener("click", function (e) {
   var btn = e.target && e.target.closest ? e.target.closest("#pokerTasksStartBtn") : null;
   if (!btn) return;
   e.preventDefault();
@@ -11859,15 +11884,18 @@ function initChat() {
           });
         }
       }
+      var viewportResizeScrollHandler = null;
       function onChatInputFocus() {
-        scrollDocumentToZero();
         var el = getVisibleMessagesEl();
         document.documentElement.classList.add("chat-keyboard-open");
         document.body.classList.add("chat-keyboard-open");
-        scrollDocumentToZero();
         function scrollMessagesToBottom() {
-          scrollDocumentToZero();
-          if (el) el.scrollTop = el.scrollHeight;
+          var se = document.scrollingElement;
+          if (se && se.scrollTop !== 0) se.scrollTop = 0;
+          if (document.documentElement && document.documentElement.scrollTop !== 0) document.documentElement.scrollTop = 0;
+          if (document.body && document.body.scrollTop !== 0) document.body.scrollTop = 0;
+          var messagesEl = getVisibleMessagesEl();
+          if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
         }
         requestAnimationFrame(function () {
           scrollMessagesToBottom();
@@ -11876,8 +11904,21 @@ function initChat() {
         setTimeout(scrollMessagesToBottom, 50);
         setTimeout(scrollMessagesToBottom, 150);
         setTimeout(scrollMessagesToBottom, 400);
+        setTimeout(scrollMessagesToBottom, 600);
+        setTimeout(scrollMessagesToBottom, 1000);
+        if (typeof window.visualViewport !== "undefined" && window.visualViewport.addEventListener) {
+          if (viewportResizeScrollHandler) window.visualViewport.removeEventListener("resize", viewportResizeScrollHandler);
+          viewportResizeScrollHandler = function () {
+            if (document.body.classList.contains("chat-keyboard-open")) scrollMessagesToBottom();
+          };
+          window.visualViewport.addEventListener("resize", viewportResizeScrollHandler);
+        }
       }
       function onChatInputBlur() {
+        if (viewportResizeScrollHandler && typeof window.visualViewport !== "undefined" && window.visualViewport.removeEventListener) {
+          window.visualViewport.removeEventListener("resize", viewportResizeScrollHandler);
+          viewportResizeScrollHandler = null;
+        }
         setTimeout(function () {
           var active = document.activeElement;
           if (active !== generalInput && active !== inputEl) {
