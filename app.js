@@ -11426,20 +11426,9 @@ function initChat() {
     if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
     var voicePrevP = document.getElementById("chatPersonalVoicePreview");
     if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
-    var appended = false;
     try {
-      appended = appendOptimisticPersonalMessage(optText, optImage, optVoice, optDocument, optReply);
-    } catch (err) {
-      appended = false;
-    }
-    if (!appended) {
-      sendingPrivate = false;
-      if (sendBtn) sendBtn.disabled = false;
-      if (inputEl) inputEl.value = optText;
-      if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
-      if (tg && tg.showAlert) tg.showAlert("Ошибка отправки");
-      return;
-    }
+      appendOptimisticPersonalMessage(optText, optImage, optVoice, optDocument, optReply);
+    } catch (err) {}
     if (sendBtn) sendBtn.disabled = false;
     if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon();
     var hasUpload = !!(body.document || body.image || body.voice);
@@ -12194,35 +12183,50 @@ function initChat() {
       }
     }, { passive: true, capture: true });
     dialogsView.addEventListener("touchmove", function (e) {
-      if (e.changedTouches && e.changedTouches[0] && !dialogsTouchMoved) {
-        var dx = e.changedTouches[0].clientX - dialogsTouchStartX;
-        var dy = e.changedTouches[0].clientY - dialogsTouchStartY;
+      if (e.touches && e.touches[0] && !dialogsTouchMoved) {
+        var dx = e.touches[0].clientX - dialogsTouchStartX;
+        var dy = e.touches[0].clientY - dialogsTouchStartY;
         if (dx * dx + dy * dy > 100) dialogsTouchMoved = true;
       }
     }, { passive: true, capture: true });
-    dialogsView.addEventListener("touchend", function (e) {
-      if (dialogsTouchMoved) return;
-      if (window.__touchWasScroll && window.__touchWasScroll()) return;
-      var target = e.target && e.target.closest ? e.target.closest("button, [role=\"button\"]") : null;
-      if (!target || !dialogsView.contains(target)) return;
+    function runDialogsViewAction(e) {
+      var target = e.target && e.target.closest ? (e.target.closest("button, [role=\"button\"]") || e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null;
+      if (!target || !dialogsView.contains(target)) return false;
       if (chatDialogClub && (target === chatDialogClub || chatDialogClub.contains(target))) {
-        e.preventDefault();
-        e.stopPropagation();
         openClubChat();
-        return;
+        return true;
       }
       var dialogItem = target.closest(".chat-dialog-item[data-chat-user-id]");
       if (dialogItem) {
-        e.preventDefault();
-        e.stopPropagation();
         runDialogActionForBtn(dialogItem);
-        return;
+        return true;
       }
       var contactBtn = target.closest(".chat-contact");
       if (contactBtn && contactBtn.dataset.chatId) {
+        openConvFromDialogs(contactBtn.dataset.chatId, contactBtn.dataset.chatName);
+        return true;
+      }
+      return false;
+    }
+    var dialogsViewLastTapTime = 0;
+    dialogsView.addEventListener("touchend", function (e) {
+      if (dialogsTouchMoved) return;
+      if (window.__touchWasScroll && window.__touchWasScroll()) return;
+      if (runDialogsViewAction(e)) {
+        dialogsViewLastTapTime = Date.now();
         e.preventDefault();
         e.stopPropagation();
-        openConvFromDialogs(contactBtn.dataset.chatId, contactBtn.dataset.chatName);
+      }
+    }, { passive: false, capture: true });
+    dialogsView.addEventListener("click", function (e) {
+      if (Date.now() - dialogsViewLastTapTime < 350) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if (runDialogsViewAction(e)) {
+        e.preventDefault();
+        e.stopPropagation();
       }
     }, { passive: false, capture: true });
   }
@@ -12237,9 +12241,9 @@ function initChat() {
       }
     }, { passive: true });
     btn.addEventListener("touchmove", function (e) {
-      if (e.changedTouches && e.changedTouches[0] && !touchMoved) {
-        var dx = e.changedTouches[0].clientX - touchStartX;
-        var dy = e.changedTouches[0].clientY - touchStartY;
+      if (e.touches && e.touches[0] && !touchMoved) {
+        var dx = e.touches[0].clientX - touchStartX;
+        var dy = e.touches[0].clientY - touchStartY;
         if (dx * dx + dy * dy > 100) touchMoved = true;
       }
     }, { passive: true });
