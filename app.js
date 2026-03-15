@@ -8035,9 +8035,7 @@ function initRaffles() {
   var raffleTicketSingleWinnersLabel = document.getElementById("raffleTicketSingleWinnersLabel");
   var raffleTicketWinnersCount = document.getElementById("raffleTicketWinnersCount");
   var raffleTicketGroups = document.getElementById("raffleTicketGroups");
-  var raffleTicketAmount = document.getElementById("raffleTicketAmount");
   var raffleTicketTournamentSelect = document.getElementById("raffleTicketTournamentSelect");
-  var raffleTicketAmountWrap = document.getElementById("raffleTicketAmountWrap");
   var raffleCreateTotal = document.getElementById("raffleCreateTotal");
   var raffleEndDateInput = document.getElementById("raffleEndDate");
   var groupCountInput = document.getElementById("raffleGroupCount");
@@ -8727,17 +8725,32 @@ function initRaffles() {
   }
 
   function updateRaffleCreateTotal() {
-    if (!raffleCreateTotal || !raffleTicketAmount) return;
-    var amount = parseFloat(String(raffleTicketAmount.value).replace(",", ".")) || 0;
-    var totalWinners = 0;
+    if (!raffleCreateTotal) return;
+    var total = 0;
+    var parts = [];
     if (raffleTicketGroupCount && parseInt(raffleTicketGroupCount.value, 10) === 1) {
-      totalWinners = Math.max(0, parseInt(raffleTicketWinnersCount.value, 10) || 0);
+      var c = Math.max(0, parseInt(raffleTicketWinnersCount.value, 10) || 0);
+      var buyin = 0;
+      if (raffleTicketTournamentSelect && raffleTicketTournamentSelect.value && raffleTicketTournamentSelect.value !== "custom") {
+        buyin = parseFloat(raffleTicketTournamentSelect.value) || 0;
+      }
+      total = c * buyin;
+      if (c > 0 && buyin >= 0) parts.push(c + " × " + (buyin % 1 === 0 ? buyin : buyin.toFixed(2)) + " ₽");
     } else if (raffleTicketGroups) {
-      var inputs = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-count");
-      for (var i = 0; i < inputs.length; i++) totalWinners += Math.max(0, parseInt(inputs[i].value, 10) || 0);
+      var rows = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-row");
+      for (var i = 0; i < rows.length; i++) {
+        var countInput = rows[i].querySelector(".raffle-ticket-group-count");
+        var groupSelect = rows[i].querySelector(".raffle-ticket-group-tournament");
+        var cnt = countInput ? Math.max(0, parseInt(countInput.value, 10) || 0) : 0;
+        var buyin = 0;
+        if (groupSelect && groupSelect.value && groupSelect.value !== "custom") {
+          buyin = parseFloat(groupSelect.value) || 0;
+        }
+        total += cnt * buyin;
+        if (cnt > 0 && buyin >= 0) parts.push(cnt + " × " + (buyin % 1 === 0 ? buyin : buyin.toFixed(2)) + " ₽");
+      }
     }
-    var total = totalWinners * amount;
-    var suffix = totalWinners > 0 && amount >= 0 ? " (" + totalWinners + " × " + (amount % 1 === 0 ? amount : amount.toFixed(2)) + " ₽)" : "";
+    var suffix = parts.length > 0 ? " (" + parts.join(", ") + ")" : "";
     raffleCreateTotal.textContent = "Итого: " + (total % 1 === 0 ? total : total.toFixed(2)) + " ₽" + suffix;
   }
 
@@ -8839,23 +8852,14 @@ function initRaffles() {
   }
   if (raffleTypeTickets) raffleTypeTickets.addEventListener("change", switchRaffleCreatePanel);
   if (raffleTypeOther) raffleTypeOther.addEventListener("change", switchRaffleCreatePanel);
-  if (raffleTicketTournamentSelect) raffleTicketTournamentSelect.addEventListener("change", function () {
-    var val = this.value;
-    if (val === "custom" || val === "") {
-      if (raffleTicketAmount) { raffleTicketAmount.value = "0"; raffleTicketAmount.readOnly = false; raffleTicketAmount.disabled = false; }
-      if (raffleTicketAmountWrap) raffleTicketAmountWrap.style.display = "";
-    } else {
-      var buyin = parseFloat(val) || 0;
-      if (raffleTicketAmount) { raffleTicketAmount.value = String(buyin); raffleTicketAmount.readOnly = true; raffleTicketAmount.disabled = false; }
-      if (raffleTicketAmountWrap) raffleTicketAmountWrap.style.display = "";
-    }
-    updateRaffleCreateTotal();
-  });
+  if (raffleTicketTournamentSelect) raffleTicketTournamentSelect.addEventListener("change", updateRaffleCreateTotal);
   if (raffleTicketGroupCount) raffleTicketGroupCount.addEventListener("change", buildTicketGroupInputs);
   if (raffleTicketGroupCount) raffleTicketGroupCount.addEventListener("input", buildTicketGroupInputs);
   if (raffleTicketWinnersCount) raffleTicketWinnersCount.addEventListener("input", updateRaffleCreateTotal);
-  if (raffleTicketAmount) raffleTicketAmount.addEventListener("input", updateRaffleCreateTotal);
-  if (raffleTicketGroups) raffleTicketGroups.addEventListener("input", function (e) { if (e.target && e.target.classList.contains("raffle-ticket-group-count")) updateRaffleCreateTotal(); });
+  if (raffleTicketGroups) {
+    raffleTicketGroups.addEventListener("input", function (e) { if (e.target && e.target.classList.contains("raffle-ticket-group-count")) updateRaffleCreateTotal(); });
+    raffleTicketGroups.addEventListener("change", function (e) { if (e.target && e.target.classList.contains("raffle-ticket-group-tournament")) updateRaffleCreateTotal(); });
+  }
   if (groupCountInput && raffleGroupsEl) {
     groupCountInput.addEventListener("change", buildGroupInputs);
   }
@@ -8877,19 +8881,22 @@ function initRaffles() {
       var groups;
       var title = "";
       if (isTickets) {
-        var amount = parseFloat(String(raffleTicketAmount.value).replace(",", ".")) || 0;
-        var prizeText = amount > 0 ? "Билет " + (amount % 1 === 0 ? amount : amount.toFixed(2)) + " ₽" : "Билет на турнир";
         totalWinners = 0;
         groups = [];
         if (raffleTicketGroupCount && parseInt(raffleTicketGroupCount.value, 10) === 1) {
           var c = Math.max(0, parseInt(raffleTicketWinnersCount.value, 10) || 0);
           totalWinners = c;
+          var singleBuyin = 0;
+          if (raffleTicketTournamentSelect && raffleTicketTournamentSelect.value && raffleTicketTournamentSelect.value !== "custom") {
+            singleBuyin = parseFloat(raffleTicketTournamentSelect.value) || 0;
+          }
           var singleTournamentName = "";
           if (raffleTicketTournamentSelect && raffleTicketTournamentSelect.selectedIndex >= 0) {
             var singleOpt = raffleTicketTournamentSelect.options[raffleTicketTournamentSelect.selectedIndex];
             singleTournamentName = (singleOpt && (singleOpt.getAttribute("data-name") || singleOpt.textContent || "").trim()) || "";
           }
-          var singlePrize = prizeText + (singleTournamentName ? " — " + singleTournamentName : "");
+          var singlePrizeText = singleBuyin > 0 ? "Билет " + (singleBuyin % 1 === 0 ? singleBuyin : singleBuyin.toFixed(2)) + " ₽" : "Билет на турнир";
+          var singlePrize = singlePrizeText + (singleTournamentName ? " — " + singleTournamentName : "");
           if (c > 0) groups.push({ count: c, prize: singlePrize });
         } else if (raffleTicketGroups) {
           var rows = raffleTicketGroups.querySelectorAll(".raffle-ticket-group-row");
@@ -8897,12 +8904,17 @@ function initRaffles() {
             var countInput = rows[i].querySelector(".raffle-ticket-group-count");
             var groupSelect = rows[i].querySelector(".raffle-ticket-group-tournament");
             var cnt = countInput ? Math.max(0, parseInt(countInput.value, 10) || 0) : 0;
+            var groupBuyin = 0;
+            if (groupSelect && groupSelect.value && groupSelect.value !== "custom") {
+              groupBuyin = parseFloat(groupSelect.value) || 0;
+            }
             var groupTournamentName = "";
             if (groupSelect && groupSelect.selectedIndex >= 0) {
               var groupOpt = groupSelect.options[groupSelect.selectedIndex];
               groupTournamentName = (groupOpt && (groupOpt.getAttribute("data-name") || groupOpt.textContent || "").trim()) || "";
             }
-            var groupPrize = prizeText + (groupTournamentName ? " — " + groupTournamentName : "");
+            var groupPrizeText = groupBuyin > 0 ? "Билет " + (groupBuyin % 1 === 0 ? groupBuyin : groupBuyin.toFixed(2)) + " ₽" : "Билет на турнир";
+            var groupPrize = groupPrizeText + (groupTournamentName ? " — " + groupTournamentName : "");
             totalWinners += cnt;
             if (cnt > 0) groups.push({ count: cnt, prize: groupPrize });
           }
