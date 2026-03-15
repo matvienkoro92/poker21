@@ -11303,6 +11303,26 @@ function initChat() {
               openConvFromDialogs(btn.dataset.chatId, btn.dataset.chatName);
             }
             btn.addEventListener("click", openContact);
+            var contactTouchMoved = false;
+            btn.addEventListener("touchstart", function () { contactTouchMoved = false; }, { passive: true });
+            btn.addEventListener("touchmove", function (e) {
+              if (e.touches && e.touches[0] && !contactTouchMoved) {
+                var t = e.currentTarget;
+                var start = t._contactTouchStart;
+                if (start && (Math.abs(e.touches[0].clientX - start.x) > 15 || Math.abs(e.touches[0].clientY - start.y) > 15)) contactTouchMoved = true;
+              }
+            }, { passive: true });
+            btn.addEventListener("touchstart", function (e) {
+              if (e.touches && e.touches[0]) e.currentTarget._contactTouchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+            btn.addEventListener("touchend", function (e) {
+              if (contactTouchMoved) return;
+              if (e.target !== btn && !btn.contains(e.target)) return;
+              e.preventDefault();
+              e.stopPropagation();
+              btn._contactOpenedAt = Date.now();
+              openContact();
+            }, { passive: false });
           });
           contactsEl.querySelectorAll(".chat-contact img.chat-contact__avatar").forEach(function (img) {
             img.onerror = function () {
@@ -12417,10 +12437,14 @@ function initChat() {
       }
     }, { passive: true, capture: true });
     function runDialogsViewAction(e) {
-      var clientX = e.changedTouches ? (e.changedTouches[0] && e.changedTouches[0].clientX) : e.clientX;
-      var clientY = e.changedTouches ? (e.changedTouches[0] && e.changedTouches[0].clientY) : e.clientY;
-      var hitEl = (typeof document.elementFromPoint === "function" && clientX != null && clientY != null)
-        ? document.elementFromPoint(clientX, clientY) : (e.target || null);
+      var isTouch = e.changedTouches && e.changedTouches.length > 0;
+      var clientX = isTouch ? (e.changedTouches[0] && e.changedTouches[0].clientX) : e.clientX;
+      var clientY = isTouch ? (e.changedTouches[0] && e.changedTouches[0].clientY) : e.clientY;
+      var hitEl = isTouch && e.target
+        ? e.target
+        : ((typeof document.elementFromPoint === "function" && clientX != null && clientY != null)
+          ? document.elementFromPoint(clientX, clientY) : (e.target || null));
+      hitEl = hitEl || e.target;
       var target = (hitEl && hitEl.closest ? (hitEl.closest("button, [role=\"button\"]") || hitEl.closest(".chat-dialog-item") || hitEl.closest(".chat-contact")) : null)
         || (e.target && e.target.closest ? (e.target.closest("button, [role=\"button\"]") || e.target.closest(".chat-dialog-item") || e.target.closest(".chat-contact")) : null);
       if (!target || !dialogsView.contains(target)) return false;
@@ -12435,6 +12459,7 @@ function initChat() {
       }
       var contactBtn = target.closest(".chat-contact");
       if (contactBtn && contactBtn.dataset.chatId) {
+        if (contactBtn._contactOpenedAt && (Date.now() - contactBtn._contactOpenedAt) < 500) return true;
         openConvFromDialogs(contactBtn.dataset.chatId, contactBtn.dataset.chatName);
         return true;
       }
@@ -12475,7 +12500,7 @@ function initChat() {
       if (e.touches && e.touches[0] && !touchMoved) {
         var dx = e.touches[0].clientX - touchStartX;
         var dy = e.touches[0].clientY - touchStartY;
-        if (dx * dx + dy * dy > 100) touchMoved = true;
+        if (dx * dx + dy * dy > 400) touchMoved = true;
       }
     }, { passive: true });
     btn.addEventListener("touchend", function (e) {
