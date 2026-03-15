@@ -1601,6 +1601,10 @@
 
                 <!-- Форма: Розыгрыш билетов на турниры -->
                 <div class="raffle-create-form__panel raffle-create-form__panel--tickets" id="raffleCreatePanelTickets">
+                  <label class="randomizer-label">
+                    <span class="randomizer-label__text">Сколько групп победителей:</span>
+                    <input type="number" id="raffleTicketGroupCount" class="randomizer-input" min="1" max="10" value="1" />
+                  </label>
                   <div class="raffle-ticket-tournament-wrap" id="raffleTicketTournamentWrap">
                   <label class="randomizer-label">
                     <span class="randomizer-label__text">Турнир из расписания:</span>
@@ -1628,10 +1632,6 @@
                     </select>
                   </label>
                   </div>
-                  <label class="randomizer-label">
-                    <span class="randomizer-label__text">Сколько групп победителей:</span>
-                    <input type="number" id="raffleTicketGroupCount" class="randomizer-input" min="1" max="10" value="1" />
-                  </label>
                   <div class="raffle-ticket-winners-wrap raffle-ticket-winners-wrap--single" id="raffleTicketWinnersWrap">
                     <label class="randomizer-label raffle-ticket-single-winners" id="raffleTicketSingleWinnersLabel">
                       <span class="randomizer-label__text">Сколько билетов разыграть:</span>
