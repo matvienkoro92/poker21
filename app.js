@@ -2584,13 +2584,14 @@ var SWIPE_MAX_VERTICAL_RATIO = 0.6;
     var absDy = Math.abs(dy);
     if (absDx < SWIPE_MIN_DIST) return;
     if (absDy > absDx * SWIPE_MAX_VERTICAL_RATIO) return;
+    e.preventDefault();
     if (dx < 0) goToAdjacent(1);
     else goToAdjacent(-1);
   }
   var card = document.querySelector(".card");
   if (card) {
     card.addEventListener("touchstart", onTouchStart, { passive: true });
-    card.addEventListener("touchend", onTouchEnd, { passive: true });
+    card.addEventListener("touchend", onTouchEnd, { passive: false });
   }
 })();
 
@@ -12672,6 +12673,12 @@ function initChat() {
       }
       lastSuggestions = [];
     }
+    function openFromSuggestItem(btn) {
+      if (!btn || !btn.dataset.userId) return;
+      openConvFromDialogs(btn.dataset.userId, btn.dataset.userName);
+      findByIdInputDialogs.value = "";
+      hideSuggest();
+    }
     function showSuggest(items) {
       lastSuggestions = items || [];
       if (!suggestListEl || !suggestEl) return;
@@ -12686,23 +12693,6 @@ function initChat() {
       suggestEl.classList.remove("chat-find-suggest--hidden");
       suggestEl.setAttribute("aria-hidden", "false");
       if (findByIdInputDialogs) findByIdInputDialogs.setAttribute("aria-expanded", "true");
-      suggestListEl.querySelectorAll(".chat-find-suggest__item").forEach(function (btn) {
-        function openFromSuggest() {
-          openConvFromDialogs(btn.dataset.userId, btn.dataset.userName);
-          findByIdInputDialogs.value = "";
-          hideSuggest();
-        }
-        btn.addEventListener("pointerdown", function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          openFromSuggest();
-        }, { passive: false, capture: true });
-        btn.addEventListener("click", function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          openFromSuggest();
-        }, { capture: true });
-      });
     }
     function fetchSuggest() {
       var raw = (findByIdInputDialogs.value || "").trim().replace(/^@/, "");
@@ -12723,17 +12713,47 @@ function initChat() {
       findSuggestDebounce = setTimeout(fetchSuggest, 280);
     });
     findByIdInputDialogs.addEventListener("focus", function () {
+      document.documentElement.classList.add("chat-keyboard-open");
+      document.body.classList.add("chat-keyboard-open");
       if (lastSuggestions.length) showSuggest(lastSuggestions);
     });
-    findByIdInputDialogs.addEventListener("blur", function () {
+    findByIdInputDialogs.addEventListener("blur", function (e) {
+      document.documentElement.classList.remove("chat-keyboard-open");
+      document.body.classList.remove("chat-keyboard-open");
+      var relatedTarget = e.relatedTarget;
       setTimeout(function () {
         if (document.activeElement && suggestEl && suggestEl.contains(document.activeElement)) return;
+        if (relatedTarget && suggestEl && suggestEl.contains(relatedTarget)) return;
         hideSuggest();
-      }, 220);
+      }, 380);
     });
+    if (suggestListEl) {
+      suggestListEl.addEventListener("pointerdown", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest(".chat-find-suggest__item");
+        if (btn) {
+          e.preventDefault();
+          e.stopPropagation();
+          openFromSuggestItem(btn);
+        }
+      }, { passive: false, capture: true });
+      suggestListEl.addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest(".chat-find-suggest__item");
+        if (btn) {
+          e.preventDefault();
+          e.stopPropagation();
+          openFromSuggestItem(btn);
+        }
+      }, { capture: true });
+    }
     if (suggestEl) {
-      suggestEl.addEventListener("mousedown", function (e) { e.preventDefault(); });
-      suggestEl.addEventListener("pointerdown", function (e) { e.preventDefault(); }, { passive: false });
+      suggestEl.addEventListener("mousedown", function (e) {
+        if (e.target && e.target.closest && e.target.closest(".chat-find-suggest__item")) return;
+        e.preventDefault();
+      });
+      suggestEl.addEventListener("pointerdown", function (e) {
+        if (e.target && e.target.closest && e.target.closest(".chat-find-suggest__item")) return;
+        e.preventDefault();
+      }, { passive: false });
     }
 
     function findByIdAndOpenDialogs() {

@@ -1191,6 +1191,21 @@ body.chat-keyboard-open .app {
 .gazette-modal__close:hover {
   background: rgba(139, 90, 43, 0.25);
 }
+/* Когда газета открыта: скрываем нижнее меню и верхнюю шапку приложения */
+.app:has(#gazetteModal[aria-hidden="false"]) .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
+}
+.app:has(#gazetteModal[aria-hidden="false"]) .card__header {
+  display: none !important;
+}
+/* В самой газете скрываем только кнопку «Закрыть» (×), «На главную» оставляем */
+#gazetteModal[aria-hidden="false"] .gazette-modal__close {
+  display: none !important;
+}
 /* Отступы под кнопку закрыть (top) и справа от неё */
 .gazette-modal__paper {
   padding-top: 0;
@@ -10645,6 +10660,57 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   margin: 0 0 5px;
   padding: 5px 0;
   font-size: 17px;
+}
+/* Рейтинг весны: скрываем верхнее и нижнее меню */
+.card:has(.view--active[data-view="spring-rating"]) .card__header {
+  display: none !important;
+}
+.app:has(.view--active[data-view="spring-rating"]) .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
+}
+/* Зал славы и расписание: скрываем верхнее и нижнее меню (как в турнире дня и газете) */
+.card:has(.view--active[data-view="hall-of-fame"]) .card__header,
+.card:has(.view--active[data-view="schedule"]) .card__header {
+  display: none !important;
+}
+.app:has(.view--active[data-view="hall-of-fame"]) .bottom-nav,
+.app:has(.view--active[data-view="schedule"]) .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
+}
+/* Кнопки игр и приложений (с главной): скрываем верхнее и нижнее меню */
+.card:has(.view--active[data-view="bonus-game"]) .card__header,
+.card:has(.view--active[data-view="plasterer-game"]) .card__header,
+.card:has(.view--active[data-view="raffles"]) .card__header,
+.card:has(.view--active[data-view="learn-play-hub"]) .card__header,
+.card:has(.view--active[data-view="poker-tasks"]) .card__header,
+.card:has(.view--active[data-view="video-lessons"]) .card__header,
+.card:has(.view--active[data-view="streams"]) .card__header,
+.card:has(.view--active[data-view="equilator"]) .card__header,
+.card:has(.view--active[data-view="winter-rating"]) .card__header {
+  display: none !important;
+}
+.app:has(.view--active[data-view="bonus-game"]) .bottom-nav,
+.app:has(.view--active[data-view="plasterer-game"]) .bottom-nav,
+.app:has(.view--active[data-view="raffles"]) .bottom-nav,
+.app:has(.view--active[data-view="learn-play-hub"]) .bottom-nav,
+.app:has(.view--active[data-view="poker-tasks"]) .bottom-nav,
+.app:has(.view--active[data-view="video-lessons"]) .bottom-nav,
+.app:has(.view--active[data-view="streams"]) .bottom-nav,
+.app:has(.view--active[data-view="equilator"]) .bottom-nav,
+.app:has(.view--active[data-view="winter-rating"]) .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
 }
 .winter-rating__date-item {
   border: 1px solid var(--border-subtle);
