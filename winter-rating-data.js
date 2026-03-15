@@ -2010,7 +2010,7 @@ var SPRING_RATING_IMAGES_LEAGUE1 = {
   "11.03.2026": ["rating-11-03-2026-1.png", "rating-11-03-2026-2.png", "rating-11-03-2026-3.png", "rating-11-03-2026-4.png", "rating-11-03-2026-5.png", "rating-11-03-2026-6.png"],
   "12.03.2026": ["rating-12-03-2026-1.png", "rating-12-03-2026-2.png", "rating-12-03-2026-3.png", "rating-12-03-2026-4.png", "rating-12-03-2026-5.png", "rating-12-03-2026-6.png", "rating-12-03-2026-7.png"],
   "13.03.2026": ["rating-13-03-2026-1.png", "rating-13-03-2026-2.png", "rating-13-03-2026-3.png", "rating-13-03-2026-4.png", "rating-13-03-2026-5.png"],
-  "14.03.2026": ["rating-14-03-2026-1.png", "rating-14-03-2026-2.png"]
+  "14.03.2026": ["rating-14-03-2026-1.png", "rating-14-03-2026-2.png", "rating-14-03-2026-3.png", "rating-14-03-2026-4.png", "rating-14-03-2026-5.png", "rating-14-03-2026-6.png"]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
   "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
@@ -2026,7 +2026,7 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "11.03.2026": ["rating-11-03-2026-league2-1.png", "rating-11-03-2026-league2-2.png", "rating-11-03-2026-league2-3.png", "rating-11-03-2026-league2-4.png"],
   "12.03.2026": ["rating-12-03-2026-league2-1.png", "rating-12-03-2026-league2-2.png"],
   "13.03.2026": ["rating-13-03-2026-league2-1.png", "rating-13-03-2026-league2-2.png", "rating-13-03-2026-league2-3.png"],
-  "14.03.2026": []
+  "14.03.2026": ["rating-14-03-2026-league2-1.png", "rating-14-03-2026-league2-2.png", "rating-14-03-2026-league2-3.png", "rating-14-03-2026-league2-4.png", "rating-14-03-2026-league2-5.png", "rating-14-03-2026-league2-6.png"]
 };
 var SPRING_RATING_UPDATED = "14.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
@@ -2290,7 +2290,16 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "23:00", name: "Night magic 100K", buyin: 100000, league: 1, players: [{ nick: "nikola233", place: 3, reward: 9276 }, { nick: "siropchik", place: 9, reward: 1628 }, { nick: "Фокс", place: 11, reward: 0 }, { nick: "nachyn", place: 0, reward: 0 }, { nick: "Asta la Vista", place: 0, reward: 0 }] }
   ],
   "14.03.2026": [
+    { time: "02:00", name: "Deep Night 20k", buyin: 200, league: 2, players: [{ nick: "Leokampus", place: 3, reward: 3128 }, { nick: "Olegan393", place: 6, reward: 1202 }, { nick: "NeSkromnii Samui", place: 0, reward: 0 }, { nick: "augustrdgr", place: 0, reward: 0 }] },
+    { time: "09:00", name: "KG PLO6 / 2$", buyin: 200, league: 2, players: [{ nick: "nikola233", place: 8, reward: 206 }, { nick: "PROFESSOR", place: 0, reward: 0 }] },
+    { time: "10:00", name: "DV Turbo 500 90K", buyin: 500, league: 1, players: [{ nick: "Фокс", place: 3, reward: 8438 }, { nick: "ДомСоветов", place: 0, reward: 0 }, { nick: "АршакМкртчян", place: 0, reward: 0 }, { nick: "Olegan393", place: 0, reward: 0 }, { nick: "AndrushaMorf", place: 31, reward: 0 }] },
     { time: "12:00", name: "DV Rebuy", buyin: 23200, league: 1, players: [{ nick: "Waaar", place: 1, reward: 16600 }, { nick: "FrankL", place: 8, reward: 0 }, { nick: "Aigulchik", place: 9, reward: 0 }, { nick: "WB@._", place: 11, reward: 0 }, { nick: "Malek3084", place: 14, reward: 0 }] },
-    { time: "20:00", name: "HOK Magic", buyin: 35000, league: 1, players: [{ nick: "Waaar", place: 1, reward: 32000 }, { nick: "WiNifly", place: 2, reward: 36000 }, { nick: "γύψος", place: 5, reward: 3800 }, { nick: "Mr.V", place: 6, reward: 3400 }, { nick: "Malek3084", place: 7, reward: 0 }] }
+    { time: "12:00", name: "DV PLO5 30k", buyin: 300, league: 2, players: [{ nick: "PROFESSOR", place: 2, reward: 5880 }, { nick: "nikola233", place: 0, reward: 0 }] },
+    { time: "14:00", name: "Tournament Rebuy", buyin: 6900, league: 2, players: [{ nick: "mr.Fox", place: 2, reward: 2070 }, { nick: "AlenaSt", place: 3, reward: 1240 }, { nick: "Shkarubo", place: 4, reward: 990 }, { nick: "Анубис", place: 6, reward: 0 }, { nick: "Аспирин", place: 7, reward: 0 }] },
+    { time: "16:00", name: "PLO4 25K", buyin: 25000, league: 1, players: [{ nick: "PROFESSOR", place: 1, reward: 7863 }, { nick: "allex 1983", place: 2, reward: 4292 }, { nick: "Serebrennaya", place: 9, reward: 255 }, { nick: "no_name", place: 0, reward: 0 }] },
+    { time: "18:00", name: "LUCKY 777 GTD", buyin: 500, league: 1, players: [{ nick: "Waaarr", place: 5, reward: 11615 }, { nick: "AKARMARA", place: 0, reward: 0 }, { nick: "A_AJoKeR", place: 0, reward: 0 }, { nick: "siropchik", place: 0, reward: 0 }, { nick: "XP3349402", place: 62, reward: 0 }] },
+    { time: "20:00", name: "HOK Magic", buyin: 35000, league: 1, players: [{ nick: "Waaar", place: 1, reward: 32000 }, { nick: "WiNifly", place: 2, reward: 36000 }, { nick: "γύψος", place: 5, reward: 3800 }, { nick: "Mr.V", place: 6, reward: 3400 }, { nick: "Malek3084", place: 7, reward: 0 }] },
+    { time: "20:00", name: "Hyper Turbo 300", buyin: 300, league: 2, players: [{ nick: "Olegan393", place: 4, reward: 4658 }, { nick: "Sarmat1305", place: 57, reward: 0 }, { nick: "Leokampus", place: 66, reward: 0 }, { nick: "allex 1983", place: 84, reward: 0 }] },
+    { time: "21:00", name: "MOK", buyin: 26400, league: 2, players: [{ nick: "PlayerNGEIYu", place: 1, reward: 22620 }, { nick: "PlayerHyeEr", place: 7, reward: 1220 }, { nick: "Аспирин", place: 9, reward: 730 }, { nick: "Sarmat1305", place: 10, reward: 0 }, { nick: "VOSOvec", place: 11, reward: 0 }] }
   ]
 };

@@ -6192,7 +6192,10 @@ function fetchRaffleBadge() {
   fetch(base + "/api/raffles?initData=" + encodeURIComponent(initData))
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      if (data && data.ok) updateRaffleBadge(!!(data.activeRaffle));
+      if (data && data.ok) {
+        updateRaffleBadge(!!(data.activeRaffle));
+        if (typeof window !== "undefined") window._rafflesCache = { data: data, time: Date.now() };
+      }
     })
     .catch(function () {});
 }
@@ -8061,7 +8064,6 @@ function initRaffles() {
   var raffleStatWinners = document.getElementById("raffleStatWinners");
   var raffleStatPrize = document.getElementById("raffleStatPrize");
   var raffleStatPrizeValue = document.getElementById("raffleStatPrizeValue");
-  var raffleStatTournamentName = document.getElementById("raffleStatTournamentName");
   var raffleStatGroups = document.getElementById("raffleStatGroups");
   var raffleEnd = document.getElementById("raffleEnd");
   var rafflePrizes = document.getElementById("rafflePrizes");
@@ -8300,8 +8302,6 @@ function initRaffles() {
     var isActive = raffle.status === "active";
     currentRaffleEndDate = isActive && endDate ? endDate : null;
     if (raffleStatWinners) raffleStatWinners.textContent = "Победителей: " + total;
-    var tournamentName = (raffle.title || (groups[0] && groups[0].prize) || "").trim() || "—";
-    if (raffleStatTournamentName) raffleStatTournamentName.textContent = tournamentName;
     if (raffleStatPrizeValue) raffleStatPrizeValue.textContent = totalPrize > 0 ? totalPrize + " р" : "—";
     if (raffleStatGroups) raffleStatGroups.textContent = "Групп призов: " + (groups.length > 0 ? groups.length : "—");
     if (currentRaffleEndDate) {
@@ -8329,7 +8329,9 @@ function initRaffles() {
     }
     var prizesHtml = "";
     groups.forEach(function (g, i) {
-      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + ": " + escapeHtml(g.prize || "—") + "</div>";
+      var cnt = g.count != null ? parseInt(g.count, 10) : 0;
+      var cntStr = isNaN(cnt) ? "0" : String(cnt);
+      prizesHtml += "<div class=\"raffle-prize\">Группа " + (i + 1) + " (" + cntStr + " побед.): " + escapeHtml(g.prize || "—") + "</div>";
     });
     rafflePrizes.innerHTML = prizesHtml || "<p class=\"raffle-no-prizes\">Призы не указаны</p>";
     var me = getMyUserId();
@@ -8400,10 +8402,44 @@ function initRaffles() {
     var isLocal = /localhost|127\.0\.0\.1/i.test(hostname) || /localhost|127\.0\.0\.1/i.test(baseStr);
     var init = initData || (isLocal ? "local" : "");
     if (!init && !isLocal) return;
+
+    function showRafflesLoading() {
+      if (raffleEmpty) {
+        raffleEmpty.textContent = "Загрузка…";
+        raffleEmpty.classList.remove("raffle-empty--hidden");
+      }
+      if (raffleCurrent) raffleCurrent.classList.add("raffle-current--hidden");
+    }
+    function showRafflesError() {
+      if (raffleEmpty) {
+        raffleEmpty.textContent = "Ошибка загрузки. Проверьте сеть.";
+        raffleEmpty.classList.remove("raffle-empty--hidden");
+      }
+      if (raffleCurrent) raffleCurrent.classList.add("raffle-current--hidden");
+    }
+
+    showRafflesLoading();
+
+    var cache = typeof window !== "undefined" && window._rafflesCache;
+    var cacheAge = cache && cache.time ? Date.now() - cache.time : 0;
+    if (cache && cache.data && cacheAge < 60000) {
+      applyRafflesData(cache.data, switchToCompleted);
+    }
+
     var url = base + "/api/raffles?initData=" + encodeURIComponent(init) + "&_t=" + Date.now() + (isLocal ? "&demo=1" : "");
     fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
+        if (!data || !data.ok) return;
+        if (typeof window !== "undefined") window._rafflesCache = { data: data, time: Date.now() };
+        applyRafflesData(data, switchToCompleted);
+      })
+      .catch(function () {
+        showRafflesError();
+      });
+  }
+
+  function applyRafflesData(data, switchToCompleted) {
         if (!data || !data.ok) return;
         rafflesIsAdmin = !!data.isAdmin;
         if (adminWrap) adminWrap.classList.toggle("raffles-admin-wrap--hidden", !rafflesIsAdmin);
@@ -8489,7 +8525,10 @@ function initRaffles() {
           renderRaffle(active);
         } else {
           if (raffleCurrent) raffleCurrent.classList.add("raffle-current--hidden");
-          if (raffleEmpty) raffleEmpty.classList.remove("raffle-empty--hidden");
+          if (raffleEmpty) {
+            raffleEmpty.textContent = "Нет активных розыгрышей.";
+            raffleEmpty.classList.remove("raffle-empty--hidden");
+          }
           currentRaffleId = null;
           currentRaffleEndDate = null;
           if (raffleTimerInterval) {
@@ -8543,8 +8582,6 @@ function initRaffles() {
             if (rafflesCompletedEmpty) rafflesCompletedEmpty.classList.remove("raffle-empty--hidden");
           }
         }
-      })
-      .catch(function () {});
   }
 
   // Админская рассылка подписчикам розыгрышей
