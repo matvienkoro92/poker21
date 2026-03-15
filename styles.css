@@ -921,7 +921,7 @@ html.app-view-home .card .card__content {
 }
 .view--active[data-view="chat"] .chat-input-area {
   padding-left: 0;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
 }
 .chat-switcher-row {
   display: flex;
@@ -3378,6 +3378,12 @@ img.chat-contact__avatar {
 .chat-contact {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.chat-dialog-item:focus,
+.chat-contact:focus {
+  outline: none;
 }
 .chat-dialogs-view--hidden { display: none !important; }
 .chat-dialogs-list {
@@ -3554,7 +3560,7 @@ img.chat-contact__avatar {
   right: 0;
   top: 100%;
   margin-top: 4px;
-  background: var(--block-bg);
+  background: var(--block-bg-solid);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   box-shadow: var(--shadow-strong);
@@ -3605,7 +3611,7 @@ img.chat-contact__avatar {
 }
 .chat-general-view .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
 }
 .chat-personal-view {
   display: flex;
@@ -3694,7 +3700,7 @@ img.chat-contact__avatar {
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
 }
 .chat-msg__delete {
   padding: 4px 8px;
