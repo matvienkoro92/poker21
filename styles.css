@@ -1603,6 +1603,26 @@ html.app-view-home .card .card__content {
   background: #2c1810;
   margin: 0;
 }
+/* Полоса с кнопкой «Назад» — поверх остального, не перекрывается кнопкой закрыть */
+.gazette-modal__back-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  margin: -50px -52px 0 -20px;
+  padding: 8px 52px 8px 20px;
+  background: linear-gradient(180deg, #f5ecd3 0%, #f5ecd3 85%, transparent 100%);
+  box-sizing: border-box;
+}
+.gazette-modal__content--news .gazette-modal__back-bar .gazette-modal__back {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+  color: #5c4033;
+  font-size: 17px;
+}
 .gazette-modal__content--news .gazette-modal__back {
   margin-top: 0;
   margin-bottom: 5px;
@@ -12473,6 +12493,13 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .profile-greeting #profileUserName {
   font-weight: 700;
   color: var(--accent);
+}
+
+.profile-greeting .profile-user-meta {
+  font-size: 0.9em;
+  font-weight: 400;
+  color: var(--text-muted);
+  font-family: var(--font-mono, monospace);
 }
 
 .profile-user-id {

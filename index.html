@@ -2081,10 +2081,9 @@
           <div class="view" data-view="profile">
             <div class="profile-header-row">
               <h1 class="title">Профиль</h1>
-              <span class="profile-header-id">ID: <span id="profileUserId">—</span></span>
             </div>
             <p class="profile-greeting">
-              Привет, <span id="profileUserName">имя</span>, здесь все твои достижения в клубе Два туза.
+              Привет, <span id="profileUserName">имя</span><span class="profile-user-meta" id="profileUserMeta"></span>, здесь все твои достижения в клубе Два туза.
             </p>
             <div class="profile-avatar-block">
               <img id="profileAvatar" class="profile-avatar-block__img" src="./assets/profile-pokerist.png" alt="Аватар" />
@@ -2540,32 +2539,32 @@
                 </div>
                 <div class="gazette-front__grid">
                   <div class="gazette-front__main">
-                    <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="13">
-                      <div class="gazette-front__section">Очко · 21</div>
+                    <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="14">
+                      <div class="gazette-front__section">Фриролл 150&nbsp;000₽</div>
                       <h3 class="gazette-front__title">
-                        Кулер вернулся в большую игру и сразу попал в очко
+                        Герой МамаЛена против всего мира: кто купил финалку донатом, а кого сразил Putri
                       </h3>
                       <div class="gazette-front__thumb">
-                        <img src="./assets/gazette-culer-21-poydu-proebu.png" alt="Кулер: скрин из чата про игру 21" />
+                        <img src="./assets/gazette-freeroll-mamalena-putri.png" alt="Субботний Фриролл: МамаЛена 2-е место, Putri победил" />
                       </div>
                       <p class="gazette-front__lead">
-                        Легенда клуба зарекалась больше не заходить в 21, но устроила новое падение из тридцати минусовых столов подряд.
+                        Остросюжетная история вчерашнего фриролла: 622 игрока, семь на финалке — пятеро без ребаев и аддонов.
                       </p>
                       <span class="gazette-front__read-more">Читать в номере →</span>
                     </a>
                   </div>
                   <div class="gazette-front__side">
                     <article class="gazette-front__col">
-                      <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="12">
-                        <div class="gazette-front__section">Весенний рейтинг</div>
+                      <a href="#" class="gazette-front__teaser-link" data-gazette-article-link="13">
+                        <div class="gazette-front__section">Очко · 21</div>
                         <h4 class="gazette-front__title-small">
-                          FrankL поджимает Ваара в Лиге&nbsp;1 — всего 60 баллов разрыва
+                          Кулер вернулся в большую игру и сразу попал в очко
                         </h4>
                         <div class="gazette-front__thumb-small">
-                          <img src="./assets/gazette-frankl-vaaar-march8.png" alt="FrankL и Waaar в весеннем рейтинге" />
+                          <img src="./assets/gazette-culer-21-poydu-proebu.png" alt="Кулер: скрин из чата про игру 21" />
                         </div>
                         <p class="gazette-front__lead-small">
-                          Waaar на троне, но один удачный финальный стол может перевернуть расклад в Лиге&nbsp;1.
+                          Легенда клуба зарекалась больше не заходить в 21, но устроила новое падение из тридцати минусовых столов подряд.
                         </p>
                       </a>
                     </article>
@@ -2604,9 +2603,33 @@
           </div>
           <!-- Страница: Горячие новости -->
           <div class="gazette-modal__content gazette-modal__content--news" id="gazetteModalNews" hidden>
-            <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад к выбору страницы">← К газете</button>
+            <div class="gazette-modal__back-bar">
+              <button type="button" class="gazette-modal__back" id="gazetteModalBackNews" aria-label="Назад на главную газеты">← На главную</button>
+            </div>
             <div class="gazette-modal__content-masthead">Горячие новости недели</div>
             <div class="gazette-modal__content-rule"></div>
+            <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="14">
+              <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
+              <p class="gazette-modal__content-date">14 марта</p>
+              <h3 class="gazette-modal__headline gazette-modal__headline--main">ФРИРОЛЛ НА 150 000₽: ГЕРОЙ МАМАЛЕНА ПРОТИВ ВСЕГО МИРА. Один против зла и нечести, семь на финалке — пятеро честных, один «за донат», и Putri, выигравший пять оллинов подряд</h3>
+              <div class="gazette-modal__photo-wrap">
+                <img src="./assets/gazette-freeroll-mamalena-putri.png" alt="Статистика рук: Субботний Фриролл 14 марта 18:00 — mamalena 2-е место, techno 3-е, ПокерМанки 5-е" class="gazette-modal__photo" />
+                <p class="gazette-modal__photo-caption">Субботний Фриролл, 14 марта 18:00. 622 участника, призы в деньгах. МамаЛена — серебро и 21 010₽. Techno — бронза (13 210₽). ПокерМанки — 5-е место (8 710₽).</p>
+              </div>
+              <div class="gazette-modal__body">
+                <p>Вчерашний фриролл на полтораста тысяч разыграл свою драму как эпический поединок добра и зла. В центре сюжета — <strong>герой МамаЛена</strong>: он шёл один против всего мира, сражался со злом и нечестью за одним столом, пробивался сквозь 622 участника без скидок и без продюсеров. Семь человек вышли на финальный стол — и вот где начинается интрига. Пять из семи дошли туда <strong>без ребаев и аддонов</strong>, на чистом мастерстве и удаче, как рыцари без страха и упрёка. А шестым оказался <strong>ПокерМанки</strong> — словно заплативший денег богач: купил аддон х4 и проскочил на финалку можно сказать за донат. Там же его быстренько и прибрали, причём против его запушенных 86 буби: очевидно, что попал он туда не по мастерству, а через продюссера. Финалка не простила.</p>
+                <p>А наш герой МамаЛена тем временем бился за каждую руку. Серебро, 21 010₽ и путь до самого хедзапа — вот его итог. И тут появляется <strong>Putri</strong>. Тот самый, что в решающий момент засунул палец в рот удаче и выиграл <strong>пять оллинов подряд</strong>, выбив почти всех подчистую. Хедзап превратился в казнь: МамаЛена был сражён этим натиском. Putri унёс победу и главный приз — зло во фриролле в тот вечер торжествовало, но история героя осталась в таблицах и в памяти клуба.</p>
+                <p>Итоги в цифрах: mamalena — 2-е место, 21 010₽; techno — 3-е, 13 210₽; ПокерМанки — 5-е, 8 710₽; TonniHalf — 7-е, 4 660₽; набутылкин — 8-е, 3 160₽. Фриролл на 150 000₽ разыгран. Кто играл честно — те в призах. Кто заходил «через продюссера» — того финалка быстро списала со счетов. Редакция склоняет голову перед героем МамаЛеной и ждёт реванша.</p>
+                <p><a href="#" class="gazette-modal__rating-link" data-view-target="spring-rating" data-close-gazette="1">Посмотреть рейтинг весны</a></p>
+              </div>
+              <p class="gazette-modal__share-row">
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="14" aria-label="Переслать новость">Переслать</button>
+                <button type="button" class="gazette-modal__share-btn gazette-modal__share-copy" data-gazette-share="14" aria-label="Скопировать ссылку на новость">Скопировать ссылку</button>
+              </p>
+              <p class="gazette-modal__subscribe-in-article">
+                <button type="button" class="gazette-modal__subscribe-in-article-btn" aria-label="Подписаться на газету">Подписаться на газету</button>
+              </p>
+            </article>
             <article class="gazette-modal__lead gazette-modal__lead--top" data-gazette-article="13">
               <p class="gazette-modal__article-back"><button type="button" class="gazette-modal__back" aria-label="Назад к выбору страницы">← К газете</button></p>
               <p class="gazette-modal__content-date">13 марта</p>

@@ -6205,6 +6205,20 @@ function updateProfileUserName() {
   if (!el) return;
   var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   el.textContent = user && user.first_name ? user.first_name : "гость";
+  updateProfileUserMeta();
+}
+
+function updateProfileUserMeta() {
+  var metaEl = document.getElementById("profileUserMeta");
+  if (!metaEl) return;
+  var parts = [];
+  var dtId = (typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_dt_id")) || (typeof localStorage !== "undefined" && localStorage.getItem("poker_dt_id")) || "";
+  if (dtId) parts.push("ID: " + dtId);
+  var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  var username = user && user.username ? user.username : "";
+  if (username) parts.push("@" + username);
+  if (parts.length) metaEl.textContent = " (" + parts.join(", ") + ")";
+  else metaEl.textContent = "";
 }
 
 function updateProfileDtId() {
@@ -6231,6 +6245,7 @@ function updateProfileDtId() {
         el.textContent = data.dtId;
         var headerIdEl = document.getElementById("headerUserId");
         if (headerIdEl) headerIdEl.textContent = data.dtId;
+        if (typeof updateProfileUserMeta === "function") updateProfileUserMeta();
       } else {
         el.textContent = cached || "\u2014";
       }
@@ -10455,9 +10470,10 @@ function initChat() {
         window._chatGeneralCache = { messages: messages, participantsCount: data.participantsCount, onlineCount: data.onlineCount };
         var latest = messages.length ? (messages[messages.length - 1].time || "") : "";
         var isChatViewActive = !!document.querySelector('[data-view="chat"].view--active');
+        var isGeneralScreenVisible = generalView && !generalView.classList.contains("chat-general-view--hidden");
         var lastView = lastViewedGeneral != null ? lastViewedGeneral : "";
         var unreadCount = messages.filter(function (m) { return (m.time || "") > lastView && m.from !== myId; }).length;
-        if (isChatViewActive && chatActiveTab === "general") {
+        if (isChatViewActive && chatActiveTab === "general" && isGeneralScreenVisible) {
           lastViewedGeneral = latest;
           saveChatLastViewed();
           window.chatGeneralUnread = false;
