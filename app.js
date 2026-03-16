@@ -2574,7 +2574,7 @@ function updateRaffleBadge(hasActive) {
           if (g && typeof g.count === "number") totalTickets += g.count;
         });
       }
-      raffleCountEl.textContent = totalTickets > 0 ? String(totalTickets) : "1";
+      raffleCountEl.textContent = totalTickets > 0 ? String(totalTickets) + " билетов" : "ожидается";
     }
   }
 }

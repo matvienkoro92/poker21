@@ -1000,10 +1000,22 @@ body.chat-keyboard-open .bottom-nav {
 body.chat-keyboard-open .card__header {
   display: none !important;
 }
-/* Внутри любого чата (главный или личка): скрываем только верхнее меню */
+/* Внутри общего чата или личного чата: скрываем верхнее и нижнее меню */
 .app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .card__header,
 .app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .card__header {
   display: none !important;
+}
+.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .bottom-nav,
+.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
+}
+.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)),
+.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) {
+  padding-bottom: 0;
 }
 body.chat-keyboard-open .app {
   padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
