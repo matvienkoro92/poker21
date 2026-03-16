@@ -14003,7 +14003,9 @@ function handleTournamentDayShare() {
         name +
         " в " +
         time +
-        " в Poker21. Скачать можно здесь:\n" +
+        " в Poker21." +
+        (guarantee ? " Призовой фонд " + guarantee + "." : "") +
+        " Скачать можно здесь:\n" +
         link;
     }
     var shareUrl =
