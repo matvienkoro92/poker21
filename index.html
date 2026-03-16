@@ -253,14 +253,25 @@
                   <span class="tournament-day-block__cta">Расписание &gt;&gt;</span>
                 </div>
               </a>
-              <button
-                type="button"
-                class="tournament-day-share-btn"
-                id="tournamentDayShareBtn"
-                aria-label="Позвать друга на турнир дня"
-              >
-                Позвать друга
-              </button>
+              <div class="tournament-day-actions-row">
+                <button
+                  type="button"
+                  class="tournament-day-share-btn"
+                  id="tournamentDayShareBtn"
+                  aria-label="Позвать друга на турнир дня"
+                >
+                  Позвать друга
+                </button>
+                <button
+                  type="button"
+                  class="tournament-day-share-btn tournament-day-share-btn--raffle"
+                  id="tournamentDayRaffleBtn"
+                  aria-label="Перейти к розыгрышу билетов на турнир дня"
+                  hidden
+                >
+                  Розыгрыш <span id="tournamentDayRaffleCount">0</span> билетов
+                </button>
+              </div>
             </div>
 
             <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>

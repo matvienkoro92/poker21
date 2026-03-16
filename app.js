@@ -2547,6 +2547,36 @@ function updateChatNavDot() {
 function updateRaffleBadge(hasActive) {
   var badge = document.getElementById("raffleActiveBadge");
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
+  var raffleBtn = document.getElementById("tournamentDayRaffleBtn");
+  var raffleCountEl = document.getElementById("tournamentDayRaffleCount");
+  var cache = (typeof window !== "undefined" && window._rafflesCache && window._rafflesCache.data && window._rafflesCache.data.activeRaffle) ? window._rafflesCache.data.activeRaffle : null;
+  var hasTournamentDayTickets = false;
+  if (cache) {
+    var title = (cache.title || "").toLowerCase();
+    if (title.indexOf("турнир дня") !== -1) {
+      hasTournamentDayTickets = true;
+    } else if (Array.isArray(cache.groups)) {
+      for (var i = 0; i < cache.groups.length; i++) {
+        var g = cache.groups[i];
+        if (g && typeof g.prize === "string" && g.prize.toLowerCase().indexOf("турнир дня") !== -1) {
+          hasTournamentDayTickets = true;
+          break;
+        }
+      }
+    }
+  }
+  if (raffleBtn) {
+    raffleBtn.hidden = !(hasActive && hasTournamentDayTickets);
+    if (!raffleBtn.hidden && raffleCountEl && cache) {
+      var totalTickets = 0;
+      if (Array.isArray(cache.groups)) {
+        cache.groups.forEach(function (g) {
+          if (g && typeof g.count === "number") totalTickets += g.count;
+        });
+      }
+      raffleCountEl.textContent = totalTickets > 0 ? String(totalTickets) : "1";
+    }
+  }
 }
 
 var MAIN_VIEW_ORDER = ["home", "chat", "download", "cashout", "profile"];
@@ -12811,11 +12841,6 @@ function initChat() {
     function attachChatDialogButton(btn) {
       if (btn._chatDialogAttached) return;
       btn._chatDialogAttached = true;
-      btn.addEventListener("pointerdown", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openDialogsViewItem(btn);
-      }, { passive: false, capture: true });
       btn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -13854,9 +13879,16 @@ function handleTournamentDayShare() {
     if (typeof recordShareButtonClick === "function") recordShareButtonClick("tournament_day");
 }
 (function initTournamentDayShareButton() {
-  [document.getElementById("tournamentDayShareBtn"), document.getElementById("scheduleTournamentDayShareBtn")].forEach(function (btn) {
+  var shareBtns = [document.getElementById("tournamentDayShareBtn"), document.getElementById("scheduleTournamentDayShareBtn")];
+  shareBtns.forEach(function (btn) {
     if (btn) btn.addEventListener("click", handleTournamentDayShare);
   });
+  var raffleBtn = document.getElementById("tournamentDayRaffleBtn");
+  if (raffleBtn) {
+    raffleBtn.addEventListener("click", function () {
+      if (typeof setView === "function") setView("raffles");
+    });
+  }
 })();
 
 (function initScheduleTournamentDayToday() {
