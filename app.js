@@ -13135,7 +13135,7 @@ updateVisitorCounter();
     var ratingAdminRow = document.getElementById("winterRatingAdminRow");
     var gazetteAdminRow = document.getElementById("gazetteAdminRow");
     var reportBtn = document.getElementById("adminReportBtn");
-    if (!wrap && !ratingAdminRow && !gazetteAdminRow) return;
+    if (!wrap && !ratingAdminRow && !gazetteAdminRow && !reportBtn) return;
     function showAdminUi() {
       if (wrap) wrap.classList.remove("footer-admin-visitors--hidden");
       if (ratingAdminRow) ratingAdminRow.classList.remove("winter-rating__admin-row--hidden");
@@ -13536,7 +13536,49 @@ updateVisitorCounter();
   var modal = document.getElementById("adminReportModal");
   var closeBtn = document.getElementById("adminReportModalClose");
   var backdrop = document.getElementById("adminReportModalBackdrop");
+  var dateEl = document.getElementById("adminReportDate");
+  var tabs = modal ? modal.querySelectorAll(".admin-report-tab") : null;
+  var panels = modal ? modal.querySelectorAll(".admin-report-panel") : null;
+  var submitBtn = document.getElementById("adminReportSubmitBtn");
+  var sentTbody = document.getElementById("adminReportSentTableBody");
   if (!btn || !modal) return;
+
+  function getTodayInfo() {
+    var now = new Date();
+    var weekday = now.toLocaleDateString("ru-RU", { weekday: "long" });
+    var date = now.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+    return { label: weekday.charAt(0).toUpperCase() + weekday.slice(1) + ", " + date, weekday: weekday, date: date, iso: now.toISOString() };
+  }
+
+  function setActiveTab(name) {
+    if (!tabs || !panels) return;
+    tabs.forEach(function (tab) {
+      var isActive = tab.getAttribute("data-admin-report-tab") === name;
+      tab.classList.toggle("admin-report-tab--active", isActive);
+    });
+    panels.forEach(function (panel) {
+      var isActive = panel.getAttribute("data-admin-report-panel") === name;
+      panel.classList.toggle("admin-report-panel--active", isActive);
+    });
+  }
+
+  function loadSentReports() {
+    if (!sentTbody) return;
+    var raw = null;
+    try { raw = localStorage.getItem("admin_report_sent") || "[]"; } catch (e) { raw = "[]"; }
+    var items = [];
+    try { items = JSON.parse(raw); } catch (e) { items = []; }
+    if (!Array.isArray(items) || items.length === 0) {
+      sentTbody.innerHTML = '<tr><td colspan="4">Пока нет отправленных отчётов.</td></tr>';
+      return;
+    }
+    var rows = items.map(function (it) {
+      var comment = it.comment || "";
+      return "<tr><td>" + (it.date || "") + "</td><td>" + (it.weekday || "") + "</td><td>" + (comment ? String(comment).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "") + "</td><td>" + (it.total != null ? it.total : "") + "</td></tr>";
+    });
+    sentTbody.innerHTML = rows.join("");
+  }
+
   function closeModal() {
     modal.setAttribute("aria-hidden", "true");
     if (document.body) document.body.style.overflow = "";
@@ -13544,10 +13586,66 @@ updateVisitorCounter();
   function openModal() {
     modal.setAttribute("aria-hidden", "false");
     if (document.body) document.body.style.overflow = "hidden";
+    var info = getTodayInfo();
+    if (dateEl) dateEl.textContent = info.label;
+    setActiveTab("form");
+    loadSentReports();
   }
   btn.addEventListener("click", openModal);
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
   if (backdrop) backdrop.addEventListener("click", closeModal);
+  if (tabs && tabs.length) {
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var name = tab.getAttribute("data-admin-report-tab") || "form";
+        setActiveTab(name);
+        if (name === "sent") loadSentReports();
+      });
+    });
+  }
+  if (submitBtn) {
+    submitBtn.addEventListener("click", function () {
+      var d = getTodayInfo();
+      var getVal = function (id) {
+        var el = document.getElementById(id);
+        if (!el) return 0;
+        var v = parseFloat(String(el.value || "").replace(",", "."));
+        return isNaN(v) ? 0 : v;
+      };
+      var payload = {
+        iso: d.iso,
+        date: d.date,
+        weekday: d.weekday.charAt(0).toUpperCase() + d.weekday.slice(1),
+        deposit: getVal("adminReportDeposit"),
+        cashout: getVal("adminReportCashout"),
+        prodamus: getVal("adminReportProdamus"),
+        robokassa: getVal("adminReportRobokassa"),
+        romaCrypto: getVal("adminReportRomaCrypto"),
+        botCryptoDep: getVal("adminReportBotCryptoDep"),
+        botExchipDep: getVal("adminReportBotExchipDep"),
+        botExchipCashout: getVal("adminReportBotExchipCashout"),
+        bonuses: getVal("adminReportBonuses"),
+        transfers: getVal("adminReportTransfers"),
+        ret: getVal("adminReportReturn"),
+        sergeyMarina: getVal("adminReportSergeyMarina"),
+        extraName: (document.getElementById("adminReportExtraName") && document.getElementById("adminReportExtraName").value) || "",
+        extraAmount: getVal("adminReportExtraAmount")
+      };
+      var total = payload.deposit - payload.cashout + payload.prodamus + payload.robokassa + payload.romaCrypto + payload.botCryptoDep + payload.botExchipDep - payload.botExchipCashout - payload.bonuses + payload.transfers + payload.ret + payload.sergeyMarina + payload.extraAmount;
+      payload.total = total;
+      payload.comment = payload.extraName;
+      var items = [];
+      try {
+        var raw = localStorage.getItem("admin_report_sent") || "[]";
+        items = JSON.parse(raw);
+        if (!Array.isArray(items)) items = [];
+      } catch (e) { items = []; }
+      items.push(payload);
+      try { localStorage.setItem("admin_report_sent", JSON.stringify(items)); } catch (e) {}
+      loadSentReports();
+      setActiveTab("sent");
+    });
+  }
 })();
 
 (function initBroadcastReportsModal() {

@@ -654,7 +654,7 @@ html.app-view-home .home-welcome-outline::before {
   padding-inline: 10px;
 }
 .header-admin-report--hidden {
-  display: none;
+  display: none !important;
 }
 .chat-switcher-wrap--header {
   position: relative;
@@ -12792,7 +12792,7 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   color: var(--text);
 }
 .share-stats-admin-modal__hint {
-  margin: 0 0 16px;
+  margin: 0 0 8px;
   font-size: 14px;
   color: var(--text-muted);
 }
@@ -12831,6 +12831,40 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
   color: var(--text);
   font-size: 13px;
   box-sizing: border-box;
+}
+.admin-report-date {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.admin-report-tabs {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.admin-report-tab {
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.admin-report-tab--active {
+  background: var(--accent, #a855f7);
+  color: #fff;
+  border-color: transparent;
+}
+.admin-report-panel {
+  display: none;
+  margin-top: 4px;
+}
+.admin-report-panel--active {
+  display: block;
+}
+.admin-report-submit-btn {
+  margin-top: 10px;
 }
 .visitors-admin-modal__backdrop {
   position: absolute;
