@@ -12041,12 +12041,13 @@ function initChat() {
         setTimeout(function () {
           var active = document.activeElement;
           if (active !== generalInput && active !== inputEl) {
-            scrollDocumentToZero();
             var el = getVisibleMessagesEl();
             var savedScroll = el ? el.scrollTop : 0;
+            var inFullscreenChat = !!(generalView && !generalView.classList.contains("chat-general-view--hidden")) || !!(convView && !convView.classList.contains("chat-conv-view--hidden"));
+            if (!inFullscreenChat) scrollDocumentToZero();
             document.documentElement.classList.remove("chat-keyboard-open");
             document.body.classList.remove("chat-keyboard-open");
-            scrollDocumentToZero();
+            if (!inFullscreenChat) scrollDocumentToZero();
             if (el && savedScroll > 0) {
               requestAnimationFrame(function () {
                 el.scrollTop = savedScroll;
@@ -12785,6 +12786,37 @@ function initChat() {
   if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
   var chatGeneralAdminsBtn = document.getElementById("chatGeneralAdminsBtn");
   if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () { showDialogs(); });
+
+  (function initChatSwipeBack() {
+    var SWIPE_MIN = 60;
+    var SWIPE_MAX_VERTICAL = 100;
+    var startX = 0;
+    var startY = 0;
+    function onTouchStart(e) {
+      if (e.touches && e.touches[0]) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }
+    function onTouchEnd(e) {
+      if (!e.changedTouches || !e.changedTouches[0]) return;
+      var endX = e.changedTouches[0].clientX;
+      var endY = e.changedTouches[0].clientY;
+      var dx = endX - startX;
+      var dy = endY - startY;
+      if (dx < -SWIPE_MIN && Math.abs(dy) < SWIPE_MAX_VERTICAL) {
+        showDialogs();
+      }
+    }
+    if (generalView) {
+      generalView.addEventListener("touchstart", onTouchStart, { passive: true });
+      generalView.addEventListener("touchend", onTouchEnd, { passive: true });
+    }
+    if (convView) {
+      convView.addEventListener("touchstart", onTouchStart, { passive: true });
+      convView.addEventListener("touchend", onTouchEnd, { passive: true });
+    }
+  })();
 
   function runDialogActionForBtn(btn) {
     var raw = (btn.dataset.chatUserId || "").trim();
@@ -13570,13 +13602,10 @@ updateVisitorCounter();
   var tabs = modal ? modal.querySelectorAll(".admin-report-tab") : null;
   var panels = modal ? modal.querySelectorAll(".admin-report-panel") : null;
   var submitBtn = document.getElementById("adminReportSubmitBtn");
-  var sentTbody = document.getElementById("adminReportSentTableBody");
+  var sentList = document.getElementById("adminReportSentList");
   var formBody = document.getElementById("adminReportFormBody");
-  var previewWrap = document.getElementById("adminReportPreviewWrap");
-  var previewContent = document.getElementById("adminReportPreviewContent");
-  var previewBackBtn = document.getElementById("adminReportPreviewBackBtn");
-  var confirmSubmitBtn = document.getElementById("adminReportConfirmSubmitBtn");
-  var pendingPayload = null;
+  var editingReportId = null;
+  var editingReport = null;
   if (!btn || !modal) return;
 
   function getTodayInfo() {
@@ -13598,34 +13627,151 @@ updateVisitorCounter();
     });
   }
 
+  function escapeReportHtml(s) {
+    if (s == null || s === undefined) return "";
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function buildReportDetailHtml(it) {
+    var labels = { deposit: "Депозит", cashout: "Выводы", prodamus: "Продамус", robokassa: "Робокасса", romaCrypto: "Рома крипта", botCryptoDep: "Бот крипта деп", botExchipDep: "Бот эксчип деп", botExchipCashout: "Бот эксчип вывод", bonuses: "Бонусы", transfers: "Переводы", ret: "Возврат", sergeyMarina: "Сергей/Марина" };
+    var keys = ["deposit", "cashout", "prodamus", "robokassa", "romaCrypto", "botCryptoDep", "botExchipDep", "botExchipCashout", "bonuses", "transfers", "ret", "sergeyMarina"];
+    var parts = [];
+    keys.forEach(function (k) {
+      var v = it[k];
+      if (v != null && v !== "" && (typeof v !== "number" || v !== 0)) {
+        parts.push("<div class=\"admin-report-sent-detail__row\"><span class=\"admin-report-sent-detail__label\">" + escapeReportHtml(labels[k]) + "</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(v) + "</span></div>");
+      }
+    });
+    if (it.extraFields && it.extraFields.length) {
+      it.extraFields.forEach(function (f) {
+        if (f.name || f.amount) {
+          parts.push("<div class=\"admin-report-sent-detail__row\"><span class=\"admin-report-sent-detail__label\">" + escapeReportHtml(f.name || "Доп") + "</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(f.amount != null ? f.amount : "") + "</span></div>");
+        }
+      });
+    }
+    parts.push("<div class=\"admin-report-sent-detail__row admin-report-sent-detail__total\"><span class=\"admin-report-sent-detail__label\">Итого, ₽</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(it.total != null ? it.total : "") + "</span></div>");
+    return parts.join("");
+  }
+
   function loadSentReports() {
-    if (!sentTbody) return;
+    if (!sentList) return;
     var base = typeof getApiBase === "function" ? getApiBase() : "";
     var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     var initData = tg && tg.initData ? tg.initData : "";
     if (!base || !initData) {
-      sentTbody.innerHTML = '<tr><td colspan="5">Не удалось загрузить отчёты (откройте в Telegram).</td></tr>';
+      sentList.innerHTML = '<p class="admin-report-sent-empty">Не удалось загрузить отчёты (откройте в Telegram).</p>';
       return;
     }
-    sentTbody.innerHTML = '<tr><td colspan="5">Загрузка…</td></tr>';
+    sentList.innerHTML = '<p class="admin-report-sent-empty">Загрузка…</p>';
     fetch(base.replace(/\/$/, "") + "/api/admin-report-shifts?initData=" + encodeURIComponent(initData))
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (!sentTbody) return;
+        if (!sentList) return;
         var items = (data && data.ok && data.reports) ? data.reports : [];
         if (!Array.isArray(items) || items.length === 0) {
-          sentTbody.innerHTML = '<tr><td colspan="5">Пока нет отправленных отчётов.</td></tr>';
+          sentList.innerHTML = '<p class="admin-report-sent-empty">Пока нет отправленных отчётов.</p>';
           return;
         }
-        var rows = items.map(function (it) {
-          var comment = it.comment || "";
-          var who = it.authorName || "";
-          return "<tr><td>" + (it.date || "") + "</td><td>" + (it.weekday || "") + "</td><td>" + (who ? String(who).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "") + "</td><td>" + (comment ? String(comment).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "") + "</td><td>" + (it.total != null ? it.total : "") + "</td></tr>";
+        var weekdayOrder = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+        var byDay = {};
+        items.forEach(function (r) {
+          var d = (r.weekday || "").trim() || "—";
+          if (!byDay[d]) byDay[d] = [];
+          byDay[d].push(r);
         });
-        sentTbody.innerHTML = rows.join("");
+        var daysToRender = weekdayOrder.filter(function (d) { return byDay[d] && byDay[d].length > 0; });
+        Object.keys(byDay).forEach(function (d) {
+          if (weekdayOrder.indexOf(d) === -1) daysToRender.push(d);
+        });
+        var html = [];
+        daysToRender.forEach(function (day) {
+          var list = byDay[day];
+          if (!list || list.length === 0) return;
+          list.sort(function (a, b) {
+            var ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            var tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return tb - ta;
+          });
+          html.push("<div class=\"admin-report-sent-day\"><div class=\"admin-report-sent-day-title\">" + escapeReportHtml(day) + "</div>");
+          list.forEach(function (it, idx) {
+            var who = it.authorName || "";
+            var comment = it.comment || "";
+            var id = "ar-sent-" + (it.id || day + "-" + idx);
+            var detailHtml = buildReportDetailHtml(it);
+            var reportId = (it.id || "").toString();
+            html.push("<div class=\"admin-report-sent-item\" data-report-id=\"" + escapeReportHtml(reportId) + "\"><div class=\"admin-report-sent-item__head\" role=\"button\" tabindex=\"0\" aria-expanded=\"false\" aria-controls=\"" + id + "-detail\"><span class=\"admin-report-sent-item__date\">" + escapeReportHtml(it.date || "") + "</span><span class=\"admin-report-sent-item__who\">" + escapeReportHtml(who) + "</span><span class=\"admin-report-sent-item__total\">" + escapeReportHtml(it.total != null ? it.total : "") + " ₽</span><span class=\"admin-report-sent-item__actions\"><button type=\"button\" class=\"admin-report-sent-edit-btn\" data-report-id=\"" + escapeReportHtml(reportId) + "\" title=\"Редактировать\">✎</button><button type=\"button\" class=\"admin-report-sent-delete-btn\" data-report-id=\"" + escapeReportHtml(reportId) + "\" title=\"Удалить\">✕</button></span><span class=\"admin-report-sent-item__toggle\" aria-hidden=\"true\">▼</span></div><div class=\"admin-report-sent-detail\" id=\"" + id + "-detail\" hidden><div class=\"admin-report-sent-detail__inner\">" + (comment ? "<div class=\"admin-report-sent-detail__row\"><span class=\"admin-report-sent-detail__label\">Комментарий</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(comment) + "</span></div>" : "") + detailHtml + "</div></div></div>");
+          });
+          html.push("</div>");
+        });
+        if (html.length === 0) {
+          sentList.innerHTML = '<p class="admin-report-sent-empty">Пока нет отправленных отчётов.</p>';
+          return;
+        }
+        sentList.innerHTML = html.join("");
+        var reportById = {};
+        items.forEach(function (r) { reportById[r.id] = r; });
+        sentList.querySelectorAll(".admin-report-sent-item__head").forEach(function (head) {
+          head.addEventListener("click", function (e) {
+            if (e.target.closest(".admin-report-sent-edit-btn") || e.target.closest(".admin-report-sent-delete-btn")) return;
+            var item = head.closest(".admin-report-sent-item");
+            if (!item) return;
+            var detail = item.querySelector(".admin-report-sent-detail");
+            var toggle = head.querySelector(".admin-report-sent-item__toggle");
+            var isOpen = !detail.hidden;
+            detail.hidden = isOpen;
+            head.setAttribute("aria-expanded", !isOpen);
+            if (toggle) toggle.textContent = isOpen ? "▼" : "▲";
+          });
+        });
+        sentList.querySelectorAll(".admin-report-sent-edit-btn").forEach(function (editBtn) {
+          editBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var id = editBtn.getAttribute("data-report-id");
+            var report = reportById[id];
+            if (!report) return;
+            editingReportId = id;
+            editingReport = report;
+            fillReportForm(report);
+            if (submitBtn) submitBtn.textContent = "Сохранить";
+            setActiveTab("form");
+            if (dateEl) dateEl.textContent = (report.weekday || "") + ", " + (report.date || "");
+          });
+        });
+        sentList.querySelectorAll(".admin-report-sent-delete-btn").forEach(function (delBtn) {
+          delBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var id = delBtn.getAttribute("data-report-id");
+            var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            function doDelete(reportId) {
+              var base = typeof getApiBase === "function" ? getApiBase() : "";
+              var initData = tg && tg.initData ? tg.initData : "";
+              if (!base || !initData) return;
+              fetch(base.replace(/\/$/, "") + "/api/admin-report-shifts", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ initData: initData, id: reportId })
+              })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                  if (data && data.ok) loadSentReports();
+                  else if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Не удалось удалить.");
+                })
+                .catch(function () {
+                  if (tg && tg.showAlert) tg.showAlert("Ошибка сети.");
+                });
+            }
+            if (tg && tg.showConfirm) {
+              tg.showConfirm("Удалить этот отчёт?", function (ok) { if (ok) doDelete(id); });
+            } else if (typeof confirm === "function" && confirm("Удалить этот отчёт?")) {
+              doDelete(id);
+            }
+          });
+        });
       })
       .catch(function () {
-        if (sentTbody) sentTbody.innerHTML = '<tr><td colspan="5">Ошибка загрузки. Попробуйте позже.</td></tr>';
+        if (sentList) sentList.innerHTML = '<p class="admin-report-sent-empty">Ошибка загрузки. Попробуйте позже.</p>';
       });
   }
 
@@ -13636,10 +13782,13 @@ updateVisitorCounter();
   function openModal() {
     modal.setAttribute("aria-hidden", "false");
     if (document.body) document.body.style.overflow = "hidden";
+    editingReportId = null;
+    editingReport = null;
+    if (submitBtn) submitBtn.textContent = "Отправить отчёт";
     var info = getTodayInfo();
     if (dateEl) dateEl.textContent = info.label;
     setActiveTab("form");
-    hidePreview();
+    fillReportForm(null);
     loadSentReports();
   }
   btn.addEventListener("click", openModal);
@@ -13720,43 +13869,79 @@ updateVisitorCounter();
     return payload;
   }
 
-  function buildPreviewHtml(payload) {
-    var labels = [
-      "Депозит", "Выводы", "Продамус", "Робокасса", "Рома крипта", "Бот крипта деп", "Бот эксчип деп", "Бот эксчип вывод",
-      "Бонусы", "Переводы", "Возврат", "Сергей/Марина"
-    ];
-    var keys = ["deposit", "cashout", "prodamus", "robokassa", "romaCrypto", "botCryptoDep", "botExchipDep", "botExchipCashout", "bonuses", "transfers", "ret", "sergeyMarina"];
-    var lines = [];
-    keys.forEach(function (key, i) {
-      var val = payload[key];
-      if (val != null && val !== "" && (typeof val !== "number" || val !== 0)) {
-        lines.push("<div class=\"admin-report-preview-line\">" + (labels[i] || key) + ": " + val + "</div>");
+  function setFormVal(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.value = val != null && val !== "" ? String(val) : "";
+  }
+
+  function fillReportForm(report) {
+    if (!report) {
+      setFormVal("adminReportDeposit", "");
+      setFormVal("adminReportCashout", "");
+      setFormVal("adminReportProdamus", "");
+      setFormVal("adminReportRobokassa", "");
+      setFormVal("adminReportRomaCrypto", "");
+      setFormVal("adminReportBotCryptoDep", "");
+      setFormVal("adminReportBotExchipDep", "");
+      setFormVal("adminReportBotExchipCashout", "");
+      setFormVal("adminReportBonuses", "");
+      setFormVal("adminReportTransfers", "");
+      setFormVal("adminReportReturn", "");
+      setFormVal("adminReportSergeyMarina", "");
+      var tbody = document.getElementById("adminReportTableBody");
+      if (tbody) {
+        var extras = tbody.querySelectorAll(".admin-report-extra-row");
+        extras.forEach(function (row, i) {
+          if (i === 0) {
+            row.querySelectorAll("input").forEach(function (inp) { inp.value = ""; });
+          } else {
+            row.parentNode.removeChild(row);
+          }
+        });
       }
-    });
-    if (payload.extraFields && payload.extraFields.length) {
-      payload.extraFields.forEach(function (f) {
-        if (f.name || f.amount) {
-          lines.push("<div class=\"admin-report-preview-line\">" + (f.name || "Доп") + ": " + (f.amount != null ? f.amount : "") + "</div>");
+      return;
+    }
+    setFormVal("adminReportDeposit", report.deposit);
+    setFormVal("adminReportCashout", report.cashout);
+    setFormVal("adminReportProdamus", report.prodamus);
+    setFormVal("adminReportRobokassa", report.robokassa);
+    setFormVal("adminReportRomaCrypto", report.romaCrypto);
+    setFormVal("adminReportBotCryptoDep", report.botCryptoDep);
+    setFormVal("adminReportBotExchipDep", report.botExchipDep);
+    setFormVal("adminReportBotExchipCashout", report.botExchipCashout);
+    setFormVal("adminReportBonuses", report.bonuses);
+    setFormVal("adminReportTransfers", report.transfers);
+    setFormVal("adminReportReturn", report.ret);
+    setFormVal("adminReportSergeyMarina", report.sergeyMarina);
+    var tbody = document.getElementById("adminReportTableBody");
+    if (tbody) {
+      var template = tbody.querySelector(".admin-report-extra-row");
+      var extras = tbody.querySelectorAll(".admin-report-extra-row");
+      extras.forEach(function (row, i) {
+        if (i === 0) {
+          var nameInput = row.querySelector(".admin-report-extra-name");
+          var amountInput = row.querySelector(".admin-report-extra-amount");
+          if (report.extraFields && report.extraFields[0]) {
+            if (nameInput) nameInput.value = report.extraFields[0].name != null ? report.extraFields[0].name : "";
+            if (amountInput) amountInput.value = report.extraFields[0].amount != null ? report.extraFields[0].amount : "";
+          } else {
+            if (nameInput) nameInput.value = "";
+            if (amountInput) amountInput.value = "";
+          }
+        } else {
+          row.parentNode.removeChild(row);
         }
       });
+      if (report.extraFields && report.extraFields.length > 1) {
+        for (var j = 1; j < report.extraFields.length; j++) {
+          var clone = template.cloneNode(true);
+          clone.querySelector(".admin-report-extra-name").value = report.extraFields[j].name != null ? report.extraFields[j].name : "";
+          clone.querySelector(".admin-report-extra-amount").value = report.extraFields[j].amount != null ? report.extraFields[j].amount : "";
+          tbody.insertBefore(clone, template.nextSibling);
+        }
+      }
     }
-    lines.push("<div class=\"admin-report-preview-line admin-report-preview-total\">Итого: " + (payload.total != null ? payload.total : "") + " ₽</div>");
-    return lines.join("");
-  }
-
-  function showPreview() {
-    pendingPayload = buildPayload();
-    if (previewContent) previewContent.innerHTML = buildPreviewHtml(pendingPayload);
-    if (formBody) formBody.style.display = "none";
-    if (previewWrap) {
-      previewWrap.classList.remove("admin-report-preview-wrap--hidden");
-    }
-  }
-
-  function hidePreview() {
-    pendingPayload = null;
-    if (formBody) formBody.style.display = "";
-    if (previewWrap) previewWrap.classList.add("admin-report-preview-wrap--hidden");
   }
 
   if (submitBtn) {
@@ -13768,34 +13953,27 @@ updateVisitorCounter();
         if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы отправить отчёт.");
         return;
       }
-      showPreview();
-    });
-  }
-
-  if (previewBackBtn) {
-    previewBackBtn.addEventListener("click", hidePreview);
-  }
-
-  if (confirmSubmitBtn) {
-    confirmSubmitBtn.addEventListener("click", function () {
-      if (!pendingPayload) return;
-      var base = typeof getApiBase === "function" ? getApiBase() : "";
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (!base || !tg || !tg.initData) {
-        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
-        return;
+      var payload = buildPayload();
+      if (editingReportId && editingReport) {
+        payload.id = editingReportId;
+        payload.date = editingReport.date || payload.date;
+        payload.weekday = editingReport.weekday || payload.weekday;
       }
-      confirmSubmitBtn.disabled = true;
-      fetch(base.replace(/\/$/, "") + "/api/admin-report-shifts", {
-        method: "POST",
+      submitBtn.disabled = true;
+      var method = editingReportId ? "PUT" : "POST";
+      var url = base.replace(/\/$/, "") + "/api/admin-report-shifts";
+      fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pendingPayload)
+        body: JSON.stringify(payload)
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          confirmSubmitBtn.disabled = false;
+          submitBtn.disabled = false;
           if (data && data.ok) {
-            hidePreview();
+            editingReportId = null;
+            editingReport = null;
+            if (submitBtn) submitBtn.textContent = "Отправить отчёт";
             loadSentReports();
             setActiveTab("sent");
           } else {
@@ -13803,7 +13981,7 @@ updateVisitorCounter();
           }
         })
         .catch(function () {
-          confirmSubmitBtn.disabled = false;
+          submitBtn.disabled = false;
           if (tg && tg.showAlert) tg.showAlert("Ошибка сети. Попробуйте позже.");
         });
     });

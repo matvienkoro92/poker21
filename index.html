@@ -2538,10 +2538,10 @@
               <table class="share-stats-admin-modal__table share-stats-admin-modal__table--matrix">
                 <thead>
                   <tr>
-                    <th>Раздел</th>
-                    <th>₽</th>
-                    <th>Раздел</th>
-                    <th>₽</th>
+                    <th>♠</th>
+                    <th>♥</th>
+                    <th>♦</th>
+                    <th>♣</th>
                   </tr>
                 </thead>
                 <tbody id="adminReportTableBody">
@@ -2558,31 +2558,10 @@
             <button type="button" class="admin-report-add-extra-btn" id="adminReportAddExtraBtn" title="Добавить поле" aria-label="Добавить поле">+</button>
             <button type="button" class="admin-report-submit-btn primary-button" id="adminReportSubmitBtn">Отправить отчёт</button>
             </div>
-            <div class="admin-report-preview-wrap admin-report-preview-wrap--hidden" id="adminReportPreviewWrap">
-              <p class="admin-report-preview-title">Предпросмотр отчёта</p>
-              <div class="admin-report-preview-content" id="adminReportPreviewContent"></div>
-              <div class="admin-report-preview-actions">
-                <button type="button" class="admin-report-preview-back-btn" id="adminReportPreviewBackBtn">Назад</button>
-                <button type="button" class="primary-button" id="adminReportConfirmSubmitBtn">Подтвердить отправку</button>
-              </div>
-            </div>
           </div>
           <div class="admin-report-panel" data-admin-report-panel="sent">
-            <div class="share-stats-admin-modal__table-wrap">
-              <table class="share-stats-admin-modal__table">
-                <thead>
-                  <tr>
-                    <th>Дата</th>
-                    <th>День</th>
-                    <th>Кто</th>
-                    <th>Комментарий</th>
-                    <th>Итого, ₽</th>
-                  </tr>
-                </thead>
-                <tbody id="adminReportSentTableBody">
-                  <tr><td colspan="5">Пока нет отправленных отчётов.</td></tr>
-                </tbody>
-              </table>
+            <div class="share-stats-admin-modal__table-wrap admin-report-sent-wrap">
+              <div id="adminReportSentList"></div>
             </div>
           </div>
         </div>
