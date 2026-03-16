@@ -364,6 +364,8 @@ body {
   pointer-events: auto;
   width: 100%;
   max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
   background: var(--card-bg);
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border);
@@ -373,6 +375,26 @@ body {
   flex-direction: column;
   gap: 16px;
   min-height: 0;
+}
+
+/* Горизонтальные отступы зависят от ширины экрана */
+@media (max-width: 480px) {
+  .card {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+@media (max-width: 380px) {
+  .card {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (max-width: 320px) {
+  .card {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 }
 .card:has(.view--active[data-view="home"]) {
   background: linear-gradient(135deg, #0f172a 0%, #0f172a 100%);

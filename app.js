@@ -10130,6 +10130,7 @@ var chatIsEditingMessage = false;
 window.chatGeneralUnread = false;
 window.chatPersonalUnread = false;
 var chatWithUserId = null;
+var personalMessagesCache = {};
 var chatWithUserName = null;
 var chatActiveTab = "general";
 var chatIsAdmin = false;
@@ -11424,8 +11425,13 @@ function initChat() {
     updateChatHeaderStats();
     scrollPersonalToBottomOnNextRender = true;
     if (messagesEl) {
-      messagesEl.innerHTML = '<p class="chat-empty">Загрузка...</p>';
-      messagesEl.scrollTop = 0;
+      var cached = userId && personalMessagesCache[userId];
+      if (Array.isArray(cached) && cached.length) {
+        renderMessages(cached);
+      } else {
+        messagesEl.innerHTML = '<p class="chat-empty">Загрузка...</p>';
+        messagesEl.scrollTop = 0;
+      }
     }
     loadMessages();
   }
@@ -11745,6 +11751,7 @@ function initChat() {
           var sig = (chatWithUserId || "") + "-" + (messages.length) + "-" + (messages.length ? (messages[messages.length - 1].id || "") + "-" + (messages[messages.length - 1].time || "") : "") + "-" + reactionsPartP;
           if (sig !== lastPersonalMessagesSig) {
             lastPersonalMessagesSig = sig;
+            personalMessagesCache[chatWithUserId] = messages.slice();
             renderMessages(messages);
           }
         }
