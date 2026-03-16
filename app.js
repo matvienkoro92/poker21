@@ -13134,6 +13134,7 @@ updateVisitorCounter();
     var wrap = document.getElementById("footerAdminVisitorsWrap");
     var ratingAdminRow = document.getElementById("winterRatingAdminRow");
     var gazetteAdminRow = document.getElementById("gazetteAdminRow");
+    var reportBtn = document.getElementById("adminReportBtn");
     if (!wrap && !ratingAdminRow && !gazetteAdminRow) return;
     function showAdminUi() {
       if (wrap) wrap.classList.remove("footer-admin-visitors--hidden");
@@ -13141,6 +13142,7 @@ updateVisitorCounter();
       if (window.updateRatingSubsCount) window.updateRatingSubsCount();
       if (gazetteAdminRow) gazetteAdminRow.classList.remove("gazette-admin-row--hidden");
       if (window.updateGazetteSubsCount) window.updateGazetteSubsCount();
+      if (reportBtn) reportBtn.classList.remove("header-admin-report--hidden");
     }
     // В локальной разработке всегда показываем кнопку админа,
     // чтобы можно было тестировать без Telegram initData.
@@ -13527,6 +13529,25 @@ updateVisitorCounter();
   btn.addEventListener("click", openShareStatsModal);
   if (closeBtn) closeBtn.addEventListener("click", closeShareStatsModal);
   if (backdrop) backdrop.addEventListener("click", closeShareStatsModal);
+})();
+
+(function initAdminReportModal() {
+  var btn = document.getElementById("adminReportBtn");
+  var modal = document.getElementById("adminReportModal");
+  var closeBtn = document.getElementById("adminReportModalClose");
+  var backdrop = document.getElementById("adminReportModalBackdrop");
+  if (!btn || !modal) return;
+  function closeModal() {
+    modal.setAttribute("aria-hidden", "true");
+    if (document.body) document.body.style.overflow = "";
+  }
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    if (document.body) document.body.style.overflow = "hidden";
+  }
+  btn.addEventListener("click", openModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (backdrop) backdrop.addEventListener("click", closeModal);
 })();
 
 (function initBroadcastReportsModal() {

@@ -649,6 +649,13 @@ html.app-view-home .home-welcome-outline::before {
   align-items: center;
   gap: 8px;
 }
+.header-admin-report {
+  font-size: 12px;
+  padding-inline: 10px;
+}
+.header-admin-report--hidden {
+  display: none;
+}
 .chat-switcher-wrap--header {
   position: relative;
   flex-shrink: 0;
@@ -12812,6 +12819,18 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 }
 .share-stats-admin-modal__table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.admin-report-input {
+  width: 100%;
+  max-width: 140px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--input-bg, var(--card-bg));
+  color: var(--text);
+  font-size: 13px;
+  box-sizing: border-box;
 }
 .visitors-admin-modal__backdrop {
   position: absolute;

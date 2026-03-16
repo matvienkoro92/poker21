@@ -145,6 +145,10 @@
                 <span class="pwa-install-btn__icon" aria-hidden="true">📲</span>
                 <span class="pwa-install-btn__label">Поделиться</span>
               </button>
+              <button type="button" class="theme-toggle header-admin-report header-admin-report--hidden" id="adminReportBtn" title="Отчёт за смену" aria-label="Отчёт за смену">
+                <span class="theme-toggle__icon" aria-hidden="true">📋</span>
+                <span class="theme-toggle__label">Отчёт</span>
+              </button>
             </div>
             <div class="auth-user auth-user--hidden" id="authUser" aria-live="polite">
               <img id="authUserAvatar" class="auth-user__avatar" alt="" />
@@ -2501,6 +2505,51 @@
                 </tr>
               </thead>
               <tbody id="shareStatsAdminTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- Модалка «Отчёт за смену» (только админ, заполняется вручную) -->
+      <div class="share-stats-admin-modal" id="adminReportModal" role="dialog" aria-modal="true" aria-label="Отчёт за смену" aria-hidden="true">
+        <div class="share-stats-admin-modal__backdrop" id="adminReportModalBackdrop"></div>
+        <div class="share-stats-admin-modal__box">
+          <button type="button" class="share-stats-admin-modal__close" id="adminReportModalClose" aria-label="Закрыть">×</button>
+          <h2 class="share-stats-admin-modal__title">Отчёт за смену</h2>
+          <p class="share-stats-admin-modal__hint">Заполните суммы по каждому полю. Отчёт сохраняется локально (для себя).</p>
+          <div class="share-stats-admin-modal__table-wrap">
+            <table class="share-stats-admin-modal__table">
+              <thead>
+                <tr>
+                  <th>Статья</th>
+                  <th>Сумма, ₽</th>
+                </tr>
+              </thead>
+              <tbody id="adminReportTableBody">
+                <tr><td><strong>Депозит</strong></td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportDeposit" placeholder="0" /></td></tr>
+                <tr><td><strong>Выводы</strong></td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportCashout" placeholder="0" /></td></tr>
+                <tr><td colspan="2"><hr /></td></tr>
+                <tr><td>Продамус</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportProdamus" placeholder="0" /></td></tr>
+                <tr><td>Робокасса</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportRobokassa" placeholder="0" /></td></tr>
+                <tr><td>Рома крипта</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportRomaCrypto" placeholder="0" /></td></tr>
+                <tr><td colspan="2"><hr /></td></tr>
+                <tr><td>Бот крипта депозит</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportBotCryptoDep" placeholder="0" /></td></tr>
+                <tr><td>Бот эксчип депозит</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportBotExchipDep" placeholder="0" /></td></tr>
+                <tr><td>Бот эксчип вывод</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportBotExchipCashout" placeholder="0" /></td></tr>
+                <tr><td colspan="2"><hr /></td></tr>
+                <tr><td>Бонусы</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportBonuses" placeholder="0" /></td></tr>
+                <tr><td>Переводы</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportTransfers" placeholder="0" /></td></tr>
+                <tr><td>Возврат на аккаунт</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportReturn" placeholder="0" /></td></tr>
+                <tr><td colspan="2"><hr /></td></tr>
+                <tr><td>Сергей / Марина</td><td><input type="number" inputmode="decimal" class="admin-report-input" id="adminReportSergeyMarina" placeholder="0" /></td></tr>
+                <tr>
+                  <td>
+                    <input type="text" class="admin-report-input" id="adminReportExtraName" placeholder="Доп. поле — название" />
+                  </td>
+                  <td>
+                    <input type="number" inputmode="decimal" class="admin-report-input" id="adminReportExtraAmount" placeholder="0" />
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
