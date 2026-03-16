@@ -1964,6 +1964,8 @@ if (tg) {
   tg.ready();
   if (tg.expand) tg.expand();
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
+  var isLight = document.documentElement.getAttribute("data-theme") === "light";
+  if (tg.setBackgroundColor) tg.setBackgroundColor(isLight ? "#ffedd5" : "#0f172a");
   // По ссылке t.me/Poker_dvatuza_bot/DvaTuza всегда открываем в полный экран.
   // Повторные вызовы expand() с задержкой и при событиях помогают развернуть на части устройств.
   function tryExpand() {
@@ -2583,6 +2585,47 @@ var MAIN_VIEW_ORDER = ["home", "chat", "download", "cashout", "profile"];
 var SWIPE_MIN_DIST = 60;
 var SWIPE_MAX_VERTICAL_RATIO = 0.6;
 
+function setViewAnimated(viewName, direction) {
+  var current = document.querySelector(".view--active[data-view]");
+  var currentName = current ? current.getAttribute("data-view") : null;
+  if (!current || currentName === viewName) return;
+  if (MAIN_VIEW_ORDER.indexOf(currentName) < 0 || MAIN_VIEW_ORDER.indexOf(viewName) < 0) {
+    setView(viewName);
+    return;
+  }
+  var nextView = document.querySelector(".view[data-view=\"" + viewName + "\"]");
+  var content = document.querySelector(".card__content");
+  if (!nextView || !content) {
+    setView(viewName);
+    return;
+  }
+  var isNext = direction === 1;
+  var contentHeight = content.offsetHeight;
+  if (contentHeight > 0) content.style.minHeight = contentHeight + "px";
+  content.classList.add("card__content--swipe-animating");
+  current.classList.add("view--swipe-current", isNext ? "view--swipe-out-left" : "view--swipe-out-right");
+  nextView.classList.add("view--swipe-next", isNext ? "view--swipe-in-from-right" : "view--swipe-in-from-left", "view--swipe-in-start");
+  nextView.offsetHeight;
+  nextView.classList.remove("view--swipe-in-start");
+  var cleaned = false;
+  function cleanup() {
+    if (cleaned) return;
+    cleaned = true;
+    content.style.minHeight = "";
+    content.classList.remove("card__content--swipe-animating");
+    current.classList.remove("view--swipe-current", "view--swipe-out-left", "view--swipe-out-right");
+    nextView.classList.remove("view--swipe-next", "view--swipe-in-from-right", "view--swipe-in-from-left", "view--swipe-in-start");
+    setView(viewName);
+  }
+  function onEnd(e) {
+    if (e.propertyName !== "transform" || (e.target !== current && e.target !== nextView)) return;
+    cleanup();
+  }
+  nextView.addEventListener("transitionend", onEnd, { once: true });
+  current.addEventListener("transitionend", onEnd, { once: true });
+  setTimeout(cleanup, 350);
+}
+
 (function initSwipeNav() {
   var startX = 0;
   var startY = 0;
@@ -2595,9 +2638,9 @@ var SWIPE_MAX_VERTICAL_RATIO = 0.6;
     var idx = MAIN_VIEW_ORDER.indexOf(current);
     if (idx < 0) return;
     if (direction === 1 && idx < MAIN_VIEW_ORDER.length - 1) {
-      setView(MAIN_VIEW_ORDER[idx + 1]);
+      setViewAnimated(MAIN_VIEW_ORDER[idx + 1], 1);
     } else if (direction === -1 && idx > 0) {
-      setView(MAIN_VIEW_ORDER[idx - 1]);
+      setViewAnimated(MAIN_VIEW_ORDER[idx - 1], -1);
     }
   }
   function onTouchStart(e) {
@@ -13813,6 +13856,25 @@ updateVisitorCounter();
       var clone = template.cloneNode(true);
       clone.querySelectorAll("input").forEach(function (inp) { inp.value = ""; });
       tbody.insertBefore(clone, template.nextSibling);
+    });
+  }
+  if (modal) {
+    modal.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" || !e.target || !e.target.matches || !e.target.matches("input.admin-report-input")) return;
+      e.preventDefault();
+      var formPanel = modal.querySelector("[data-admin-report-panel=\"form\"]");
+      if (!formPanel) return;
+      var inputs = formPanel.querySelectorAll("input.admin-report-input");
+      var idx = -1;
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i] === e.target) { idx = i; break; }
+      }
+      if (idx < 0) return;
+      if (idx + 1 < inputs.length) {
+        inputs[idx + 1].focus();
+      } else if (submitBtn) {
+        submitBtn.focus();
+      }
     });
   }
   function buildPayload() {
