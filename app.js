@@ -12841,6 +12841,11 @@ function initChat() {
     function attachChatDialogButton(btn) {
       if (btn._chatDialogAttached) return;
       btn._chatDialogAttached = true;
+      btn.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDialogsViewItem(btn);
+      }, { passive: false, capture: true });
       btn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
