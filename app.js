@@ -13571,6 +13571,12 @@ updateVisitorCounter();
   var panels = modal ? modal.querySelectorAll(".admin-report-panel") : null;
   var submitBtn = document.getElementById("adminReportSubmitBtn");
   var sentTbody = document.getElementById("adminReportSentTableBody");
+  var formBody = document.getElementById("adminReportFormBody");
+  var previewWrap = document.getElementById("adminReportPreviewWrap");
+  var previewContent = document.getElementById("adminReportPreviewContent");
+  var previewBackBtn = document.getElementById("adminReportPreviewBackBtn");
+  var confirmSubmitBtn = document.getElementById("adminReportConfirmSubmitBtn");
+  var pendingPayload = null;
   if (!btn || !modal) return;
 
   function getTodayInfo() {
@@ -13594,19 +13600,33 @@ updateVisitorCounter();
 
   function loadSentReports() {
     if (!sentTbody) return;
-    var raw = null;
-    try { raw = localStorage.getItem("admin_report_sent") || "[]"; } catch (e) { raw = "[]"; }
-    var items = [];
-    try { items = JSON.parse(raw); } catch (e) { items = []; }
-    if (!Array.isArray(items) || items.length === 0) {
-      sentTbody.innerHTML = '<tr><td colspan="4">Пока нет отправленных отчётов.</td></tr>';
+    var base = typeof getApiBase === "function" ? getApiBase() : "";
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var initData = tg && tg.initData ? tg.initData : "";
+    if (!base || !initData) {
+      sentTbody.innerHTML = '<tr><td colspan="5">Не удалось загрузить отчёты (откройте в Telegram).</td></tr>';
       return;
     }
-    var rows = items.map(function (it) {
-      var comment = it.comment || "";
-      return "<tr><td>" + (it.date || "") + "</td><td>" + (it.weekday || "") + "</td><td>" + (comment ? String(comment).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "") + "</td><td>" + (it.total != null ? it.total : "") + "</td></tr>";
-    });
-    sentTbody.innerHTML = rows.join("");
+    sentTbody.innerHTML = '<tr><td colspan="5">Загрузка…</td></tr>';
+    fetch(base.replace(/\/$/, "") + "/api/admin-report-shifts?initData=" + encodeURIComponent(initData))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!sentTbody) return;
+        var items = (data && data.ok && data.reports) ? data.reports : [];
+        if (!Array.isArray(items) || items.length === 0) {
+          sentTbody.innerHTML = '<tr><td colspan="5">Пока нет отправленных отчётов.</td></tr>';
+          return;
+        }
+        var rows = items.map(function (it) {
+          var comment = it.comment || "";
+          var who = it.authorName || "";
+          return "<tr><td>" + (it.date || "") + "</td><td>" + (it.weekday || "") + "</td><td>" + (who ? String(who).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "") + "</td><td>" + (comment ? String(comment).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "") + "</td><td>" + (it.total != null ? it.total : "") + "</td></tr>";
+        });
+        sentTbody.innerHTML = rows.join("");
+      })
+      .catch(function () {
+        if (sentTbody) sentTbody.innerHTML = '<tr><td colspan="5">Ошибка загрузки. Попробуйте позже.</td></tr>';
+      });
   }
 
   function closeModal() {
@@ -13619,6 +13639,7 @@ updateVisitorCounter();
     var info = getTodayInfo();
     if (dateEl) dateEl.textContent = info.label;
     setActiveTab("form");
+    hidePreview();
     loadSentReports();
   }
   btn.addEventListener("click", openModal);
@@ -13633,47 +13654,158 @@ updateVisitorCounter();
       });
     });
   }
+  var addExtraBtn = document.getElementById("adminReportAddExtraBtn");
+  if (addExtraBtn && modal) {
+    addExtraBtn.addEventListener("click", function () {
+      var tbody = document.getElementById("adminReportTableBody");
+      if (!tbody) return;
+      var template = tbody.querySelector(".admin-report-extra-row");
+      if (!template) return;
+      var clone = template.cloneNode(true);
+      clone.querySelectorAll("input").forEach(function (inp) { inp.value = ""; });
+      tbody.insertBefore(clone, template.nextSibling);
+    });
+  }
+  function buildPayload() {
+    var d = getTodayInfo();
+    var getVal = function (id) {
+      var el = document.getElementById(id);
+      if (!el) return 0;
+      var v = parseFloat(String(el.value || "").replace(",", "."));
+      return isNaN(v) ? 0 : v;
+    };
+    var extraRows = modal.querySelectorAll(".admin-report-extra-row");
+    var extraFields = [];
+    var extraTotal = 0;
+    extraRows.forEach(function (row) {
+      var nameInput = row.querySelector(".admin-report-extra-name");
+      var amountInput = row.querySelector(".admin-report-extra-amount");
+      var name = nameInput && nameInput.value ? String(nameInput.value).trim() : "";
+      var amount = 0;
+      if (amountInput) {
+        var v = parseFloat(String(amountInput.value || "").replace(",", "."));
+        amount = isNaN(v) ? 0 : v;
+      }
+      if (name || amount) {
+        extraFields.push({ name: name, amount: amount });
+        extraTotal += amount;
+      }
+    });
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var initData = tg && tg.initData ? tg.initData : "";
+    var payload = {
+      initData: initData,
+      iso: d.iso,
+      date: d.date,
+      weekday: d.weekday.charAt(0).toUpperCase() + d.weekday.slice(1),
+      deposit: getVal("adminReportDeposit"),
+      cashout: getVal("adminReportCashout"),
+      prodamus: getVal("adminReportProdamus"),
+      robokassa: getVal("adminReportRobokassa"),
+      romaCrypto: getVal("adminReportRomaCrypto"),
+      botCryptoDep: getVal("adminReportBotCryptoDep"),
+      botExchipDep: getVal("adminReportBotExchipDep"),
+      botExchipCashout: getVal("adminReportBotExchipCashout"),
+      bonuses: getVal("adminReportBonuses"),
+      transfers: getVal("adminReportTransfers"),
+      ret: getVal("adminReportReturn"),
+      sergeyMarina: getVal("adminReportSergeyMarina"),
+      extraFields: extraFields
+    };
+    var total = payload.deposit - payload.cashout + payload.prodamus + payload.robokassa + payload.romaCrypto + payload.botCryptoDep + payload.botExchipDep - payload.botExchipCashout - payload.bonuses + payload.transfers + payload.ret + payload.sergeyMarina + extraTotal;
+    payload.total = total;
+    payload.extraName = extraFields[0] ? extraFields[0].name : "";
+    payload.extraAmount = extraTotal;
+    payload.comment = extraFields.map(function (f) { return f.name; }).filter(Boolean).join(", ");
+    return payload;
+  }
+
+  function buildPreviewHtml(payload) {
+    var labels = [
+      "Депозит", "Выводы", "Продамус", "Робокасса", "Рома крипта", "Бот крипта деп", "Бот эксчип деп", "Бот эксчип вывод",
+      "Бонусы", "Переводы", "Возврат", "Сергей/Марина"
+    ];
+    var keys = ["deposit", "cashout", "prodamus", "robokassa", "romaCrypto", "botCryptoDep", "botExchipDep", "botExchipCashout", "bonuses", "transfers", "ret", "sergeyMarina"];
+    var lines = [];
+    keys.forEach(function (key, i) {
+      var val = payload[key];
+      if (val != null && val !== "" && (typeof val !== "number" || val !== 0)) {
+        lines.push("<div class=\"admin-report-preview-line\">" + (labels[i] || key) + ": " + val + "</div>");
+      }
+    });
+    if (payload.extraFields && payload.extraFields.length) {
+      payload.extraFields.forEach(function (f) {
+        if (f.name || f.amount) {
+          lines.push("<div class=\"admin-report-preview-line\">" + (f.name || "Доп") + ": " + (f.amount != null ? f.amount : "") + "</div>");
+        }
+      });
+    }
+    lines.push("<div class=\"admin-report-preview-line admin-report-preview-total\">Итого: " + (payload.total != null ? payload.total : "") + " ₽</div>");
+    return lines.join("");
+  }
+
+  function showPreview() {
+    pendingPayload = buildPayload();
+    if (previewContent) previewContent.innerHTML = buildPreviewHtml(pendingPayload);
+    if (formBody) formBody.style.display = "none";
+    if (previewWrap) {
+      previewWrap.classList.remove("admin-report-preview-wrap--hidden");
+    }
+  }
+
+  function hidePreview() {
+    pendingPayload = null;
+    if (formBody) formBody.style.display = "";
+    if (previewWrap) previewWrap.classList.add("admin-report-preview-wrap--hidden");
+  }
+
   if (submitBtn) {
     submitBtn.addEventListener("click", function () {
-      var d = getTodayInfo();
-      var getVal = function (id) {
-        var el = document.getElementById(id);
-        if (!el) return 0;
-        var v = parseFloat(String(el.value || "").replace(",", "."));
-        return isNaN(v) ? 0 : v;
-      };
-      var payload = {
-        iso: d.iso,
-        date: d.date,
-        weekday: d.weekday.charAt(0).toUpperCase() + d.weekday.slice(1),
-        deposit: getVal("adminReportDeposit"),
-        cashout: getVal("adminReportCashout"),
-        prodamus: getVal("adminReportProdamus"),
-        robokassa: getVal("adminReportRobokassa"),
-        romaCrypto: getVal("adminReportRomaCrypto"),
-        botCryptoDep: getVal("adminReportBotCryptoDep"),
-        botExchipDep: getVal("adminReportBotExchipDep"),
-        botExchipCashout: getVal("adminReportBotExchipCashout"),
-        bonuses: getVal("adminReportBonuses"),
-        transfers: getVal("adminReportTransfers"),
-        ret: getVal("adminReportReturn"),
-        sergeyMarina: getVal("adminReportSergeyMarina"),
-        extraName: (document.getElementById("adminReportExtraName") && document.getElementById("adminReportExtraName").value) || "",
-        extraAmount: getVal("adminReportExtraAmount")
-      };
-      var total = payload.deposit - payload.cashout + payload.prodamus + payload.robokassa + payload.romaCrypto + payload.botCryptoDep + payload.botExchipDep - payload.botExchipCashout - payload.bonuses + payload.transfers + payload.ret + payload.sergeyMarina + payload.extraAmount;
-      payload.total = total;
-      payload.comment = payload.extraName;
-      var items = [];
-      try {
-        var raw = localStorage.getItem("admin_report_sent") || "[]";
-        items = JSON.parse(raw);
-        if (!Array.isArray(items)) items = [];
-      } catch (e) { items = []; }
-      items.push(payload);
-      try { localStorage.setItem("admin_report_sent", JSON.stringify(items)); } catch (e) {}
-      loadSentReports();
-      setActiveTab("sent");
+      var base = typeof getApiBase === "function" ? getApiBase() : "";
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      var initData = tg && tg.initData ? tg.initData : "";
+      if (!base || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram, чтобы отправить отчёт.");
+        return;
+      }
+      showPreview();
+    });
+  }
+
+  if (previewBackBtn) {
+    previewBackBtn.addEventListener("click", hidePreview);
+  }
+
+  if (confirmSubmitBtn) {
+    confirmSubmitBtn.addEventListener("click", function () {
+      if (!pendingPayload) return;
+      var base = typeof getApiBase === "function" ? getApiBase() : "";
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (!base || !tg || !tg.initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+        return;
+      }
+      confirmSubmitBtn.disabled = true;
+      fetch(base.replace(/\/$/, "") + "/api/admin-report-shifts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pendingPayload)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          confirmSubmitBtn.disabled = false;
+          if (data && data.ok) {
+            hidePreview();
+            loadSentReports();
+            setActiveTab("sent");
+          } else {
+            if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка отправки.");
+          }
+        })
+        .catch(function () {
+          confirmSubmitBtn.disabled = false;
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети. Попробуйте позже.");
+        });
     });
   }
 })();

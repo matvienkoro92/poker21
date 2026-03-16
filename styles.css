@@ -1000,40 +1000,10 @@ body.chat-keyboard-open .bottom-nav {
 body.chat-keyboard-open .card__header {
   display: none !important;
 }
-/* Внутри любого чата (главный или личка): скрываем верхнее и нижнее меню */
+/* Внутри любого чата (главный или личка): скрываем только верхнее меню */
 .app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .card__header,
 .app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .card__header {
   display: none !important;
-}
-.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .bottom-nav,
-.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .bottom-nav {
-  transform: translateY(100%);
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  transition: transform 0.25s ease-out, opacity 0.25s ease-out, visibility 0s linear 0.26s;
-}
-/* Чат на весь экран: убираем отступ под нижнее меню, окно ввода уходит вниз */
-.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)),
-.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) {
-  padding-bottom: 0;
-}
-.app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .chat-general-view .chat-input-area,
-.app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .chat-container .chat-input-area {
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
-}
-.view--active[data-view="chat"] .chat-input-area,
-.chat-general-view .chat-input-area,
-.chat-container .chat-input-area {
-  transition: padding-bottom 0.25s ease-out;
-}
-.app {
-  transition: padding-bottom 0.25s ease-out;
-}
-body.chat-keyboard-open .view--active[data-view="chat"] .chat-input-area,
-body.chat-keyboard-open .chat-general-view .chat-input-area,
-body.chat-keyboard-open .chat-container .chat-input-area {
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
 }
 body.chat-keyboard-open .app {
   padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
@@ -1145,6 +1115,31 @@ body.chat-keyboard-open .app {
 }
 
 .welcome-gazette-icon__emoji {
+  display: block;
+}
+
+.welcome-admin-report-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+  min-height: 0;
+}
+
+.welcome-admin-report-btn {
+  padding: 4px 6px;
+  font-size: 22px;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.welcome-admin-report-btn:hover {
+  opacity: 1;
+}
+
+.welcome-admin-report-btn__icon {
   display: block;
 }
 
@@ -12812,16 +12807,38 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .share-stats-admin-modal__table-wrap {
   overflow-x: auto;
 }
+.share-stats-admin-modal__table-wrap--matrix {
+  max-width: 100%;
+}
 .share-stats-admin-modal__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 12px;
+}
+.share-stats-admin-modal__table--matrix {
+  table-layout: fixed;
+}
+.share-stats-admin-modal__table--matrix thead tr {
+  background: rgba(34, 197, 94, 0.2);
+}
+.share-stats-admin-modal__table--matrix th,
+.share-stats-admin-modal__table--matrix td {
+  width: 25%;
+  padding: 3px 4px;
+  text-align: left;
+  border: 1px solid var(--border, #334155);
+  white-space: nowrap;
+}
+.share-stats-admin-modal__table--matrix td:nth-child(odd) {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 .share-stats-admin-modal__table th,
 .share-stats-admin-modal__table td {
-  padding: 10px 12px;
+  padding: 4px 6px;
   text-align: left;
   border-bottom: 1px solid var(--border, #334155);
+  white-space: nowrap;
 }
 .share-stats-admin-modal__table th {
   font-weight: 600;
@@ -12836,14 +12853,20 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 
 .admin-report-input {
   width: 100%;
-  max-width: 140px;
-  padding: 6px 8px;
-  border-radius: 8px;
+  max-width: 90px;
+  padding: 3px 4px;
+  border-radius: 6px;
   border: 1px solid var(--border-subtle);
   background: var(--input-bg, var(--card-bg));
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   box-sizing: border-box;
+}
+.share-stats-admin-modal__table--matrix .admin-report-input {
+  max-width: none;
+}
+.admin-report-input--full {
+  max-width: none;
 }
 .admin-report-date {
   margin: 0 0 8px;
@@ -12876,8 +12899,68 @@ html.app-view-winter-rating .card .winter-rating__table-wrap {
 .admin-report-panel--active {
   display: block;
 }
+.admin-report-add-extra-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-right: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+.admin-report-add-extra-btn:hover {
+  background: var(--accent, #a855f7);
+  color: #fff;
+  border-color: transparent;
+}
 .admin-report-submit-btn {
   margin-top: 10px;
+}
+.admin-report-preview-wrap {
+  margin-top: 12px;
+}
+.admin-report-preview-wrap--hidden {
+  display: none !important;
+}
+.admin-report-preview-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.admin-report-preview-content {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.admin-report-preview-content .admin-report-preview-line { margin: 4px 0; }
+.admin-report-preview-content .admin-report-preview-total { font-weight: 700; margin-top: 8px; }
+.admin-report-preview-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.admin-report-preview-back-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.admin-report-preview-back-btn:hover {
+  background: rgba(255,255,255,0.08);
 }
 .visitors-admin-modal__backdrop {
   position: absolute;
