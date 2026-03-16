@@ -2445,6 +2445,9 @@ function setView(viewName) {
     loadProfileRespect();
     initProfileFriends();
   }
+  if (viewName === "cashout") {
+    initCashoutDepositForm();
+  }
   if (viewName === "streams") {
     initStreams();
   } else {
@@ -6527,6 +6530,50 @@ function initProfileP21Id() {
   if (saveBtn) saveBtn.addEventListener("click", saveP21Id);
 }
 
+var cashoutDepositFormBound = false;
+function initCashoutDepositForm() {
+  var form = document.getElementById("cashoutDepositForm");
+  var wrapP21 = document.getElementById("cashoutFormIdWrapP21");
+  var wrapXpoker = document.getElementById("cashoutFormIdWrapXpoker");
+  var displayP21 = document.getElementById("cashoutP21IdDisplay");
+  var radioP21 = document.getElementById("cashoutPlatformPoker21");
+  var radioXpoker = document.getElementById("cashoutPlatformXpoker");
+  if (!form || !wrapP21 || !wrapXpoker) return;
+
+  function getStoredP21ForCashout() {
+    return (typeof localStorage !== "undefined" && localStorage.getItem("poker_p21_id")) || (typeof sessionStorage !== "undefined" && sessionStorage.getItem("poker_p21_id")) || "";
+  }
+
+  function togglePlatform() {
+    var isP21 = radioP21 && radioP21.checked;
+    if (wrapP21) wrapP21.classList.toggle("cashout-form-id-wrap--hidden", !isP21);
+    if (wrapXpoker) wrapXpoker.classList.toggle("cashout-form-id-wrap--hidden", isP21);
+  }
+
+  if (!cashoutDepositFormBound) {
+    cashoutDepositFormBound = true;
+    if (radioP21) radioP21.addEventListener("change", togglePlatform);
+    if (radioXpoker) radioXpoker.addEventListener("change", togglePlatform);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var amountEl = document.getElementById("cashoutAmount");
+      var amount = amountEl ? amountEl.value : "";
+      var isP21 = radioP21 && radioP21.checked;
+      var id = isP21 ? (displayP21 && displayP21.value) || "" : ((document.getElementById("cashoutXpokerId") && document.getElementById("cashoutXpokerId").value) || "");
+      var platform = isP21 ? "Poker21" : "Xpoker";
+      var lines = ["Заявка на пополнение", "Сумма: " + (amount.trim() || "—") + " руб.", "Платформа: " + platform, "ID: " + (id.trim() || "—")];
+      window.__pendingDepositMessage = lines.join("\n");
+      if (typeof setView === "function") setView("chat");
+      setTimeout(function () {
+        if (typeof window.chatOpenConvFromDialogs === "function") window.chatOpenConvFromDialogs("tg_2144406710", "Анна");
+      }, 150);
+    });
+  }
+
+  togglePlatform();
+  if (displayP21) displayP21.value = getStoredP21ForCashout().replace(/\D/g, "").slice(0, 6) || "—";
+}
+
 function initProfilePersonal() {
   var textarea = document.getElementById("profilePersonalInput");
   var saveBtn = document.getElementById("profilePersonalSaveBtn");
@@ -10510,6 +10557,13 @@ function initChat() {
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     setTab("personal");
     showConv(userId, userName || userId, dtId);
+    if (window.__pendingDepositMessage) {
+      var inp = document.getElementById("chatInput");
+      if (inp) {
+        inp.value = window.__pendingDepositMessage;
+        window.__pendingDepositMessage = null;
+      }
+    }
   }
   window.chatSetTab = setTab;
   window.chatShowDialogs = showDialogs;
@@ -11247,74 +11301,94 @@ function initChat() {
   }
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
-    if ((!text && !generalImage && !generalVoice && !generalDocument) || !initData || sendingGeneral) return;
-    if (!initData) { if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram."); return; }
+    if ((!text && !generalImage && !generalVoice && !generalDocument) || sendingGeneral) return;
+    if (!initData) {
+      if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram.");
+      else if (typeof alert === "function") alert("Откройте приложение в Telegram, чтобы отправлять сообщения в общий чат.");
+      return;
+    }
     sendingGeneral = true;
     if (generalSendBtn) generalSendBtn.disabled = true;
-    var body = { initData: initData, text: text };
-    if (generalImage) body.image = generalImage;
-    if (generalVoice) body.voice = generalVoice;
-    if (generalDocument) { body.document = generalDocument.dataUrl; body.documentName = generalDocument.fileName; }
-    if (generalReplyTo) {
-      var replyText = (generalReplyTo.text && String(generalReplyTo.text).trim()) || (generalReplyTo.hasImage ? "[Фото]" : generalReplyTo.hasVoice ? "[Голосовое сообщение]" : generalReplyTo.hasDocument ? "[Документ]" : "\u2014");
-      body.replyTo = { id: generalReplyTo.id, from: generalReplyTo.from, fromName: generalReplyTo.fromName || "Игрок", text: replyText };
-    }
-    var optText = text;
-    var optImage = generalImage || null;
-    var optVoice = generalVoice || null;
-    var optDocument = generalDocument ? { dataUrl: generalDocument.dataUrl, fileName: generalDocument.fileName } : null;
-    var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
-    if (generalInput) {
-      generalInput.value = "";
-      generalInput.blur();
-    }
-    generalReplyTo = null;
-    generalImage = null;
-    generalDocument = null;
-    generalVoice = null;
-    var prevEl = document.getElementById("chatGeneralReplyPreview");
-    if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
-    var imgPrev = document.getElementById("chatGeneralImagePreview");
-    if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
-    var voicePrev = document.getElementById("chatGeneralVoicePreview");
-    if (voicePrev) voicePrev.classList.add("chat-voice-preview--hidden");
-    appendOptimisticGeneralMessage(optText, optImage, optVoice, optDocument, optReply);
-    if (generalSendBtn) generalSendBtn.disabled = false;
-    fetch(base + "/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then(function (r) { return r.json(); }).then(function (data) {
-      sendingGeneral = false;
-      if (data && data.ok) {
-        var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
-        if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
-        var msg = data.message;
-        if (msg && msg.id) {
-          window._pendingGeneralMessage = msg;
-          var cache = window._chatGeneralCache || { messages: [], participantsCount: null, onlineCount: null };
-          if (Array.isArray(cache.messages) && !cache.messages.some(function (m) { return m.id === msg.id; })) {
-            var msgs = cache.messages.concat([msg]);
-            window._chatGeneralCache = { messages: msgs, participantsCount: cache.participantsCount, onlineCount: cache.onlineCount };
-            lastGeneralMessagesSig = null;
-            if (chatActiveTab === "general" && !chatIsEditingMessage) {
-              lastGeneralMessagesSig = generalMessagesSignature(msgs);
-              renderGeneralMessages(msgs);
+    try {
+      var body = { initData: initData, text: text };
+      if (generalImage) body.image = generalImage;
+      if (generalVoice) body.voice = generalVoice;
+      if (generalDocument) { body.document = generalDocument.dataUrl; body.documentName = generalDocument.fileName; }
+      if (generalReplyTo) {
+        var replyText = (generalReplyTo.text && String(generalReplyTo.text).trim()) || (generalReplyTo.hasImage ? "[Фото]" : generalReplyTo.hasVoice ? "[Голосовое сообщение]" : generalReplyTo.hasDocument ? "[Документ]" : "\u2014");
+        body.replyTo = { id: generalReplyTo.id, from: generalReplyTo.from, fromName: generalReplyTo.fromName || "Игрок", text: replyText };
+      }
+      var optText = text;
+      var optImage = generalImage || null;
+      var optVoice = generalVoice || null;
+      var optDocument = generalDocument ? { dataUrl: generalDocument.dataUrl, fileName: generalDocument.fileName } : null;
+      var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
+      if (generalInput) {
+        generalInput.value = "";
+        generalInput.blur();
+      }
+      generalReplyTo = null;
+      generalImage = null;
+      generalDocument = null;
+      generalVoice = null;
+      var prevEl = document.getElementById("chatGeneralReplyPreview");
+      if (prevEl) { prevEl.classList.remove("chat-reply-preview--visible"); prevEl.querySelector(".chat-reply-preview__text").textContent = ""; }
+      var imgPrev = document.getElementById("chatGeneralImagePreview");
+      if (imgPrev) { imgPrev.classList.remove("chat-image-preview--visible"); imgPrev.innerHTML = ""; }
+      var voicePrev = document.getElementById("chatGeneralVoicePreview");
+      if (voicePrev) voicePrev.classList.add("chat-voice-preview--hidden");
+      try {
+        appendOptimisticGeneralMessage(optText, optImage, optVoice, optDocument, optReply);
+      } catch (e) {
+        if (typeof console !== "undefined" && console.error) console.error("appendOptimisticGeneralMessage failed", e);
+      }
+      fetch(base + "/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then(function (r) { return r.json(); }).then(function (data) {
+        sendingGeneral = false;
+        if (generalSendBtn) generalSendBtn.disabled = false;
+        if (data && data.ok) {
+          var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
+          if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+          var msg = data.message;
+          if (msg && msg.id) {
+            window._pendingGeneralMessage = msg;
+            var cache = window._chatGeneralCache || { messages: [], participantsCount: null, onlineCount: null };
+            if (Array.isArray(cache.messages) && !cache.messages.some(function (m) { return m.id === msg.id; })) {
+              var msgs = cache.messages.concat([msg]);
+              window._chatGeneralCache = { messages: msgs, participantsCount: cache.participantsCount, onlineCount: cache.onlineCount };
+              lastGeneralMessagesSig = null;
+              if (chatActiveTab === "general" && !chatIsEditingMessage) {
+                lastGeneralMessagesSig = generalMessagesSignature(msgs);
+                renderGeneralMessages(msgs);
+              }
             }
           }
+          loadGeneral();
+        } else {
+          var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
+          if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
+          var msg = (data && data.error) || "Ошибка";
+          if (tg && tg.showAlert) tg.showAlert(msg);
+          else if (typeof alert === "function") alert(msg);
         }
-        loadGeneral();
-      } else {
+      }).catch(function () {
+        sendingGeneral = false;
+        if (generalSendBtn) generalSendBtn.disabled = false;
         var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
         if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
-        if (tg && tg.showAlert) tg.showAlert((data && data.error) || "Ошибка");
-      }
-    }).catch(function () {
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+        else if (typeof alert === "function") alert("Ошибка сети при отправке сообщения");
+      });
+    } catch (err) {
       sendingGeneral = false;
-      var opt = generalMessages && generalMessages.querySelector('[data-optimistic="true"]');
-      if (opt && opt.parentNode) opt.parentNode.removeChild(opt);
-      if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
-    });
+      if (generalSendBtn) generalSendBtn.disabled = false;
+      if (typeof console !== "undefined" && console.error) console.error("sendGeneral failed", err);
+      if (tg && tg.showAlert) tg.showAlert("Не удалось отправить сообщение");
+      else if (typeof alert === "function") alert("Не удалось отправить сообщение");
+    }
   }
 
   function showList() {
@@ -11712,8 +11786,12 @@ function initChat() {
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
     if ((!text && !personalImage && !personalVoice && !personalDocument) || !chatWithUserId || !initData || sendingPrivate) {
-      if (!chatWithUserId && (text || personalImage || personalVoice || personalDocument) && tg && tg.showAlert) tg.showAlert("Выберите собеседника");
-      if (!initData && (text || personalImage || personalVoice || personalDocument) && tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram");
+      if (!chatWithUserId && (text || personalImage || personalVoice || personalDocument)) {
+        if (tg && tg.showAlert) tg.showAlert("Выберите собеседника"); else alert("Выберите собеседника");
+      }
+      if (!initData && (text || personalImage || personalVoice || personalDocument)) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram"); else alert("Откройте приложение в Telegram");
+      }
       return;
     }
     if (!messagesEl) {

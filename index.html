@@ -2075,6 +2075,35 @@
             <h1 class="title">Депозит и кэшаут</h1>
             <p class="cashout-now-subtitle" aria-live="polite"></p>
 
+            <form class="cashout-deposit-form" id="cashoutDepositForm" aria-label="Заявка на пополнение">
+              <label class="cashout-form-label" for="cashoutAmount">Сумма пополнения</label>
+              <input type="text" id="cashoutAmount" class="cashout-form-input" inputmode="decimal" placeholder="Например: 1000" autocomplete="off" aria-describedby="cashoutAmountHint" />
+              <span class="cashout-form-hint" id="cashoutAmountHint">руб.</span>
+
+              <p class="cashout-form-label cashout-form-label--block">Платформа</p>
+              <div class="cashout-form-platform">
+                <label class="cashout-form-option">
+                  <input type="radio" name="cashoutPlatform" value="poker21" id="cashoutPlatformPoker21" checked />
+                  <span class="cashout-form-option-text">Poker21</span>
+                </label>
+                <label class="cashout-form-option">
+                  <input type="radio" name="cashoutPlatform" value="xpoker" id="cashoutPlatformXpoker" />
+                  <span class="cashout-form-option-text">Xpoker</span>
+                </label>
+              </div>
+
+              <div class="cashout-form-id-wrap cashout-form-id-wrap--p21" id="cashoutFormIdWrapP21">
+                <label class="cashout-form-label" for="cashoutP21IdDisplay">P21 ID из профиля</label>
+                <input type="text" id="cashoutP21IdDisplay" class="cashout-form-input cashout-form-input--readonly" readonly placeholder="—" aria-readonly="true" />
+              </div>
+              <div class="cashout-form-id-wrap cashout-form-id-wrap--xpoker cashout-form-id-wrap--hidden" id="cashoutFormIdWrapXpoker">
+                <label class="cashout-form-label" for="cashoutXpokerId">Введите ваш ID (Xpoker)</label>
+                <input type="text" id="cashoutXpokerId" class="cashout-form-input" placeholder="ID в Xpoker" autocomplete="off" />
+              </div>
+
+              <button type="submit" class="cashout-form-submit" id="cashoutDepositSubmitBtn">Отправить заявку</button>
+            </form>
+
             <div class="cashout-manager-block" data-manager="anna">
               <p class="subtitle">⏰ 06:00–18:00 мск — Анна</p>
               <div class="cashout-media">
