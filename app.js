@@ -13742,15 +13742,15 @@ function updateTournamentDayBlock() {
     var startToday = new Date(Date.UTC(p.y, p.m, p.d, MSK_START_UTC_HOUR, 0, 0, 0));
     var endRegToday = new Date(Date.UTC(p.y, p.m, p.d, MSK_END_REG_UTC_HOUR, 0, 0, 0));
     if (now < startToday) {
-      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[mskDow], target: startToday, label: "" };
+      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[mskDow], target: startToday, label: "", weekday: mskDow };
     }
     if (now < endRegToday) {
-      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[mskDow], target: endRegToday, label: "до конца рег " };
+      return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[mskDow], target: endRegToday, label: "до конца рег ", weekday: mskDow };
     }
     var nextDate = new Date(p.y, p.m, p.d + 1);
     var nextStart = new Date(Date.UTC(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), MSK_START_UTC_HOUR, 0, 0, 0));
     var nextMskDow = nextDate.getDay();
-    return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[nextMskDow], target: nextStart, label: "" };
+    return { t: TOURNAMENT_OF_DAY_BY_WEEKDAY[nextMskDow], target: nextStart, label: "", weekday: nextMskDow };
   }
   function formatTimer() {
     var n = new Date();
@@ -13784,7 +13784,20 @@ function updateTournamentDayBlock() {
     timerEls.forEach(function (el) { el.textContent = timerStr; });
     var trophyImg = document.getElementById("tournamentDayTrophyImg");
     var scheduleTrophyImg = document.getElementById("scheduleTournamentDayTrophyImg");
-    var trophyFile = nameStr === "Фриролл" ? "tournament-day-trophy.png" : nameStr === "Турнир Недели Нокаут Меджик" ? "tournament-day-sunday.png" : "tournament-day-two-aces.png";
+    var weekday = state.weekday;
+    var trophyFile;
+    if (nameStr === "Фриролл") {
+      trophyFile = "tournament-day-trophy.png";
+    } else if (weekday === 0) {
+      // Воскресный турнир недели
+      trophyFile = "tournament-day-sunday.png";
+    } else if (weekday === 2) {
+      // Турнир дня вторника — трактор
+      trophyFile = "tournament-day-tuesday.png";
+    } else {
+      // По умолчанию — классический кубок клуба
+      trophyFile = "tournament-day-two-aces.png";
+    }
     var trophySrc = typeof getAssetUrl === "function" ? getAssetUrl(trophyFile) : "";
     if (trophyImg && trophySrc) trophyImg.src = trophySrc;
     if (scheduleTrophyImg && trophySrc) scheduleTrophyImg.src = trophySrc;

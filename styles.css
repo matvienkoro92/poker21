@@ -650,8 +650,8 @@ html.app-view-home .home-welcome-outline::before {
   gap: 8px;
 }
 .header-admin-report {
-  font-size: 12px;
-  padding-inline: 10px;
+  font-size: 11px;
+  padding-inline: 6px;
 }
 .header-admin-report--hidden {
   display: none !important;
