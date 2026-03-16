@@ -11325,7 +11325,9 @@ function initChat() {
       var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
       if (generalInput) {
         generalInput.value = "";
-        generalInput.blur();
+        setTimeout(function () {
+          try { generalInput.blur(); } catch (e) {}
+        }, 50);
       }
       generalReplyTo = null;
       generalImage = null;
@@ -11815,7 +11817,9 @@ function initChat() {
     var optReply = personalReplyTo ? { fromName: personalReplyTo.fromName || "Игрок", text: personalReplyTo.text || "" } : null;
     if (inputEl) {
       inputEl.value = "";
-      inputEl.blur();
+      setTimeout(function () {
+        try { inputEl.blur(); } catch (e) {}
+      }, 50);
     }
     personalReplyTo = null;
     personalImage = null;
