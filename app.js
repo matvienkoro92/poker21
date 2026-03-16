@@ -13529,6 +13529,25 @@ updateVisitorCounter();
   if (backdrop) backdrop.addEventListener("click", closeShareStatsModal);
 })();
 
+(function initBroadcastReportsModal() {
+  var btn = document.getElementById("adminBroadcastReportsBtn");
+  var modal = document.getElementById("broadcastReportsModal");
+  var closeBtn = document.getElementById("broadcastReportsModalClose");
+  var backdrop = document.getElementById("broadcastReportsModalBackdrop");
+  if (!btn || !modal) return;
+  function closeModal() {
+    modal.setAttribute("aria-hidden", "true");
+    if (document.body) document.body.style.overflow = "";
+  }
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    if (document.body) document.body.style.overflow = "hidden";
+  }
+  btn.addEventListener("click", openModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (backdrop) backdrop.addEventListener("click", closeModal);
+})();
+
 // Депозит: показывать только менеджера, который сейчас в смене (по МСК)
 // Анна: 06:00–18:00 мск, Вика: 18:00–02:00 мск
 function getMskHour() {

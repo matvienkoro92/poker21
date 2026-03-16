@@ -309,6 +309,7 @@
               </p>
               <p class="footer-admin-visitors footer-admin-visitors--hidden" id="footerAdminVisitorsWrap">
                 <button type="button" class="footer-admin-visitors__btn" id="adminVisitorsBtn">Посетители</button>
+                <button type="button" class="footer-admin-visitors__btn footer-admin-visitors__btn--secondary" id="adminBroadcastReportsBtn">Отчёт о рассылках</button>
               </p>
             </footer>
 
@@ -2500,6 +2501,47 @@
                 </tr>
               </thead>
               <tbody id="shareStatsAdminTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- Модалка «Отчёт о рассылках» (только админ, заполняется вручную) -->
+      <div class="share-stats-admin-modal" id="broadcastReportsModal" role="dialog" aria-modal="true" aria-label="Отчёт о рассылках" aria-hidden="true">
+        <div class="share-stats-admin-modal__backdrop" id="broadcastReportsModalBackdrop"></div>
+        <div class="share-stats-admin-modal__box">
+          <button type="button" class="share-stats-admin-modal__close" id="broadcastReportsModalClose" aria-label="Закрыть">×</button>
+          <h2 class="share-stats-admin-modal__title">Отчёт о рассылках</h2>
+          <p class="share-stats-admin-modal__hint">Сводка по отправленным рассылкам. При необходимости обновляйте таблицу вручную.</p>
+          <div class="share-stats-admin-modal__table-wrap">
+            <table class="share-stats-admin-modal__table">
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Название / повод</th>
+                  <th>Группы</th>
+                  <th>Отправлено</th>
+                  <th>Доставлено</th>
+                  <th>Клики</th>
+                </tr>
+              </thead>
+              <tbody id="broadcastReportsTableBody">
+                <tr>
+                  <td>10.03.2026</td>
+                  <td>Розыгрыш весеннего рейтинга</td>
+                  <td>Газета + Рейтинг</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>05.03.2026</td>
+                  <td>Напоминание про турнир дня</td>
+                  <td>Посетители за месяц</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
