@@ -2652,7 +2652,6 @@ function updateChatNavDot() {
 function updateRaffleBadge(hasActive) {
   var badge = document.getElementById("raffleActiveBadge");
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
-  var raffleBtn = document.getElementById("tournamentDayRaffleBtn");
   var cache = (typeof window !== "undefined" && window._rafflesCache && window._rafflesCache.data && window._rafflesCache.data.activeRaffle) ? window._rafflesCache.data.activeRaffle : null;
   var hasTournamentDayTickets = false;
   if (cache) {
@@ -2669,9 +2668,7 @@ function updateRaffleBadge(hasActive) {
       }
     }
   }
-  if (raffleBtn) {
-    raffleBtn.hidden = !(hasActive && hasTournamentDayTickets);
-  }
+  // Кнопку "Розыгрыш 30 билетов" убрали из главной.
 }
 
 var MAIN_VIEW_ORDER = ["home", "chat", "download", "cashout", "profile"];
@@ -14343,6 +14340,9 @@ function updateTournamentDayBlock() {
     } else if (weekday === 0) {
       // Воскресный турнир недели
       trophyFile = "tournament-day-sunday.png";
+    } else if (weekday === 3) {
+      // Среда — специальный кубок Moscow Poker Open 100 рублей
+      trophyFile = "tournament-day-moscow-open-100.png";
     } else if (weekday === 2) {
       // Турнир дня вторника — трактор
       trophyFile = "tournament-day-tuesday.png";
@@ -14415,12 +14415,6 @@ function handleTournamentDayShare() {
   shareBtns.forEach(function (btn) {
     if (btn) btn.addEventListener("click", handleTournamentDayShare);
   });
-  var raffleBtn = document.getElementById("tournamentDayRaffleBtn");
-  if (raffleBtn) {
-    raffleBtn.addEventListener("click", function () {
-      if (typeof setView === "function") setView("raffles");
-    });
-  }
 })();
 
 (function initScheduleTournamentDayToday() {
