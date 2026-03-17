@@ -280,8 +280,8 @@ body::-webkit-scrollbar,
 html {
   touch-action: manipulation;
   overflow-x: hidden;
-  /* Убрать «резинку» при оттягивании вниз — не показывать белый экран сверху */
-  overscroll-behavior: none;
+  /* Чуть приглушаем «резинку», но не ломаем скролл на Android */
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
   background: var(--body-bg);
 }
@@ -299,8 +299,6 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* Убрать оттягивание вниз с белым экраном */
-  overscroll-behavior: none;
 }
 
 /* Отступ сверху: safe-area + высота шапки Telegram («Закрыть»), карточка и меню всегда колонкой */
