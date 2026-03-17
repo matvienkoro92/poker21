@@ -10358,11 +10358,13 @@ a.home-mini-icon-item {
 }
 .winter-rating__single-top-list {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 0;
   font-size: 12px;
+  list-style: none;
 }
 .winter-rating__single-top-item {
   margin: 0 0 2px;
+  white-space: nowrap;
 }
 .winter-rating__week-tops-hint {
   margin: 12px 12px 0;
