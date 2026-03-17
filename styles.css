@@ -5247,6 +5247,9 @@ html.app-view-home .feature--rating-spring-promo:hover,
   object-fit: cover;
   object-position: center;
 }
+.tournament-day-home-wrap .tournament-day-block__trophy-img--hidden {
+  visibility: hidden;
+}
 .tournament-day-home-wrap .tournament-day-block--home .tournament-day-block__body {
   flex: 1;
   min-width: 0;
@@ -10229,6 +10232,36 @@ a.home-mini-icon-item {
   flex-wrap: wrap;
   gap: 10px;
   margin: 14px 12px 10px;
+}
+.winter-rating-week__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.winter-rating-week__summary {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.winter-rating-week__toggle::after {
+  content: "▾";
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.winter-rating-week--collapsed .winter-rating-week__toggle::after {
+  transform: rotate(-90deg);
+}
+.winter-rating-week__body[hidden] {
+  display: none !important;
 }
 .winter-rating__single-top-row {
   display: flex;
