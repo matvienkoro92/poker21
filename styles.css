@@ -3114,15 +3114,14 @@ body.chat-keyboard-open .app {
   cursor: pointer;
 }
 .chat-msg__image {
-  width: 240px;
-  max-width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 10px;
   display: block;
   margin-top: 4px;
   cursor: pointer;
+  max-width: min(320px, 80vw);
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: contain;
 }
 .chat-voice-preview {
   display: flex;
