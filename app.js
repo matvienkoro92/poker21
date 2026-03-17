@@ -10381,6 +10381,8 @@ function initChat() {
   var switcherDropdown = document.getElementById("chatSwitcherDropdown");
   var switcherLabel = document.getElementById("chatSwitcherLabel");
   var switcherOptions = document.querySelectorAll(".chat-switcher-option");
+  var templatesHintGeneral = document.getElementById("chatTemplatesHintGeneral");
+  var templatesHintPersonal = document.getElementById("chatTemplatesHintPersonal");
   if (!generalView || !personalView || !generalMessages) return;
 
   var base = getApiBase();
@@ -10786,6 +10788,60 @@ function initChat() {
   window.chatSetTab = setTab;
   window.chatShowDialogs = showDialogs;
   window.chatOpenConvFromDialogs = openConvFromDialogs;
+
+  // Шаблоны сообщений (локально в браузере, вызываются через "/").
+  var CHAT_TEMPLATES_KEY = "chat_message_templates_v1";
+  function loadTemplates() {
+    try {
+      var raw = localStorage.getItem(CHAT_TEMPLATES_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(function (t) { return t && typeof t.text === "string" && t.text.trim(); }).slice(0, 20);
+    } catch (e) { return []; }
+  }
+  function saveTemplates(list) {
+    try {
+      localStorage.setItem(CHAT_TEMPLATES_KEY, JSON.stringify(list || []));
+    } catch (e) {}
+  }
+  var chatTemplates = loadTemplates();
+  function upsertTemplate(text) {
+    var trimmed = (text || "").trim();
+    if (!trimmed) return;
+    var existing = chatTemplates.find(function (t) { return t.text === trimmed; });
+    if (!existing) {
+      chatTemplates.unshift({ text: trimmed });
+      if (chatTemplates.length > 20) chatTemplates.length = 20;
+      saveTemplates(chatTemplates);
+    }
+  }
+  function showTemplatesMenu(targetInput) {
+    if (!targetInput) return;
+    if (!chatTemplates || chatTemplates.length === 0) {
+      upsertTemplate("Добрый вечер!"); // базовый пример, чтобы было что выбрать
+    }
+    chatTemplates = loadTemplates();
+    var list = chatTemplates.slice(0, 6);
+    var labels = list.map(function (t, i) { return (i + 1) + ". " + t.text.slice(0, 40); }).join("\n");
+    var promptText = "Выберите шаблон (1-" + list.length + ") или введите новый текст:\n\n" + labels;
+    var ans = prompt(promptText, "");
+    if (ans == null) return;
+    ans = String(ans).trim();
+    if (!ans) return;
+    var num = parseInt(ans, 10);
+    var chosen = null;
+    if (!isNaN(num) && num >= 1 && num <= list.length) {
+      chosen = list[num - 1].text;
+    } else {
+      chosen = ans;
+      upsertTemplate(chosen);
+    }
+    if (chosen) {
+      targetInput.value = chosen;
+      if (typeof resizeChatTextarea === "function") resizeChatTextarea(targetInput);
+      targetInput.focus();
+    }
+  }
 
   var CHAT_LAST_VIEWED_KEY = "chat_last_viewed";
   var stored = null;
@@ -11331,8 +11387,17 @@ function initChat() {
           msgText: isOwn ? (el.dataset.msgText || "").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') : "",
         });
       }
+      var startX = 0;
+      var startY = 0;
       function startTimer(e) {
         if (longPressTimer) return;
+        if (e && e.touches && e.touches[0]) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        } else if (e && e.clientX != null && e.clientY != null) {
+          startX = e.clientX;
+          startY = e.clientY;
+        }
         longPressTimer = setTimeout(function () {
           longPressTimer = null;
           onLongPress();
@@ -11345,7 +11410,15 @@ function initChat() {
           longPressTimer = null;
         }
       }
+      function onTouchMove(e) {
+        if (!longPressTimer) return;
+        if (!e.touches || !e.touches[0]) return;
+        var dx = Math.abs(e.touches[0].clientX - startX);
+        var dy = Math.abs(e.touches[0].clientY - startY);
+        if (dx > 8 || dy > 8) clearTimer();
+      }
       el.addEventListener("touchstart", startTimer, { passive: true });
+      el.addEventListener("touchmove", onTouchMove, { passive: true });
       el.addEventListener("touchend", clearTimer);
       el.addEventListener("touchcancel", clearTimer);
       el.addEventListener("mousedown", startTimer);
@@ -11542,6 +11615,12 @@ function initChat() {
       var optDocument = generalDocument ? { dataUrl: generalDocument.dataUrl, fileName: generalDocument.fileName } : null;
       var optReply = generalReplyTo ? { fromName: generalReplyTo.fromName || "Игрок", text: generalReplyTo.text || "" } : null;
       if (generalInput) {
+    generalInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && generalInput.value.trim().charAt(0) === "/" && !e.shiftKey) {
+        e.preventDefault();
+        showTemplatesMenu(generalInput);
+      }
+    });
         generalInput.value = "";
         setTimeout(function () {
           try { generalInput.blur(); } catch (e) {}
@@ -12043,6 +12122,12 @@ function initChat() {
     var optDocument = personalDocument ? { dataUrl: personalDocument.dataUrl, fileName: personalDocument.fileName } : null;
     var optReply = personalReplyTo ? { fromName: personalReplyTo.fromName || "Игрок", text: personalReplyTo.text || "" } : null;
     if (inputEl) {
+    inputEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && inputEl.value.trim().charAt(0) === "/" && !e.shiftKey) {
+        e.preventDefault();
+        showTemplatesMenu(inputEl);
+      }
+    });
       inputEl.value = "";
       setTimeout(function () {
         try { inputEl.blur(); } catch (e) {}
@@ -12822,7 +12907,11 @@ function initChat() {
       ta.style.height = h + "px";
     }
     if (generalInput) {
-      generalInput.addEventListener("input", function () { resizeChatTextarea(generalInput); updateGeneralSendBtnIcon(); });
+    generalInput.addEventListener("input", function (e) {
+      resizeChatTextarea(generalInput);
+      updateGeneralSendBtnIcon();
+      if (templatesHintGeneral) templatesHintGeneral.style.display = generalInput.value.indexOf("/") === 0 ? "" : "";
+    });
       generalInput.addEventListener("focus", function () { resizeChatTextarea(generalInput); });
       generalInput.addEventListener("change", updateGeneralSendBtnIcon);
       resizeChatTextarea(generalInput);
@@ -12921,7 +13010,10 @@ function initChat() {
       }
     }
     if (inputEl) {
-      inputEl.addEventListener("input", function () { resizeChatTextarea(inputEl); updatePersonalSendBtnIcon(); });
+    inputEl.addEventListener("input", function () {
+      resizeChatTextarea(inputEl);
+      updatePersonalSendBtnIcon();
+    });
       inputEl.addEventListener("focus", function () { resizeChatTextarea(inputEl); });
       inputEl.addEventListener("change", updatePersonalSendBtnIcon);
       inputEl.addEventListener("keydown", function (e) {

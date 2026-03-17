@@ -2430,7 +2430,7 @@ body.chat-keyboard-open .app {
   user-select: none;
   -webkit-touch-callout: none;
   max-width: 85%;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
   display: flex;
 }
@@ -3043,6 +3043,11 @@ body.chat-keyboard-open .app {
   min-width: 0;
   width: 100%;
   padding-left: 0;
+}
+.chat-templates-hint {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--text-muted);
 }
 .chat-attach-btn {
   flex-shrink: 0;
