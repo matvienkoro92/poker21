@@ -2018,6 +2018,14 @@ var SPRING_RATING_IMAGES_LEAGUE1 = {
     "IMG_7773-91ae4087-27aa-472e-b89e-002bb5e725c8.png",
     "IMG_7768-8e6982ce-6eb7-4d31-95a3-11242d686d4d.png",
     "IMG_7769-488ee3d5-8fff-4b1a-92e8-1d2d5f0e51a8.png"
+  ],
+  "16.03.2026": [
+    "IMG_7778-ae4fcfca-0457-4e9d-8b02-ed4114735ce6.png",
+    "IMG_7777-7acacd48-59ff-47aa-b508-4794ddf50575.png",
+    "IMG_7775-0c6fe96f-a6d0-44de-b5da-0d17a81ba615.png",
+    "IMG_7776-66f23d9d-f1f6-476e-ad8d-12a762e6d46f.png",
+    "IMG_7781-62b82843-c14f-4eb7-89b0-fee8ff0cd181.png",
+    "IMG_7779-a25813c0-ecc4-46e2-95ba-5e0558b4b652.png"
   ]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
@@ -2040,9 +2048,14 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
     "IMG_7770-d09ccdad-3b96-46b4-9c72-07dbc13f8cf3.png",
     "IMG_7772-f09296fe-b0fa-4710-abb6-f27f4ae5e2a3.png",
     "IMG_7771-83f59757-02f5-43de-8514-d7ba6ad148be.png"
+  ],
+  "16.03.2026": [
+    "IMG_7780-ec5b008a-8bb4-4175-8344-1f5086e6f5a4.png",
+    "IMG_7784_2-f4e7373e-d5d2-42ea-9dab-a6db2157602a.png",
+    "IMG_7783-7d627443-8565-4aaf-b1a7-1c9b3c290412.png"
   ]
 };
-var SPRING_RATING_UPDATED = "15.03.2026";
+var SPRING_RATING_UPDATED = "16.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "01.03.2026": [
     { time: "10:00", buyin: 500, players: [{ nick: "asianflushie", place: 0, reward: 4989 }] },
@@ -2359,22 +2372,15 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     ] },
     { time: "20:00", name: "PLO5 300", buyin: 10000, league: 2, players: [
       { nick: "Виктор", place: 1, reward: 151.94 },
-      { nick: "Sarmat1305", place: 2, reward: 97.52 },
-      { nick: "allex 1983", place: 0, reward: 0 }
+      { nick: "Sarmat1305", place: 2, reward: 97.52 }
     ] },
     { time: "11:00", name: "Magic Bounty 60k", buyin: 10000, league: 2, players: [
       { nick: "RikAnrak", place: 6, reward: 16.37 },
-      { nick: "Sarmat1305", place: 23, reward: 1.28 },
-      { nick: "...Лёха...", place: 0, reward: 0 },
-      { nick: "ArsenalFan", place: 0, reward: 0 },
-      { nick: "АршакМкртчян", place: 0, reward: 0 }
+      { nick: "Sarmat1305", place: 23, reward: 1.28 }
     ] },
     { time: "16:00", name: "PLO4 25K", buyin: 10000, league: 2, players: [
       { nick: "Виктор", place: 1, reward: 89.44 },
-      { nick: "PROFESSOR", place: 3, reward: 32.19 },
-      { nick: "udarsvertyshki", place: 0, reward: 0 },
-      { nick: "Yurak700", place: 0, reward: 0 },
-      { nick: "Apostal37", place: 0, reward: 0 }
+      { nick: "PROFESSOR", place: 3, reward: 32.19 }
     ] },
     { time: "21:00", name: "MOK", buyin: 12600, league: 2, players: [
       { nick: "Goshan", place: 1, reward: 10895 },
@@ -2382,6 +2388,61 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
       { nick: "PlayerHyeEr", place: 4, reward: 960 },
       { nick: "XORTYRETSKOGO", place: 6, reward: 700 },
       { nick: "kudinas", place: 7, reward: 0 }
+    ] }
+  ],
+  "16.03.2026": [
+    { time: "12:00", name: "DV Rebuy", buyin: 20000, league: 1, players: [
+      { nick: "Waaar", place: 2, reward: 12100 },
+      { nick: "king00001", place: 7, reward: 0 },
+      { nick: "FrankL", place: 8, reward: 0 },
+      { nick: "Рамиль01", place: 10, reward: 0 },
+      { nick: "MilkyWay77", place: 11, reward: 0 }
+    ] },
+    { time: "17:00", name: "Rebuy", buyin: 32000, league: 1, players: [
+      { nick: "ПашаACK", place: 1, reward: 24200 },
+      { nick: "WiNifly", place: 5, reward: 6200 },
+      { nick: "MilkyWay77", place: 6, reward: 5500 },
+      { nick: "king00001", place: 7, reward: 0 },
+      { nick: "Waaar", place: 15, reward: 0 }
+    ] },
+    { time: "20:00", name: "HOK", buyin: 42000, league: 1, players: [
+      { nick: "Аспирин", place: 5, reward: 6537.5 },
+      { nick: "WiNifly", place: 6, reward: 1518.75 },
+      { nick: "Waaar", place: 7, reward: 1125 },
+      { nick: "ПокерМанки", place: 8, reward: 0 },
+      { nick: "Рамиль01", place: 9, reward: 787.5 }
+    ] },
+    { time: "18:00", name: "Понедельник Меджик", buyin: 81000, league: 1, players: [
+      { nick: "Volga21", place: 3, reward: 4880 },
+      { nick: "SantaClauS", place: 4, reward: 4360 },
+      { nick: "Waaar", place: 5, reward: 3780 },
+      { nick: "razboi", place: 6, reward: 3200 },
+      { nick: "ПокерМанки", place: 7, reward: 5700 }
+    ] },
+    { time: "15:00", name: "New - Hot PKO 2/3", buyin: 10000, league: 1, players: [
+      { nick: "AndrushaMorf", place: 1, reward: 29245 },
+      { nick: "nikola233", place: 2, reward: 12094 },
+      { nick: "asianflushie", place: 5, reward: 6039 },
+      { nick: "хер вам))))", place: 23, reward: -1890 },
+      { nick: "Рыбнадзор", place: 0, reward: -3600 }
+    ] },
+    { time: "21:00", name: "NLH KNOCKOUT 250k", buyin: 20000, league: 1, players: [
+      { nick: "comotd", place: 2, reward: 31701 },
+      { nick: "Ярый", place: 7, reward: 10196 },
+      { nick: "Em13!!", place: 12, reward: 3880 },
+      { nick: "Mougli", place: 14, reward: 1980 },
+      { nick: "Рыбнадзор", place: 21, reward: 1425 }
+    ] },
+    { time: "19:00", name: "PLO5 300", buyin: 10000, league: 2, players: [
+      { nick: "Виктор", place: 3, reward: 3705 }
+    ] },
+    { time: "08:00", name: "Bali Yana 30k", buyin: 10000, league: 2, players: [
+      { nick: "nikola233", place: 3, reward: 5655 },
+      { nick: "хер вам))))", place: 8, reward: 720 }
+    ] },
+    { time: "12:00", name: "DV PLO5 30k", buyin: 20000, league: 2, players: [
+      { nick: "Виктор", place: 5, reward: 2.6 },
+      { nick: "Sarmat1305", place: 7, reward: 70 }
     ] }
   ]
 };

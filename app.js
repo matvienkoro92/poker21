@@ -2550,7 +2550,6 @@ function updateRaffleBadge(hasActive) {
   var badge = document.getElementById("raffleActiveBadge");
   if (badge) badge.classList.toggle("feature__badge--hidden", !hasActive);
   var raffleBtn = document.getElementById("tournamentDayRaffleBtn");
-  var raffleCountEl = document.getElementById("tournamentDayRaffleCount");
   var cache = (typeof window !== "undefined" && window._rafflesCache && window._rafflesCache.data && window._rafflesCache.data.activeRaffle) ? window._rafflesCache.data.activeRaffle : null;
   var hasTournamentDayTickets = false;
   if (cache) {
@@ -2569,25 +2568,6 @@ function updateRaffleBadge(hasActive) {
   }
   if (raffleBtn) {
     raffleBtn.hidden = !(hasActive && hasTournamentDayTickets);
-    if (!raffleBtn.hidden && raffleCountEl && cache) {
-      var totalTickets = 0;
-      if (Array.isArray(cache.groups)) {
-        cache.groups.forEach(function (g) {
-          if (g && typeof g.count === "number") totalTickets += g.count;
-        });
-      }
-      // Если в группах не указано count, пробуем взять общее количество победителей (частый кейс: totalWinners = кол-во билетов).
-      if ((!totalTickets || totalTickets <= 0) && cache.totalWinners != null) {
-        var tw = Number(cache.totalWinners);
-        if (!isNaN(tw) && tw > 0) totalTickets = tw;
-      }
-      // Если по данным сервера всё равно получилось 0 — показываем фиксированное число 30 билетов (как в текущем розыгрыше).
-      if (!totalTickets || totalTickets <= 0) {
-        totalTickets = 30;
-      }
-      // Текст для пользователя.
-      raffleCountEl.textContent = "Розыгрыш " + String(totalTickets) + " билетов";
-    }
   }
 }
 
