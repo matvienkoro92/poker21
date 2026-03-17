@@ -297,6 +297,7 @@ body {
   touch-action: manipulation;
   justify-content: center;
   overflow-x: hidden;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   /* Убрать оттягивание вниз с белым экраном */
   overscroll-behavior: none;
