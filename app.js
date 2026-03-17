@@ -11708,6 +11708,9 @@ function initChat() {
         chatIsAdmin = !!data.isAdmin;
         window.chatAdminUnread = data.adminUnread || {};
         var genUnread = data.generalUnreadCount != null ? data.generalUnreadCount : 0;
+        // Если ещё ни разу не фиксировали момент просмотра общего чата в этом браузере,
+        // не считаем старые сообщения "непрочитанными", чтобы не мигало всё целиком.
+        if (lastViewedGeneral == null) genUnread = 0;
         window.chatGeneralUnreadCount = genUnread;
         window.chatGeneralUnread = genUnread > 0;
         var total = data.participantsCount != null ? data.participantsCount : "—";
@@ -12386,7 +12389,9 @@ function initChat() {
         var f = generalFileInput.files && generalFileInput.files[0];
         if (!f || !f.type.startsWith("image/")) return;
         generalDocument = null;
-        resizeImage(f, 240, 240, 0.8).then(function (dataUrl) {
+        // Для общего чата тоже шлём нормальное фото (как в личке),
+        // а не миниатюру 240×240 — так при открытии будет чёткая картинка.
+        resizeImage(f, 800, 800, 0.88).then(function (dataUrl) {
           generalImage = dataUrl;
           updateGeneralSendBtnIcon();
           if (generalImagePreview) {
