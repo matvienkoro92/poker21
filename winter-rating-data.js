@@ -2011,7 +2011,14 @@ var SPRING_RATING_IMAGES_LEAGUE1 = {
   "12.03.2026": ["rating-12-03-2026-1.png", "rating-12-03-2026-2.png", "rating-12-03-2026-3.png", "rating-12-03-2026-4.png", "rating-12-03-2026-5.png", "rating-12-03-2026-6.png", "rating-12-03-2026-7.png"],
   "13.03.2026": ["rating-13-03-2026-1.png", "rating-13-03-2026-2.png", "rating-13-03-2026-3.png", "rating-13-03-2026-4.png", "rating-13-03-2026-5.png"],
   "14.03.2026": ["rating-14-03-2026-1.png", "rating-14-03-2026-2.png", "rating-14-03-2026-3.png", "rating-14-03-2026-4.png", "rating-14-03-2026-5.png", "rating-14-03-2026-6.png", "rating-14-03-2026-7.png"],
-  "15.03.2026": ["rating-15-03-2026-hok.png", "rating-15-03-2026-sunday-mko.png", "rating-15-03-2026-rebuy.png"]
+  "15.03.2026": [
+    "IMG_7765_2-c07ccd00-fe1e-4932-9710-74a483bb95a2.png",
+    "IMG_7766-648c166a-671a-4593-875f-d73903100daa.png",
+    "IMG_7767-7c475e72-02dd-419c-8ee1-c98f2471c8be.png",
+    "IMG_7773-91ae4087-27aa-472e-b89e-002bb5e725c8.png",
+    "IMG_7768-8e6982ce-6eb7-4d31-95a3-11242d686d4d.png",
+    "IMG_7769-488ee3d5-8fff-4b1a-92e8-1d2d5f0e51a8.png"
+  ]
 };
 var SPRING_RATING_IMAGES_LEAGUE2 = {
   "01.03.2026": ["rating-01-03-2026-league2-1.png", "rating-01-03-2026-league2-2.png", "rating-01-03-2026-league2-3.png"],
@@ -2028,7 +2035,12 @@ var SPRING_RATING_IMAGES_LEAGUE2 = {
   "12.03.2026": ["rating-12-03-2026-league2-1.png", "rating-12-03-2026-league2-2.png"],
   "13.03.2026": ["rating-13-03-2026-league2-1.png", "rating-13-03-2026-league2-2.png", "rating-13-03-2026-league2-3.png"],
   "14.03.2026": ["rating-14-03-2026-league2-1.png", "rating-14-03-2026-league2-2.png", "rating-14-03-2026-league2-3.png", "rating-14-03-2026-league2-4.png", "rating-14-03-2026-league2-5.png", "rating-14-03-2026-league2-6.png"],
-  "15.03.2026": ["rating-15-03-2026-league2-mok.png"]
+  "15.03.2026": [
+    "IMG_7764_2-2b13d282-b1b3-4066-94c0-1eb7c5898ea8.png",
+    "IMG_7770-d09ccdad-3b96-46b4-9c72-07dbc13f8cf3.png",
+    "IMG_7772-f09296fe-b0fa-4710-abb6-f27f4ae5e2a3.png",
+    "IMG_7771-83f59757-02f5-43de-8514-d7ba6ad148be.png"
+  ]
 };
 var SPRING_RATING_UPDATED = "15.03.2026";
 var SPRING_RATING_TOURNAMENTS_BY_DATE = {
@@ -2306,6 +2318,10 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "21:00", name: "MOK", buyin: 26400, league: 2, players: [{ nick: "PlayerNGEIYu", place: 1, reward: 22620 }, { nick: "PlayerHyeEr", place: 7, reward: 1220 }, { nick: "Аспирин", place: 9, reward: 730 }, { nick: "Sarmat1305", place: 10, reward: 0 }, { nick: "VOSOvec", place: 11, reward: 0 }] }
   ],
   "15.03.2026": [
+    { time: "00:00", name: "S.Bounty 2/3 150k", buyin: 20000, league: 1, players: [
+      { nick: "Em13!!", place: 8, reward: 4672 },
+      { nick: "хер вам))))", place: 0, reward: 0 }
+    ] },
     { time: "17:00", name: "Rebuy", buyin: 16800, league: 1, players: [
       { nick: "MilkyWay77", place: 2, reward: 15400 },
       { nick: "Waaar", place: 3, reward: 9100 },
@@ -2326,6 +2342,39 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
       { nick: "51region", place: 8, reward: 675 },
       { nick: "king00001", place: 10, reward: 450 },
       { nick: "Аспирин", place: 11, reward: 225 }
+    ] },
+    { time: "21:59", name: "Magic 500 * 150K", buyin: 10000, league: 1, players: [
+      { nick: "Фокс", place: 1, reward: 36342 },
+      { nick: "@Felix", place: 2, reward: 0 },
+      { nick: "ДомСоветов", place: 3, reward: 0 },
+      { nick: "Виктор", place: 4, reward: 0 },
+      { nick: "nikola233", place: 5, reward: 0 }
+    ] },
+    { time: "21:20", name: "NLH KNOCKOUT 250k", buyin: 20000, league: 1, players: [
+      { nick: "Рыбнадзор", place: 3, reward: 12961 },
+      { nick: "comotd", place: 1, reward: 0 },
+      { nick: "chazyiool", place: 0, reward: 0 },
+      { nick: "nikola233", place: 0, reward: 0 },
+      { nick: "Откотика_Я", place: 0, reward: 0 }
+    ] },
+    { time: "20:00", name: "PLO5 300", buyin: 10000, league: 2, players: [
+      { nick: "Виктор", place: 1, reward: 151.94 },
+      { nick: "Sarmat1305", place: 2, reward: 97.52 },
+      { nick: "allex 1983", place: 0, reward: 0 }
+    ] },
+    { time: "11:00", name: "Magic Bounty 60k", buyin: 10000, league: 2, players: [
+      { nick: "RikAnrak", place: 6, reward: 16.37 },
+      { nick: "Sarmat1305", place: 23, reward: 1.28 },
+      { nick: "...Лёха...", place: 0, reward: 0 },
+      { nick: "ArsenalFan", place: 0, reward: 0 },
+      { nick: "АршакМкртчян", place: 0, reward: 0 }
+    ] },
+    { time: "16:00", name: "PLO4 25K", buyin: 10000, league: 2, players: [
+      { nick: "Виктор", place: 1, reward: 89.44 },
+      { nick: "PROFESSOR", place: 3, reward: 32.19 },
+      { nick: "udarsvertyshki", place: 0, reward: 0 },
+      { nick: "Yurak700", place: 0, reward: 0 },
+      { nick: "Apostal37", place: 0, reward: 0 }
     ] },
     { time: "21:00", name: "MOK", buyin: 12600, league: 2, players: [
       { nick: "Goshan", place: 1, reward: 10895 },

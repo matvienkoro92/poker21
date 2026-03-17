@@ -2576,7 +2576,12 @@ function updateRaffleBadge(hasActive) {
           if (g && typeof g.count === "number") totalTickets += g.count;
         });
       }
-      raffleCountEl.textContent = totalTickets > 0 ? String(totalTickets) + " билетов" : "ожидается";
+      // Если в группах не указано count, берём общее количество победителей (частый кейс: totalWinners = кол-во билетов).
+      if ((!totalTickets || totalTickets <= 0) && typeof cache.totalWinners === "number") {
+        totalTickets = cache.totalWinners;
+      }
+      // Показываем текущее количество билетов в розыгрыше турнира дня.
+      raffleCountEl.textContent = "Разыгрывается " + String(totalTickets) + " билетов";
     }
   }
 }
