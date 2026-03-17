@@ -2638,8 +2638,10 @@ function setView(viewName) {
 }
 function updateChatNavDot() {
   var raw = (window.chatGeneralUnreadCount || 0) + (window.chatPersonalUnreadCount || 0);
+  // Если какие-то непрочитанные помечены флагами, но счётчик не пришёл — показываем хотя бы 1.
   if (raw === 0 && (window.chatGeneralUnread || window.chatPersonalUnread)) raw = 1;
-  var count = raw > 0 ? Math.max(1, Math.floor(raw / 2)) : 0;
+  // В бейдже хотим реальное количество непрочитанных (общий чат + личные), без деления пополам.
+  var count = raw > 0 ? raw : 0;
   var badge = document.getElementById("chatNavBadge");
   if (badge) {
     var display = count > 99 ? "99+" : (count > 0 ? String(count) : "0");
@@ -13839,7 +13841,8 @@ updateVisitorCounter();
         }
       });
     }
-    parts.push("<div class=\"admin-report-sent-detail__row admin-report-sent-detail__total\"><span class=\"admin-report-sent-detail__label\">Итого, ₽</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(it.total != null ? it.total : "") + "</span></div>");
+    // Раньше здесь была строка с общим итогом по смене ("Итого, ₽").
+    // По просьбе убираем её из детального вида отчёта.
     return parts.join("");
   }
 
@@ -13863,6 +13866,22 @@ updateVisitorCounter();
           return;
         }
         var weekdayOrder = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+        // Итог за неделю 15–22 марта по всем отчётам (суммы по каждому полю).
+        var weekFrom = new Date("2026-03-15T00:00:00+03:00").getTime();
+        var weekTo = new Date("2026-03-22T23:59:59+03:00").getTime();
+        var weekTotals = {
+          deposit: 0, cashout: 0, prodamus: 0, robokassa: 0, romaCrypto: 0,
+          botCryptoDep: 0, botExchipDep: 0, botExchipCashout: 0,
+          bonuses: 0, transfers: 0, ret: 0, sergeyMarina: 0
+        };
+        items.forEach(function (r) {
+          var t = r.createdAt ? new Date(r.createdAt).getTime() : NaN;
+          if (!t || t < weekFrom || t > weekTo) return;
+          Object.keys(weekTotals).forEach(function (k) {
+            var v = r[k];
+            if (typeof v === "number") weekTotals[k] += v;
+          });
+        });
         var byDay = {};
         items.forEach(function (r) {
           var d = (r.weekday || "").trim() || "—";
@@ -13889,10 +13908,30 @@ updateVisitorCounter();
             var id = "ar-sent-" + (it.id || day + "-" + idx);
             var detailHtml = buildReportDetailHtml(it);
             var reportId = (it.id || "").toString();
-            html.push("<div class=\"admin-report-sent-item\" data-report-id=\"" + escapeReportHtml(reportId) + "\"><div class=\"admin-report-sent-item__head\" role=\"button\" tabindex=\"0\" aria-expanded=\"false\" aria-controls=\"" + id + "-detail\"><span class=\"admin-report-sent-item__date\">" + escapeReportHtml(it.date || "") + "</span><span class=\"admin-report-sent-item__who\">" + escapeReportHtml(who) + "</span><span class=\"admin-report-sent-item__total\">" + escapeReportHtml(it.total != null ? it.total : "") + " ₽</span><span class=\"admin-report-sent-item__actions\"><button type=\"button\" class=\"admin-report-sent-edit-btn\" data-report-id=\"" + escapeReportHtml(reportId) + "\" title=\"Редактировать\">✎</button><button type=\"button\" class=\"admin-report-sent-delete-btn\" data-report-id=\"" + escapeReportHtml(reportId) + "\" title=\"Удалить\">✕</button></span><span class=\"admin-report-sent-item__toggle\" aria-hidden=\"true\">▼</span></div><div class=\"admin-report-sent-detail\" id=\"" + id + "-detail\" hidden><div class=\"admin-report-sent-detail__inner\">" + (comment ? "<div class=\"admin-report-sent-detail__row\"><span class=\"admin-report-sent-detail__label\">Комментарий</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(comment) + "</span></div>" : "") + detailHtml + "</div></div></div>");
+            // Убираем "Итого" из шапки отправленного отчёта: показываем только дату и кто смену вёл.
+            html.push("<div class=\"admin-report-sent-item\" data-report-id=\"" + escapeReportHtml(reportId) + "\"><div class=\"admin-report-sent-item__head\" role=\"button\" tabindex=\"0\" aria-expanded=\"false\" aria-controls=\"" + id + "-detail\"><span class=\"admin-report-sent-item__date\">" + escapeReportHtml(it.date || "") + "</span><span class=\"admin-report-sent-item__who\">" + escapeReportHtml(who) + "</span><span class=\"admin-report-sent-item__actions\"><button type=\"button\" class=\"admin-report-sent-edit-btn\" data-report-id=\"" + escapeReportHtml(reportId) + "\" title=\"Редактировать\">✎</button><button type=\"button\" class=\"admin-report-sent-delete-btn\" data-report-id=\"" + escapeReportHtml(reportId) + "\" title=\"Удалить\">✕</button></span><span class=\"admin-report-sent-item__toggle\" aria-hidden=\"true\">▼</span></div><div class=\"admin-report-sent-detail\" id=\"" + id + "-detail\" hidden><div class=\"admin-report-sent-detail__inner\">" + (comment ? "<div class=\"admin-report-sent-detail__row\"><span class=\"admin-report-sent-detail__label\">Комментарий</span><span class=\"admin-report-sent-detail__value\">" + escapeReportHtml(comment) + "</span></div>" : "") + detailHtml + "</div></div></div>");
           });
           html.push("</div>");
         });
+        // Внизу — отдельная строка с разворачиваемым итогом за неделю 15–22 марта.
+        var hasWeekTotals = Object.keys(weekTotals).some(function (k) { return weekTotals[k] !== 0; });
+        if (hasWeekTotals) {
+          var weekDetail = buildReportDetailHtml(weekTotals);
+          var weekId = "ar-week-15-22";
+          html.push(
+            '<div class="admin-report-sent-day admin-report-sent-week-total">' +
+              '<div class="admin-report-sent-item admin-report-sent-item--week">' +
+                '<div class="admin-report-sent-item__head" role="button" tabindex="0" aria-expanded="false" aria-controls="' + weekId + '-detail">' +
+                  '<span class="admin-report-sent-item__date">Итого за неделю 15–22 марта</span>' +
+                  '<span class="admin-report-sent-item__toggle" aria-hidden="true">▼</span>' +
+                '</div>' +
+                '<div class="admin-report-sent-detail" id="' + weekId + '-detail" hidden>' +
+                  '<div class="admin-report-sent-detail__inner">' + weekDetail + "</div>" +
+                "</div>" +
+              "</div>" +
+            "</div>"
+          );
+        }
         if (html.length === 0) {
           sentList.innerHTML = '<p class="admin-report-sent-empty">Пока нет отправленных отчётов.</p>';
           return;
