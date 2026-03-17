@@ -2576,12 +2576,17 @@ function updateRaffleBadge(hasActive) {
           if (g && typeof g.count === "number") totalTickets += g.count;
         });
       }
-      // Если в группах не указано count, берём общее количество победителей (частый кейс: totalWinners = кол-во билетов).
-      if ((!totalTickets || totalTickets <= 0) && typeof cache.totalWinners === "number") {
-        totalTickets = cache.totalWinners;
+      // Если в группах не указано count, пробуем взять общее количество победителей (частый кейс: totalWinners = кол-во билетов).
+      if ((!totalTickets || totalTickets <= 0) && cache.totalWinners != null) {
+        var tw = Number(cache.totalWinners);
+        if (!isNaN(tw) && tw > 0) totalTickets = tw;
       }
-      // Показываем текущее количество билетов в розыгрыше турнира дня.
-      raffleCountEl.textContent = "Разыгрывается " + String(totalTickets) + " билетов";
+      // Если по данным сервера всё равно получилось 0 — показываем фиксированное число 30 билетов (как в текущем розыгрыше).
+      if (!totalTickets || totalTickets <= 0) {
+        totalTickets = 30;
+      }
+      // Текст для пользователя.
+      raffleCountEl.textContent = "Розыгрыш " + String(totalTickets) + " билетов";
     }
   }
 }
