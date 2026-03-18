@@ -2474,6 +2474,23 @@ body.chat-keyboard-open .app {
   border-radius: 18px;
   position: relative;
 }
+
+/* Галочки статуса (личные сообщения, только свои) */
+.chat-msg__ticks {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 11px;
+  line-height: 1;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  user-select: none;
+}
+.chat-msg__ticks--sent { opacity: 0.75; }
+.chat-msg__ticks--delivered { opacity: 0.9; }
+.chat-msg__ticks--read {
+  color: #22c55e;
+  opacity: 1;
+}
 .chat-msg--own .chat-msg__body {
   background: #3d3255;
   border: 1px solid rgba(168, 85, 247, 0.55);
@@ -4088,6 +4105,8 @@ img.chat-contact__avatar {
   flex-shrink: 0;
   margin-bottom: 4px;
   min-height: 0;
+  /* Чтобы кнопка "Назад" не пряталась под верхней панелью Telegram ("Закрыть") */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 36px);
 }
 .chat-conv-top .chat-back-btn {
   margin-bottom: 0;
@@ -4201,6 +4220,8 @@ img.chat-contact__avatar {
   gap: 10px;
   margin-bottom: 6px;
   flex-wrap: wrap;
+  /* Чтобы кнопка "Назад" не пряталась под верхней панелью Telegram ("Закрыть") */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 36px);
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
 .chat-general-admins-btn {

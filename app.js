@@ -11077,12 +11077,24 @@ function initChat() {
         chatTemplates = loadTemplates();
         var t = chatTemplates[idx];
         if (!t || !t.text) return;
+        // По выбору шаблона — сразу отправляем сообщение в нужный чат
         if (chatTemplatesTargetInput) {
           chatTemplatesTargetInput.value = t.text;
           if (typeof resizeChatTextarea === "function") resizeChatTextarea(chatTemplatesTargetInput);
-          chatTemplatesTargetInput.focus();
         }
         closeTemplatesModal();
+        try {
+          if (chatTemplatesTargetInput && chatTemplatesTargetInput.id === "chatGeneralInput") {
+            sendGeneral();
+          } else if (chatTemplatesTargetInput && chatTemplatesTargetInput.id === "chatInput") {
+            sendMessage();
+          } else {
+            // fallback: если не смогли определить чат, просто оставим текст в поле
+            if (chatTemplatesTargetInput) chatTemplatesTargetInput.focus();
+          }
+        } catch (e) {
+          if (chatTemplatesTargetInput) chatTemplatesTargetInput.focus();
+        }
       }
     });
     document.addEventListener("keydown", function (e) {
@@ -11874,6 +11886,9 @@ function initChat() {
       }
     });
         generalInput.value = "";
+        // Возвращаем поле ввода к исходной высоте
+        try { resizeChatTextarea(generalInput); } catch (e) {}
+        try { updateGeneralSendBtnIcon(); } catch (e) {}
         setTimeout(function () {
           try { generalInput.blur(); } catch (e) {}
         }, 50);
@@ -12133,6 +12148,29 @@ function initChat() {
       messagesEl.innerHTML = '<p class="chat-empty">Нет сообщений.</p>';
       return;
     }
+    function personalReceiptHtml(m, isOwn) {
+      if (!isOwn) return "";
+      // Пытаемся определить статус по любым известным полям из API.
+      // По умолчанию: 1 галочка (отправлено).
+      var delivered = false;
+      var read = false;
+      var status = (m && (m.deliveryStatus || m.status || m.state)) != null ? String(m.deliveryStatus || m.status || m.state) : "";
+      status = status.toLowerCase();
+      if (status) {
+        if (status.indexOf("read") >= 0 || status.indexOf("seen") >= 0 || status.indexOf("прочит") >= 0) { delivered = true; read = true; }
+        else if (status.indexOf("deliver") >= 0 || status.indexOf("delivered") >= 0 || status.indexOf("достав") >= 0) { delivered = true; }
+        else if (status.indexOf("sent") >= 0 || status.indexOf("send") >= 0 || status.indexOf("отправ") >= 0) { delivered = false; read = false; }
+      }
+      if (m) {
+        if (m.delivered === true || m.isDelivered === true || m.deliveredAt || m.delivered_at) delivered = true;
+        if (m.read === true || m.isRead === true || m.seen === true || m.isSeen === true || m.readAt || m.read_at || m.seenAt || m.seen_at) { delivered = true; read = true; }
+        if (Array.isArray(m.readBy) && m.readBy.length) { delivered = true; read = true; }
+        if (Array.isArray(m.seenBy) && m.seenBy.length) { delivered = true; read = true; }
+      }
+      var text = delivered ? "✓✓" : "✓";
+      var cls = "chat-msg__ticks" + (delivered ? " chat-msg__ticks--delivered" : " chat-msg__ticks--sent") + (read ? " chat-msg__ticks--read" : "");
+      return '<div class="' + cls + '" aria-hidden="true">' + text + "</div>";
+    }
     var html = messages.map(function (m, i) {
       var prev = i > 0 ? messages[i - 1] : null;
       var next = i < messages.length - 1 ? messages[i + 1] : null;
@@ -12188,7 +12226,8 @@ function initChat() {
       var reactionsRowP = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtmlP + '</span></div>' : "";
       var metaBlockP = isFirstInGroup ? nameElP + adminBadge : "";
       var bodyClassP = "chat-msg__body" + (text && text.trim() ? " chat-msg__body--has-text" : "");
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="' + bodyClassP + '">' + cornerDelBtnP + '<div class="chat-msg__meta">' + metaBlockP + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
+      var ticks = personalReceiptHtml(m, isOwn);
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="' + bodyClassP + '">' + cornerDelBtnP + ticks + '<div class="chat-msg__meta">' + metaBlockP + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRowP + '</div></div></div>';
     }).join("");
     var prevScrollTopP = messagesEl.scrollTop;
     var prevScrollHeightP = messagesEl.scrollHeight;
@@ -12331,7 +12370,8 @@ function initChat() {
       else if (text) textContent = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(String(text)).replace(/\n/g, "<br>"))));
       var optMeta = '<div class="chat-msg__name-row"><span class="chat-msg__name">' + escapeHtml(nameStr) + '</span></div><div class="chat-msg__p21-line">P21_ID: —</div><div class="chat-msg__rank-line">Ранг: <span class="chat-msg__rank-card">2♣</span></div>';
       var optBodyClassP = "chat-msg__body" + (text && !image && !voice && !document ? " chat-msg__body--has-text" : "");
-      var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="' + optBodyClassP + '"><div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
+      var ticks = '<div class="chat-msg__ticks chat-msg__ticks--sent" aria-hidden="true">✓</div>';
+      var html = '<div class="chat-msg chat-msg--own" data-optimistic="true"><div class="chat-msg__row">' + optAvatarEl + '<div class="' + optBodyClassP + '">' + ticks + '<div class="chat-msg__meta">' + optMeta + '</div>' + replyBlock + '<div class="chat-msg__text">' + textContent + '</div><div class="chat-msg__footer"><span class="chat-msg__time">' + time + '</span></div></div></div></div>';
       var wrap = document.createElement("div");
       wrap.innerHTML = html;
       var first = wrap.firstElementChild;
@@ -12381,6 +12421,9 @@ function initChat() {
       }
     });
       inputEl.value = "";
+      // Возвращаем поле ввода к исходной высоте
+      try { resizeChatTextarea(inputEl); } catch (e) {}
+      try { updatePersonalSendBtnIcon(); } catch (e) {}
       setTimeout(function () {
         try { inputEl.blur(); } catch (e) {}
       }, 50);
