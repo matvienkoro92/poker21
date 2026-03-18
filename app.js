@@ -8594,6 +8594,7 @@ function initRaffles() {
   var raffleCard = document.getElementById("raffleCard");
   var raffleCompleteBtn = document.getElementById("raffleCompleteBtn");
   var raffleCancelBtn = document.getElementById("raffleCancelBtn");
+  var raffleUpdateEndBtn = document.getElementById("raffleUpdateEndBtn");
   var raffleDeleteBtn = document.getElementById("raffleDeleteBtn");
   var raffleStatWinners = document.getElementById("raffleStatWinners");
   var raffleStatPrize = document.getElementById("raffleStatPrize");
@@ -8827,6 +8828,16 @@ function initRaffles() {
     if (/[zZ]$/.test(value) || /[+-]\d\d:\d\d$/.test(value)) return new Date(value);
     return new Date(value + ":00+03:00");
   }
+  function formatMoscowDateTimeLocalForInput(date) {
+    if (!date) return "";
+    try {
+      // sv-SE даёт ISO-подобный формат: "YYYY-MM-DD HH:mm:ss"
+      var s = date.toLocaleString("sv-SE", { timeZone: "Europe/Moscow", hour12: false });
+      return s.replace(" ", "T").slice(0, 16);
+    } catch (e) {
+      return "";
+    }
+  }
 
   function renderRaffle(raffle) {
     if (!raffle || !raffleCard) return;
@@ -8862,6 +8873,11 @@ function initRaffles() {
       var showCancel = rafflesIsAdmin && raffle.status === "active";
       raffleCancelBtn.classList.toggle("raffle-cancel-btn--hidden", !showCancel);
       raffleCancelBtn.disabled = !showCancel;
+    }
+    if (raffleUpdateEndBtn) {
+      var showUpdate = rafflesIsAdmin && raffle.status === "active";
+      raffleUpdateEndBtn.classList.toggle("raffle-cancel-btn--hidden", !showUpdate);
+      raffleUpdateEndBtn.disabled = !showUpdate;
     }
     if (raffleDeleteBtn) {
       var showDelete = rafflesIsAdmin;
@@ -9644,6 +9660,50 @@ function initRaffles() {
         var sure = window.confirm("Точно отменить этот розыгрыш? Это действие нельзя будет отменить.");
         if (sure) doCancel();
       }
+    });
+  }
+
+  if (raffleUpdateEndBtn) {
+    raffleUpdateEndBtn.addEventListener("click", function () {
+      if (!rafflesIsAdmin) return;
+      if (!currentRaffleId) {
+        if (tg && tg.showAlert) tg.showAlert("Розыгрыш не выбран. Обновите страницу.");
+        return;
+      }
+      if (!base || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте приложение в Telegram.");
+        return;
+      }
+      var currentStr = currentRaffleEndDate ? formatMoscowDateTimeLocalForInput(currentRaffleEndDate) : "";
+      var ans = prompt("Новое время завершения/итогов (МСК)\nФормат: ГГГГ-ММ-ДДTЧЧ:ММ", currentStr);
+      if (ans == null) return;
+      ans = String(ans).trim();
+      if (!ans) return;
+      var dt = parseMoscowDateTimeLocal(ans);
+      if (!dt || !(dt instanceof Date) || isNaN(dt.getTime())) {
+        if (tg && tg.showAlert) tg.showAlert("Не удалось распознать дату/время. Пример: 2026-03-17T21:00");
+        return;
+      }
+      raffleUpdateEndBtn.disabled = true;
+      fetch(base + "/api/raffles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, action: "updateEndDate", raffleId: currentRaffleId, endDate: dt.toISOString() }),
+      })
+        .then(function (r) { return r.json().catch(function () { return { ok: false, error: "Ошибка ответа сервера" }; }); })
+        .then(function (data) {
+          raffleUpdateEndBtn.disabled = false;
+          if (data && data.ok) {
+            if (tg && tg.showAlert) tg.showAlert("Время итогов обновлено");
+            loadRaffles();
+          } else if (tg && tg.showAlert) {
+            tg.showAlert((data && data.error) || "Ошибка обновления времени");
+          }
+        })
+        .catch(function () {
+          raffleUpdateEndBtn.disabled = false;
+          if (tg && tg.showAlert) tg.showAlert("Ошибка сети при обновлении времени");
+        });
     });
   }
 
