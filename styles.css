@@ -4007,6 +4007,9 @@ img.chat-contact__avatar {
   min-height: 0;
   position: relative;
   overflow: hidden;
+  /* Поднимаем сообщения под плавающие кнопки, чтобы чат был виден под ними */
+  margin-top: -40px;
+  padding-top: 40px;
 }
 .chat-general-view .chat-messages {
   position: absolute;
@@ -4221,6 +4224,8 @@ img.chat-contact__avatar {
   padding: 0;
   border-radius: 0;
   background: transparent;
+  position: relative;
+  z-index: 2;
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
 .chat-general-admins-btn {
