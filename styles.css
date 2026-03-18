@@ -4226,6 +4226,14 @@ img.chat-contact__avatar {
   background: transparent;
   position: relative;
   z-index: 2;
+  /* Важно: заголовок перекрывает часть сообщений, поэтому отключаем захват кликов контейнером.
+     Клики будут проходить к сообщениям, а сами кнопки вернём обратно через pointer-events:auto. */
+  pointer-events: none;
+}
+.chat-general-header .chat-back-btn,
+.chat-general-header .chat-general-admins-btn,
+.chat-general-header .chat-general-download-btn {
+  pointer-events: auto;
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
 .chat-general-admins-btn {
