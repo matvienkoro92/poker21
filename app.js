@@ -11498,10 +11498,7 @@ function initChat() {
       var reactionsRow = m.id ? '<div class="chat-msg__reactions-wrap"><span class="chat-msg__reactions">' + reactionsHtml + '</span></div>' : "";
       var metaBlock = isFirstInGroup ? nameEl + adminBadge : "";
       var bodyClass = "chat-msg__body" + (text && text.trim() ? " chat-msg__body--has-text" : "");
-      if (isOwn && m.id && !m.image && !m.voice && !m.document && (m.text != null)) {
-        editBtn = '<button type="button" class="chat-msg__edit" data-msg-id="' + escapeHtml(m.id) + '" data-msg-text="' + escapeHtml(String(m.text || "")) + '">Изменить</button>';
-      }
-      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="' + bodyClass + '">' + cornerDelBtn + '<div class="chat-msg__meta">' + metaBlock + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + editBtn + '</div>' + reactionsRow + '</div></div></div>';
+      return '<div class="' + cls + '"' + dataAttrs + '><div class="chat-msg__row">' + avatarEl + '<div class="' + bodyClass + '">' + cornerDelBtn + '<div class="chat-msg__meta">' + metaBlock + '</div>' + replyBlock + textBlock + '<div class="chat-msg__footer">' + '<span class="chat-msg__time">' + time + '</span>' + editedBadge + '</div>' + reactionsRow + '</div></div></div>';
     }).join("");
     var prevScrollTop = generalMessages.scrollTop;
     var prevScrollHeight = generalMessages.scrollHeight;
