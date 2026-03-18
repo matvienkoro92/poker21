@@ -4233,6 +4233,9 @@ img.chat-contact__avatar {
   width: fit-content;
   max-width: calc(100% - 24px);
   z-index: 2;
+  /* Размытие фона под кнопками (не затемнение) */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   /* Важно: заголовок перекрывает часть сообщений, поэтому отключаем захват кликов контейнером.
      Клики будут проходить к сообщениям, а сами кнопки вернём обратно через pointer-events:auto. */
   pointer-events: none;
