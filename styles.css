@@ -3994,8 +3994,9 @@ img.chat-contact__avatar {
 .chat-general-view {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
   margin-top: 0;
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -4007,9 +4008,9 @@ img.chat-contact__avatar {
   min-height: 0;
   position: relative;
   overflow: hidden;
-  /* Поднимаем сообщения под плавающие кнопки, чтобы чат был виден под ними */
-  margin-top: -40px;
-  padding-top: 40px;
+  /* Шапка с кнопками будет поверх (absolute), поэтому не смещаем ленту */
+  margin-top: 0;
+  padding-top: 0;
 }
 .chat-general-view .chat-messages {
   position: absolute;
@@ -4219,12 +4220,15 @@ img.chat-contact__avatar {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 0;
   flex-wrap: wrap;
-  padding: 0;
+  padding: 6px 10px;
   border-radius: 0;
   background: transparent;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 2;
   /* Важно: заголовок перекрывает часть сообщений, поэтому отключаем захват кликов контейнером.
      Клики будут проходить к сообщениям, а сами кнопки вернём обратно через pointer-events:auto. */
@@ -4241,7 +4245,7 @@ img.chat-contact__avatar {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.18);
   border: 1px solid rgba(148, 163, 184, 0.5);
   border-radius: 16px;
   cursor: pointer;
@@ -4260,7 +4264,7 @@ img.chat-contact__avatar {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.18);
   border: 1px solid rgba(148, 163, 184, 0.5);
   border-radius: 16px;
   cursor: pointer;
