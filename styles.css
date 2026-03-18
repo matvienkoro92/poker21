@@ -4243,10 +4243,10 @@ img.chat-contact__avatar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 0;
   margin-bottom: 0;
   flex-wrap: nowrap;
-  padding: 6px 10px;
+  padding: 6px 6px;
   border-radius: 20px;
   background: rgba(15, 23, 42, 0.2);
   position: absolute;
@@ -4281,20 +4281,18 @@ img.chat-contact__avatar {
   justify-content: center;
 }
 .chat-general-admins-btn {
-  padding: 5px 10px;
-  font-size: 12px;
+  padding: 7px 12px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text);
   background: var(--block-bg-solid);
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  border: 1px solid rgba(249, 115, 22, 0.7);
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
 }
 .chat-general-admins-btn:hover {
-  background: rgba(168, 85, 247, 0.12);
-  color: var(--text);
-  border-color: rgba(168, 85, 247, 0.35);
+  border-color: rgba(249, 115, 22, 0.9);
 }
 .chat-general-download-btn {
   display: inline-flex;
