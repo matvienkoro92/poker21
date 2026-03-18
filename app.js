@@ -2721,6 +2721,10 @@ function setViewAnimated(viewName, direction) {
 (function initSwipeNav() {
   var startX = 0;
   var startY = 0;
+  var dragging = false;
+  var currentViewEl = null;
+  var nextViewEl = null;
+  var dragDirection = 0;
   function getCurrentView() {
     var active = document.querySelector(".view--active[data-view]");
     return active ? active.getAttribute("data-view") : null;
@@ -2739,6 +2743,10 @@ function setViewAnimated(viewName, direction) {
     if (e.touches.length !== 1) return;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
+    dragging = false;
+    currentViewEl = null;
+    nextViewEl = null;
+    dragDirection = 0;
   }
   function onTouchEnd(e) {
     if (e.changedTouches.length !== 1) return;
@@ -2750,15 +2758,83 @@ function setViewAnimated(viewName, direction) {
     var dy = endY - startY;
     var absDx = Math.abs(dx);
     var absDy = Math.abs(dy);
+    if (dragging && currentViewEl && nextViewEl) {
+      e.preventDefault();
+      var totalWidth = currentViewEl.offsetWidth || window.innerWidth;
+      var progress = Math.min(1, Math.max(0, absDx / (totalWidth * 0.3)));
+      if (progress > 0.4) {
+        // Завершаем анимацию в сторону свайпа
+        currentViewEl.style.transition = "transform 0.25s ease-out";
+        nextViewEl.style.transition = "transform 0.25s ease-out";
+        if (dragDirection === 1) {
+          currentViewEl.style.transform = "translateX(-100%)";
+          nextViewEl.style.transform = "translateX(0)";
+          setTimeout(function () { setViewAnimated(MAIN_VIEW_ORDER[MAIN_VIEW_ORDER.indexOf(current) + 1], 1); }, 200);
+        } else if (dragDirection === -1) {
+          currentViewEl.style.transform = "translateX(100%)";
+          nextViewEl.style.transform = "translateX(0)";
+          setTimeout(function () { setViewAnimated(MAIN_VIEW_ORDER[MAIN_VIEW_ORDER.indexOf(current) - 1], -1); }, 200);
+        }
+      } else {
+        // Откатываем назад
+        currentViewEl.style.transition = "transform 0.2s ease-out";
+        nextViewEl.style.transition = "transform 0.2s ease-out";
+        currentViewEl.style.transform = "translateX(0)";
+        nextViewEl.style.transform = dragDirection === 1 ? "translateX(100%)" : "-100%";
+      }
+      dragging = false;
+      return;
+    }
     if (absDx < SWIPE_MIN_DIST) return;
     if (absDy > absDx * SWIPE_MAX_VERTICAL_RATIO) return;
     e.preventDefault();
+    // Особый случай: свайп вправо из общего чата возвращает к меню чатов,
+    // а не на главный экран приложения.
+    if (dx > 0 && current === "chat" && typeof window.chatShowDialogs === "function") {
+      window.chatShowDialogs();
+      return;
+    }
     if (dx < 0) goToAdjacent(1);
     else goToAdjacent(-1);
+  }
+  function onTouchMove(e) {
+    if (e.touches.length !== 1) return;
+    var current = getCurrentView();
+    var idx = MAIN_VIEW_ORDER.indexOf(current);
+    if (idx < 0) return;
+    var x = e.touches[0].clientX;
+    var y = e.touches[0].clientY;
+    var dx = x - startX;
+    var dy = y - startY;
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
+    if (!dragging) {
+      if (absDx < 10 || absDy > absDx * SWIPE_MAX_VERTICAL_RATIO) return;
+      dragDirection = dx < 0 ? 1 : -1;
+      var targetIdx = idx + dragDirection;
+      if (targetIdx < 0 || targetIdx >= MAIN_VIEW_ORDER.length) return;
+      var content = document.querySelector(".card__content");
+      if (!content) return;
+      currentViewEl = document.querySelector('.view[data-view="' + current + '"]');
+      nextViewEl = document.querySelector('.view[data-view="' + MAIN_VIEW_ORDER[targetIdx] + '"]');
+      if (!currentViewEl || !nextViewEl) return;
+      content.classList.add("card__content--swipe-animating");
+      currentViewEl.classList.add("view--swipe-current", "view--swipe-drag");
+      nextViewEl.classList.add("view--swipe-next", "view--swipe-drag");
+      nextViewEl.style.transform = "translateX(" + (dragDirection === 1 ? "100%" : "-100%") + ")";
+      dragging = true;
+    }
+    if (!dragging || !currentViewEl || !nextViewEl) return;
+    e.preventDefault();
+    var width = currentViewEl.offsetWidth || window.innerWidth;
+    var progress = Math.max(-1, Math.min(1, dx / width));
+    currentViewEl.style.transform = "translateX(" + (progress * 100) + "%)";
+    nextViewEl.style.transform = "translateX(" + (dragDirection === 1 ? 100 + progress * 100 : -100 + progress * 100) + "%)";
   }
   var card = document.querySelector(".card");
   if (card) {
     card.addEventListener("touchstart", onTouchStart, { passive: true });
+    card.addEventListener("touchmove", onTouchMove, { passive: false });
     card.addEventListener("touchend", onTouchEnd, { passive: false });
   }
 })();
@@ -12568,48 +12644,76 @@ function initChat() {
         chatEmojiPickerGrid.appendChild(btn);
       });
     }
-    if (chatGeneralEmojiBtn && chatEmojiPicker && generalInput) {
-      chatGeneralEmojiBtn.addEventListener("click", function (e) {
+    // Обычный тап по смайлу — открыть пикер, долгое нажатие — добавить/выбрать шаблон.
+    function bindEmojiButton(btn, targetInput) {
+      if (!btn || !chatEmojiPicker || !targetInput) return;
+      var longTimer = null;
+      var longFired = false;
+      function clearLong() {
+        if (longTimer) {
+          clearTimeout(longTimer);
+          longTimer = null;
+        }
+      }
+      btn.addEventListener("touchstart", function () {
+        longFired = false;
+        clearLong();
+        longTimer = setTimeout(function () {
+          longTimer = null;
+          longFired = true;
+          showTemplatesMenu(targetInput);
+        }, 600);
+      }, { passive: true });
+      btn.addEventListener("touchend", function (e) {
+        clearLong();
+        if (longFired) {
+          e.preventDefault();
+          return;
+        }
+      });
+      btn.addEventListener("touchcancel", clearLong);
+      btn.addEventListener("mousedown", function () {
+        longFired = false;
+        clearLong();
+        longTimer = setTimeout(function () {
+          longTimer = null;
+          longFired = true;
+          showTemplatesMenu(targetInput);
+        }, 600);
+      });
+      btn.addEventListener("mouseup", function (e) {
+        clearLong();
+        if (longFired) {
+          e.preventDefault();
+          return;
+        }
+      });
+      btn.addEventListener("click", function (e) {
+        if (longFired) {
+          e.preventDefault();
+          return;
+        }
         e.stopPropagation();
         if (chatEmojiPicker.classList.contains("chat-emoji-picker--hidden")) {
-          chatEmojiPickerTargetInput = generalInput;
-          var rect = chatGeneralEmojiBtn.getBoundingClientRect();
+          chatEmojiPickerTargetInput = targetInput;
+          var rect = btn.getBoundingClientRect();
           chatEmojiPicker.style.left = Math.max(8, Math.min(rect.right - 160, window.innerWidth - 268)) + "px";
           chatEmojiPicker.style.top = (rect.top - 206) + "px";
           chatEmojiPicker.classList.remove("chat-emoji-picker--hidden");
           chatEmojiPicker.setAttribute("aria-hidden", "false");
           chatEmojiPickerClose = function (ev) {
-            if (ev.target && !chatEmojiPicker.contains(ev.target) && ev.target !== chatGeneralEmojiBtn && !chatGeneralEmojiBtn.contains(ev.target)) {
+            if (ev.target && !chatEmojiPicker.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) {
               hideChatEmojiPicker();
             }
           };
           setTimeout(function () { document.addEventListener("click", chatEmojiPickerClose); }, 0);
-        } else if (chatEmojiPickerTargetInput === generalInput) {
+        } else if (chatEmojiPickerTargetInput === targetInput) {
           hideChatEmojiPicker();
         }
       });
     }
-    if (chatPersonalEmojiBtn && chatEmojiPicker && inputEl) {
-      chatPersonalEmojiBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        if (chatEmojiPicker.classList.contains("chat-emoji-picker--hidden")) {
-          chatEmojiPickerTargetInput = inputEl;
-          var rect = chatPersonalEmojiBtn.getBoundingClientRect();
-          chatEmojiPicker.style.left = Math.max(8, Math.min(rect.right - 160, window.innerWidth - 268)) + "px";
-          chatEmojiPicker.style.top = (rect.top - 206) + "px";
-          chatEmojiPicker.classList.remove("chat-emoji-picker--hidden");
-          chatEmojiPicker.setAttribute("aria-hidden", "false");
-          chatEmojiPickerClose = function (ev) {
-            if (ev.target && !chatEmojiPicker.contains(ev.target) && ev.target !== chatPersonalEmojiBtn && !chatPersonalEmojiBtn.contains(ev.target)) {
-              hideChatEmojiPicker();
-            }
-          };
-          setTimeout(function () { document.addEventListener("click", chatEmojiPickerClose); }, 0);
-        } else if (chatEmojiPickerTargetInput === inputEl) {
-          hideChatEmojiPicker();
-        }
-      });
-    }
+    bindEmojiButton(chatGeneralEmojiBtn, generalInput);
+    bindEmojiButton(chatPersonalEmojiBtn, inputEl);
     var generalVoiceBtn = document.getElementById("chatGeneralVoiceBtn");
     var generalVoiceRemove = document.getElementById("chatGeneralVoiceRemove");
     var generalVoicePreviewEl = document.getElementById("chatGeneralVoicePreview");
