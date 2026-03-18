@@ -1068,6 +1068,8 @@ body.chat-keyboard-open .card__header {
 .app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)),
 .app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) {
   padding-bottom: 0;
+  /* В чате верхнее меню скрыто — убираем стандартный отступ под него */
+  padding-top: env(safe-area-inset-top, 0px);
 }
 .app:has(.view--active[data-view="chat"]):has(.chat-general-view:not(.chat-general-view--hidden)) .chat-general-view .chat-input-area,
 .app:has(.view--active[data-view="chat"]):has(.chat-conv-view:not(.chat-conv-view--hidden)) .chat-container .chat-input-area {
@@ -4197,7 +4199,7 @@ img.chat-contact__avatar {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 11px;
+  margin-bottom: 6px;
   flex-wrap: wrap;
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
