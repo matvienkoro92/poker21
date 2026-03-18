@@ -11849,10 +11849,12 @@ function initChat() {
           saveBtn.addEventListener("click", function () {
             var newText = (inputElEdit.value || "").trim();
             if (!newText) return;
+            var body = { initData: initData, action: "edit", messageId: msgId, text: newText };
+            if (src === "personal" && chatWithUserId) body.with = chatWithUserId;
             fetch(base + "/api/chat", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ initData: initData, action: "edit", messageId: msgId, text: newText }),
+              body: JSON.stringify(body),
             }).then(function (r) { return r.json(); }).then(function (d) {
               chatIsEditingMessage = false;
               if (d && d.ok) {
