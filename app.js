@@ -2748,6 +2748,13 @@ function setViewAnimated(viewName, direction) {
     try {
       var t = e.target;
       swipeDisabled = !!(t && t.closest && t.closest(".chat-messages, .chat-dialogs-list, .chat-messages-wrap, .bottom-nav, textarea, input"));
+      // Во время нахождения в общем чате не включаем общий свайп-навигационный
+      // обработчик между экранами (home/chat/download/...), чтобы не было
+      // дерганий/мерцаний. Внутри чата для возврата к списку диалогов
+      // используется отдельный `initChatSwipeBack()`.
+      if (!swipeDisabled && getCurrentView() === "chat" && t && t.closest && t.closest('.view[data-view="chat"]')) {
+        swipeDisabled = true;
+      }
     } catch (err) {
       swipeDisabled = false;
     }
@@ -2774,38 +2781,35 @@ function setViewAnimated(viewName, direction) {
       e.preventDefault();
       var totalWidth = currentViewEl.offsetWidth || window.innerWidth;
       var progress = Math.min(1, Math.max(0, absDx / (totalWidth * 0.3)));
-      if (progress > 0.4) {
-        // Завершаем анимацию в сторону свайпа
-        currentViewEl.style.transition = "transform 0.25s ease-out";
-        nextViewEl.style.transition = "transform 0.25s ease-out";
-        if (dragDirection === 1) {
-          currentViewEl.style.transform = "translateX(-100%)";
-          nextViewEl.style.transform = "translateX(0)";
-          setTimeout(function () { setViewAnimated(MAIN_VIEW_ORDER[MAIN_VIEW_ORDER.indexOf(current) + 1], 1); }, 200);
-        } else if (dragDirection === -1) {
-          currentViewEl.style.transform = "translateX(100%)";
-          nextViewEl.style.transform = "translateX(0)";
-          setTimeout(function () { setViewAnimated(MAIN_VIEW_ORDER[MAIN_VIEW_ORDER.indexOf(current) - 1], -1); }, 200);
-        }
-      } else {
-        // Откатываем назад
-        currentViewEl.style.transition = "transform 0.2s ease-out";
-        nextViewEl.style.transition = "transform 0.2s ease-out";
-        currentViewEl.style.transform = "translateX(0)";
-        nextViewEl.style.transform = dragDirection === 1 ? "translateX(100%)" : "-100%";
-      }
+      var shouldNavigate = progress > 0.4;
+
+      // Убираем "drag" классы и inline-трансформации, чтобы следующий
+      // `setViewAnimated()` не получил конфликтующие transition: none.
+      try {
+        var content = document.querySelector(".card__content");
+        if (content) content.classList.remove("card__content--swipe-animating");
+        currentViewEl.style.transition = "";
+        nextViewEl.style.transition = "";
+        currentViewEl.style.transform = "";
+        nextViewEl.style.transform = "";
+        currentViewEl.classList.remove("view--swipe-drag");
+        nextViewEl.classList.remove("view--swipe-drag");
+        currentViewEl.classList.remove("view--swipe-current");
+        nextViewEl.classList.remove("view--swipe-next");
+        currentViewEl.classList.remove("view--swipe-out-left", "view--swipe-out-right");
+        nextViewEl.classList.remove("view--swipe-in-from-right", "view--swipe-in-from-left", "view--swipe-in-start");
+      } catch (err) {}
+
       dragging = false;
+      if (!shouldNavigate) return;
+
+      // Навигация между экранами: направление уже посчитано в onTouchMove().
+      goToAdjacent(dragDirection);
       return;
     }
     if (absDx < SWIPE_MIN_DIST) return;
     if (absDy > absDx * SWIPE_MAX_VERTICAL_RATIO) return;
     e.preventDefault();
-    // Особый случай: свайп вправо из общего чата возвращает к меню чатов,
-    // а не на главный экран приложения.
-    if (dx > 0 && current === "chat" && typeof window.chatShowDialogs === "function") {
-      window.chatShowDialogs();
-      return;
-    }
     if (dx < 0) goToAdjacent(1);
     else goToAdjacent(-1);
   }

@@ -3843,6 +3843,12 @@ img.chat-contact__avatar {
   color: var(--text-muted);
   font-weight: 400;
 }
+
+.chat-dialog-item__hours--admin {
+  color: #f97316;
+  font-style: normal;
+  font-weight: 600;
+}
 .chat-dialog-item__online {
   display: none;
   font-size: 11px;
