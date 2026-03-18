@@ -4251,11 +4251,11 @@ img.chat-contact__avatar {
   background: rgba(15, 23, 42, 0.2);
   position: absolute;
   top: 48px;
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  width: fit-content;
-  max-width: calc(100% - 24px);
+  left: 12px;
+  right: 12px;
+  transform: none;
+  width: auto;
+  max-width: none;
   z-index: 2;
   /* Размытие фона под кнопками (не затемнение) */
   -webkit-backdrop-filter: blur(10px);
