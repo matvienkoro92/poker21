@@ -4218,10 +4218,9 @@ img.chat-contact__avatar {
   gap: 10px;
   margin-bottom: 6px;
   flex-wrap: wrap;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(10px);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
 .chat-general-admins-btn {
@@ -4229,8 +4228,9 @@ img.chat-contact__avatar {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
@@ -4248,8 +4248,9 @@ img.chat-contact__avatar {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
