@@ -4230,7 +4230,6 @@ img.chat-contact__avatar {
   color: var(--text);
   background: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(148, 163, 184, 0.5);
-  backdrop-filter: blur(10px);
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
@@ -4250,7 +4249,6 @@ img.chat-contact__avatar {
   color: var(--text);
   background: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(148, 163, 184, 0.5);
-  backdrop-filter: blur(10px);
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
