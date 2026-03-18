@@ -4201,7 +4201,7 @@ img.chat-contact__avatar {
   align-self: flex-start;
   margin-bottom: 11px;
   padding: 6px 10px 6px 8px;
-  background: var(--block-bg);
+  background: var(--block-bg-solid);
   border: 1px solid var(--border-subtle);
   border-radius: 20px;
   color: var(--text-muted);
@@ -4212,7 +4212,7 @@ img.chat-contact__avatar {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .chat-back-btn:hover {
-  background: rgba(148, 163, 184, 0.12);
+  background: var(--block-bg-solid);
   color: var(--text);
 }
 .chat-general-header {
@@ -4223,12 +4223,15 @@ img.chat-contact__avatar {
   margin-bottom: 0;
   flex-wrap: wrap;
   padding: 6px 10px;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.2);
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: fit-content;
+  max-width: calc(100% - 24px);
   z-index: 2;
   /* Важно: заголовок перекрывает часть сообщений, поэтому отключаем захват кликов контейнером.
      Клики будут проходить к сообщениям, а сами кнопки вернём обратно через pointer-events:auto. */
@@ -4245,7 +4248,7 @@ img.chat-contact__avatar {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  background: rgba(15, 23, 42, 0.18);
+  background: var(--block-bg-solid);
   border: 1px solid rgba(148, 163, 184, 0.5);
   border-radius: 16px;
   cursor: pointer;
@@ -4264,7 +4267,7 @@ img.chat-contact__avatar {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  background: rgba(15, 23, 42, 0.18);
+  background: var(--block-bg-solid);
   border: 1px solid rgba(148, 163, 184, 0.5);
   border-radius: 16px;
   cursor: pointer;
