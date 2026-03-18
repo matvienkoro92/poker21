@@ -2439,9 +2439,7 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     { time: "15:00", name: "New - Hot PKO 2/3", buyin: 10000, league: 1, players: [
       { nick: "AndrushaMorf", place: 1, reward: 29245 },
       { nick: "nikola233", place: 2, reward: 12094 },
-      { nick: "asianflushie", place: 5, reward: 6039 },
-      { nick: "хер вам))))", place: 23, reward: -1890 },
-      { nick: "Рыбнадзор", place: 0, reward: -3600 }
+      { nick: "asianflushie", place: 5, reward: 6039 }
     ] },
     { time: "21:00", name: "NLH KNOCKOUT 250k", buyin: 20000, league: 1, players: [
       { nick: "comotd", place: 2, reward: 31701 },
@@ -2465,21 +2463,14 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
   "17.03.2026": [
     { time: "00:00", name: "S.Bounty 2/3 150k", buyin: 20000, league: 1, players: [
       { nick: "Mougli", place: 2, reward: 16492 },
-      { nick: "Em13!!", place: 3, reward: 14495 },
-      { nick: "Oleggaaa", place: 0, reward: -600 },
-      { nick: "Рыбнадзор", place: 0, reward: -825 },
-      { nick: "AndrushaMorf", place: 11, reward: -1050 }
+      { nick: "Em13!!", place: 3, reward: 14495 }
     ] },
     { time: "06:00", name: "Tai 7 1/2 KO 20k", buyin: 20000, league: 1, players: [
       { nick: "AndrushaMorf", place: 3, reward: 2310 },
       { nick: "nikola233", place: 0, reward: 1190 }
     ] },
     { time: "10:00", name: "DV Turbo 500 90K", buyin: 500, league: 1, players: [
-      { nick: "AndrushaMorf", place: 7, reward: 4906 },
-      { nick: "⚡72⚡", place: 0, reward: -500 },
-      { nick: "АршакМкртчян", place: 0, reward: -1000 },
-      { nick: "chazyiool", place: 0, reward: -1000 },
-      { nick: "Simba33", place: 0, reward: -1000 }
+      { nick: "AndrushaMorf", place: 7, reward: 4906 }
     ] },
     { time: "12:00", name: "DV Rebuy", buyin: 15200, league: 1, players: [
       { nick: "FrankL", place: 2, reward: 11460 },
@@ -2490,16 +2481,11 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     ] },
     { time: "12:00", name: "DV PLO5 30k", buyin: 30000, league: 1, players: [
       { nick: "хер вам))))", place: 1, reward: 20535 },
-      { nick: "Sarmat1305", place: 9, reward: 228 },
-      { nick: "machete", place: 0, reward: -664 },
-      { nick: "Виктор", place: 17, reward: -2500 }
+      { nick: "Sarmat1305", place: 9, reward: 228 }
     ] },
     { time: "13:00", name: "DV Bounty 150k", buyin: 10000, league: 1, players: [
       { nick: "AndrushaMorf", place: 1, reward: 47055 },
-      { nick: "туз буби", place: 46, reward: 125 },
-      { nick: "nikola233", place: 52, reward: -550 },
-      { nick: "Em13!!", place: 0, reward: -775 },
-      { nick: "АршакМкртчян", place: 0, reward: -775 }
+      { nick: "туз буби", place: 46, reward: 125 }
     ] },
     { time: "17:00", name: "Rebuy", buyin: 22400, league: 1, players: [
       { nick: "WiNifly", place: 1, reward: 22200 },
@@ -2510,10 +2496,7 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     ] },
     { time: "18:00", name: "BOUNTY MAGIC", buyin: 10000, league: 1, players: [
       { nick: "Фокс", place: 6, reward: 70367 },
-      { nick: "siropchik", place: 12, reward: 18866 },
-      { nick: "Рыбнадзор", place: 70, reward: -1000 },
-      { nick: "Proxor", place: 0, reward: -1000 },
-      { nick: "Бабник", place: 0, reward: -2000 }
+      { nick: "siropchik", place: 12, reward: 18866 }
     ] },
     { time: "18:00", name: "Турнир Вторника", buyin: 75600, league: 2, players: [
       { nick: "GetHigh", place: 1, reward: 32090 },
@@ -2523,9 +2506,7 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
       { nick: "Чеб43", place: 7, reward: 4820 }
     ] },
     { time: "09:00", name: "KG PLO6 / 2$", buyin: 200, league: 2, players: [
-      { nick: "хер вам))))", place: 3, reward: 34.48 },
-      { nick: "⚡72⚡", place: 17, reward: -4 },
-      { nick: "Sarmat1305", place: 16, reward: -9.36 }
+      { nick: "хер вам))))", place: 3, reward: 34.48 }
     ] },
     { time: "20:00", name: "HOK Magic MKO 7MAX", buyin: 48000, league: 1, players: [
       { nick: "Waaar", place: 1, reward: 36450 },
@@ -2536,8 +2517,7 @@ var SPRING_RATING_TOURNAMENTS_BY_DATE = {
     ] },
     { time: "20:00", name: "HR 5000 250K", buyin: 5000, league: 1, players: [
       { nick: "comotd", place: 5, reward: 32957 },
-      { nick: "NINT3NDO", place: 9, reward: 8889 },
-      { nick: "BURGER KING", place: 0, reward: -5000 }
+      { nick: "NINT3NDO", place: 9, reward: 8889 }
     ] }
   ]
 };
