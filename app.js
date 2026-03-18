@@ -11396,6 +11396,132 @@ function initChat() {
   var chatCtxMsg = null;
   var chatCtxSource = null;
 
+  // Редактирование сообщения через окно ввода:
+  // - по кнопке "Изменить" (в контекстном меню) заполняем input заново
+  // - по "Отправить" выполняем PATCH и обновляем список сообщений
+  var chatEditMode = false;
+  var chatEditMessageId = null;
+  var chatEditSource = null; // "general" | "personal"
+  var chatEditWith = null; // используется для PATCH personal
+  var chatEditFromName = null;
+
+  function getQuotePreviewText(t) {
+    var s = (t == null ? "" : String(t)).trim();
+    if (!s) return "—";
+    var max = 60;
+    var out = s.slice(0, max);
+    if (s.length > max) out += "…";
+    return out;
+  }
+
+  function clearChatEditUI() {
+    chatEditMode = false;
+    chatEditMessageId = null;
+    chatEditSource = null;
+    chatEditWith = null;
+    chatEditFromName = null;
+    chatIsEditingMessage = false;
+
+    generalReplyTo = null;
+    personalReplyTo = null;
+
+    try { if (generalInput) generalInput.value = ""; } catch (e) {}
+    try { if (inputEl) inputEl.value = ""; } catch (e) {}
+
+    var prevG = document.getElementById("chatGeneralReplyPreview");
+    if (prevG) {
+      prevG.classList.remove("chat-reply-preview--visible");
+      var txG = prevG.querySelector(".chat-reply-preview__text");
+      if (txG) txG.textContent = "";
+    }
+    var prevP = document.getElementById("chatPersonalReplyPreview");
+    if (prevP) {
+      prevP.classList.remove("chat-reply-preview--visible");
+      var txP = prevP.querySelector(".chat-reply-preview__text");
+      if (txP) txP.textContent = "";
+    }
+
+    // Сбрасываем вложения (на всякий случай): режим редактирования только для текста.
+    generalImage = null; generalVoice = null; generalDocument = null;
+    personalImage = null; personalVoice = null; personalDocument = null;
+
+    var imgPrevG = document.getElementById("chatGeneralImagePreview");
+    if (imgPrevG) { imgPrevG.classList.remove("chat-image-preview--visible"); imgPrevG.innerHTML = ""; }
+    var voicePrevG = document.getElementById("chatGeneralVoicePreview");
+    if (voicePrevG) voicePrevG.classList.add("chat-voice-preview--hidden");
+    var fileInG = document.getElementById("chatGeneralFileInput");
+    if (fileInG) fileInG.value = "";
+    var pdfInG = document.getElementById("chatGeneralPdfInput");
+    if (pdfInG) pdfInG.value = "";
+
+    var imgPrevP = document.getElementById("chatPersonalImagePreview");
+    if (imgPrevP) { imgPrevP.classList.remove("chat-image-preview--visible"); imgPrevP.innerHTML = ""; }
+    var voicePrevP = document.getElementById("chatPersonalVoicePreview");
+    if (voicePrevP) voicePrevP.classList.add("chat-voice-preview--hidden");
+    var fileInP = document.getElementById("chatPersonalFileInput");
+    if (fileInP) fileInP.value = "";
+    var pdfInP = document.getElementById("chatPersonalPdfInput");
+    if (pdfInP) pdfInP.value = "";
+
+    try { if (typeof updateGeneralSendBtnIcon === "function") updateGeneralSendBtnIcon(); } catch (e3) {}
+    try { if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon(); } catch (e4) {}
+  }
+
+  function startChatEdit(src, msgId, oldText, fromName) {
+    if (!src || !msgId) return;
+    chatEditMode = true;
+    chatEditMessageId = msgId;
+    chatEditSource = src;
+    chatEditWith = src === "personal" ? chatWithUserId : null;
+    chatEditFromName = fromName || "Игрок";
+
+    chatIsEditingMessage = true;
+
+    // Сбрасываем предыдущие reply/вложения и показываем редактор.
+    generalReplyTo = null;
+    personalReplyTo = null;
+
+    if (src === "general") {
+      if (generalInput) {
+        generalInput.value = String(oldText == null ? "" : oldText);
+        try { resizeChatTextarea(generalInput); } catch (e) {}
+        if (generalInput.focus) generalInput.focus();
+      }
+      var prevG = document.getElementById("chatGeneralReplyPreview");
+      if (prevG) {
+        var txG = prevG.querySelector(".chat-reply-preview__text");
+        if (txG) txG.textContent = "Редактирование: " + (chatEditFromName || "Игрок") + ": " + getQuotePreviewText(oldText);
+        prevG.classList.add("chat-reply-preview--visible");
+      }
+      // Подсказка: редактирование только для текста — убираем вложения.
+      generalImage = null; generalVoice = null; generalDocument = null;
+      var imgPrevG2 = document.getElementById("chatGeneralImagePreview");
+      if (imgPrevG2) { imgPrevG2.classList.remove("chat-image-preview--visible"); imgPrevG2.innerHTML = ""; }
+      var voicePrevG2 = document.getElementById("chatGeneralVoicePreview");
+      if (voicePrevG2) voicePrevG2.classList.add("chat-voice-preview--hidden");
+    } else {
+      if (inputEl) {
+        inputEl.value = String(oldText == null ? "" : oldText);
+        try { resizeChatTextarea(inputEl); } catch (e2) {}
+        if (inputEl.focus) inputEl.focus();
+      }
+      var prevP = document.getElementById("chatPersonalReplyPreview");
+      if (prevP) {
+        var txP = prevP.querySelector(".chat-reply-preview__text");
+        if (txP) txP.textContent = "Редактирование: " + (chatEditFromName || "Игрок") + ": " + getQuotePreviewText(oldText);
+        prevP.classList.add("chat-reply-preview--visible");
+      }
+      personalImage = null; personalVoice = null; personalDocument = null;
+      var imgPrevP2 = document.getElementById("chatPersonalImagePreview");
+      if (imgPrevP2) { imgPrevP2.classList.remove("chat-image-preview--visible"); imgPrevP2.innerHTML = ""; }
+      var voicePrevP2 = document.getElementById("chatPersonalVoicePreview");
+      if (voicePrevP2) voicePrevP2.classList.add("chat-voice-preview--hidden");
+    }
+
+    try { if (typeof updateGeneralSendBtnIcon === "function") updateGeneralSendBtnIcon(); } catch (e) {}
+    try { if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon(); } catch (e) {}
+  }
+
   function resizeImage(file, maxW, maxH, quality) {
     maxW = maxW || 800; maxH = maxH || 800; quality = quality || 0.8;
     return new Promise(function (resolve, reject) {
@@ -11623,39 +11749,7 @@ function initChat() {
         var msgId = btn.dataset.msgId;
         var oldText = (btn.dataset.msgText || "").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
         if (!msgId) return;
-        var msgEl = btn.closest(".chat-msg");
-        var textEl = msgEl && msgEl.querySelector(".chat-msg__text");
-        if (!textEl) return;
-        chatIsEditingMessage = true;
-        var origHtml = textEl.innerHTML;
-        textEl.innerHTML = '<div class="chat-msg__edit-form"><input type="text" class="chat-input chat-msg__edit-input" value="' + escapeHtml(oldText) + '" maxlength="500" /><div class="chat-msg__edit-actions"><button type="button" class="chat-msg__edit-save">Сохранить</button><button type="button" class="chat-msg__edit-cancel">Отмена</button></div></div>';
-        var inputEl = textEl.querySelector(".chat-msg__edit-input");
-        var saveBtn = textEl.querySelector(".chat-msg__edit-save");
-        var cancelBtn = textEl.querySelector(".chat-msg__edit-cancel");
-        if (inputEl) inputEl.focus();
-        requestAnimationFrame(function () {
-          if (msgEl && msgEl.scrollIntoView) msgEl.scrollIntoView({ block: "center", behavior: "auto" });
-        });
-        function closeEdit() {
-          textEl.innerHTML = origHtml;
-          chatIsEditingMessage = false;
-          // Перерисовываем сообщения, чтобы заново привязать обработчики к кнопке «Изменить»
-          loadGeneral();
-        }
-        saveBtn.addEventListener("click", function () {
-          var newText = (inputEl.value || "").trim();
-          if (!newText) return;
-          fetch(base + "/api/chat", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData: initData, action: "edit", messageId: msgId, text: newText }),
-          }).then(function (r) { return r.json(); }).then(function (d) {
-            chatIsEditingMessage = false;
-            if (d && d.ok) loadGeneral();
-            else if (tg && tg.showAlert) tg.showAlert((d && d.error) || "Ошибка");
-          }).catch(function () { chatIsEditingMessage = false; });
-        });
-        cancelBtn.addEventListener("click", closeEdit);
+        startChatEdit("general", msgId, oldText, myChatName || "Игрок");
       });
     });
     attachContextMenuForOthers(generalMessages, "general");
@@ -11854,38 +11948,8 @@ function initChat() {
         } else if (action === "edit" && msg.own && el) {
           var msgId = msg.id;
           var oldText = msg.msgText != null ? msg.msgText : (msg.text || "");
-          var msgEl = el;
-          var textEl = msgEl && msgEl.querySelector(".chat-msg__text");
-          if (!textEl || !msgId) return;
-          chatIsEditingMessage = true;
-          var origHtml = textEl.innerHTML;
-          textEl.innerHTML = '<div class="chat-msg__edit-form"><input type="text" class="chat-input chat-msg__edit-input" value="' + escapeHtml(oldText) + '" maxlength="500" /><div class="chat-msg__edit-actions"><button type="button" class="chat-msg__edit-save">Сохранить</button><button type="button" class="chat-msg__edit-cancel">Отмена</button></div></div>';
-          var inputElEdit = textEl.querySelector(".chat-msg__edit-input");
-          var saveBtn = textEl.querySelector(".chat-msg__edit-save");
-          var cancelBtn = textEl.querySelector(".chat-msg__edit-cancel");
-          if (inputElEdit) inputElEdit.focus();
-          requestAnimationFrame(function () {
-            if (msgEl && msgEl.scrollIntoView) msgEl.scrollIntoView({ block: "center", behavior: "auto" });
-          });
-          function closeEdit() { textEl.innerHTML = origHtml; chatIsEditingMessage = false; }
-          saveBtn.addEventListener("click", function () {
-            var newText = (inputElEdit.value || "").trim();
-            if (!newText) return;
-            var body = { initData: initData, action: "edit", messageId: msgId, text: newText };
-            if (src === "personal" && chatWithUserId) body.with = chatWithUserId;
-            fetch(base + "/api/chat", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body),
-            }).then(function (r) { return r.json(); }).then(function (d) {
-              chatIsEditingMessage = false;
-              if (d && d.ok) {
-                if (src === "general") loadGeneral();
-                else loadMessages();
-              } else if (tg && tg.showAlert) tg.showAlert((d && d.error) || "Ошибка");
-            }).catch(function () { chatIsEditingMessage = false; });
-          });
-          cancelBtn.addEventListener("click", closeEdit);
+          if (!msgId) return;
+          startChatEdit(src, msgId, oldText, msg.fromName || msg.fromDtId || "Игрок");
         } else if (action === "delete" && (msg.own || chatIsAdmin)) {
           if (!confirm("Удалить сообщение?")) return;
           var delBody = { initData: initData, messageId: msg.id };
@@ -11967,6 +12031,36 @@ function initChat() {
   }
   function sendGeneral() {
     var text = (generalInput && generalInput.value || "").trim();
+    // Редактирование сообщения: отправляем PATCH, а не POST нового.
+    if (chatEditMode && chatEditSource === "general" && chatEditMessageId) {
+      if (!text || sendingGeneral) return;
+      if (!initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram.");
+        else if (typeof alert === "function") alert("Откройте приложение в Telegram, чтобы отправлять сообщения в общий чат.");
+        return;
+      }
+      sendingGeneral = true;
+      if (generalSendBtn) generalSendBtn.disabled = true;
+      fetch(base + "/api/chat", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, action: "edit", messageId: chatEditMessageId, text: text }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        sendingGeneral = false;
+        if (generalSendBtn) generalSendBtn.disabled = false;
+        if (d && d.ok) {
+          clearChatEditUI();
+          loadGeneral();
+        } else if (tg && tg.showAlert) {
+          tg.showAlert((d && d.error) || "Ошибка");
+        }
+      }).catch(function () {
+        sendingGeneral = false;
+        if (generalSendBtn) generalSendBtn.disabled = false;
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+      });
+      return;
+    }
     if ((!text && !generalImage && !generalVoice && !generalDocument) || sendingGeneral) return;
     if (!initData) {
       if (tg && tg.showAlert) tg.showAlert("Откройте в Telegram.");
@@ -12375,39 +12469,7 @@ function initChat() {
         var msgId = btn.dataset.msgId;
         var oldText = (btn.dataset.msgText || "").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
         if (!msgId) return;
-        var msgEl = btn.closest(".chat-msg");
-        var textEl = msgEl && msgEl.querySelector(".chat-msg__text");
-        if (!textEl) return;
-        chatIsEditingMessage = true;
-        var origHtml = textEl.innerHTML;
-        textEl.innerHTML = '<div class="chat-msg__edit-form"><input type="text" class="chat-input chat-msg__edit-input" value="' + escapeHtml(oldText) + '" maxlength="500" /><div class="chat-msg__edit-actions"><button type="button" class="chat-msg__edit-save">Сохранить</button><button type="button" class="chat-msg__edit-cancel">Отмена</button></div></div>';
-        var inputEl = textEl.querySelector(".chat-msg__edit-input");
-        var saveBtn = textEl.querySelector(".chat-msg__edit-save");
-        var cancelBtn = textEl.querySelector(".chat-msg__edit-cancel");
-        if (inputEl) inputEl.focus();
-        requestAnimationFrame(function () {
-          if (msgEl && msgEl.scrollIntoView) msgEl.scrollIntoView({ block: "center", behavior: "auto" });
-        });
-        function closeEdit() {
-          textEl.innerHTML = origHtml;
-          chatIsEditingMessage = false;
-          // Перерисовываем чат, чтобы кнопка «Изменить» снова работала
-          loadMessages();
-        }
-        saveBtn.addEventListener("click", function () {
-          var newText = (inputEl.value || "").trim();
-          if (!newText) return;
-          fetch(base + "/api/chat", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData: initData, action: "edit", messageId: msgId, text: newText, with: chatWithUserId }),
-          }).then(function (r) { return r.json(); }).then(function (d) {
-            chatIsEditingMessage = false;
-            if (d && d.ok) loadMessages();
-            else if (tg && tg.showAlert) tg.showAlert((d && d.error) || "Ошибка");
-          }).catch(function () { chatIsEditingMessage = false; });
-        });
-        cancelBtn.addEventListener("click", closeEdit);
+        startChatEdit("personal", msgId, oldText, myChatName || "Игрок");
       });
     });
     attachContextMenuForOthers(messagesEl, "personal");
@@ -12501,6 +12563,35 @@ function initChat() {
   }
   function sendMessage() {
     var text = (inputEl && inputEl.value || "").trim();
+    // Редактирование сообщения: отправляем PATCH, а не новое сообщение.
+    if (chatEditMode && chatEditSource === "personal" && chatEditMessageId) {
+      if (!text || sendingPrivate) return;
+      if (!chatWithUserId || !initData) {
+        if (tg && tg.showAlert) tg.showAlert("Откройте чат и убедитесь, что всё загружено");
+        return;
+      }
+      sendingPrivate = true;
+      if (sendBtn) sendBtn.disabled = true;
+      fetch(base + "/api/chat", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: initData, action: "edit", messageId: chatEditMessageId, text: text, with: chatWithUserId }),
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        sendingPrivate = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (d && d.ok) {
+          clearChatEditUI();
+          loadMessages();
+        } else if (tg && tg.showAlert) {
+          tg.showAlert((d && d.error) || "Ошибка");
+        }
+      }).catch(function () {
+        sendingPrivate = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (tg && tg.showAlert) tg.showAlert("Ошибка сети");
+      });
+      return;
+    }
     if ((!text && !personalImage && !personalVoice && !personalDocument) || !chatWithUserId || !initData || sendingPrivate) {
       if (!chatWithUserId && (text || personalImage || personalVoice || personalDocument)) {
         if (tg && tg.showAlert) tg.showAlert("Выберите собеседника"); else alert("Выберите собеседника");
@@ -13370,6 +13461,10 @@ function initChat() {
     updateGeneralSendBtnIcon();
     var generalReplyCancel = document.querySelector("#chatGeneralReplyPreview .chat-reply-preview__cancel");
     if (generalReplyCancel) generalReplyCancel.addEventListener("click", function () {
+      if (chatEditMode && chatEditSource === "general") {
+        clearChatEditUI();
+        return;
+      }
       generalReplyTo = null;
       var p = document.getElementById("chatGeneralReplyPreview");
       if (p) { p.classList.remove("chat-reply-preview--visible"); p.querySelector(".chat-reply-preview__text").textContent = ""; }
@@ -13491,6 +13586,10 @@ function initChat() {
     updatePersonalSendBtnIcon();
     var personalReplyCancel = document.querySelector("#chatPersonalReplyPreview .chat-reply-preview__cancel");
     if (personalReplyCancel) personalReplyCancel.addEventListener("click", function () {
+      if (chatEditMode && chatEditSource === "personal") {
+        clearChatEditUI();
+        return;
+      }
       personalReplyTo = null;
       var p = document.getElementById("chatPersonalReplyPreview");
       if (p) { p.classList.remove("chat-reply-preview--visible"); p.querySelector(".chat-reply-preview__text").textContent = ""; }
