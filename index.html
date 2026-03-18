@@ -3184,6 +3184,36 @@
           </div>
         </div>
       </div>
+      <div class="chat-templates-modal" id="chatTemplatesModal" aria-hidden="true" role="dialog" aria-label="Шаблоны сообщений">
+        <div class="chat-templates-modal__backdrop" id="chatTemplatesModalBackdrop"></div>
+        <div class="chat-templates-modal__inner" role="document">
+          <div class="chat-templates-modal__header">
+            <h3 class="chat-templates-modal__title">Шаблоны</h3>
+            <div class="chat-templates-modal__header-actions">
+              <button type="button" class="chat-templates-modal__icon-btn" id="chatTemplatesModalAddBtn" aria-label="Добавить шаблон">＋</button>
+              <button type="button" class="chat-templates-modal__icon-btn" id="chatTemplatesModalClose" aria-label="Закрыть">×</button>
+            </div>
+          </div>
+          <div class="chat-templates-modal__body">
+            <div class="chat-templates-modal__list" id="chatTemplatesModalList"></div>
+            <div class="chat-templates-modal__form chat-templates-modal__form--hidden" id="chatTemplatesModalForm">
+              <label class="chat-templates-modal__label">
+                Заголовок
+                <input type="text" class="chat-templates-modal__input" id="chatTemplatesModalTitleInput" maxlength="40" placeholder="Например: Приветствие" autocomplete="off" />
+              </label>
+              <label class="chat-templates-modal__label">
+                Текст
+                <textarea class="chat-templates-modal__textarea" id="chatTemplatesModalTextInput" rows="4" maxlength="500" placeholder="Текст, который будет вставляться в чат..."></textarea>
+              </label>
+              <div class="chat-templates-modal__form-actions">
+                <button type="button" class="chat-templates-modal__btn chat-templates-modal__btn--ghost" id="chatTemplatesModalCancelBtn">Отмена</button>
+                <button type="button" class="chat-templates-modal__btn chat-templates-modal__btn--primary" id="chatTemplatesModalSaveBtn">Сохранить</button>
+              </div>
+              <p class="chat-templates-modal__hint" id="chatTemplatesModalHint" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="respect-voters-modal" id="respectVotersModal" aria-hidden="true" role="dialog" aria-label="Кто поставил уважение">
         <div class="respect-voters-modal__backdrop"></div>
         <div class="respect-voters-modal__inner">
