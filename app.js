@@ -13509,8 +13509,14 @@ function initChat() {
     });
   }
 
+  var onlineAdminUserId = null;
+  var onlineAdminUserName = null;
+  var chatGeneralAdminsBtnOnlineEl = document.getElementById("chatGeneralAdminsBtnOnline");
+
   function updateAdminShiftOnline() {
     if (!dialogsView) return;
+    onlineAdminUserId = null;
+    onlineAdminUserName = null;
     var moscowHour = parseInt(new Date().toLocaleString("en-GB", { timeZone: "Europe/Moscow", hour: "2-digit", hour12: false }), 10);
     if (isNaN(moscowHour)) moscowHour = new Date().getUTCHours() + 3;
     if (moscowHour < 0) moscowHour += 24;
@@ -13527,13 +13533,24 @@ function initChat() {
       if (currentlyVisible !== !!onShift) {
         onEl.classList.toggle("chat-dialog-item__online--visible", !!onShift);
       }
+      if (onShift) {
+        onlineAdminUserId = btn.dataset.chatUserId || null;
+        onlineAdminUserName = btn.dataset.chatUserName || null;
+      }
     });
+    if (chatGeneralAdminsBtnOnlineEl) {
+      chatGeneralAdminsBtnOnlineEl.textContent = onlineAdminUserName ? onlineAdminUserName + " онлайн" : "Админ онлайн";
+    }
   }
   updateAdminShiftOnline();
 
   if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
   var chatGeneralAdminsBtn = document.getElementById("chatGeneralAdminsBtn");
-  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () { showDialogs(); });
+  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () {
+    updateAdminShiftOnline();
+    if (onlineAdminUserId && typeof openConvFromDialogs === "function") openConvFromDialogs(onlineAdminUserId, onlineAdminUserName);
+    else showDialogs();
+  });
 
   (function initChatSwipeBack() {
     var SWIPE_MIN = 60;

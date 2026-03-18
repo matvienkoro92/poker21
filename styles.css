@@ -4290,9 +4290,29 @@ img.chat-contact__avatar {
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
 }
 .chat-general-admins-btn:hover {
   border-color: rgba(249, 115, 22, 0.9);
+}
+
+.chat-general-admins-btn__top {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.chat-general-admins-btn__bottom {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(249, 115, 22, 0.95);
+  margin-top: 1px;
+  white-space: nowrap;
 }
 .chat-general-download-btn {
   display: inline-flex;
