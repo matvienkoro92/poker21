@@ -2725,6 +2725,10 @@ function setViewAnimated(viewName, direction) {
   var currentViewEl = null;
   var nextViewEl = null;
   var dragDirection = 0;
+  // В чате листаем вертикально (сообщения/список). Чтобы скролл не конфликтовал
+  // с горизонтальным свайп-навигационным обработчиком, отключаем свайп, если
+  // жест начался внутри скроллящихся областей чата.
+  var swipeDisabled = false;
   function getCurrentView() {
     var active = document.querySelector(".view--active[data-view]");
     return active ? active.getAttribute("data-view") : null;
@@ -2741,6 +2745,13 @@ function setViewAnimated(viewName, direction) {
   }
   function onTouchStart(e) {
     if (e.touches.length !== 1) return;
+    try {
+      var t = e.target;
+      swipeDisabled = !!(t && t.closest && t.closest(".chat-messages, .chat-dialogs-list, .chat-messages-wrap, .bottom-nav, textarea, input"));
+    } catch (err) {
+      swipeDisabled = false;
+    }
+    if (swipeDisabled) return;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     dragging = false;
@@ -2750,6 +2761,7 @@ function setViewAnimated(viewName, direction) {
   }
   function onTouchEnd(e) {
     if (e.changedTouches.length !== 1) return;
+    swipeDisabled = false;
     var current = getCurrentView();
     if (MAIN_VIEW_ORDER.indexOf(current) < 0) return;
     var endX = e.changedTouches[0].clientX;
@@ -2799,6 +2811,7 @@ function setViewAnimated(viewName, direction) {
   }
   function onTouchMove(e) {
     if (e.touches.length !== 1) return;
+    if (swipeDisabled) return;
     var current = getCurrentView();
     var idx = MAIN_VIEW_ORDER.indexOf(current);
     if (idx < 0) return;
