@@ -11164,22 +11164,23 @@ function initChat() {
         var t = chatTemplates[idx];
         if (!t || !t.text) return;
         // По выбору шаблона — сразу отправляем сообщение в нужный чат
-        if (chatTemplatesTargetInput) {
-          chatTemplatesTargetInput.value = t.text;
-          if (typeof resizeChatTextarea === "function") resizeChatTextarea(chatTemplatesTargetInput);
+        var targetInput = chatTemplatesTargetInput;
+        if (targetInput) {
+          targetInput.value = t.text;
+          if (typeof resizeChatTextarea === "function") resizeChatTextarea(targetInput);
         }
         closeTemplatesModal();
         try {
-          if (chatTemplatesTargetInput && chatTemplatesTargetInput.id === "chatGeneralInput") {
+          if (targetInput && targetInput.id === "chatGeneralInput") {
             sendGeneral();
-          } else if (chatTemplatesTargetInput && chatTemplatesTargetInput.id === "chatInput") {
+          } else if (targetInput && targetInput.id === "chatInput") {
             sendMessage();
           } else {
             // fallback: если не смогли определить чат, просто оставим текст в поле
-            if (chatTemplatesTargetInput) chatTemplatesTargetInput.focus();
+            if (targetInput) targetInput.focus();
           }
         } catch (e) {
-          if (chatTemplatesTargetInput) chatTemplatesTargetInput.focus();
+          if (targetInput) targetInput.focus();
         }
       }
     });
