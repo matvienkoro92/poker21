@@ -13190,7 +13190,19 @@ function initChat() {
     generalInput.addEventListener("input", function (e) {
       resizeChatTextarea(generalInput);
       updateGeneralSendBtnIcon();
-      if (templatesHintGeneral) templatesHintGeneral.style.display = generalInput.value.indexOf("/") === 0 ? "" : "";
+      // Быстрый вызов шаблонов: достаточно ввести "/" первым символом.
+      // Открываем меню сразу (без Enter) и очищаем слэш из поля ввода.
+      try {
+        var rawV = (generalInput.value || "");
+        var trimmedV = rawV.trim();
+        var modalOpen = chatTemplatesModal && chatTemplatesModal.getAttribute("aria-hidden") === "false";
+        if (!modalOpen && trimmedV === "/") {
+          generalInput.value = "";
+          updateGeneralSendBtnIcon();
+          resizeChatTextarea(generalInput);
+          showTemplatesMenu(generalInput);
+        }
+      } catch (err) {}
     });
       generalInput.addEventListener("focus", function () { resizeChatTextarea(generalInput); });
       generalInput.addEventListener("change", updateGeneralSendBtnIcon);
@@ -13293,6 +13305,19 @@ function initChat() {
     inputEl.addEventListener("input", function () {
       resizeChatTextarea(inputEl);
       updatePersonalSendBtnIcon();
+      // Быстрый вызов шаблонов: достаточно ввести "/" первым символом.
+      // Открываем меню сразу (без Enter) и очищаем слэш из поля ввода.
+      try {
+        var rawV = (inputEl.value || "");
+        var trimmedV = rawV.trim();
+        var modalOpen = chatTemplatesModal && chatTemplatesModal.getAttribute("aria-hidden") === "false";
+        if (!modalOpen && trimmedV === "/") {
+          inputEl.value = "";
+          updatePersonalSendBtnIcon();
+          resizeChatTextarea(inputEl);
+          showTemplatesMenu(inputEl);
+        }
+      } catch (err) {}
     });
       inputEl.addEventListener("focus", function () { resizeChatTextarea(inputEl); });
       inputEl.addEventListener("change", updatePersonalSendBtnIcon);
