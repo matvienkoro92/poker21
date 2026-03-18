@@ -10921,6 +10921,20 @@ function initChat() {
     generalView.style.display = "none";
     if (window._chatGeneralCache && window._chatGeneralCache.messages && typeof updateClubChatPreview === "function") updateClubChatPreview(window._chatGeneralCache.messages);
     else loadGeneral();
+    // На некоторых переходах между экранами (в т.ч. download) браузер может
+    // сохранить inline-трансформы/позиции для абсолютных элементов.
+    // Принудительно возвращаем верхнюю панель общего чата в корректное место.
+    try {
+      var genHeader = document.querySelector('#chatGeneralView .chat-general-header');
+      if (genHeader) {
+        genHeader.style.top = "48px";
+        genHeader.style.left = "12px";
+        genHeader.style.right = "12px";
+        genHeader.style.transform = "none";
+        genHeader.style.width = "auto";
+        genHeader.style.maxWidth = "none";
+      }
+    } catch (err) {}
     loadContacts();
     updateAdminShiftOnline();
     updateChatHeaderStats();
@@ -10945,6 +10959,17 @@ function initChat() {
     }
     loadGeneral();
     updateChatHeaderStats();
+    try {
+      var genHeader = document.querySelector('#chatGeneralView .chat-general-header');
+      if (genHeader) {
+        genHeader.style.top = "48px";
+        genHeader.style.left = "12px";
+        genHeader.style.right = "12px";
+        genHeader.style.transform = "none";
+        genHeader.style.width = "auto";
+        genHeader.style.maxWidth = "none";
+      }
+    } catch (err) {}
   }
   function openConvFromDialogs(userId, userName, dtId) {
     if (typeof window.closeChatNavDropdown === "function") window.closeChatNavDropdown();
@@ -10954,6 +10979,11 @@ function initChat() {
     if (personalView) personalView.classList.remove("chat-personal-view--hidden");
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
+    // Важно: `setTab("personal")` внутри `setTab()` проверяет `chatWithUserId`.
+    // Если вызвать `setTab()` до `showConv()`, чат может не открыться.
+    // Поэтому сначала выставляем нужные поля, затем фиксируем таб и грузим сообщения.
+    chatWithUserId = userId;
+    chatWithUserName = userName || userId;
     setTab("personal");
     showConv(userId, userName || userId, dtId);
     if (window.__pendingDepositMessage) {
@@ -13612,6 +13642,16 @@ function initChat() {
   var onlineAdminUserName = null;
   var chatGeneralAdminsBtnOnlineEl = document.getElementById("chatGeneralAdminsBtnOnline");
 
+  function detectOnlineAdminFromDOM() {
+    if (!dialogsView) return { id: null, name: null };
+    var onlineEl = dialogsView.querySelector(".chat-dialog-item__online.chat-dialog-item__online--visible");
+    var item = onlineEl && onlineEl.closest ? onlineEl.closest(".chat-dialog-item") : null;
+    return {
+      id: item && item.dataset ? (item.dataset.chatUserId || null) : null,
+      name: item && item.dataset ? (item.dataset.chatUserName || null) : null,
+    };
+  }
+
   function updateAdminShiftOnline() {
     if (!dialogsView) return;
     onlineAdminUserId = null;
@@ -13637,18 +13677,39 @@ function initChat() {
         onlineAdminUserName = btn.dataset.chatUserName || null;
       }
     });
+    // На всякий случай синхронизируем выбранного админа с тем, что реально видно.
+    var detected = detectOnlineAdminFromDOM();
+    if (detected.id) {
+      onlineAdminUserId = detected.id;
+      onlineAdminUserName = detected.name;
+    }
     if (chatGeneralAdminsBtnOnlineEl) {
       chatGeneralAdminsBtnOnlineEl.textContent = onlineAdminUserName ? onlineAdminUserName + " онлайн" : "Админ онлайн";
     }
   }
   updateAdminShiftOnline();
 
-  if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", showDialogs);
+  if (chatGeneralBackBtn) chatGeneralBackBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    showDialogs();
+  });
   var chatGeneralAdminsBtn = document.getElementById("chatGeneralAdminsBtn");
-  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function () {
+  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
     updateAdminShiftOnline();
     if (onlineAdminUserId && typeof openConvFromDialogs === "function") openConvFromDialogs(onlineAdminUserId, onlineAdminUserName);
     else showDialogs();
+  });
+
+  var chatGeneralDownloadBtn = document.querySelector('#chatGeneralView .chat-general-download-btn[data-view-target="download"][data-download-page]');
+  if (chatGeneralDownloadBtn) chatGeneralDownloadBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setView("download");
+    var page = chatGeneralDownloadBtn.getAttribute("data-download-page") || "main";
+    if (typeof setDownloadPage === "function") setDownloadPage(page);
   });
 
   (function initChatSwipeBack() {

@@ -3821,9 +3821,9 @@ img.chat-contact__avatar {
   font-style: italic;
 }
 .chat-dialog-item__role--admin {
-  color: #f97316;
-  font-style: normal;
-  font-weight: 600;
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: 500;
 }
 .chat-dialog-item__main-label {
   font-size: 13px;
@@ -4272,6 +4272,7 @@ img.chat-contact__avatar {
   white-space: nowrap;
   height: var(--chat-general-header-btn-height);
   min-height: var(--chat-general-header-btn-height);
+  box-sizing: border-box;
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
 .chat-general-header .chat-back-btn,
@@ -4344,7 +4345,7 @@ img.chat-contact__avatar {
 }
 
 .chat-general-header .chat-back-btn {
-  padding: 7px 12px 7px 10px;
+  padding: 0 12px 0 10px;
   font-size: 14px;
   border: 1px solid rgba(249, 115, 22, 0.7);
 }
