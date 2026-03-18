@@ -4105,8 +4105,6 @@ img.chat-contact__avatar {
   flex-shrink: 0;
   margin-bottom: 4px;
   min-height: 0;
-  /* Чтобы кнопка "Назад" не пряталась под верхней панелью Telegram ("Закрыть") */
-  padding-top: calc(env(safe-area-inset-top, 0px) + 36px);
 }
 .chat-conv-top .chat-back-btn {
   margin-bottom: 0;
@@ -4220,8 +4218,6 @@ img.chat-contact__avatar {
   gap: 10px;
   margin-bottom: 6px;
   flex-wrap: wrap;
-  /* Чтобы кнопка "Назад" не пряталась под верхней панелью Telegram ("Закрыть") */
-  padding-top: calc(env(safe-area-inset-top, 0px) + 36px);
 }
 .chat-general-header .chat-back-btn { margin-bottom: 0; }
 .chat-general-admins-btn {

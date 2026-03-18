@@ -9179,10 +9179,36 @@ function initRaffles() {
       btn.textContent = "Рассылаем…";
       if (rafflesNotifySubsHint) rafflesNotifySubsHint.textContent = "";
       var endDate = currentRaffleData && currentRaffleData.endDate ? currentRaffleData.endDate : undefined;
+      // Текст рассылки: "разыгрывается *количество* билетов за *сумма билета*"
+      function pluralizeTickets(n) {
+        var v = Math.abs(n) % 100;
+        var d = v % 10;
+        if (v >= 11 && v <= 19) return "билетов";
+        if (d === 1) return "билет";
+        if (d >= 2 && d <= 4) return "билета";
+        return "билетов";
+      }
+      var ticketCount = 0;
+      var ticketNominal = 0;
+      try {
+        var groups = (currentRaffleData && Array.isArray(currentRaffleData.groups)) ? currentRaffleData.groups : [];
+        for (var gi = 0; gi < groups.length; gi++) {
+          ticketCount += Math.max(0, parseInt(groups[gi].count, 10) || 0);
+          if (!ticketNominal) {
+            var n = parsePrizeValue(groups[gi].prize);
+            if (n > 0) ticketNominal = n;
+          }
+        }
+      } catch (e) {}
+      var ticketNominalText = ticketNominal > 0 ? formatRaffleSum(ticketNominal) : "";
+      var broadcastText = "";
+      if (ticketCount > 0 && ticketNominalText) {
+        broadcastText = "Разыгрывается " + ticketCount + " " + pluralizeTickets(ticketCount) + " за " + ticketNominalText + ".";
+      }
       fetch(base + "/api/raffle-manual-subscribers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: initData, endDate: endDate }),
+        body: JSON.stringify({ initData: initData, endDate: endDate, message: broadcastText || undefined, ticketsCount: ticketCount || undefined, ticketPrice: ticketNominal || undefined }),
       })
         .then(function (r) {
           return r
