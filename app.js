@@ -11949,6 +11949,26 @@ function initChat() {
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
       if (ctxBackdrop) ctxBackdrop.addEventListener("click", hideMenu);
+
+      // «Изменить» обрабатываем в capture, чтобы сработать ДО document click (который закрывает меню и обнуляет chatCtxMsg).
+      function onMenuEditCapture(e) {
+        var editBtn = e.target && e.target.closest ? e.target.closest(".chat-ctx-menu__item[data-action=\"edit\"]") : null;
+        if (!editBtn) return;
+        var m = chatCtxMsg;
+        var sr = chatCtxSource;
+        if (!m || !m.own) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var msgId = m.id || null;
+        var oldText = (m.msgText != null && m.msgText !== "") ? m.msgText : (m.text || "");
+        var fromName = m.fromName || m.fromDtId || "Игрок";
+        try { clearChatEditUI(); } catch (err) {}
+        startChatEdit(sr, msgId, oldText, fromName);
+        hideMenu();
+      }
+      ctxMenu.addEventListener("touchend", onMenuEditCapture, { capture: true, passive: false });
+      ctxMenu.addEventListener("click", onMenuEditCapture, { capture: true });
+
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
