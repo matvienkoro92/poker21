@@ -11794,7 +11794,7 @@ function initChat() {
     var longPressTimer = null;
     var menuOpenedAt = 0;
     var ctxOpenedForEl = null;
-    function showMenu(el, msg) {
+    function showMenu(el, msg, coords) {
       chatCtxMsg = msg;
       chatCtxSource = source;
       ctxOpenedForEl = el;
@@ -11828,22 +11828,27 @@ function initChat() {
       requestAnimationFrame(function () {
         var menuHeight = ctxMenu.offsetHeight;
         var rect = el.getBoundingClientRect();
-        var menuTop = rect.bottom + GAP;
-        if (menuTop + menuHeight > maxBottom) menuTop = rect.top - GAP - menuHeight;
+        // Координаты долгого нажатия (палец/мышь). Если их нет, берём центр сообщения.
+        var anchorX = coords && typeof coords.x === "number" ? coords.x : rect.left + rect.width / 2;
+        var anchorY = coords && typeof coords.y === "number" ? coords.y : rect.bottom;
+        var menuTop = anchorY + GAP;
+        if (menuTop + menuHeight > maxBottom) menuTop = anchorY - GAP - menuHeight;
         if (menuTop < 12 && el.scrollIntoView) {
           el.scrollIntoView({ block: "center", behavior: "auto" });
           requestAnimationFrame(function () {
             var r2 = el.getBoundingClientRect();
-            var top2 = r2.bottom + GAP;
-            if (top2 + menuHeight > maxBottom) top2 = r2.top - GAP - menuHeight;
+            var ax2 = coords && typeof coords.x === "number" ? coords.x : r2.left + r2.width / 2;
+            var ay2 = coords && typeof coords.y === "number" ? coords.y : r2.bottom;
+            var top2 = ay2 + GAP;
+            if (top2 + menuHeight > maxBottom) top2 = ay2 - GAP - menuHeight;
             top2 = Math.max(12, Math.min(top2, maxBottom - menuHeight));
-            var left2 = Math.max(12, Math.min(Math.round(r2.left + r2.width / 2 - menuWidth / 2), window.innerWidth - menuWidth - 12));
+            var left2 = Math.max(12, Math.min(Math.round(ax2 - menuWidth / 2), window.innerWidth - menuWidth - 12));
             ctxMenu.style.top = top2 + "px";
             ctxMenu.style.left = left2 + "px";
           });
         } else {
           menuTop = Math.max(12, Math.min(menuTop, maxBottom - menuHeight));
-          var menuLeft = Math.max(12, Math.min(Math.round(rect.left + rect.width / 2 - menuWidth / 2), window.innerWidth - menuWidth - 12));
+          var menuLeft = Math.max(12, Math.min(Math.round(anchorX - menuWidth / 2), window.innerWidth - menuWidth - 12));
           ctxMenu.style.top = menuTop + "px";
           ctxMenu.style.left = menuLeft + "px";
         }
@@ -11868,7 +11873,7 @@ function initChat() {
       if (typeof currentActiveItem !== "undefined") currentActiveItem = null;
     }
     function attachToEl(el) {
-      function onLongPress() {
+      function onLongPress(coords) {
         var textEl = el.querySelector(".chat-msg__text");
         var text = textEl ? (textEl.textContent || "").trim() : "";
         var hasImage = !!el.querySelector(".chat-msg__image");
@@ -11885,7 +11890,7 @@ function initChat() {
           hasDocument: hasDocument,
           own: isOwn,
           msgText: isOwn ? (el.dataset.msgText || "").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') : "",
-        });
+        }, coords);
       }
       var startX = 0;
       var startY = 0;
@@ -11900,7 +11905,7 @@ function initChat() {
         }
         longPressTimer = setTimeout(function () {
           longPressTimer = null;
-          onLongPress();
+          onLongPress({ x: startX, y: startY });
           if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
         }, 500);
       }
@@ -11980,7 +11985,9 @@ function initChat() {
           }
         } else if (action === "edit" && msg.own && el) {
           var msgId = msg.id;
-          var oldText = msg.msgText != null ? msg.msgText : (msg.text || "");
+          // Берём "сырой" текст для редактирования:
+          // сначала msg.msgText (если есть), иначе обычный msg.text.
+          var oldText = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
           if (!msgId) return;
           startChatEdit(src, msgId, oldText, msg.fromName || msg.fromDtId || "Игрок");
         } else if (action === "delete" && (msg.own || chatIsAdmin)) {

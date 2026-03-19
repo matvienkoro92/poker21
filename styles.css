@@ -4136,9 +4136,7 @@ img.chat-contact__avatar {
   width: 100%;
   padding: 6px 6px;
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.2);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: transparent;
   pointer-events: auto;
 }
 .chat-conv-top .chat-back-btn {
@@ -4269,7 +4267,7 @@ img.chat-contact__avatar {
   flex-wrap: nowrap;
   padding: 6px 6px;
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.2);
+  background: transparent;
   position: absolute;
   top: 48px;
   left: 12px;
@@ -4279,9 +4277,6 @@ img.chat-contact__avatar {
   max-width: none;
   z-index: 2;
   --chat-general-header-btn-height: 40px;
-  /* Размытие фона под кнопками (не затемнение) */
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   /* Важно: заголовок перекрывает часть сообщений, поэтому отключаем захват кликов контейнером.
      Клики будут проходить к сообщениям, а сами кнопки вернём обратно через pointer-events:auto. */
   pointer-events: none;
