@@ -7462,7 +7462,7 @@ navItems.forEach(function (item) {
     var target = item.dataset.viewTarget;
     if (target) {
       setView(target);
-      if (target === "download") setDownloadPage("main");
+      if (target === "download") setDownloadPage("poker21");
     }
   });
 });
@@ -13755,7 +13755,7 @@ function initChat() {
     e.preventDefault();
     e.stopPropagation();
     setView("download");
-    var page = chatGeneralDownloadBtn.getAttribute("data-download-page") || "main";
+    var page = chatGeneralDownloadBtn.getAttribute("data-download-page") || "poker21";
     if (typeof setDownloadPage === "function") setDownloadPage(page);
   });
 
