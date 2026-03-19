@@ -2747,14 +2747,7 @@ function setViewAnimated(viewName, direction) {
     if (e.touches.length !== 1) return;
     try {
       var t = e.target;
-      swipeDisabled = !!(t && t.closest && t.closest(".chat-messages, .chat-dialogs-list, .chat-messages-wrap, .bottom-nav, textarea, input"));
-      // Во время нахождения в общем чате не включаем общий свайп-навигационный
-      // обработчик между экранами (home/chat/download/...), чтобы не было
-      // дерганий/мерцаний. Внутри чата для возврата к списку диалогов
-      // используется отдельный `initChatSwipeBack()`.
-      if (!swipeDisabled && getCurrentView() === "chat" && t && t.closest && t.closest('.view[data-view="chat"]')) {
-        swipeDisabled = true;
-      }
+      swipeDisabled = !!(t && t.closest && t.closest(".chat-messages, .chat-dialogs-list, .chat-messages-wrap, .bottom-nav, textarea, input, .chat-general-header, .chat-conv-top, .chat-switcher-row"));
     } catch (err) {
       swipeDisabled = false;
     }
@@ -12215,6 +12208,11 @@ function initChat() {
     if (listView) listView.classList.add("chat-list-view--hidden");
     if (convView) convView.classList.remove("chat-conv-view--hidden");
     if (convTitle) convTitle.textContent = userName || userId;
+    var titleRoleEl = document.getElementById("chatConvTitleRole");
+    if (titleRoleEl) {
+      if (CHAT_ADMIN_IDS && CHAT_ADMIN_IDS.indexOf(String(userId)) !== -1) titleRoleEl.textContent = "Админ";
+      else titleRoleEl.textContent = "";
+    }
     if (convTitleIdWrap && convTitleId) {
       convTitleIdWrap.classList.remove("chat-conv-title__id-wrap--hidden");
       var displayId = (dtIdFromContact && String(dtIdFromContact).trim()) || "—";
