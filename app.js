@@ -11949,6 +11949,23 @@ function initChat() {
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
       if (ctxBackdrop) ctxBackdrop.addEventListener("click", hideMenu);
+      // Делегированный pointerup по меню: на мобильных иногда click/touchend по кнопке не срабатывают.
+      ctxMenu.addEventListener("pointerup", function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest(".chat-ctx-menu__item[data-action=\"edit\"]") : null;
+        if (!btn) return;
+        var m = chatCtxMsg;
+        var sr = chatCtxSource;
+        var elem = ctxOpenedForEl;
+        if (!m || !m.own || !elem) return;
+        e.preventDefault();
+        e.stopPropagation();
+        hideMenu();
+        var msgId = m.id || null;
+        var oldTextRaw = (m.msgText != null && m.msgText !== "") ? m.msgText : (m.text || "");
+        var fromName = m.fromName || m.fromDtId || "Игрок";
+        try { clearChatEditUI(); } catch (err) {}
+        setTimeout(function () { startChatEdit(sr, msgId, oldTextRaw, fromName); }, 0);
+      }, true);
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
@@ -11998,10 +12015,11 @@ function initChat() {
           var msgId = msg.id || null;
           var oldTextRaw = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
           var fromName = msg.fromName || msg.fromDtId || "Игрок";
-          // Сбрасываем прошлый режим редактирования и запускаем штатную функцию,
-          // которая заполняет поле ввода и показывает плашку редактирования.
           try { clearChatEditUI(); } catch (eClear) {}
-          startChatEdit(src, msgId, oldTextRaw, fromName);
+          // Откладываем на следующий тик, чтобы закрытие меню не мешало фокусу/вводу.
+          var s = src;
+          var fn = fromName;
+          setTimeout(function () { startChatEdit(s, msgId, oldTextRaw, fn); }, 0);
         } else if (action === "delete" && (msg.own || chatIsAdmin)) {
           if (!confirm("Удалить сообщение?")) return;
           var delBody = { initData: initData, messageId: msg.id };
