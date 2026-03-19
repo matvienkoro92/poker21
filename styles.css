@@ -3,15 +3,16 @@
   --bg-elevated: rgba(15, 23, 42, 0.9);
   --accent: #ef4444;
   --accent-soft: rgba(239, 68, 68, 0.12);
-  --accent-2: #22c55e;
-  --accent-3: #a855f7;
+  --accent-2: #fbbf24;
+  --accent-3: #ef4444;
   --text: #e5e7eb;
   --text-muted: #9ca3af;
   --border-subtle: rgba(251, 191, 36, 0.28);
   --shadow-strong: 0 22px 45px rgba(15, 23, 42, 0.9);
   --radius-lg: 24px;
-  --body-bg: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
-  --card-bg: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.98)), radial-gradient(circle at top left, rgba(251, 191, 36, 0.1), transparent 60%);
+  --body-bg: radial-gradient(circle at top, rgba(239, 68, 68, 0.26) 0, #020617 55%, #000 100%);
+  --card-bg: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.98)),
+    radial-gradient(circle at top left, rgba(239, 68, 68, 0.14), rgba(251, 191, 36, 0.14) 35%, transparent 60%);
   --card-border: rgba(251, 191, 36, 0.55);
   --bg-gradient-opacity: 0.9;
   --bg-blur-gradient: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.92));
@@ -59,8 +60,8 @@ body::-webkit-scrollbar,
   --bg-elevated: rgba(255, 248, 240, 0.95);
   --accent: #ef4444;
   --accent-soft: rgba(239, 68, 68, 0.12);
-  --accent-2: #16a34a;
-  --accent-3: #7c3aed;
+  --accent-2: #fbbf24;
+  --accent-3: #ef4444;
   --text: #1e293b;
   --text-muted: #64748b;
   --border-subtle: rgba(100, 116, 139, 0.28);
@@ -2830,7 +2831,7 @@ body.chat-keyboard-open .app {
   color: var(--text-muted);
 }
 .chat-msg__respect--positive {
-  color: var(--accent-2, #22c55e);
+  color: var(--accent-2, #fbbf24);
 }
 .chat-msg__respect--negative {
   color: #ef4444;
@@ -3826,7 +3827,7 @@ img.chat-contact__avatar {
 .chat-dialog-item__online {
   display: none;
   font-size: 11px;
-  color: var(--accent-2, #22c55e);
+  color: var(--accent-2, #fbbf24);
   font-weight: 500;
 }
 .chat-dialog-item__online.chat-dialog-item__online--visible {
@@ -4054,7 +4055,7 @@ img.chat-contact__avatar {
 .chat-admins-view__online {
   display: none;
   font-size: 11px;
-  color: var(--accent-2, #22c55e);
+  color: var(--accent-2, #fbbf24);
   font-weight: 500;
 }
 .chat-admins-view__online.chat-admins-view__online--visible {
@@ -4488,7 +4489,7 @@ img.chat-contact__avatar {
 .chat-contact__online {
   display: none;
   font-size: 11px;
-  color: var(--accent-2, #22c55e);
+  color: var(--accent-2, #fbbf24);
   font-weight: 500;
 }
 .chat-contact__online.chat-contact__online--visible {
