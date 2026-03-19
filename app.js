@@ -12921,7 +12921,11 @@ function initChat() {
         }
       });
     });
-    if (backBtn) backBtn.addEventListener("click", showDialogs);
+    if (backBtn) backBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showDialogs();
+    });
     if (findByIdBtn && findByIdInput) {
       function findByIdAndOpen() {
         var raw = (findByIdInput.value || "").trim();
