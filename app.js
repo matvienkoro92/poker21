@@ -11501,9 +11501,10 @@ function initChat() {
   }
 
   function startChatEdit(src, msgId, oldText, fromName) {
-    if (!src || !msgId) return;
-    chatEditMode = true;
-    chatEditMessageId = msgId;
+    if (!src) return;
+    // UI редактирования показываем всегда, а режим PATCH включаем только если есть id.
+    chatEditMode = !!msgId;
+    chatEditMessageId = msgId || null;
     chatEditSource = src;
     chatEditWith = src === "personal" ? chatWithUserId : null;
     chatEditFromName = fromName || "Игрок";
