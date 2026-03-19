@@ -2766,7 +2766,12 @@ function setViewAnimated(viewName, direction) {
   }
   function onTouchEnd(e) {
     if (e.changedTouches.length !== 1) return;
-    swipeDisabled = false;
+    // Если для этого жеста свайп был отключён (например, в чате),
+    // то полностью игнорируем окончание касания и не навигируем между экранами.
+    if (swipeDisabled) {
+      swipeDisabled = false;
+      return;
+    }
     var current = getCurrentView();
     if (MAIN_VIEW_ORDER.indexOf(current) < 0) return;
     var endX = e.changedTouches[0].clientX;
@@ -12025,6 +12030,14 @@ function initChat() {
           e.stopPropagation();
           if (btn.dataset.action) runAction(btn.dataset.action, btn);
         });
+        // На мобильных иногда click по пункту меню не срабатывает,
+        // поэтому дублируем обработчик на touchend.
+        btn.addEventListener("touchend", function (e) {
+          if (e.target !== btn && !btn.contains(e.target)) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (btn.dataset.action) runAction(btn.dataset.action, btn);
+        }, { passive: false });
       }
       ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(bindMenuButton);
       ctxMenu.querySelectorAll(".chat-ctx-menu__reaction-emoji").forEach(bindMenuButton);

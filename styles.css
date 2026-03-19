@@ -3061,6 +3061,7 @@ body.chat-keyboard-open .app {
   min-width: 0;
   width: 100%;
   padding-left: 0;
+  position: relative;
 }
 .chat-templates-hint {
   margin-top: 2px;
@@ -3474,7 +3475,7 @@ img.chat-contact__avatar {
   overflow-y: auto;
   vertical-align: top;
   line-height: 1.4;
-  padding: 10px 14px;
+  padding: 10px 40px 10px 14px;
   border-radius: 22px;
 }
 .chat-input-wrap:not(.chat-input-wrap--single) .chat-input--textarea {
@@ -3513,12 +3514,14 @@ img.chat-contact__avatar {
 }
 
 .chat-emoji-btn {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  position: absolute;
+  right: 54px; /* перед микрофоном (36px) + небольшой зазор */
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   background: transparent;
   font-size: 20px;
   line-height: 1;
