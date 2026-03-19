@@ -4,7 +4,7 @@
   "description": "Покерный клуб Poker21 — рейтинг, игры, чат",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#0c0605",
   "theme_color": "#ef4444",
   "orientation": "portrait-primary",
   "icons": [
