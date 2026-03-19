@@ -11998,44 +11998,10 @@ function initChat() {
           var msgId = msg.id || null;
           var oldTextRaw = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
           var fromName = msg.fromName || msg.fromDtId || "Игрок";
-
-          // На всякий случай сбрасываем предыдущий режим редактирования/ответа,
-          // чтобы повторное редактирование того же сообщения работало без перезахода.
+          // Сбрасываем прошлый режим редактирования и запускаем штатную функцию,
+          // которая заполняет поле ввода и показывает плашку редактирования.
           try { clearChatEditUI(); } catch (eClear) {}
-
-          // Включаем режим редактирования и сразу руками обновляем UI.
-          chatEditMode = !!msgId;
-          chatEditMessageId = msgId;
-          chatEditSource = src;
-          chatEditWith = src === "personal" ? chatWithUserId : null;
-          chatEditFromName = fromName;
-          chatIsEditingMessage = true;
-
-          if (src === "general") {
-            if (generalInput) {
-              generalInput.value = String(oldTextRaw == null ? "" : oldTextRaw);
-              try { resizeChatTextarea(generalInput); } catch (e1) {}
-              try { generalInput.focus(); } catch (e2) {}
-            }
-            var prevG2 = document.getElementById("chatGeneralReplyPreview");
-            if (prevG2) {
-              var txG2 = prevG2.querySelector(".chat-reply-preview__text");
-              if (txG2) txG2.textContent = "Редактирование: " + (fromName || "Игрок") + ": " + getQuotePreviewText(oldTextRaw);
-              prevG2.classList.add("chat-reply-preview--visible");
-            }
-          } else {
-            if (inputEl) {
-              inputEl.value = String(oldTextRaw == null ? "" : oldTextRaw);
-              try { resizeChatTextarea(inputEl); } catch (e3) {}
-              try { inputEl.focus(); } catch (e4) {}
-            }
-            var prevP2 = document.getElementById("chatPersonalReplyPreview");
-            if (prevP2) {
-              var txP2 = prevP2.querySelector(".chat-reply-preview__text");
-              if (txP2) txP2.textContent = "Редактирование: " + (fromName || "Игрок") + ": " + getQuotePreviewText(oldTextRaw);
-              prevP2.classList.add("chat-reply-preview--visible");
-            }
-          }
+          startChatEdit(src, msgId, oldTextRaw, fromName);
         } else if (action === "delete" && (msg.own || chatIsAdmin)) {
           if (!confirm("Удалить сообщение?")) return;
           var delBody = { initData: initData, messageId: msg.id };

@@ -4140,6 +4140,7 @@ img.chat-contact__avatar {
   max-width: 100%;
   font-size: 12px;
   color: var(--text-muted);
+  margin-top: 1px;
 }
 
 .chat-conv-title__role {
@@ -4147,7 +4148,7 @@ img.chat-contact__avatar {
   font-size: 11px;
   font-weight: 500;
   color: rgba(249, 115, 22, 0.95);
-  margin-top: 1px;
+  margin-top: 0;
   white-space: nowrap;
 }
 .chat-conv-title__copy--icon {
@@ -4184,6 +4185,9 @@ img.chat-contact__avatar {
   touch-action: pan-y;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+}
+.chat-conv-view .chat-messages > .chat-msg:first-child {
+  margin-top: 8px;
 }
 .chat-container .chat-input-area {
   flex-shrink: 0;
