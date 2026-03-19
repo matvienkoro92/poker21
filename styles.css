@@ -4111,11 +4111,10 @@ img.chat-contact__avatar {
 .chat-conv-top {
   display: flex;
   align-items: center;
-  gap: 0;
+  justify-content: center;
   flex-shrink: 0;
   margin-bottom: 0;
   min-height: 0;
-  justify-content: space-between;
   position: absolute;
   top: 48px;
   left: 12px;
@@ -4124,23 +4123,29 @@ img.chat-contact__avatar {
   width: auto;
   max-width: none;
   z-index: 2;
+  pointer-events: none;
+}
+.chat-conv-top-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  width: 100%;
   padding: 6px 6px;
   border-radius: 20px;
   background: rgba(15, 23, 42, 0.2);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  pointer-events: none;
+  pointer-events: auto;
 }
 .chat-conv-top .chat-back-btn {
   margin-bottom: 0;
   flex-shrink: 0;
-  pointer-events: auto;
 }
 .chat-conv-top .chat-conv-header {
   flex: 1 1 auto;
   min-width: 0;
   margin-bottom: 0;
-  pointer-events: auto;
   display: flex;
   flex-direction: column;
   align-items: flex-end;

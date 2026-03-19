@@ -2748,6 +2748,11 @@ function setViewAnimated(viewName, direction) {
     try {
       var t = e.target;
       swipeDisabled = !!(t && t.closest && t.closest(".chat-messages, .chat-dialogs-list, .chat-messages-wrap, .bottom-nav, textarea, input, .chat-general-header, .chat-conv-top, .chat-switcher-row"));
+      // Внутри экрана чата полностью отключаем глобальный свайп между вкладками
+      // (home/chat/download/...), чтобы верхняя часть чата не уводила на главную.
+      if (!swipeDisabled && getCurrentView() === "chat") {
+        swipeDisabled = true;
+      }
     } catch (err) {
       swipeDisabled = false;
     }
