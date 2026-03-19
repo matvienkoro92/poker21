@@ -9875,7 +9875,7 @@ function initRaffles() {
               if (typeof setView === "function") setView("profile");
             } else if (data && data.code === "CHANNEL_REQUIRED") {
               if (tg && tg.showAlert) tg.showAlert(err);
-              if (tg && tg.openTelegramLink) tg.openTelegramLink("https://t.me/dva_tuza_club");
+              if (tg && tg.openTelegramLink) tg.openTelegramLink("https://t.me/poker21_news");
             } else if (data && (data.code === "SAME_IP" || data.code === "SAME_DEVICE")) {
               if (tg && tg.showAlert) tg.showAlert(err);
             } else if (tg && tg.showAlert) tg.showAlert(err);
