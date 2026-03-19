@@ -11878,8 +11878,8 @@ function initChat() {
         ctxMenu.classList.remove("chat-ctx-menu--visible");
         ctxMenu.setAttribute("aria-hidden", "true");
       }
-      // Обнуляем в следующем тике, чтобы обработчик кнопки «Изменить» успел прочитать chatCtxMsg.
-      setTimeout(function () { chatCtxMsg = null; chatCtxSource = null; }, 0);
+      chatCtxMsg = null;
+      chatCtxSource = null;
       if (typeof menuPointerDown !== "undefined") menuPointerDown = false;
       if (typeof currentActiveItem !== "undefined") currentActiveItem = null;
     }
@@ -11949,25 +11949,6 @@ function initChat() {
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
       if (ctxBackdrop) ctxBackdrop.addEventListener("click", hideMenu);
-      // На мобильных (Telegram WebView) click/pointerup по кнопке часто не доходят — ловим touchend по меню.
-      function tryRunEditFromMenu(e) {
-        var btn = e.target && e.target.closest ? e.target.closest(".chat-ctx-menu__item[data-action=\"edit\"]") : null;
-        if (!btn) return;
-        var m = chatCtxMsg;
-        var sr = chatCtxSource;
-        var elem = ctxOpenedForEl;
-        if (!m || !m.own || !elem) return;
-        e.preventDefault();
-        e.stopPropagation();
-        hideMenu();
-        var msgId = m.id || null;
-        var oldTextRaw = (m.msgText != null && m.msgText !== "") ? m.msgText : (m.text || "");
-        var fromName = m.fromName || m.fromDtId || "Игрок";
-        try { clearChatEditUI(); } catch (err) {}
-        setTimeout(function () { startChatEdit(sr, msgId, oldTextRaw, fromName); }, 0);
-      }
-      ctxMenu.addEventListener("touchend", tryRunEditFromMenu, { capture: true, passive: false });
-      ctxMenu.addEventListener("pointerup", tryRunEditFromMenu, true);
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
@@ -11976,14 +11957,18 @@ function initChat() {
         hideMenu();
       }
       document.addEventListener("click", closeIfOutside);
+
       function runAction(action, activeEl) {
         var msg = chatCtxMsg;
         var src = chatCtxSource;
         var el = ctxOpenedForEl;
-        hideMenu();
-        if (!msg) return;
+        if (!msg) {
+          hideMenu();
+          return;
+        }
         if (action === "react" && activeEl && activeEl.dataset.emoji) {
           sendReaction(msg.id, activeEl.dataset.emoji, src, src === "personal" ? chatWithUserId : "");
+          hideMenu();
           return;
         }
         if (action === "reply") {
@@ -12007,23 +11992,26 @@ function initChat() {
             }
             if (inputEl) inputEl.focus();
           }
+          hideMenu();
         } else if (action === "copy") {
           if (msg.text && navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(msg.text).then(function () {
               if (tg && tg.showAlert) tg.showAlert("Скопировано");
             });
           }
+          hideMenu();
         } else if (action === "edit" && msg.own && el) {
           var msgId = msg.id || null;
           var oldTextRaw = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
           var fromName = msg.fromName || msg.fromDtId || "Игрок";
           try { clearChatEditUI(); } catch (eClear) {}
-          // Откладываем на следующий тик, чтобы закрытие меню не мешало фокусу/вводу.
-          var s = src;
-          var fn = fromName;
-          setTimeout(function () { startChatEdit(s, msgId, oldTextRaw, fn); }, 0);
+          startChatEdit(src, msgId, oldTextRaw, fromName);
+          hideMenu();
         } else if (action === "delete" && (msg.own || chatIsAdmin)) {
-          if (!confirm("Удалить сообщение?")) return;
+          if (!confirm("Удалить сообщение?")) {
+            hideMenu();
+            return;
+          }
           var delBody = { initData: initData, messageId: msg.id };
           if (src === "personal" && chatWithUserId) delBody.with = chatWithUserId;
           fetch(base + "/api/chat", {
@@ -12035,54 +12023,24 @@ function initChat() {
               if (src === "general") loadGeneral();
               else loadMessages();
             }
-          });
+          }).finally(function () { hideMenu(); });
+        } else {
+          hideMenu();
         }
       }
-      var menuPointerDown = false;
-      var currentActiveItem = null;
-      function setActiveItem(item) {
-        ctxMenu.querySelectorAll(".chat-ctx-menu__item--active").forEach(function (b) { b.classList.remove("chat-ctx-menu__item--active"); });
-        currentActiveItem = item;
-        if (item) item.classList.add("chat-ctx-menu__item--active");
-      }
-      function onMenuPointerMove(e) {
-        if (!menuPointerDown || !ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
-        var under = document.elementFromPoint(e.clientX, e.clientY);
-        var item = under && under.closest ? (under.closest(".chat-ctx-menu__item") || under.closest(".chat-ctx-menu__reaction-emoji")) : null;
-        if (item && ctxMenu.contains(item)) setActiveItem(item);
-        else setActiveItem(null);
-      }
-      function onMenuPointerUp(e) {
-        if (!menuPointerDown) return;
-        menuPointerDown = false;
-        setActiveItem(null);
-      }
+
+      // Простой обработчик: кликаем или тапаем по пункту меню.
       function bindMenuButton(btn) {
-        btn.addEventListener("pointerdown", function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          menuPointerDown = true;
-          setActiveItem(btn);
-        });
-        btn.addEventListener("click", function (e) {
+        function handler(e) {
           e.preventDefault();
           e.stopPropagation();
           if (btn.dataset.action) runAction(btn.dataset.action, btn);
-        });
-        // На мобильных иногда click по пункту меню не срабатывает,
-        // поэтому дублируем обработчик на touchend.
-        btn.addEventListener("touchend", function (e) {
-          if (e.target !== btn && !btn.contains(e.target)) return;
-          e.preventDefault();
-          e.stopPropagation();
-          if (btn.dataset.action) runAction(btn.dataset.action, btn);
-        }, { passive: false });
+        }
+        btn.addEventListener("click", handler);
+        btn.addEventListener("touchend", handler, { passive: false });
       }
       ctxMenu.querySelectorAll(".chat-ctx-menu__item").forEach(bindMenuButton);
       ctxMenu.querySelectorAll(".chat-ctx-menu__reaction-emoji").forEach(bindMenuButton);
-      document.addEventListener("pointermove", onMenuPointerMove);
-      document.addEventListener("pointerup", onMenuPointerUp);
-      document.addEventListener("pointercancel", onMenuPointerUp);
     }
   }
 
