@@ -11458,8 +11458,18 @@ function initChat() {
     generalReplyTo = null;
     personalReplyTo = null;
 
-    try { if (generalInput) generalInput.value = ""; } catch (e) {}
-    try { if (inputEl) inputEl.value = ""; } catch (e) {}
+    try {
+      if (generalInput) {
+        generalInput.value = "";
+        try { resizeChatTextarea(generalInput); } catch (eResizeG) {}
+      }
+    } catch (e) {}
+    try {
+      if (inputEl) {
+        inputEl.value = "";
+        try { resizeChatTextarea(inputEl); } catch (eResizeP) {}
+      }
+    } catch (e2) {}
 
     var prevG = document.getElementById("chatGeneralReplyPreview");
     if (prevG) {
@@ -11988,17 +11998,18 @@ function initChat() {
           var msgId = msg.id || null;
           var oldTextRaw = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
           var fromName = msg.fromName || msg.fromDtId || "Игрок";
-          // Включаем режим редактирования и сразу руками обновляем UI,
-          // не полагаясь только на вспомогательную функцию.
+
+          // На всякий случай сбрасываем предыдущий режим редактирования/ответа,
+          // чтобы повторное редактирование того же сообщения работало без перезахода.
+          try { clearChatEditUI(); } catch (eClear) {}
+
+          // Включаем режим редактирования и сразу руками обновляем UI.
           chatEditMode = !!msgId;
           chatEditMessageId = msgId;
           chatEditSource = src;
           chatEditWith = src === "personal" ? chatWithUserId : null;
           chatEditFromName = fromName;
           chatIsEditingMessage = true;
-
-          generalReplyTo = null;
-          personalReplyTo = null;
 
           if (src === "general") {
             if (generalInput) {
