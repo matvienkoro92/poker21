@@ -11878,8 +11878,8 @@ function initChat() {
         ctxMenu.classList.remove("chat-ctx-menu--visible");
         ctxMenu.setAttribute("aria-hidden", "true");
       }
-      chatCtxMsg = null;
-      chatCtxSource = null;
+      // Обнуляем в следующем тике, чтобы обработчик кнопки «Изменить» успел прочитать chatCtxMsg.
+      setTimeout(function () { chatCtxMsg = null; chatCtxSource = null; }, 0);
       if (typeof menuPointerDown !== "undefined") menuPointerDown = false;
       if (typeof currentActiveItem !== "undefined") currentActiveItem = null;
     }
@@ -11949,8 +11949,8 @@ function initChat() {
     if (ctxMenu && !ctxMenu.dataset.chatCtxBound) {
       ctxMenu.dataset.chatCtxBound = "1";
       if (ctxBackdrop) ctxBackdrop.addEventListener("click", hideMenu);
-      // Делегированный pointerup по меню: на мобильных иногда click/touchend по кнопке не срабатывают.
-      ctxMenu.addEventListener("pointerup", function (e) {
+      // На мобильных (Telegram WebView) click/pointerup по кнопке часто не доходят — ловим touchend по меню.
+      function tryRunEditFromMenu(e) {
         var btn = e.target && e.target.closest ? e.target.closest(".chat-ctx-menu__item[data-action=\"edit\"]") : null;
         if (!btn) return;
         var m = chatCtxMsg;
@@ -11965,7 +11965,9 @@ function initChat() {
         var fromName = m.fromName || m.fromDtId || "Игрок";
         try { clearChatEditUI(); } catch (err) {}
         setTimeout(function () { startChatEdit(sr, msgId, oldTextRaw, fromName); }, 0);
-      }, true);
+      }
+      ctxMenu.addEventListener("touchend", tryRunEditFromMenu, { capture: true, passive: false });
+      ctxMenu.addEventListener("pointerup", tryRunEditFromMenu, true);
       function closeIfOutside(e) {
         if (!ctxMenu.classList.contains("chat-ctx-menu--visible")) return;
         if (ctxMenu.contains(e.target)) return;
