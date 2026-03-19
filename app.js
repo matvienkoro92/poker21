@@ -125,8 +125,8 @@
     if (isIos()) return Promise.resolve(false);
     var link = getAppUrl();
     return navigator.share({
-      title: "Клуб Два туза — Poker Club",
-      text: "Присоединяйся к покерному клубу «Два туза»",
+      title: "Клуб Poker21 — Poker Club",
+      text: "Присоединяйся к покерному клубу «Poker21»",
       url: link
     }).then(function () { return true; }).catch(function () { return false; });
   }
@@ -237,16 +237,6 @@ function getAssetUrl(relativePath) {
       var urlObj = new URL(link.href, window.location.href);
       var sp = new URLSearchParams(urlObj.search || "");
       var startApp = sp.get("startapp");
-      if (startApp === "raffles" && typeof setView === "function") {
-        setView("raffles");
-        return;
-      }
-      if (startApp && (startApp === "news" || startApp.indexOf("news_") === 0) && typeof openGazette === "function") {
-        var articleNum = startApp === "news" ? undefined : parseInt(startApp.replace("news_", ""), 10);
-        if (startApp !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
-        openGazette("news", articleNum);
-        return;
-      }
       if (startApp && (startApp === "spring_rating_league_1" || startApp === "spring_rating_league_2") && typeof setView === "function") {
         var leagueNum = startApp === "spring_rating_league_1" ? "1" : "2";
         setView("spring-rating");
@@ -429,7 +419,7 @@ function getTopByDates(dates) {
     .slice(0, 15);
 }
 
-// Газета «Вестник Два туза» — только горячие новости (инициализация при DOMContentLoaded для надёжности)
+// Газета «Вестник Poker21» — только горячие новости (инициализация при DOMContentLoaded для надёжности)
 function runGazetteAndTasksInit() {
 (function initGazetteModal() {
   var GAZETTE_READ_KEY = "poker_gazette_read";
@@ -662,7 +652,7 @@ function runGazetteAndTasksInit() {
         var article = shareBtn.closest && shareBtn.closest("article");
         var headlineEl = article && article.querySelector(".gazette-modal__headline");
         var headline = headlineEl ? headlineEl.textContent.trim() : "";
-        var shareText = headline.length > 0 ? headline : "Новая новость в газете «Вестник Два туза»";
+        var shareText = headline.length > 0 ? headline : "Новая новость в газете «Вестник Poker21»";
         var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent(shareText + "\n" + link);
         var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
@@ -1304,11 +1294,6 @@ function runGazetteAndTasksInit() {
       startParam = params.get("start_param") || "";
     } catch (e) {}
   }
-  if (startParam && (startParam === "news" || startParam.indexOf("news_") === 0)) {
-    var articleNum = startParam === "news" ? undefined : parseInt(startParam.replace("news_", ""), 10);
-    if (startParam !== "news" && (Number.isNaN(articleNum) || articleNum < 0)) articleNum = undefined;
-    setTimeout(function () { if (typeof openGazette === "function") openGazette("news", articleNum); }, 300);
-  }
   if (startParam === "winter_rating") {
     setTimeout(function () { if (typeof setView === "function") setView("winter-rating"); }, 0);
   }
@@ -1381,9 +1366,6 @@ function runGazetteAndTasksInit() {
         if (typeof openDailyPredictionModal === "function") openDailyPredictionModal();
       }, 400);
     }, 0);
-  }
-  if (startParam === "raffles") {
-    setTimeout(function () { if (typeof setView === "function") setView("raffles"); }, 0);
   }
   if (startParam === "stream") {
     setTimeout(function () { if (typeof setView === "function") setView("home"); }, 0);
@@ -2200,7 +2182,7 @@ if (startButton) {
     } else {
       console.log("Start club mini app (local preview mode)");
       alert(
-        "Здесь будет переход к лобби клуба «Два туза». В Telegram Mini App кнопка отправит событие боту."
+        "Здесь будет переход к лобби клуба «Poker21». В Telegram Mini App кнопка отправит событие боту."
       );
     }
   });
@@ -2463,6 +2445,7 @@ function tryChillRadioPlay() {
 }
 
 function setView(viewName) {
+  if (viewName === "cashout" || viewName === "profile") viewName = "home";
   if (document.body) {
     document.body.style.overflow = "";
     document.body.style.position = "";
@@ -2673,7 +2656,7 @@ function updateRaffleBadge(hasActive) {
   // Кнопку "Розыгрыш 30 билетов" убрали из главной.
 }
 
-var MAIN_VIEW_ORDER = ["home", "chat", "download", "cashout", "profile"];
+var MAIN_VIEW_ORDER = ["home", "chat", "download"];
 var SWIPE_MIN_DIST = 60;
 var SWIPE_MAX_VERTICAL_RATIO = 0.6;
 
@@ -7773,7 +7756,11 @@ downloadAppButtons.forEach(function (btn) {
 });
 
 downloadBackButtons.forEach(function (btn) {
-  btn.addEventListener("click", function () { setDownloadPage("main"); });
+  btn.addEventListener("click", function () {
+    // Назад из "Скачать" закрываем в домашний экран.
+    if (typeof setView === "function") setView("home");
+    else setDownloadPage("poker21");
+  });
 });
 
 // Мини-игра «Найди Пиханину» — колода буби (13) + колода пики (13) + джокер Пиханина = 27 карт
@@ -9463,7 +9450,7 @@ function initRaffles() {
       var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
-      var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent("Привет бро, клуб Два туза снова разыгрывает беккинг-билеты на турниры бесплатно, заходи участвуй)\n" + link);
+      var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent("Привет бро, клуб Poker21 снова разыгрывает беккинг-билеты на турниры бесплатно, заходи участвуй)\n" + link);
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
       if (typeof recordShareButtonClick === "function") recordShareButtonClick("raffle_hero");

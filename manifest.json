@@ -1,11 +1,11 @@
 {
-  "name": "Клуб Два туза — Poker Club",
-  "short_name": "Два туза",
-  "description": "Покерный клуб «Два туза» — рейтинг, розыгрыши, газета, чат",
+  "name": "Клуб Poker21 — Poker Club",
+  "short_name": "Poker21",
+  "description": "Покерный клуб Poker21 — рейтинг, игры, чат",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#ea580c",
+  "theme_color": "#ef4444",
   "orientation": "portrait-primary",
   "icons": [
     {

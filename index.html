@@ -6,20 +6,20 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Клуб «Два туза» — Mini App</title>
+    <title>Клуб «Poker21» — Mini App</title>
     <meta
       name="description"
-      content="Приветственная страница покерного клуба «Два туза» в Telegram Mini App."
+      content="Приветственная страница покерного клуба «Poker21» в Telegram Mini App."
     />
     <!-- Превью для ссылок на газету (Open Graph и Twitter Card) -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Вестник Два туза — горячие новости клуба" />
-    <meta property="og:description" content="Горячие новости покерного клуба «Два туза». Откройте в Telegram." />
+    <meta property="og:title" content="Вестник Poker21 — горячие новости клуба" />
+    <meta property="og:description" content="Горячие новости покерного клуба «Poker21». Откройте в Telegram." />
     <meta property="og:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <meta property="og:url" content="https://t.me/Poker_dvatuza_bot/DvaTuza" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Вестник Два туза — горячие новости клуба" />
-    <meta name="twitter:description" content="Горячие новости покерного клуба «Два туза». Откройте в Telegram." />
+    <meta name="twitter:title" content="Вестник Poker21 — горячие новости клуба" />
+    <meta name="twitter:description" content="Горячие новости покерного клуба «Poker21». Откройте в Telegram." />
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=20" />
@@ -112,11 +112,11 @@
           >
             <img
               src="./assets/logo-two-aces.png"
-              alt="Клуб Два туза"
+              alt="Клуб Poker21"
               class="logo__image"
             />
             <div class="logo__text">
-              <div class="logo__title">Клуб «Два туза»</div>
+              <div class="logo__title">Клуб «Poker21»</div>
               <div class="logo__subtitle">Poker Club</div>
             </div>
           </a>
@@ -160,17 +160,6 @@
               <div class="welcome-title-wrap">
                 <h1 class="title title--welcome">Добро пожаловать!</h1>
               </div>
-              <button type="button" class="welcome-gazette-icon" id="gazetteOpenBtn" title="Газета" aria-label="Открыть газету Вестник Два туза">
-                <span class="welcome-gazette-icon__badge-wrap">
-                  <span class="welcome-gazette-icon__unread" id="gazetteUnreadDot" aria-hidden="true"></span>
-                </span>
-                <span class="welcome-gazette-icon__emoji" aria-hidden="true">📰</span>
-              </button>
-            </div>
-            <div class="welcome-admin-report-row">
-              <button type="button" class="welcome-admin-report-btn header-admin-report--hidden" id="adminReportBtn" title="Отчёт за смену" aria-label="Отчёт за смену">
-                <span class="welcome-admin-report-btn__icon" aria-hidden="true">📋</span>
-              </button>
             </div>
             <p class="subtitle">
               Закрытый покерный онлайн-клуб для своих.
@@ -178,10 +167,10 @@
 
             <div class="hero-row">
               <div class="hero">
-                <a href="#" class="hero__link" data-view-target="hall-of-fame" title="Зал славы" aria-label="Зал славы Два туза">
+                <a href="#" class="hero__link" data-view-target="hall-of-fame" title="Зал славы" aria-label="Зал славы Poker21">
                   <img
                     src="./assets/hall-of-fame-hero.png"
-                    alt="Зал славы Два туза"
+                    alt="Зал славы Poker21"
                     class="hero__video hero__image"
                   />
                 </a>
@@ -214,11 +203,6 @@
                   <span class="home-mini-icon" aria-hidden="true">🔮</span>
                   <span class="home-mini-icon__label">Предсказание</span>
                   <span id="dailyPredictionPreview" aria-hidden="true" style="display:none">Нажми, чтобы узнать совет дня</span>
-                </a>
-                <a href="#" class="home-mini-icon-item home-mini-icon-item--white home-mini-icon-item--hover-scale" data-view-target="raffles" title="Розыгрыши" aria-label="Розыгрыши">
-                  <span class="feature__badge feature__badge--hidden" id="raffleActiveBadge" aria-hidden="true">1</span>
-                  <span class="home-mini-icon" aria-hidden="true">🎲</span>
-                  <span class="home-mini-icon__label">Розыгрыши</span>
                 </a>
               </div>
             </div>
@@ -295,11 +279,10 @@
 
             <footer class="card__footer card__footer--home" id="homeFooter">
               <p class="footer-note">
-                Клуб «Два туза». Играйте ответственно. 18+
+                Клуб «Poker21». Играйте ответственно. 18+
               </p>
               <p class="footer-admin-visitors footer-admin-visitors--hidden" id="footerAdminVisitorsWrap">
                 <button type="button" class="footer-admin-visitors__btn" id="adminVisitorsBtn">Посетители</button>
-                <button type="button" class="footer-admin-visitors__btn footer-admin-visitors__btn--secondary" id="adminBroadcastReportsBtn">Отчёт о рассылках</button>
               </p>
             </footer>
 
@@ -1149,7 +1132,7 @@
                 <button type="button" class="chat-dialog-item chat-dialog-item--club" data-chat-type="club" id="chatDialogClub" tabindex="-1">
                   <img class="chat-dialog-item__avatar chat-dialog-item__avatar--club" src="./assets/logo-two-aces.png" alt="" />
                   <span class="chat-dialog-item__club-wrap">
-                    <span class="chat-dialog-item__label">Чат Два туза</span>
+                    <span class="chat-dialog-item__label">Чат Poker21</span>
                     <span class="chat-dialog-item__preview" id="chatDialogClubPreview">Загрузка…</span>
                   </span>
                   <span class="chat-dialog-item__main-label">Главный чат</span>
@@ -1209,7 +1192,7 @@
                   <span class="chat-general-admins-btn__top">Написать админам</span>
                   <span class="chat-general-admins-btn__bottom" id="chatGeneralAdminsBtnOnline">Админ онлайн</span>
                 </button>
-                <a href="#" class="chat-general-download-btn" data-view-target="download" data-download-page="main" aria-label="Скачать">Скачать</a>
+                <a href="#" class="chat-general-download-btn" data-view-target="download" data-download-page="poker21" aria-label="Скачать">Скачать</a>
               </div>
               <div class="chat-messages-wrap">
               <div class="chat-messages" id="chatGeneralMessages" role="log" aria-live="polite">
@@ -1334,7 +1317,7 @@
           <!-- Скачать -->
           <div class="view" data-view="download">
             <!-- Главный экран: список приложений -->
-            <div class="download-page download-page--active" data-download-page="main">
+            <div class="download-page" data-download-page="main">
               <p class="download-quote">
                 Примешь синюю таблетку — и сказке конец. Примешь красную — войдешь в страну чудес (с) Морфеус
               </p>
@@ -1360,7 +1343,7 @@
             </div>
 
             <!-- Страница Poker21 -->
-            <div class="download-page" data-download-page="poker21">
+            <div class="download-page download-page--active" data-download-page="poker21">
               <button type="button" class="download-back" data-download-back aria-label="Назад">
                 ← Назад
               </button>
@@ -1458,7 +1441,7 @@
               <div class="poker21-example-media">
                 <img
                   src="./assets/xpoker-join-example.png"
-                  alt="Раздел Клуб: найдите «Два туза Х», нажмите Вступить в клуб и введите ID 1786376"
+                  alt="Раздел Клуб: найдите «Poker21 Х», нажмите Вступить в клуб и введите ID 1786376"
                   class="poker21-example-image"
                 />
               </div>
@@ -1633,7 +1616,7 @@
           </div>
 
           <!-- Розыгрыши -->
-          <div class="view" data-view="raffles">
+          <div class="view" data-view="raffles" hidden>
             <button type="button" class="bonus-game-back" data-view-target="home" aria-label="На главную">← Назад</button>
             <p class="raffles-tagline">Розыгрыши беккинг-билетов на турниры клуба</p>
             <header class="raffles-hero" aria-hidden="true">
@@ -1773,7 +1756,7 @@
                     <button type="button" class="raffle-cancel-btn" id="raffleDeleteBtn">Удалить розыгрыш (админ)</button>
                   </div>
                   <p class="raffle-joined-msg raffle-joined-msg--hidden" id="raffleJoinedMsg">Вы участвуете</p>
-                  <p class="raffle-channel-note">Участвуют только подписчики канала <a href="https://t.me/dva_tuza_club" target="_blank" rel="noopener">клуба Два туза</a>.</p>
+                  <p class="raffle-channel-note">Участвуют только подписчики канала <a href="https://t.me/dva_tuza_club" target="_blank" rel="noopener">клуба Poker21</a>.</p>
                   <h3 class="raffle-participants-title">Участники <span class="raffle-participants-count" id="raffleParticipantsCount">(0)</span></h3>
                   <p class="raffle-participants-chance" id="raffleParticipantsChance"></p>
                   <ul class="raffle-participants" id="raffleParticipants"></ul>
@@ -2086,23 +2069,23 @@
             <section class="hall-of-fame__block" aria-labelledby="hallLegendsTitle">
               <h2 class="hall-of-fame__section-title" id="hallLegendsTitle">Легенды клуба</h2>
               <div class="hall-of-fame__legends-list" role="list">
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Waaarr" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Waaarr</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Emil13" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Emil13</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Рыбнадзор" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Рыбнадзор</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="AndrushaMorf" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">AndrushaMorf</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Shummmx" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Shummmx</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="WhiskeyClub" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">WhiskeyClub</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Пряник" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Пряник</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Siropchik" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Siropchik</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Хулинадо" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Хулинадо</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="Shockin" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Shockin</span></button>
-                <button type="button" class="hall-of-fame__legend-link" data-nick="qoqoEpta" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Два туза</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">qoqoEpta</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Waaarr" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Waaarr</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Emil13" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Emil13</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Рыбнадзор" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Рыбнадзор</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="AndrushaMorf" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">AndrushaMorf</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Shummmx" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Shummmx</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="WhiskeyClub" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">WhiskeyClub</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Пряник" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Пряник</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Siropchik" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Siropchik</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Хулинадо" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Хулинадо</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="Shockin" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">Shockin</span></button>
+                <button type="button" class="hall-of-fame__legend-link" data-nick="qoqoEpta" role="listitem"><span class="hall-of-fame__legend-card-label">Легенда Poker21</span><span class="hall-of-fame__legend-head" aria-hidden="true">🙋</span><span class="hall-of-fame__legend-name">qoqoEpta</span></button>
               </div>
             </section>
           </div>
 
           <!-- Депозит / кэшаут -->
-          <div class="view" data-view="cashout">
+          <div class="view" data-view="cashout" hidden>
             <h1 class="title">Депозит и кэшаут</h1>
             <p class="cashout-now-subtitle" aria-live="polite"></p>
 
@@ -2138,12 +2121,12 @@
           </div>
 
           <!-- Профиль -->
-          <div class="view" data-view="profile">
+          <div class="view" data-view="profile" hidden>
             <div class="profile-header-row">
               <h1 class="title">Профиль</h1>
             </div>
             <p class="profile-greeting">
-              Привет, <span id="profileUserName">имя</span><span class="profile-user-meta" id="profileUserMeta"></span>, здесь все твои достижения в клубе Два туза.
+              Привет, <span id="profileUserName">имя</span><span class="profile-user-meta" id="profileUserMeta"></span>, здесь все твои достижения в клубе Poker21.
             </p>
             <div class="profile-avatar-block">
               <img id="profileAvatar" class="profile-avatar-block__img" src="./assets/profile-pokerist.png" alt="Аватар" />
@@ -2404,14 +2387,6 @@
           <span class="bottom-nav__icon">📥</span>
           <span class="bottom-nav__label">Скачать</span>
         </button>
-        <button type="button" class="bottom-nav__item" data-view-target="cashout">
-          <span class="bottom-nav__icon">💳</span>
-          <span class="bottom-nav__label">Депозит</span>
-        </button>
-        <button type="button" class="bottom-nav__item" data-view-target="profile">
-          <span class="bottom-nav__icon">👤</span>
-          <span class="bottom-nav__label">Профиль</span>
-        </button>
       </nav>
 
       <div class="image-lightbox" id="imageLightbox" role="dialog" aria-modal="true" aria-label="Увеличить изображение" aria-hidden="true">
@@ -2507,7 +2482,7 @@
         </div>
       </div>
       <!-- Модалка «Отчёт за смену» (только админ, заполняется вручную) -->
-      <div class="share-stats-admin-modal" id="adminReportModal" role="dialog" aria-modal="true" aria-label="Отчёт за смену" aria-hidden="true">
+      <div class="share-stats-admin-modal" id="adminReportModal" role="dialog" aria-modal="true" aria-label="Отчёт за смену" aria-hidden="true" hidden>
         <div class="share-stats-admin-modal__backdrop" id="adminReportModalBackdrop"></div>
         <div class="share-stats-admin-modal__box">
           <button type="button" class="share-stats-admin-modal__close" id="adminReportModalClose" aria-label="Закрыть">×</button>
@@ -2553,7 +2528,7 @@
         </div>
       </div>
       <!-- Модалка «Отчёт о рассылках» (только админ, заполняется вручную) -->
-      <div class="share-stats-admin-modal" id="broadcastReportsModal" role="dialog" aria-modal="true" aria-label="Отчёт о рассылках" aria-hidden="true">
+      <div class="share-stats-admin-modal" id="broadcastReportsModal" role="dialog" aria-modal="true" aria-label="Отчёт о рассылках" aria-hidden="true" hidden>
         <div class="share-stats-admin-modal__backdrop" id="broadcastReportsModalBackdrop"></div>
         <div class="share-stats-admin-modal__box">
           <button type="button" class="share-stats-admin-modal__close" id="broadcastReportsModalClose" aria-label="Закрыть">×</button>
@@ -2602,7 +2577,7 @@
             <!-- Лист 1: Предисловие -->
             <div class="partnership-modal__sheet partnership-modal__sheet--active" data-partnership-sheet="0">
               <div class="partnership-modal__sheet-inner">
-                <img src="./assets/partnership-intro.jpg" alt="Клуб Два туза: игроки за покерным столом" class="partnership-modal__img" loading="lazy" />
+                <img src="./assets/partnership-intro.jpg" alt="Клуб Poker21: игроки за покерным столом" class="partnership-modal__img" loading="lazy" />
                 <h2 class="partnership-modal__title">❗️ 3 шага для создания своего покерного онлайн-клуба</h2>
                 <p class="partnership-modal__text">Зарабатывай на привлечении игроков. Стань партнером с нашей поддержкой и входом во все союзы с максимальным рейкбеком.</p>
                 <p class="partnership-modal__text">✅ Если у вас уже есть клуб, но он еще не в Poker21 или Xpoker, напишите в тг ➡️ <a href="https://t.me/Roman1787443" target="_blank" rel="noopener noreferrer" class="partnership-modal__link">@Roman1787443</a> для получения особых условий.</p>
@@ -2614,7 +2589,7 @@
             <!-- Лист 2: Шаг 1 -->
             <div class="partnership-modal__sheet" data-partnership-sheet="1">
               <div class="partnership-modal__sheet-inner">
-                <img src="./assets/partnership-step1.jpg" alt="Создание онлайн-клуба: стол Два туза" class="partnership-modal__img" loading="lazy" />
+                <img src="./assets/partnership-step1.jpg" alt="Создание онлайн-клуба: стол Poker21" class="partnership-modal__img" loading="lazy" />
                 <h3 class="partnership-modal__heading">Если у вас еще нет клуба</h3>
                 <p class="partnership-modal__step">1️⃣ Создаем вам онлайн-клуб</p>
                 <p class="partnership-modal__text">в одном приложении на выбор или в нескольких.</p>
@@ -2627,7 +2602,7 @@
             <!-- Лист 3: Шаг 2 -->
             <div class="partnership-modal__sheet" data-partnership-sheet="2">
               <div class="partnership-modal__sheet-inner">
-                <img src="./assets/partnership-step2.jpg" alt="Союз клубов: столы Два туза" class="partnership-modal__img" loading="lazy" />
+                <img src="./assets/partnership-step2.jpg" alt="Союз клубов: столы Poker21" class="partnership-modal__img" loading="lazy" />
                 <p class="partnership-modal__step">2️⃣ Подключаем ваш клуб к союзу клубов.</p>
                 <p class="partnership-modal__text">В вашем клубе появляются наши кеш-столы, турниры и фрироллы.</p>
                 <p class="partnership-modal__text">Все те же самые столы, что и в клубе Два Туза, где уже играют наши игроки. И игроки вашего клуба будут видеть эти столы и смогут играть вместе с нашими через ваш клуб.</p>
@@ -2640,7 +2615,7 @@
             <!-- Лист 4: Шаг 3 -->
             <div class="partnership-modal__sheet" data-partnership-sheet="3">
               <div class="partnership-modal__sheet-inner">
-                <img src="./assets/partnership-step3.jpg" alt="Игроки играют через ваш клуб: Два туза" class="partnership-modal__img" loading="lazy" />
+                <img src="./assets/partnership-step3.jpg" alt="Игроки играют через ваш клуб: Poker21" class="partnership-modal__img" loading="lazy" />
                 <p class="partnership-modal__step">3️⃣ Игроки вступают и играют через ваш клуб.</p>
                 <p class="partnership-modal__text">Вы получаете клубный сверх-рейкбек (комиссию с ваших игроков, которые играют через ваш клуб) до 90%.</p>
                 <div class="partnership-modal__nav-btns">
@@ -2652,7 +2627,7 @@
             <!-- Лист 5: Стоимость и контакт -->
             <div class="partnership-modal__sheet" data-partnership-sheet="4">
               <div class="partnership-modal__sheet-inner">
-                <img src="./assets/partnership-cost.jpg" alt="Клуб Два туза: связь и условия" class="partnership-modal__img" loading="lazy" />
+                <img src="./assets/partnership-cost.jpg" alt="Клуб Poker21: связь и условия" class="partnership-modal__img" loading="lazy" />
                 <h3 class="partnership-modal__heading">Стоимость партнерства</h3>
                 <p class="partnership-modal__text">✅ 65$ в неделю, оплата минимум за месяц</p>
                 <p class="partnership-modal__text">✅ Если у вас уже есть активный клуб (проверяется), то условия индивидуальные</p>
@@ -2668,7 +2643,7 @@
           </div>
         </div>
       </div>
-      <div class="gazette-modal" id="gazetteModal" role="dialog" aria-modal="true" aria-labelledby="gazetteModalTitle" aria-label="Газета Вестник Два туза" aria-hidden="true">
+      <div class="gazette-modal" id="gazetteModal" role="dialog" aria-modal="true" aria-labelledby="gazetteModalTitle" aria-label="Газета Вестник Poker21" aria-hidden="true" hidden>
         <div class="gazette-modal__backdrop" id="gazetteModalBackdrop"></div>
         <div class="gazette-modal__paper">
           <span class="gazette-modal__deco gazette-modal__deco--tr" aria-hidden="true">A♥</span>
@@ -2678,7 +2653,7 @@
           <!-- Выбор страницы (первый экран газеты) -->
           <div class="gazette-modal__pick" id="gazetteModalPick">
             <header class="gazette-modal__header">
-              <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Два туза</h2>
+              <h2 class="gazette-modal__masthead" id="gazetteModalTitle">Вестник Poker21</h2>
               <div class="gazette-modal__rule"></div>
             </header>
             <div class="gazette-modal__pick-back-bar">
@@ -2812,7 +2787,7 @@
                 <p><strong>Стих на тему</strong></p>
                 <p><em>Кулер сел за стол — и в очко попал,<br>Не в переносном смысле — в самую суть.<br>Он зарекался, клялся, устал,<br>Но колода сказала: «Не забудь.»</em></p>
                 <p><em>Тридцать столов — тридцать минусов подряд,<br>Судьба смеётся, чат в сторонке молчит.<br>Он превзошёл себя — вот наш парад,<br>Кто в очко попал — тот в истории стоит.</em></p>
-                <p><em>По материалам чата клуба «Два туза». Цитаты героя сохранены.</em></p>
+                <p><em>По материалам чата клуба «Poker21». Цитаты героя сохранены.</em></p>
               </div>
               <p class="gazette-modal__share-row">
                 <button type="button" class="gazette-modal__share-btn gazette-modal__share-telegram" data-gazette-share="13" aria-label="Переслать новость">Переслать</button>
@@ -2876,7 +2851,7 @@
                 <p class="gazette-modal__photo-caption">DV Turbo 500, 5 марта 10:00. АндрюшаМорф побеждает и забирает кассу. Двойной удар за день — мистери за 1000₽ и ДВтурбо за 500₽.</p>
               </div>
               <div class="gazette-modal__body">
-                <p>В то время как Вааар тихой сапой копит баллы в рейтинге, как следователь улики, каждый день по кусочку строит своё дело победителя рейтинга и забирает то 50 баллов, то 60, а то и 135 — в это время АндрюшаМорф, как грубый налётчик, выносит дверь с ноги и забирает кассу двух турниров. Давно он не заявлял о себе, и чат забыл, почему в криминальном мире он известен как Легенда Два туза. «Ну как там с деньгами» — кричит он, срывая двери с петель, и забирает вчерашний мистери за 1000₽ в покер21 и ДВтурбо за 500₽, прихватив 2 чемодана денег на 85 000₽. Походу теперь опять мы увидим его не скоро 😁</p>
+                <p>В то время как Вааар тихой сапой копит баллы в рейтинге, как следователь улики, каждый день по кусочку строит своё дело победителя рейтинга и забирает то 50 баллов, то 60, а то и 135 — в это время АндрюшаМорф, как грубый налётчик, выносит дверь с ноги и забирает кассу двух турниров. Давно он не заявлял о себе, и чат забыл, почему в криминальном мире он известен как Легенда Poker21. «Ну как там с деньгами» — кричит он, срывая двери с петель, и забирает вчерашний мистери за 1000₽ в покер21 и ДВтурбо за 500₽, прихватив 2 чемодана денег на 85 000₽. Походу теперь опять мы увидим его не скоро 😁</p>
                 <p>В это время Пряник, весело гуляя по городу и пританцовывая, споткнулся о сателлит и упал головой прям в хайролл турнир за 17 500₽. Потеряв сознание и потратив все таймбанки, он очнулся на 12-м месте с призом +17 700₽ и в ужасе убежал с этого сборища психов.</p>
                 <p>Неподалёку, в соседнем районе орудовал хладнокровный снайпер Кинг0001. Он спокойно выжидал свою добычу несколько недель, лежа на одном месте — прохожие уже даже решили, что это просто труп. Да, он лежал на дороге, а не на крыше. Бам! Неожиданно прогремел выстрел из его винтовки, небольшой промах, не учёл силу ветра и попал во второе место в ДВ за 800₽. «В следующий раз я это учту» — решил он и стал ждать следующий вечерний ребайник за 800. Бам. Теперь он забыл про частоту своего дыхания и опять немного смазал, попав опять во второе место второй раз подряд. Итого +30к за день. Может быть пришло время сменить позицию?</p>
                 <p>Игрок с ником Один, наблюдая за этим всем со стороны, решил, что лучше работать одному, чтобы его не повязали из‑за неосторожного напарника. И доказал, что ОДИН в поле — воин, прихватив банк 40к в нокауте.</p>
@@ -2988,7 +2963,7 @@
                 <p class="gazette-modal__photo-caption">Эксклюзив: первый совместный образ. Покер и Warcraft III — вместе на одном кадре. Золото в руках, тузы в колоде.</p>
               </div>
               <div class="gazette-modal__body">
-                <p>Любители Warcraft III в восторге: никто и никогда не мог подумать, что покер и Warcraft III встретятся вместе — но «Два туза» и Poker 21 устроили им настоящее свидание. Свадьбы, скорее всего, не будет, зато уже есть плоды любви: на свет появились два новых смайла. Откуда они взялись? Редакция не настаивает на интимных подробностях — главное, что союз получился тёплым и весёлым.</p>
+                <p>Любители Warcraft III в восторге: никто и никогда не мог подумать, что покер и Warcraft III встретятся вместе — но «Poker21» и Poker 21 устроили им настоящее свидание. Свадьбы, скорее всего, не будет, зато уже есть плоды любви: на свет появились два новых смайла. Откуда они взялись? Редакция не настаивает на интимных подробностях — главное, что союз получился тёплым и весёлым.</p>
                 <p>Ожидают, что вскоре родятся ещё парочка смайлов — в духе легендарного «Нужно больше золота!» Игроки клуба уже шлют идеи: кто-то хочет эмодзи с кучей монет, кто-то — с лихом в мантии и тузом в рукаве. Как бы то ни было, покер и Варкрафт на одной странице — это уже история, и мы за ней следим.</p>
               </div>
               <p class="gazette-modal__share-row">
@@ -3008,7 +2983,7 @@
                 <p class="gazette-modal__photo-caption">Эксклюзив: кадр из чата в момент объявления. Вопросы, ответ и четыре рукопожатия — символ солидарности.</p>
               </div>
               <div class="gazette-modal__body">
-                <p>Невероятный скандал потряс «Два туза»: во вторник розыгрыш объявили отменённым. Реакция — как после удара молнии. Часть игроков обвинила руководство клуба в наплевательском отношении к их чувствам, другие впали в уныние, третьи — в самую настоящую депрессию. Нам удалось найти одного из главных завсегдатаев чата, который согласился высказаться строго анонимно. Назовём его Абсолем.</p>
+                <p>Невероятный скандал потряс «Poker21»: во вторник розыгрыш объявили отменённым. Реакция — как после удара молнии. Часть игроков обвинила руководство клуба в наплевательском отношении к их чувствам, другие впали в уныние, третьи — в самую настоящую депрессию. Нам удалось найти одного из главных завсегдатаев чата, который согласился высказаться строго анонимно. Назовём его Абсолем.</p>
                 <p>— Понимаете, — признаётся наш источник, — когда розыгрыши идут каждый день, к этому привыкаешь. А тут — пусто. Сначала не веришь. Отрицаешь. Потом накатывает гнев, и я пишу в чат: «Ах ты ублюдок, ты обманул нас, я расстроен!» Потом депрессия. Немного трясёт. Приходится заходить и смотреть чужие финалки, завидуя чужим нокаутам. Я даже плакал, когда турнир вечера стартовал. Как будто веселящийся лайнер уходит в путешествие, а я сижу в маленькой шлюпке, которая тонет от моих слёз.</p>
                 <p>В чате на сообщение об отмене уже поставили четыре рукопожатия — символ солидарности с теми, кто не смирился. Редакция будет следить за развитием драмы.</p>
               </div>
@@ -3249,7 +3224,7 @@
         <div class="daily-prediction-modal__backdrop"></div>
         <div class="daily-prediction-modal__inner">
           <button type="button" class="daily-prediction-modal__close" aria-label="Закрыть">×</button>
-          <h3 class="daily-prediction-modal__title" id="dailyPredictionTitle">Предсказание от клуба «Два туза»</h3>
+          <h3 class="daily-prediction-modal__title" id="dailyPredictionTitle">Предсказание от клуба «Poker21»</h3>
           <p class="daily-prediction-modal__text" id="dailyPredictionText"></p>
           <div class="daily-prediction-modal__actions">
             <span class="daily-prediction-modal__timer" id="dailyPredictionTimer"></span>
