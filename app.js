@@ -6861,7 +6861,7 @@ function initCashoutDepositForm() {
       window.__pendingDepositMessage = lines.join("\n");
       if (typeof setView === "function") setView("chat");
       setTimeout(function () {
-        if (typeof window.chatOpenConvFromDialogs === "function") window.chatOpenConvFromDialogs("tg_2144406710", "Анна");
+        if (typeof window.chatOpenClubFromDialogs === "function") window.chatOpenClubFromDialogs();
       }, 150);
     });
   }
@@ -10542,7 +10542,7 @@ function initChat() {
   var convTitle = document.getElementById("chatConvTitle");
   var convTitleIdWrap = document.getElementById("chatConvTitleIdWrap");
   var convTitleId = document.getElementById("chatConvTitleId");
-  var CHAT_ADMIN_IDS = ["tg_2144406710", "tg_1897001087", "tg_roman"];
+  var CHAT_ADMIN_IDS = [];
   var messagesEl = document.getElementById("chatMessages");
   var inputEl = document.getElementById("chatInput");
   var sendBtn = document.getElementById("chatSendBtn");
@@ -10961,6 +10961,16 @@ function initChat() {
       }
     } catch (err) {}
   }
+  function openClubChatWithPendingMessage() {
+    openClubChat();
+    if (window.__pendingDepositMessage) {
+      var genInp = document.getElementById("chatGeneralInput");
+      if (genInp) {
+        genInp.value = window.__pendingDepositMessage;
+        window.__pendingDepositMessage = null;
+      }
+    }
+  }
   function openConvFromDialogs(userId, userName, dtId) {
     if (typeof window.closeChatNavDropdown === "function") window.closeChatNavDropdown();
     if (dialogsView) dialogsView.classList.add("chat-dialogs-view--hidden");
@@ -10987,6 +10997,7 @@ function initChat() {
   window.chatSetTab = setTab;
   window.chatShowDialogs = showDialogs;
   window.chatOpenConvFromDialogs = openConvFromDialogs;
+  window.chatOpenClubFromDialogs = openClubChatWithPendingMessage;
 
   // Шаблоны сообщений (локально в браузере, вызываются через "/").
   // Формат: [{ title: string, text: string }]. Старый формат ({ text }) мигрируем на лету.
@@ -13685,24 +13696,8 @@ function initChat() {
     });
   }
 
-  var onlineAdminUserId = null;
-  var onlineAdminUserName = null;
-  var chatGeneralAdminsBtnOnlineEl = document.getElementById("chatGeneralAdminsBtnOnline");
-
-  function detectOnlineAdminFromDOM() {
-    if (!dialogsView) return { id: null, name: null };
-    var onlineEl = dialogsView.querySelector(".chat-dialog-item__online.chat-dialog-item__online--visible");
-    var item = onlineEl && onlineEl.closest ? onlineEl.closest(".chat-dialog-item") : null;
-    return {
-      id: item && item.dataset ? (item.dataset.chatUserId || null) : null,
-      name: item && item.dataset ? (item.dataset.chatUserName || null) : null,
-    };
-  }
-
   function updateAdminShiftOnline() {
     if (!dialogsView) return;
-    onlineAdminUserId = null;
-    onlineAdminUserName = null;
     var moscowHour = parseInt(new Date().toLocaleString("en-GB", { timeZone: "Europe/Moscow", hour: "2-digit", hour12: false }), 10);
     if (isNaN(moscowHour)) moscowHour = new Date().getUTCHours() + 3;
     if (moscowHour < 0) moscowHour += 24;
@@ -13719,20 +13714,7 @@ function initChat() {
       if (currentlyVisible !== !!onShift) {
         onEl.classList.toggle("chat-dialog-item__online--visible", !!onShift);
       }
-      if (onShift) {
-        onlineAdminUserId = btn.dataset.chatUserId || null;
-        onlineAdminUserName = btn.dataset.chatUserName || null;
-      }
     });
-    // На всякий случай синхронизируем выбранного админа с тем, что реально видно.
-    var detected = detectOnlineAdminFromDOM();
-    if (detected.id) {
-      onlineAdminUserId = detected.id;
-      onlineAdminUserName = detected.name;
-    }
-    if (chatGeneralAdminsBtnOnlineEl) {
-      chatGeneralAdminsBtnOnlineEl.textContent = onlineAdminUserName ? onlineAdminUserName + " онлайн" : "Админ онлайн";
-    }
   }
   updateAdminShiftOnline();
 
@@ -13740,14 +13722,6 @@ function initChat() {
     e.preventDefault();
     e.stopPropagation();
     showDialogs();
-  });
-  var chatGeneralAdminsBtn = document.getElementById("chatGeneralAdminsBtn");
-  if (chatGeneralAdminsBtn) chatGeneralAdminsBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    updateAdminShiftOnline();
-    if (onlineAdminUserId && typeof openConvFromDialogs === "function") openConvFromDialogs(onlineAdminUserId, onlineAdminUserName);
-    else showDialogs();
   });
 
   var chatGeneralDownloadBtn = document.querySelector('#chatGeneralView .chat-general-download-btn[data-view-target="download"][data-download-page]');
