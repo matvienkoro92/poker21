@@ -11510,6 +11510,27 @@ function initChat() {
     try { if (typeof updatePersonalSendBtnIcon === "function") updatePersonalSendBtnIcon(); } catch (e4) {}
   }
 
+  function applyEditedMessageToDom(messageId, newText, source) {
+    if (!messageId) return;
+    var selector = '.chat-msg[data-msg-id="' + String(messageId).replace(/"/g, '\\"') + '"]';
+    var root = source === "personal" ? messagesEl : generalMessages;
+    if (!root) return;
+    var msgEl = root.querySelector(selector);
+    if (!msgEl) return;
+    var textEl = msgEl.querySelector(".chat-msg__text");
+    if (textEl) {
+      var safeHtml = linkUrls(linkAppIds(linkTgUsernames(escapeHtml(String(newText)).replace(/\n/g, "<br>"))));
+      textEl.innerHTML = safeHtml;
+    }
+    var footer = msgEl.querySelector(".chat-msg__footer");
+    if (footer && !footer.querySelector(".chat-msg__edited")) {
+      var span = document.createElement("span");
+      span.className = "chat-msg__edited";
+      span.textContent = "(отредактировано)";
+      footer.insertBefore(span, footer.lastElementChild);
+    }
+  }
+
   function startChatEdit(src, msgId, oldText, fromName) {
     if (!src) return;
     // UI редактирования показываем всегда, а режим PATCH включаем только если есть id.
@@ -12107,6 +12128,7 @@ function initChat() {
         sendingGeneral = false;
         if (generalSendBtn) generalSendBtn.disabled = false;
         if (d && d.ok) {
+          applyEditedMessageToDom(chatEditMessageId, text, "general");
           clearChatEditUI();
           loadGeneral();
         } else if (tg && tg.showAlert) {
@@ -12643,6 +12665,7 @@ function initChat() {
         sendingPrivate = false;
         if (sendBtn) sendBtn.disabled = false;
         if (d && d.ok) {
+          applyEditedMessageToDom(chatEditMessageId, text, "personal");
           clearChatEditUI();
           loadMessages();
         } else if (tg && tg.showAlert) {
