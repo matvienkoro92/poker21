@@ -11985,12 +11985,46 @@ function initChat() {
             });
           }
         } else if (action === "edit" && msg.own && el) {
-          var msgId = msg.id;
-          // Берём "сырой" текст для редактирования:
-          // сначала msg.msgText (если есть), иначе обычный msg.text.
-          var oldText = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
-          if (!msgId) return;
-          startChatEdit(src, msgId, oldText, msg.fromName || msg.fromDtId || "Игрок");
+          var msgId = msg.id || null;
+          var oldTextRaw = (msg.msgText != null && msg.msgText !== "") ? msg.msgText : (msg.text || "");
+          var fromName = msg.fromName || msg.fromDtId || "Игрок";
+          // Включаем режим редактирования и сразу руками обновляем UI,
+          // не полагаясь только на вспомогательную функцию.
+          chatEditMode = !!msgId;
+          chatEditMessageId = msgId;
+          chatEditSource = src;
+          chatEditWith = src === "personal" ? chatWithUserId : null;
+          chatEditFromName = fromName;
+          chatIsEditingMessage = true;
+
+          generalReplyTo = null;
+          personalReplyTo = null;
+
+          if (src === "general") {
+            if (generalInput) {
+              generalInput.value = String(oldTextRaw == null ? "" : oldTextRaw);
+              try { resizeChatTextarea(generalInput); } catch (e1) {}
+              try { generalInput.focus(); } catch (e2) {}
+            }
+            var prevG2 = document.getElementById("chatGeneralReplyPreview");
+            if (prevG2) {
+              var txG2 = prevG2.querySelector(".chat-reply-preview__text");
+              if (txG2) txG2.textContent = "Редактирование: " + (fromName || "Игрок") + ": " + getQuotePreviewText(oldTextRaw);
+              prevG2.classList.add("chat-reply-preview--visible");
+            }
+          } else {
+            if (inputEl) {
+              inputEl.value = String(oldTextRaw == null ? "" : oldTextRaw);
+              try { resizeChatTextarea(inputEl); } catch (e3) {}
+              try { inputEl.focus(); } catch (e4) {}
+            }
+            var prevP2 = document.getElementById("chatPersonalReplyPreview");
+            if (prevP2) {
+              var txP2 = prevP2.querySelector(".chat-reply-preview__text");
+              if (txP2) txP2.textContent = "Редактирование: " + (fromName || "Игрок") + ": " + getQuotePreviewText(oldTextRaw);
+              prevP2.classList.add("chat-reply-preview--visible");
+            }
+          }
         } else if (action === "delete" && (msg.own || chatIsAdmin)) {
           if (!confirm("Удалить сообщение?")) return;
           var delBody = { initData: initData, messageId: msg.id };
