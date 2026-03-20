@@ -166,18 +166,12 @@ body::-webkit-scrollbar,
   background: linear-gradient(145deg, #5a6578 0%, #4a5568 50%, #2d3748 100%);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
-[data-theme="light"] .hero__link {
+[data-theme="light"] .hero__figure {
   box-shadow:
     0 0 12px rgba(255, 255, 255, 0.5),
     0 0 24px rgba(255, 255, 255, 0.2),
     0 4px 16px rgba(0, 0, 0, 0.15);
   border-color: rgba(255, 255, 255, 0.55);
-}
-[data-theme="light"] .hero__link:hover {
-  box-shadow:
-    0 0 18px rgba(255, 255, 255, 0.6),
-    0 0 32px rgba(255, 255, 255, 0.25),
-    0 6px 20px rgba(0, 0, 0, 0.18);
 }
 [data-theme="light"] .bonus-card {
   border-color: rgba(100, 116, 139, 0.4);
@@ -3940,6 +3934,7 @@ img.chat-contact__avatar {
 }
 .chat-group-modal__inner {
   position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 400px;
   max-height: 90vh;
@@ -6003,27 +5998,6 @@ html.app-view-home .feature--rating-spring-promo:hover,
   border-color: var(--accent);
   background: rgba(251, 191, 36, 0.08);
 }
-.learn-play-hub__training-btn {
-  display: block;
-  width: 100%;
-  margin-top: 8px;
-  padding: 14px 20px;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
-  text-decoration: none;
-  color: #111827;
-  background: linear-gradient(135deg, #fbbf24, #ef4444);
-  border: none;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.learn-play-hub__training-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5);
-}
 
 /* Видео-уроки */
 .video-lessons__intro {
@@ -7592,10 +7566,6 @@ a.home-mini-icon-item {
   line-height: 12px;
   padding: 0 3px;
 }
-.home-mini-icon-item .feature__badge--bottom-right {
-  bottom: 2px;
-  right: 2px;
-}
 .home-mini-icon--telegram {
   display: flex;
   align-items: center;
@@ -8288,15 +8258,13 @@ a.home-mini-icon-item {
   align-items: center;
 }
 
-.hero__link {
+.hero__figure {
   display: block;
   width: 88%;
   max-width: 100%;
   margin-left: 0;
   margin-right: auto;
   aspect-ratio: 1;
-  text-decoration: none;
-  color: inherit;
   position: relative;
   border-radius: 999px;
   overflow: hidden;
@@ -8305,13 +8273,6 @@ a.home-mini-icon-item {
     0 0 28px rgba(239, 68, 68, 0.18),
     0 4px 16px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(251, 191, 36, 0.45);
-  transition: box-shadow 0.2s ease;
-}
-.hero__link:hover {
-  box-shadow:
-    0 0 20px rgba(251, 191, 36, 0.5),
-    0 0 36px rgba(239, 68, 68, 0.22),
-    0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
 .hero__image,
@@ -9902,150 +9863,6 @@ a.home-mini-icon-item {
   box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(251, 191, 36, 0.12);
 }
 
-/* Модалка «Предсказание на день» — стиль похоже на весенний рейтинг, но компактнее */
-.daily-prediction-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
-}
-.daily-prediction-modal.daily-prediction-modal--open {
-  opacity: 1;
-  visibility: visible;
-}
-.daily-prediction-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  cursor: pointer;
-}
-.daily-prediction-modal__inner {
-  position: relative;
-  width: 100%;
-  max-width: 340px;
-  max-height: 80vh;
-  overflow: auto;
-  background: radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.4), transparent 60%), radial-gradient(circle at 100% 0, rgba(244, 114, 182, 0.4), transparent 60%), linear-gradient(180deg, rgba(28, 17, 15, 0.98), rgba(28, 17, 15, 0.96));
-  border-radius: 16px;
-  padding: 20px 16px 18px;
-  border: 1px solid rgba(129, 140, 248, 0.7);
-  box-shadow:
-    0 0 0 1px rgba(129, 140, 248, 0.35),
-    0 12px 40px rgba(28, 17, 15, 0.9),
-    0 4px 18px rgba(129, 140, 248, 0.4);
-}
-.daily-prediction-modal__close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: none;
-  background: rgba(28, 17, 15, 0.9);
-  color: #e5e7eb;
-  font-size: 20px;
-  cursor: pointer;
-}
-.daily-prediction-modal__title {
-  margin: 0 32px 10px 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #e5e7eb;
-  text-align: left;
-}
-.daily-prediction-modal__text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #e5e7eb;
-}
-[data-theme="light"] .daily-prediction-modal__inner {
-  background: linear-gradient(180deg, #fef9c3, #ffe4e6);
-  border-color: rgba(129, 140, 248, 0.7);
-  box-shadow:
-    0 0 0 1px rgba(129, 140, 248, 0.35),
-    0 12px 40px rgba(148, 163, 184, 0.6),
-    0 4px 18px rgba(129, 140, 248, 0.4);
-}
-[data-theme="light"] .daily-prediction-modal__title,
-[data-theme="light"] .daily-prediction-modal__text {
-  color: #1f2937;
-}
-[data-theme="light"] .daily-prediction-modal__close {
-  background: rgba(248, 250, 252, 0.9);
-  color: #111827;
-}
-.daily-prediction-modal__actions {
-  margin-top: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.daily-prediction-modal__timer {
-  font-size: 11px;
-  color: #9ca3af;
-}
-.daily-prediction-modal__share-btn {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ecfdf5;
-  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.5);
-}
-.daily-prediction-modal__share-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.6);
-}
-[data-theme="light"] .daily-prediction-modal__inner {
-  background: linear-gradient(180deg, #fef9c3, #ffe4e6);
-  border-color: rgba(129, 140, 248, 0.7);
-  box-shadow:
-    0 0 0 1px rgba(129, 140, 248, 0.35),
-    0 12px 40px rgba(148, 163, 184, 0.6),
-    0 4px 18px rgba(129, 140, 248, 0.4);
-}
-[data-theme="light"] .daily-prediction-modal__title,
-[data-theme="light"] .daily-prediction-modal__text {
-  color: #1f2937;
-}
-[data-theme="light"] .daily-prediction-modal__close {
-  background: rgba(248, 250, 252, 0.9);
-  color: #111827;
-}
-
-/* Бейдж предсказания: внизу справа внутри кнопки */
-.feature__badge--bottom-right {
-  top: auto;
-  bottom: -4px;
-  right: -4px;
-}
-[data-theme="light"] .daily-prediction-modal__inner {
-  background: linear-gradient(180deg, #fef9c3, #ffe4e6);
-  border-color: rgba(129, 140, 248, 0.7);
-  box-shadow:
-    0 0 0 1px rgba(129, 140, 248, 0.35),
-    0 12px 40px rgba(148, 163, 184, 0.6),
-    0 4px 18px rgba(129, 140, 248, 0.4);
-}
-[data-theme="light"] .daily-prediction-modal__title,
-[data-theme="light"] .daily-prediction-modal__text {
-  color: #1f2937;
-}
-[data-theme="light"] .daily-prediction-modal__close {
-  background: rgba(248, 250, 252, 0.9);
-  color: #111827;
-}
 .spring-rating-info-modal__close {
   position: absolute;
   top: 8px;

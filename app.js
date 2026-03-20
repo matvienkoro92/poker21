@@ -1359,14 +1359,6 @@ function runGazetteAndTasksInit() {
       }, 350);
     }, 0);
   }
-  if (startParam === "daily_prediction") {
-    setTimeout(function () {
-      if (typeof setView === "function") setView("home");
-      setTimeout(function () {
-        if (typeof openDailyPredictionModal === "function") openDailyPredictionModal();
-      }, 400);
-    }, 0);
-  }
   if (startParam === "stream") {
     setTimeout(function () { if (typeof setView === "function") setView("home"); }, 0);
   }
@@ -2229,165 +2221,6 @@ if (document.readyState === "loading") {
 window.addEventListener("pageshow", function (e) {
   if (e && e.persisted) scrollHomeToTop();
 });
-
-// Предсказание на день: тексты (расширенный список), без префиксов «День N»
-var POKER_DAILY_PREDICTIONS = [
-  "Сегодня твои тузы будут вести себя как короли на балу — все им кланяются, но помни: даже короли иногда проигрывают революцию.",
-  "Твои JJ сегодня — как два надежных друга: они всегда рядом, но иногда предают в самый неподходящий момент.",
-  "Сегодня ты на кнопке — как шеф-повар на кухне: все ингредиенты под рукой, но не пересоли с агрессией.",
-  "Твой стил сегодня — как грабитель в бархатных перчатках: тихо, элегантно, но иногда попадаешь на сигнализацию.",
-  "Твои блайнды сегодня — как крепостные стены: иногда их нужно защищать, даже если внутри только мыши и паутина.",
-  "Малый блайнд сегодня — как младший брат: всегда первый в драке, но редко выходит победителем.",
-  "Большой блайнд сегодня — как старый дуб: крепко стоит на своем, но молния может ударить в любую минуту.",
-  "Сегодня твой колл против кнопки — как танго с незнакомцем: страшно, но интригующе.",
-  "Твой большой блайнд против кат-оффа — как медведь в берлоге: кажется, спит, но проснется в самый неожиданный момент.",
-  "Твой 3-бет сегодня — как дорогое вино: чем старше, тем лучше, но не всем по вкусу.",
-  "Сегодня твой блефовый 3-бет — как фокусник: все видят, но никто не верит своим глазам.",
-  "Когда тебе делают 3-бет — как на экзамене: знаешь ответ, но боишься ошибиться.",
-  "Сегодня твой 3-бет/фолд — как романтическое свидание: идешь с надеждой, но готов уйти при первых признаках проблем.",
-  "Твой 4-бет сегодня — как ядерная кнопка: мощно, эффектно, но использовать можно только раз.",
-  "Сегодня твой блефовый 4-бет — как прыжок с парашютом: страшно, но адреналин того стоит.",
-  "Когда тебе делают 4-бет — как встреча с призраком: не веришь, но дрожь по спине пробегает.",
-  "Сегодня твоя префлоп-война — как шахматная партия: каждый ход просчитан, но соперник может сделать неожиданный.",
-  "Твой стил сегодня — как искусный вор: не просто берет, а оставляет визитную карточку.",
-  "Сегодня война блайндов — как соседские склоки: много шума, но мало смысла.",
-  "Твой сквиз сегодня — как бутерброд с колбасой: чем больше слоев, тем вкуснее.",
-  "Сегодня твой стил против лимперов — как сбор грибов в лесу: много мусора, но иногда находишь белый.",
-  "Война блайндов сегодня — как детская драка: много крика, но никто не пострадает.",
-  "Твой позиционный 3-бет — как удар с правого фланга: неожиданно, точно, болезненно.",
-  "3-бет с кнопки сегодня — как домашнее задание: делать лень, но надо.",
-  "3-бет с кат-оффа — как утренний кофе: бодрит, но может обжечь.",
-  "Сегодня твой 3-бет против кат-оффа — как спор двух профессоров: умно, но непонятно.",
-  "Твой чек-рейз сегодня — как засада в лесу: тихо ждешь, потом БАЦ!",
-  "Чек-рейз на флопе — как сюрприз на день рождения: все ждут, но всё равно удивляются.",
-  "На сухом флопе твой чек-рейз — как дождь в пустыне: редкий, но жизненно важный.",
-  "3-бет из малого блайнда — как вызов на дуэль: благородно, но опасно.",
-  "Сквиз из малого блайнда — как выход из запасного выхода: неожиданно, но эффективно.",
-  "Когда у тебя AA, а на флопе 7-8-9 — твои тузы как котик в коробке: милые, но совершенно беспомощные. Расслабься, это просто раздача.",
-  "JJ в ранней позиции — как крючки на тонкой леске: выглядят крепко, но могут оборваться в самый важный момент.",
-  "Сидеть на кнопке с 7-2o и думать «ну я же в позиции» — как выйти на балкон без парапета: формально вид красивый, но шаг в сторону и всё.",
-  "Стил с CO и украденные блайнды — как ограбление века в микроскопе: ощущаешь себя Оушеном, хотя забрал всего пару фишек.",
-  "Защищать BB с 9-3o в надежде увидеть флоп 9-9-3 — как ждать единорога в метро: теория не запрещает, но практика смеётся.",
-  "Малый блайнд — как младший брат в драке: первый вписывается, первый получает по шапке. Иногда лучше просто отойти в сторону.",
-  "Защищать большой блайнд как мать-одиночка — благородно, но помни: банк не даёт алименты за каждый колл.",
-  "Колл с 6-4s против кнопки «ну это же дро» — как вера в предвыборные обещания: звучит красиво, но редко доезжает.",
-  "Колл с любыми двумя против поздней позиции — как игра в угадайку: кажется, что он блефует, но чаще всего это просто вэлью.",
-  "3-бет с QQ и ощущение супергероя — классика жанра, но где-то рядом уже поджидают злодеи с KK и AA.",
-  "3-бет блеф с 7-2o «я читаю его как книгу» — как перепутать роман с инструкцией к микроволновке: буквы те же, смысл другой.",
-  "Когда тебе прилетает 3-бет и начинается внутренняя паника — просто дыши глубже: иногда лучший мув — честный фолд.",
-  "Сделал 3-бет и получил 4-бет — это как выйти в центр сцены и забыть текст: хочется продолжить, но иногда лучше поклониться и уйти.",
-  "4-бет с AA — как молитва о колле: половину раз срабатывает, а вторую половину тебе просто уважаемо скидывают.",
-  "4-бет блеф — как прыжок без проверки парашюта: если раскроется — легенда, если нет — учебный спот для разбора.",
-  "Получить 4-бет и думать «ну теперь-то точно AA» — как смотреть ужастик в десятый раз: знаешь концовку, но все равно страшно.",
-  "Префлопная война 3-бет/4-бет — как дуэль на рассвете: красиво со стороны, но кому-то всё равно придётся упасть.",
-  "Стилить как профессионал «тихо и незаметно» — это идеал, но в реальности тебя выдают звук фишек и лишний таймбанк.",
-  "Война блайндов — как ссора соседей: много шума, царапин и эмоций, а в итоге оба остаются немного в минусе."
-];
-
-function getDailyPredictionStorage() {
-  try {
-    var raw = localStorage.getItem("poker_daily_prediction_state");
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-function saveDailyPredictionStorage(state) {
-  try {
-    localStorage.setItem("poker_daily_prediction_state", JSON.stringify(state));
-  } catch (e) {}
-}
-
-function getTodayKey() {
-  var d = new Date();
-  var y = d.getFullYear();
-  var m = String(d.getMonth() + 1).padStart(2, "0");
-  var day = String(d.getDate()).padStart(2, "0");
-  return y + "-" + m + "-" + day;
-}
-
-function ensureTodayPredictionState() {
-  var key = getTodayKey();
-  var state = getDailyPredictionStorage();
-  var index;
-  if (state && state.date === key && typeof state.index === "number") {
-    index = state.index;
-  } else {
-    var prevIndex = state && typeof state.index === "number" ? state.index : null;
-    if (!POKER_DAILY_PREDICTIONS.length) {
-      index = 0;
-    } else {
-      index = Math.floor(Math.random() * POKER_DAILY_PREDICTIONS.length);
-      if (POKER_DAILY_PREDICTIONS.length > 1 && prevIndex != null && index === prevIndex) {
-        index = (index + 1) % POKER_DAILY_PREDICTIONS.length;
-      }
-    }
-    state = { date: key, index: index, read: false };
-    saveDailyPredictionStorage(state);
-  }
-  return state;
-}
-
-function getPokerDailyPredictionForToday() {
-  var state = ensureTodayPredictionState();
-  return POKER_DAILY_PREDICTIONS[state.index] || "";
-}
-
-function markDailyPredictionRead() {
-  var state = ensureTodayPredictionState();
-  if (!state.read) {
-    state.read = true;
-    saveDailyPredictionStorage(state);
-  }
-}
-
-function updateDailyPredictionBadge() {
-  var badge = document.getElementById("dailyPredictionBadge");
-  var preview = document.getElementById("dailyPredictionPreview");
-  if (!badge) return;
-  var state = ensureTodayPredictionState();
-  var unread = !state.read;
-  badge.classList.toggle("feature__badge--hidden", !unread);
-  badge.setAttribute("aria-hidden", unread ? "false" : "true");
-  if (preview && !unread) {
-    preview.textContent = "Совет на сегодня уже открыт";
-  }
-}
-
-var dailyPredictionTimerId = null;
-
-function formatMsToHms(ms) {
-  if (ms < 0) ms = 0;
-  var totalSec = Math.floor(ms / 1000);
-  var h = Math.floor(totalSec / 3600);
-  var m = Math.floor((totalSec % 3600) / 60);
-  var s = totalSec % 60;
-  function pad(n) { return n < 10 ? "0" + n : String(n); }
-  return pad(h) + ":" + pad(m) + ":" + pad(s);
-}
-
-function updateDailyPredictionTimer() {
-  var el = document.getElementById("dailyPredictionTimer");
-  if (!el) return;
-  var now = new Date();
-  var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-  var diff = tomorrow - now;
-  el.textContent = "Следующее через " + formatMsToHms(diff);
-}
-
-function startDailyPredictionTimer() {
-  updateDailyPredictionTimer();
-  if (dailyPredictionTimerId) clearInterval(dailyPredictionTimerId);
-  dailyPredictionTimerId = setInterval(updateDailyPredictionTimer, 1000);
-}
-
-function stopDailyPredictionTimer() {
-  if (dailyPredictionTimerId) {
-    clearInterval(dailyPredictionTimerId);
-    dailyPredictionTimerId = null;
-  }
-}
 
 function scrollHomeToTop() {
   if (!document.body || (document.body.getAttribute && document.body.getAttribute("data-view") !== "home")) return;
@@ -7471,7 +7304,7 @@ navItems.forEach(function (item) {
 });
 
 document.addEventListener("click", function (e) {
-  var interactive = e.target.closest("button, a[href], .feature--link, .home-mini-icon-item, .hero__link, .bottom-nav__item, [data-view-target], .feature, [role=\"button\"]");
+  var interactive = e.target.closest("button, a[href], .feature--link, .home-mini-icon-item, .bottom-nav__item, [data-view-target], .feature, [role=\"button\"]");
   if (interactive && !e.target.closest("audio, [aria-hidden=\"true\"]")) playClickSound();
 }, true);
 
@@ -7598,18 +7431,6 @@ document.addEventListener("click", function (e) {
 }, true);
 
 document.addEventListener("click", function (e) {
-  var trainingBtn = e.target && e.target.closest ? e.target.closest(".learn-play-hub__training-btn") : null;
-  if (trainingBtn) {
-    var href = trainingBtn.getAttribute("href");
-    if (href && href.indexOf("t.me") !== -1) {
-      e.preventDefault();
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg && tg.openTelegramLink) tg.openTelegramLink(href);
-      else if (tg && tg.openLink) tg.openLink(href);
-      else window.open(href, "_blank", "noopener,noreferrer");
-    }
-    return;
-  }
   var attachment = e.target && e.target.closest ? e.target.closest(".video-lessons__attachment") : null;
   if (attachment) {
     var href = attachment.getAttribute("href");
@@ -7662,75 +7483,6 @@ function initVideoLessons() {}
   document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
   tryChillRadioPlay();
 })();
-
-// Модалка «Предсказание на день»
-function openDailyPredictionModal() {
-  var modal = document.getElementById("dailyPredictionModal");
-  if (!modal) return;
-  var textEl = document.getElementById("dailyPredictionText");
-  if (textEl) {
-    textEl.textContent = getPokerDailyPredictionForToday();
-  }
-  markDailyPredictionRead();
-  updateDailyPredictionBadge();
-  modal.setAttribute("aria-hidden", "false");
-  modal.classList.add("daily-prediction-modal--open");
-   startDailyPredictionTimer();
-  if (document.body) document.body.style.overflow = "hidden";
-}
-
-function closeDailyPredictionModal() {
-  var modal = document.getElementById("dailyPredictionModal");
-  if (!modal) return;
-  modal.setAttribute("aria-hidden", "true");
-  modal.classList.remove("daily-prediction-modal--open");
-  stopDailyPredictionTimer();
-  if (document.body) document.body.style.overflow = "";
-}
-
-(function initDailyPredictionModal() {
-  var btn = document.getElementById("dailyPredictionBtn");
-  var modal = document.getElementById("dailyPredictionModal");
-  if (!btn || !modal) return;
-  var closeBtn = modal.querySelector(".daily-prediction-modal__close");
-  var backdrop = modal.querySelector(".daily-prediction-modal__backdrop");
-  var shareBtn = document.getElementById("dailyPredictionShareBtn");
-  btn.addEventListener("click", function (e) {
-    e.preventDefault();
-    openDailyPredictionModal();
-  });
-  if (closeBtn) closeBtn.addEventListener("click", function () { closeDailyPredictionModal(); });
-  if (backdrop) backdrop.addEventListener("click", function () { closeDailyPredictionModal(); });
-  if (shareBtn && !shareBtn._bound) {
-    shareBtn._bound = true;
-    shareBtn.addEventListener("click", function () {
-      var predictionTextEl = document.getElementById("dailyPredictionText");
-      var prediction = predictionTextEl ? predictionTextEl.textContent.trim() : "";
-      var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
-      appUrl = appUrl.replace(/\/$/, "");
-      var link = appUrl + "?startapp=daily_prediction";
-      var shortText = "Моё покерное предсказание на сегодня:";
-      if (prediction) shortText += "\n\n" + prediction;
-      shortText += "\n\nПосмотрите своё предсказание здесь —\n" + link;
-      var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent(shortText);
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink(shareUrl);
-      } else if (tg && tg.openLink) {
-        tg.openLink(shareUrl);
-      } else {
-        window.open(shareUrl, "_blank");
-      }
-      if (typeof recordShareButtonClick === "function") recordShareButtonClick("daily_prediction");
-    });
-  }
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") closeDailyPredictionModal();
-  });
-  // Обновляем бейдж при инициализации
-  updateDailyPredictionBadge();
-})(); 
 
 (function initChatNavDropdown() {
   window.closeChatNavDropdown = function () {};
@@ -14178,74 +13930,170 @@ function initChat() {
   }
   window.openChatCreateGroupModal = openChatCreateGroupModal;
 
-  if (chatCreateGroupModal) {
-    var cmb = document.getElementById("chatCreateGroupModalBackdrop");
-    var cmc = document.getElementById("chatCreateGroupModalClose");
-    var cmcancel = document.getElementById("chatCreateGroupCancelBtn");
-    var cmsubmit = document.getElementById("chatCreateGroupSubmitBtn");
-    if (cmb) cmb.addEventListener("click", closeChatCreateGroupModal);
-    if (cmc) cmc.addEventListener("click", closeChatCreateGroupModal);
-    if (cmcancel) cmcancel.addEventListener("click", closeChatCreateGroupModal);
-    if (cmsubmit) cmsubmit.addEventListener("click", function () {
-      var hintEl = document.getElementById("chatCreateGroupHint");
-      var titleInp = document.getElementById("chatCreateGroupTitleInput");
-      var memInp = document.getElementById("chatCreateGroupMemberInput");
-      var titleVal = (titleInp && titleInp.value || "").trim().slice(0, 60);
-      var raw = (memInp && memInp.value || "").trim();
-      if (!initData || !base) return;
-      function finishCreate(d2) {
-        cmsubmit.disabled = false;
-        if (d2 && d2.ok && d2.group && d2.group.id) {
-          closeChatCreateGroupModal();
-          openGroupFromDialogs(d2.group.id, d2.group.title || titleVal || "Группа");
-          loadContacts();
-        } else if (d2) {
-          if (hintEl) hintEl.textContent = (d2 && d2.error) || "Не удалось создать";
+  if (!window.__p21ChatGroupModalsUiBound && (chatCreateGroupModal || chatGroupManageModal)) {
+    window.__p21ChatGroupModalsUiBound = true;
+    function p21ChatAuthAtClick() {
+      var wtg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      var idata = wtg && wtg.initData ? wtg.initData : "";
+      var apiBase = typeof getApiBase === "function" ? getApiBase() : "";
+      return { wtg: wtg, initData: idata, base: apiBase };
+    }
+    function p21ParseChatJson(r) {
+      return r.text().then(function (t) {
+        try {
+          return t ? JSON.parse(t) : {};
+        } catch (e) {
+          return { ok: false, error: r.ok ? "Некорректный ответ сервера" : ("Ошибка " + r.status) };
         }
-      }
-      if (!raw) {
-        if (hintEl) hintEl.textContent = "Создаём…";
+      });
+    }
+    if (chatCreateGroupModal) {
+      var cmb = document.getElementById("chatCreateGroupModalBackdrop");
+      var cmc = document.getElementById("chatCreateGroupModalClose");
+      var cmcancel = document.getElementById("chatCreateGroupCancelBtn");
+      var cmsubmit = document.getElementById("chatCreateGroupSubmitBtn");
+      if (cmb) cmb.addEventListener("click", closeChatCreateGroupModal);
+      if (cmc) cmc.addEventListener("click", closeChatCreateGroupModal);
+      if (cmcancel) cmcancel.addEventListener("click", closeChatCreateGroupModal);
+      if (cmsubmit) cmsubmit.addEventListener("click", function () {
+        var hintEl = document.getElementById("chatCreateGroupHint");
+        var titleInp = document.getElementById("chatCreateGroupTitleInput");
+        var memInp = document.getElementById("chatCreateGroupMemberInput");
+        var titleVal = (titleInp && titleInp.value || "").trim().slice(0, 60);
+        var raw = (memInp && memInp.value || "").trim();
+        var auth = p21ChatAuthAtClick();
+        if (!auth.initData || !auth.base) {
+          if (hintEl) hintEl.textContent = "Нужен вход через Telegram и адрес API.";
+          if (auth.wtg && auth.wtg.showAlert) auth.wtg.showAlert("Откройте приложение в Telegram, чтобы создать групповой чат.");
+          return;
+        }
+        function finishCreate(d2) {
+          cmsubmit.disabled = false;
+          if (d2 && d2.ok && d2.group && d2.group.id) {
+            closeChatCreateGroupModal();
+            openGroupFromDialogs(d2.group.id, d2.group.title || titleVal || "Группа");
+            loadContacts();
+          } else if (d2) {
+            if (hintEl) hintEl.textContent = (d2 && d2.error) || "Не удалось создать";
+          } else if (hintEl) {
+            hintEl.textContent = "Пустой ответ сервера";
+          }
+        }
+        if (!raw) {
+          if (hintEl) hintEl.textContent = "Создаём…";
+          cmsubmit.disabled = true;
+          fetch(auth.base + "/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: auth.initData, action: "groupCreate", title: titleVal || undefined }),
+          }).then(p21ParseChatJson).then(finishCreate).catch(function () {
+            cmsubmit.disabled = false;
+            if (hintEl) hintEl.textContent = "Ошибка сети";
+          });
+          return;
+        }
+        var idPart = raw.replace(/^@/, "").toUpperCase();
+        var byId = /^\d{6}$/.test(idPart) || /^ID\d{6}$/.test(idPart) || (idPart.startsWith("ID") && idPart.length === 8 && /^ID\d{6}$/.test(idPart));
+        var urlResolve;
+        if (byId) {
+          var id = idPart.startsWith("ID") ? idPart : "ID" + idPart;
+          urlResolve = auth.base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(auth.initData);
+        } else {
+          urlResolve = auth.base + "/api/users?username=" + encodeURIComponent(raw.replace(/^@/, "")) + "&initData=" + encodeURIComponent(auth.initData);
+        }
+        if (hintEl) hintEl.textContent = "Проверяем…";
         cmsubmit.disabled = true;
-        fetch(base + "/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData, action: "groupCreate", title: titleVal || undefined }),
-        }).then(function (r2) { return r2.json(); }).then(finishCreate).catch(function () {
+        fetch(urlResolve).then(p21ParseChatJson).then(function (ud) {
+          if (!ud || !ud.ok || !ud.userId) {
+            cmsubmit.disabled = false;
+            if (hintEl) hintEl.textContent = (ud && ud.error) || "Игрок не найден";
+            return null;
+          }
+          return fetch(auth.base + "/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: auth.initData, action: "groupCreate", title: titleVal || undefined, memberId: ud.userId }),
+          }).then(p21ParseChatJson);
+        }).then(function (d2) {
+          if (d2 === null) return;
+          finishCreate(d2);
+        }).catch(function () {
           cmsubmit.disabled = false;
           if (hintEl) hintEl.textContent = "Ошибка сети";
         });
-        return;
-      }
-      var idPart = raw.replace(/^@/, "").toUpperCase();
-      var byId = /^\d{6}$/.test(idPart) || /^ID\d{6}$/.test(idPart) || (idPart.startsWith("ID") && idPart.length === 8 && /^ID\d{6}$/.test(idPart));
-      var urlResolve;
-      if (byId) {
-        var id = idPart.startsWith("ID") ? idPart : "ID" + idPart;
-        urlResolve = base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData);
-      } else {
-        urlResolve = base + "/api/users?username=" + encodeURIComponent(raw.replace(/^@/, "")) + "&initData=" + encodeURIComponent(initData);
-      }
-      if (hintEl) hintEl.textContent = "Проверяем…";
-      cmsubmit.disabled = true;
-      fetch(urlResolve).then(function (r) { return r.json(); }).then(function (ud) {
-        if (!ud || !ud.ok || !ud.userId) {
-          cmsubmit.disabled = false;
-          if (hintEl) hintEl.textContent = (ud && ud.error) || "Игрок не найден";
-          return null;
-        }
-        return fetch(base + "/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData, action: "groupCreate", title: titleVal || undefined, memberId: ud.userId }),
-        }).then(function (r2) { return r2.json(); });
-      }).then(function (d2) {
-        if (d2 === null) return;
-        finishCreate(d2);
-      }).catch(function () {
-        cmsubmit.disabled = false;
-        if (hintEl) hintEl.textContent = "Ошибка сети";
       });
-    });
+    }
+    var chatGroupSettingsBtnEl = document.getElementById("chatGroupSettingsBtn");
+    if (chatGroupSettingsBtnEl) chatGroupSettingsBtnEl.addEventListener("click", function () { openChatGroupManageModal(); });
+    if (chatGroupManageModal) {
+      var gmb = document.getElementById("chatGroupManageModalBackdrop");
+      var gmc = document.getElementById("chatGroupManageModalClose");
+      var gcopy = document.getElementById("chatGroupCopyLinkBtn");
+      var gaddbtn = document.getElementById("chatGroupAddMemberBtn");
+      if (gmb) gmb.addEventListener("click", closeChatGroupManageModal);
+      if (gmc) gmc.addEventListener("click", closeChatGroupManageModal);
+      if (gcopy) gcopy.addEventListener("click", function () {
+        var li = document.getElementById("chatGroupInviteLinkInput");
+        var t = li && li.value ? li.value : getChatGroupInviteUrl(chatGroupId);
+        if (t && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t).then(function () {
+            var hm = document.getElementById("chatGroupManageHint");
+            if (hm) hm.textContent = "Ссылка скопирована";
+            var wtg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (wtg && wtg.showAlert) wtg.showAlert("Ссылка скопирована");
+          }).catch(function () {});
+        }
+      });
+      if (gaddbtn) gaddbtn.addEventListener("click", function () {
+        var hin = document.getElementById("chatGroupManageHint");
+        var ain = document.getElementById("chatGroupAddMemberInput");
+        var rawA = (ain && ain.value || "").trim();
+        var authA = p21ChatAuthAtClick();
+        if (!rawA || !chatGroupId) { if (hin) hin.textContent = "Введите ID или ник"; return; }
+        if (!authA.initData || !authA.base) {
+          if (hin) hin.textContent = "Откройте в Telegram";
+          if (authA.wtg && authA.wtg.showAlert) authA.wtg.showAlert("Откройте приложение в Telegram.");
+          return;
+        }
+        var idPartA = rawA.replace(/^@/, "").toUpperCase();
+        var byIdA = /^\d{6}$/.test(idPartA) || /^ID\d{6}$/.test(idPartA) || (idPartA.startsWith("ID") && idPartA.length === 8 && /^ID\d{6}$/.test(idPartA));
+        var urlA;
+        if (byIdA) {
+          var idA = idPartA.startsWith("ID") ? idPartA : "ID" + idPartA;
+          urlA = authA.base + "/api/users?id=" + encodeURIComponent(idA) + "&initData=" + encodeURIComponent(authA.initData);
+        } else {
+          urlA = authA.base + "/api/users?username=" + encodeURIComponent(rawA.replace(/^@/, "")) + "&initData=" + encodeURIComponent(authA.initData);
+        }
+        gaddbtn.disabled = true;
+        fetch(urlA).then(p21ParseChatJson).then(function (ud) {
+          if (!ud || !ud.ok || !ud.userId) {
+            gaddbtn.disabled = false;
+            if (hin) hin.textContent = (ud && ud.error) || "Не найдено";
+            return;
+          }
+          return fetch(authA.base + "/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData: authA.initData, action: "groupAddMember", groupId: chatGroupId, memberId: ud.userId }),
+          }).then(p21ParseChatJson).then(function (d2) {
+            gaddbtn.disabled = false;
+            if (d2 && d2.ok) {
+              if (ain) ain.value = "";
+              if (hin) hin.textContent = "Добавлено";
+              openChatGroupManageModal();
+              loadContacts();
+              lastPersonalMessagesSig = null;
+              loadMessages();
+            } else {
+              if (hin) hin.textContent = (d2 && d2.error) || "Ошибка";
+            }
+          });
+        }).catch(function () {
+          gaddbtn.disabled = false;
+          if (hin) hin.textContent = "Ошибка сети";
+        });
+      });
+    }
   }
 
   function closeChatGroupManageModal() {
@@ -14263,7 +14111,10 @@ function initChat() {
     if (linkIn) linkIn.value = getChatGroupInviteUrl(chatGroupId);
     chatGroupManageModal.classList.add("chat-group-modal--open");
     chatGroupManageModal.setAttribute("aria-hidden", "false");
-    fetch(base + "/api/chat?initData=" + encodeURIComponent(initData) + "&group=" + encodeURIComponent(chatGroupId))
+    var authM = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp.initData : "";
+    var baseM = typeof getApiBase === "function" ? getApiBase() : "";
+    if (!authM || !baseM) return;
+    fetch(baseM + "/api/chat?initData=" + encodeURIComponent(authM) + "&group=" + encodeURIComponent(chatGroupId))
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var titleM = document.getElementById("chatGroupManageTitle");
@@ -14282,70 +14133,6 @@ function initChat() {
         var listM2 = document.getElementById("chatGroupManageMembersList");
         if (listM2) listM2.textContent = "Ошибка загрузки";
       });
-  }
-  var chatGroupSettingsBtnEl = document.getElementById("chatGroupSettingsBtn");
-  if (chatGroupSettingsBtnEl) chatGroupSettingsBtnEl.addEventListener("click", function () { openChatGroupManageModal(); });
-  if (chatGroupManageModal) {
-    var gmb = document.getElementById("chatGroupManageModalBackdrop");
-    var gmc = document.getElementById("chatGroupManageModalClose");
-    var gcopy = document.getElementById("chatGroupCopyLinkBtn");
-    var gaddbtn = document.getElementById("chatGroupAddMemberBtn");
-    if (gmb) gmb.addEventListener("click", closeChatGroupManageModal);
-    if (gmc) gmc.addEventListener("click", closeChatGroupManageModal);
-    if (gcopy) gcopy.addEventListener("click", function () {
-      var li = document.getElementById("chatGroupInviteLinkInput");
-      var t = li && li.value ? li.value : getChatGroupInviteUrl(chatGroupId);
-      if (t && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(t).then(function () {
-          var hm = document.getElementById("chatGroupManageHint");
-          if (hm) hm.textContent = "Ссылка скопирована";
-          if (tg && tg.showAlert) tg.showAlert("Ссылка скопирована");
-        }).catch(function () {});
-      }
-    });
-    if (gaddbtn) gaddbtn.addEventListener("click", function () {
-      var hin = document.getElementById("chatGroupManageHint");
-      var ain = document.getElementById("chatGroupAddMemberInput");
-      var rawA = (ain && ain.value || "").trim();
-      if (!rawA || !chatGroupId || !initData) { if (hin) hin.textContent = "Введите ID или ник"; return; }
-      var idPartA = rawA.replace(/^@/, "").toUpperCase();
-      var byIdA = /^\d{6}$/.test(idPartA) || /^ID\d{6}$/.test(idPartA) || (idPartA.startsWith("ID") && idPartA.length === 8 && /^ID\d{6}$/.test(idPartA));
-      var urlA;
-      if (byIdA) {
-        var idA = idPartA.startsWith("ID") ? idPartA : "ID" + idPartA;
-        urlA = base + "/api/users?id=" + encodeURIComponent(idA) + "&initData=" + encodeURIComponent(initData);
-      } else {
-        urlA = base + "/api/users?username=" + encodeURIComponent(rawA.replace(/^@/, "")) + "&initData=" + encodeURIComponent(initData);
-      }
-      gaddbtn.disabled = true;
-      fetch(urlA).then(function (r) { return r.json(); }).then(function (ud) {
-        if (!ud || !ud.ok || !ud.userId) {
-          gaddbtn.disabled = false;
-          if (hin) hin.textContent = (ud && ud.error) || "Не найдено";
-          return;
-        }
-        return fetch(base + "/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: initData, action: "groupAddMember", groupId: chatGroupId, memberId: ud.userId }),
-        }).then(function (r2) { return r2.json(); }).then(function (d2) {
-          gaddbtn.disabled = false;
-          if (d2 && d2.ok) {
-            if (ain) ain.value = "";
-            if (hin) hin.textContent = "Добавлено";
-            openChatGroupManageModal();
-            loadContacts();
-            lastPersonalMessagesSig = null;
-            loadMessages();
-          } else {
-            if (hin) hin.textContent = (d2 && d2.error) || "Ошибка";
-          }
-        });
-      }).catch(function () {
-        gaddbtn.disabled = false;
-        if (hin) hin.textContent = "Ошибка сети";
-      });
-    });
   }
 
   window.chatJoinAndOpenGroup = function (gid) {
@@ -14882,7 +14669,6 @@ updateVisitorCounter();
 (function initShareStatsAdminModal() {
   var SHARE_BUTTON_LABELS = {
     tournament_day: "Турнир дня (Позвать друга)",
-    daily_prediction: "Предсказание на день",
     gazette_article: "Газета (новость)",
     winter_rating_week_top: "Рейтинг — топы недели",
     winter_rating_spring_top: "Рейтинг весны — топы",
