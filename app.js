@@ -14192,8 +14192,30 @@ function initChat() {
       var memInp = document.getElementById("chatCreateGroupMemberInput");
       var titleVal = (titleInp && titleInp.value || "").trim().slice(0, 60);
       var raw = (memInp && memInp.value || "").trim();
-      if (!raw) { if (hintEl) hintEl.textContent = "Укажите игрока"; return; }
       if (!initData || !base) return;
+      function finishCreate(d2) {
+        cmsubmit.disabled = false;
+        if (d2 && d2.ok && d2.group && d2.group.id) {
+          closeChatCreateGroupModal();
+          openGroupFromDialogs(d2.group.id, d2.group.title || titleVal || "Группа");
+          loadContacts();
+        } else if (d2) {
+          if (hintEl) hintEl.textContent = (d2 && d2.error) || "Не удалось создать";
+        }
+      }
+      if (!raw) {
+        if (hintEl) hintEl.textContent = "Создаём…";
+        cmsubmit.disabled = true;
+        fetch(base + "/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: initData, action: "groupCreate", title: titleVal || undefined }),
+        }).then(function (r2) { return r2.json(); }).then(finishCreate).catch(function () {
+          cmsubmit.disabled = false;
+          if (hintEl) hintEl.textContent = "Ошибка сети";
+        });
+        return;
+      }
       var idPart = raw.replace(/^@/, "").toUpperCase();
       var byId = /^\d{6}$/.test(idPart) || /^ID\d{6}$/.test(idPart) || (idPart.startsWith("ID") && idPart.length === 8 && /^ID\d{6}$/.test(idPart));
       var urlResolve;
@@ -14218,14 +14240,7 @@ function initChat() {
         }).then(function (r2) { return r2.json(); });
       }).then(function (d2) {
         if (d2 === null) return;
-        cmsubmit.disabled = false;
-        if (d2 && d2.ok && d2.group && d2.group.id) {
-          closeChatCreateGroupModal();
-          openGroupFromDialogs(d2.group.id, d2.group.title || titleVal || "Группа");
-          loadContacts();
-        } else if (d2) {
-          if (hintEl) hintEl.textContent = (d2 && d2.error) || "Не удалось создать";
-        }
+        finishCreate(d2);
       }).catch(function () {
         cmsubmit.disabled = false;
         if (hintEl) hintEl.textContent = "Ошибка сети";
