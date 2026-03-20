@@ -111,7 +111,7 @@
   }
   function getAppUrl() {
     var appEl = document.getElementById("app");
-    return ((appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza").replace(/\/$/, "");
+    return ((appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start").replace(/\/$/, "");
   }
   function copyShareLink() {
     var link = getAppUrl();
@@ -372,7 +372,7 @@ function updateSpringRatingPromoDateFromVar() {
 }
 // Рейтинг весны: одна база для ссылок топов. Топы текущей недели = BASE?Mart_week_1=1, Топы Марта = BASE?mart=1
 // Укажите сюда полный URL (например https://t.me/... или ссылку на пост), параметры допишутся автоматически
-var SPRING_TOP_LINK_BASE = "https://t.me/Poker_dvatuza_bot/DvaTuza";
+var SPRING_TOP_LINK_BASE = "https://t.me/poker21app_bot/start";
 
 function normalizeWinterNick(n) {
   n = n != null ? String(n).trim() : "";
@@ -614,7 +614,7 @@ function runGazetteAndTasksInit() {
   if (backdrop) backdrop.addEventListener("click", closeGazette);
 
   var appEl = document.getElementById("app");
-  var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+  var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
   appUrl = appUrl.replace(/\/$/, "");
   modal.addEventListener("click", function (e) {
     var ratingLink = e.target && e.target.closest ? e.target.closest("a[data-close-gazette][data-view-target]") : null;
@@ -1950,7 +1950,7 @@ setTimeout(function () {
   if (shareBtn) {
     shareBtn.addEventListener("click", function () {
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var type = currentModalLinkType === "current"
         ? "rating_top_current"
@@ -2046,7 +2046,7 @@ if (tg) {
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
   var isLight = document.documentElement.getAttribute("data-theme") === "light";
   if (tg.setBackgroundColor) tg.setBackgroundColor(isLight ? "#ffedd5" : "#0f172a");
-  // По ссылке t.me/Poker_dvatuza_bot/DvaTuza всегда открываем в полный экран.
+  // В Mini App всегда открываем в полный экран.
   // Повторные вызовы expand() с задержкой и при событиях помогают развернуть на части устройств.
   function tryExpand() {
     if (tg.expand) tg.expand();
@@ -5544,7 +5544,7 @@ function initWinterRatingPlayerModal() {
       var nick = modal._winterPlayerModalNick || (titleEl && titleEl.textContent) || "";
       if (!nick) return;
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
       var startApp = isSpring ? "spring_rating_player_" : "winter_rating_player_";
@@ -5570,7 +5570,7 @@ function initWinterRatingPlayerModal() {
       var nick = modal._winterPlayerModalNick || (titleEl && titleEl.textContent) || "";
       if (!nick) return;
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
       var startApp = isSpring ? "spring_rating_player_" : "winter_rating_player_";
@@ -5841,7 +5841,7 @@ function initWinterRating() {
       e.preventDefault();
       e.stopPropagation();
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var isSpring = typeof isSpringRatingMode === "function" && isSpringRatingMode();
       var startApp = isSpring ? "spring_rating_date_" + String(dateStr).replace(/\./g, "_") : "rating_" + String(dateStr).replace(/\./g, "_");
@@ -5866,7 +5866,7 @@ function initWinterRating() {
       if (!shareBtn || !shareBtn.dataset.springLeague) return;
       e.preventDefault();
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=spring_rating_league_" + shareBtn.dataset.springLeague;
       var msg = shareBtn.dataset.springLeague === "1" ? "Ссылка скопирована. Отправьте другу — откроется рейтинг Лиги 1." : "Ссылка скопирована. Отправьте другу — откроется рейтинг Лиги 2.";
@@ -9180,7 +9180,7 @@ function initRaffles() {
     rafflesCopyLinkBtn.setAttribute("data-share-bound", "1");
     rafflesCopyLinkBtn.addEventListener("click", function () {
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
       var msg = "Ссылка скопирована. Отправьте другу — откроется раздел розыгрышей.";
@@ -9202,7 +9202,7 @@ function initRaffles() {
   if (rafflesInviteFriendBtn) {
     rafflesInviteFriendBtn.addEventListener("click", function () {
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
       var shareUrl = "https://t.me/share/url?url=&text=" + encodeURIComponent("Привет бро, клуб Poker21 снова разыгрывает беккинг-билеты на турниры бесплатно, заходи участвуй)\n" + link);
@@ -9221,7 +9221,7 @@ function initRaffles() {
       var totalPrize = getRaffleTotalPrize(raffle);
       var tournamentName = raffleDisplayPrizeText((raffle.title || (groups[0] && groups[0].prize) || "").trim()) || "турнир клуба";
       var appEl = document.getElementById("app");
-      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      var appUrl = (appEl && appEl.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
       appUrl = appUrl.replace(/\/$/, "");
       var link = appUrl + "?startapp=raffles";
       var text =
@@ -13902,7 +13902,7 @@ function initChat() {
   }
 
   var appElChatGroup = document.getElementById("app");
-  var telegramChatAppUrl = (appElChatGroup && appElChatGroup.getAttribute("data-telegram-app-url")) || "https://t.me/Poker_dvatuza_bot/DvaTuza";
+  var telegramChatAppUrl = (appElChatGroup && appElChatGroup.getAttribute("data-telegram-app-url")) || "https://t.me/poker21app_bot/start";
   function getChatGroupInviteUrl(gid) {
     if (!gid) return "";
     var u = telegramChatAppUrl;
@@ -15357,7 +15357,7 @@ function handleTournamentDayShare() {
     var appEl = document.getElementById("app");
     var appUrl =
       (appEl && appEl.getAttribute("data-telegram-app-url")) ||
-      "https://t.me/Poker_dvatuza_bot/DvaTuza";
+      "https://t.me/poker21app_bot/start";
     appUrl = appUrl.replace(/\/$/, "");
     var link = appUrl + "?startapp=schedule";
     var text;
