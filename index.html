@@ -1115,6 +1115,14 @@
                   <span class="chat-dialog-item__main-label">Главный чат</span>
                   <span class="chat-dialog-item__unread" id="chatDialogClubUnread" aria-hidden="true"></span>
                 </button>
+                <button type="button" class="chat-dialog-item chat-dialog-item--new-group" id="chatDialogNewGroup" tabindex="-1" aria-label="Создать групповой чат">
+                  <span class="chat-dialog-item__avatar chat-dialog-item__avatar--icon chat-dialog-item__avatar--plus" aria-hidden="true">＋</span>
+                  <span class="chat-dialog-item__club-wrap">
+                    <span class="chat-dialog-item__label">Новый чат</span>
+                    <span class="chat-dialog-item__preview">Группа с игроками</span>
+                  </span>
+                  <span class="chat-dialog-item__main-label">Создать</span>
+                </button>
                 </div>
                 <div class="chat-contacts chat-contacts--in-dialogs" id="chatContacts">
                   <p class="chat-empty">Загрузка...</p>
@@ -1174,6 +1182,7 @@
                         <span class="chat-conv-title__id" id="chatConvTitleId"></span>
                       </span>
                       <span class="chat-conv-title__role" id="chatConvTitleRole"></span>
+                      <button type="button" class="chat-conv-group-btn chat-conv-group-btn--hidden" id="chatGroupSettingsBtn" aria-label="Участники и ссылка">⋯</button>
                     </div>
                   </div>
                 </div>
@@ -2864,6 +2873,53 @@
               <span class="chat-user-modal__friend-msg" id="chatUserModalFriendMsg" aria-live="polite"></span>
             </div>
             <button type="button" class="chat-user-modal__write-btn" id="chatUserModalWriteBtn">Написать</button>
+          </div>
+        </div>
+      </div>
+      <div class="chat-group-modal" id="chatCreateGroupModal" aria-hidden="true" role="dialog" aria-label="Новый групповой чат">
+        <div class="chat-group-modal__backdrop" id="chatCreateGroupModalBackdrop"></div>
+        <div class="chat-group-modal__inner" role="document">
+          <div class="chat-group-modal__header">
+            <h3 class="chat-group-modal__title">Групповой чат</h3>
+            <button type="button" class="chat-group-modal__close" id="chatCreateGroupModalClose" aria-label="Закрыть">×</button>
+          </div>
+          <div class="chat-group-modal__body">
+            <label class="chat-group-modal__label">Название (необязательно)
+              <input type="text" class="chat-group-modal__input" id="chatCreateGroupTitleInput" maxlength="60" placeholder="Например: Турнир пятница" autocomplete="off" />
+            </label>
+            <label class="chat-group-modal__label">Первый участник — ID (ID123456) или ник в Telegram
+              <input type="text" class="chat-group-modal__input" id="chatCreateGroupMemberInput" maxlength="35" placeholder="Обязательно добавьте одного игрока" autocomplete="off" />
+            </label>
+            <p class="chat-group-modal__hint" id="chatCreateGroupHint" aria-live="polite"></p>
+            <div class="chat-group-modal__actions">
+              <button type="button" class="chat-group-modal__btn chat-group-modal__btn--ghost" id="chatCreateGroupCancelBtn">Отмена</button>
+              <button type="button" class="chat-group-modal__btn chat-group-modal__btn--primary" id="chatCreateGroupSubmitBtn">Создать</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-group-modal" id="chatGroupManageModal" aria-hidden="true" role="dialog" aria-label="Групповой чат">
+        <div class="chat-group-modal__backdrop" id="chatGroupManageModalBackdrop"></div>
+        <div class="chat-group-modal__inner" role="document">
+          <div class="chat-group-modal__header">
+            <h3 class="chat-group-modal__title" id="chatGroupManageTitle">Чат</h3>
+            <button type="button" class="chat-group-modal__close" id="chatGroupManageModalClose" aria-label="Закрыть">×</button>
+          </div>
+          <div class="chat-group-modal__body">
+            <p class="chat-group-modal__section-title">Ссылка-приглашение</p>
+            <div class="chat-group-modal__link-row">
+              <input type="text" class="chat-group-modal__input chat-group-modal__input--mono" id="chatGroupInviteLinkInput" readonly aria-label="Ссылка" />
+              <button type="button" class="chat-group-modal__btn chat-group-modal__btn--primary" id="chatGroupCopyLinkBtn">Копировать</button>
+            </div>
+            <p class="chat-group-modal__section-title">Участники</p>
+            <div class="chat-group-modal__members" id="chatGroupManageMembersList"></div>
+            <label class="chat-group-modal__label">Добавить по ID или нику
+              <input type="text" class="chat-group-modal__input" id="chatGroupAddMemberInput" maxlength="35" placeholder="ID123456 или @ник" autocomplete="off" />
+            </label>
+            <p class="chat-group-modal__hint" id="chatGroupManageHint" aria-live="polite"></p>
+            <div class="chat-group-modal__actions">
+              <button type="button" class="chat-group-modal__btn chat-group-modal__btn--primary" id="chatGroupAddMemberBtn">Добавить</button>
+            </div>
           </div>
         </div>
       </div>
