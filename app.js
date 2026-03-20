@@ -2042,6 +2042,12 @@ const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : 
 
 if (tg) {
   tg.ready();
+  function trySyncChatInitAfterTgReady() {
+    if (typeof window.__pokerChatSyncInitData === "function") window.__pokerChatSyncInitData();
+  }
+  setTimeout(trySyncChatInitAfterTgReady, 0);
+  setTimeout(trySyncChatInitAfterTgReady, 300);
+  setTimeout(trySyncChatInitAfterTgReady, 1500);
   if (tg.expand) tg.expand();
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
   var isLight = document.documentElement.getAttribute("data-theme") === "light";
@@ -2068,10 +2074,12 @@ if (tg) {
   });
   document.addEventListener("click", function expandOnFirstClick() {
     tryExpand();
+    trySyncChatInitAfterTgReady();
     document.removeEventListener("click", expandOnFirstClick);
   }, { once: true, capture: true });
   document.addEventListener("touchstart", function expandOnFirstTouch() {
     tryExpand();
+    trySyncChatInitAfterTgReady();
     document.removeEventListener("touchstart", expandOnFirstTouch);
   }, { once: true, passive: true, capture: true });
   // requestFullscreen() не вызываем: после него на части устройств (iOS) перестают работать клики по кнопкам
@@ -2320,6 +2328,7 @@ function setView(viewName) {
     }
   }
   if (viewName === "chat") {
+    if (typeof window.__pokerChatSyncInitData === "function") window.__pokerChatSyncInitData();
     if (!window.chatListenersAttached && typeof initChat === "function") {
       var idleChat = window.requestIdleCallback || function (cb) { setTimeout(cb, 100); };
       idleChat(function () { initChat(); });
@@ -10312,7 +10321,17 @@ function initChat() {
   if (!generalView || !personalView || !generalMessages) return;
 
   var base = getApiBase();
-  var initData = tg && tg.initData ? tg.initData : "";
+  var initData = "";
+  function syncChatInitData() {
+    try {
+      var w = window.Telegram && window.Telegram.WebApp;
+      initData = (w && w.initData) || "";
+    } catch (e) {
+      initData = "";
+    }
+  }
+  syncChatInitData();
+  window.__pokerChatSyncInitData = syncChatInitData;
 
   var chatUserModalEl = document.getElementById("chatUserModal");
   var chatUserModalUserId = null;
@@ -10361,6 +10380,7 @@ function initChat() {
       if (modalRespectDown) modalRespectDown.disabled = myVote === "down";
     }
     function openChatUserModalById(id, name, avatarUrl) {
+      syncChatInitData();
       var userName = name || "Игрок";
       if (!id || !chatUserModalEl) {
         if (id) { setTab("personal"); showConv(id, userName); }
@@ -10439,6 +10459,7 @@ function initChat() {
     }
     if (modalRespectUp) {
       modalRespectUp.addEventListener("click", function () {
+        syncChatInitData();
         if (!chatUserModalUserId || !base || !initData) return;
         if (modalRespectUp.disabled) return;
         modalRespectUp.disabled = true;
@@ -10462,6 +10483,7 @@ function initChat() {
     }
     if (modalRespectDown) {
       modalRespectDown.addEventListener("click", function () {
+        syncChatInitData();
         if (!chatUserModalUserId || !base || !initData) return;
         if (modalRespectDown.disabled) return;
         modalRespectDown.disabled = true;
@@ -10485,6 +10507,7 @@ function initChat() {
     }
     if (modalAddFriend) {
       modalAddFriend.addEventListener("click", function () {
+        syncChatInitData();
         if (!chatUserModalUserId || !base || !initData || modalAddFriend.disabled) return;
         modalAddFriend.disabled = true;
         fetch(base + "/api/friends", {
@@ -10513,6 +10536,7 @@ function initChat() {
       respectVotersModalEl.setAttribute("aria-hidden", "true");
     }
     function loadRespectVotersList(userId) {
+      syncChatInitData();
       if (!userId || !rvUpEl || !rvDownEl || !base || !initData) return;
       rvUpEl.textContent = "";
       rvDownEl.textContent = "Загрузка…";
@@ -10541,6 +10565,7 @@ function initChat() {
     if (rvClose) rvClose.addEventListener("click", closeRespectVotersModal);
     if (rvBtnUp) {
       rvBtnUp.addEventListener("click", function () {
+        syncChatInitData();
         var targetId = respectVotersModalEl.dataset.targetUserId;
         if (!targetId || !base || !initData || rvBtnUp.disabled) return;
         rvBtnUp.disabled = true;
@@ -10557,6 +10582,7 @@ function initChat() {
     }
     if (rvBtnDown) {
       rvBtnDown.addEventListener("click", function () {
+        syncChatInitData();
         var targetId = respectVotersModalEl.dataset.targetUserId;
         if (!targetId || !base || !initData || rvBtnDown.disabled) return;
         rvBtnDown.disabled = true;
@@ -11099,6 +11125,7 @@ function initChat() {
   var reactionPickerEl = document.getElementById("chatReactionPicker");
   var currentReactionPickerClose = null;
   function sendReaction(msgId, emoji, source, withId, groupId) {
+    syncChatInitData();
     if (!msgId || !emoji || !initData) return;
     var body = { initData: initData, action: "reaction", messageId: msgId, emoji: emoji };
     if (groupId) body.groupId = groupId;
@@ -11178,6 +11205,7 @@ function initChat() {
     e.stopPropagation();
     var id = idLink.dataset.appId;
     if (!id || !/^ID\d{6}$/.test(id)) return;
+    syncChatInitData();
     fetch(base + "/api/users?id=" + encodeURIComponent(id) + "&initData=" + encodeURIComponent(initData))
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -11194,6 +11222,7 @@ function initChat() {
   });
 
   function loadGeneral() {
+    syncChatInitData();
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=general";
     fetch(url).then(function (r) { return r.json().catch(function () { return { ok: false, error: "Ошибка ответа" }; }); }).then(function (data) {
       if (data && data.ok) {
@@ -11939,6 +11968,7 @@ function initChat() {
     generalMessages.scrollTop = generalMessages.scrollHeight;
   }
   function sendGeneral() {
+    syncChatInitData();
     var text = (generalInput && generalInput.value || "").trim();
     // Редактирование сообщения: отправляем PATCH, а не POST нового.
     if (chatEditMode && chatEditSource === "general" && chatEditMessageId) {
@@ -12165,6 +12195,7 @@ function initChat() {
   }
 
   function loadContacts() {
+    syncChatInitData();
     if (!contactsEl) return;
     var lastViewedParam = "";
     try {
@@ -12267,6 +12298,7 @@ function initChat() {
 
 
   function loadAdminsOnline() {
+    syncChatInitData();
     if (!adminsView || !initData) return;
     var url = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&mode=adminOnline";
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
@@ -12412,6 +12444,7 @@ function initChat() {
   }
 
   function loadMessages() {
+    syncChatInitData();
     if (!messagesEl) return;
     if (chatGroupId) {
       var urlG = base + "/api/chat?initData=" + encodeURIComponent(initData) + "&group=" + encodeURIComponent(chatGroupId);
@@ -12553,6 +12586,7 @@ function initChat() {
     }
   }
   function sendMessage() {
+    syncChatInitData();
     var text = (inputEl && inputEl.value || "").trim();
     // Редактирование сообщения: отправляем PATCH, а не новое сообщение.
     if (chatEditMode && chatEditSource === "personal" && chatEditMessageId) {
@@ -14136,6 +14170,7 @@ function initChat() {
   }
 
   window.chatJoinAndOpenGroup = function (gid) {
+    syncChatInitData();
     if (!gid || !/^grp_[a-f0-9]{18}$/.test(String(gid)) || !base || !initData) return;
     fetch(base + "/api/chat", {
       method: "POST",
@@ -14163,6 +14198,7 @@ function initChat() {
 
   if (chatPollInterval) clearInterval(chatPollInterval);
   chatPollInterval = setInterval(function () {
+    syncChatInitData();
     loadGeneral();
     if (chatWithUserId || chatGroupId) loadMessages();
     else if (dialogsView && !dialogsView.classList.contains("chat-dialogs-view--hidden")) loadContacts();
