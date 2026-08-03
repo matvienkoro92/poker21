@@ -7312,6 +7312,19 @@ navItems.forEach(function (item) {
   });
 });
 
+window.loadVideoLessonNative = function loadVideoLessonNative(videoEl) {
+  var publicUrl = videoEl && videoEl.getAttribute("data-disk-public");
+  if (!publicUrl || videoEl.src) return;
+  fetch("/api/yandex-disk-play?public_key=" + encodeURIComponent(publicUrl))
+    .then(function (res) { return res.json(); })
+    .then(function (body) {
+      if (!body || !body.ok || !body.href) throw new Error("video_url_unavailable");
+      videoEl.src = body.href;
+      videoEl.load();
+    })
+    .catch(function () {});
+};
+
 document.addEventListener("click", function (e) {
   var interactive = e.target.closest("button, a[href], .feature--link, .home-mini-icon-item, .bottom-nav__item, [data-view-target], .feature, [role=\"button\"]");
   if (interactive && !e.target.closest("audio, [aria-hidden=\"true\"]")) playClickSound();
@@ -7459,6 +7472,9 @@ document.addEventListener("click", function (e) {
   var playerWrap = card ? card.querySelector(".video-lessons__player-wrap") : null;
   if (!card || !playerWrap) return;
   var isOpen = !playerWrap.classList.contains("video-lessons__player-wrap--hidden");
+  document.querySelectorAll(".video-lessons__video").forEach(function (video) {
+    try { video.pause(); } catch (err) {}
+  });
   document.querySelectorAll(".video-lessons__player-wrap").forEach(function (w) {
     w.classList.add("video-lessons__player-wrap--hidden");
   });
@@ -7474,6 +7490,8 @@ document.addEventListener("click", function (e) {
     card.classList.add("video-lessons__card--open");
     var url = item.getAttribute("data-video-url");
     if (url && url !== "#") {
+      var nativeVideo = playerWrap.querySelector(".video-lessons__video[data-disk-public]");
+      if (nativeVideo) window.loadVideoLessonNative(nativeVideo);
       var iframe = playerWrap.querySelector(".video-lessons__iframe[data-video-src]");
       if (iframe && !iframe.src) iframe.src = iframe.getAttribute("data-video-src") || url;
     }
@@ -15267,13 +15285,13 @@ if (typeof initChat === "function") initChat();
 if (typeof initPokerShowsPlayer === "function") initPokerShowsPlayer();
 
 var TOURNAMENT_OF_DAY_BY_WEEKDAY = [
-  { name: "Турнир Недели Нокаут Меджик", buyin: "2 000₽", guarantee: "250 000₽" },
-  { name: "Magic MKO", buyin: "500₽", guarantee: "100 000₽" },
-  { name: "Rebuy", buyin: "300₽", guarantee: "100 000₽" },
-  { name: "Rebuy", buyin: "100₽", guarantee: "50 000₽" },
-  { name: "Нокаут Мистери", buyin: "1 000₽", guarantee: "150 000₽" },
-  { name: "Нокаут Прогрессив", buyin: "500₽", guarantee: "100 000₽" },
-  { name: "Фриролл", buyin: "Бесплатно", guarantee: "150 000₽" }
+  { name: "PKO Нокаут Прогрессив", buyin: "2 000₽", guarantee: "300 000₽", banner: "home-tournament-sunday-pko-progressive-300k.webp" },
+  { name: "Magic MKO", buyin: "500₽", guarantee: "170 000₽", banner: "home-tournament-monday-mystery-bounty-170k.webp" },
+  { name: "Турнир Тракториста", buyin: "300₽", guarantee: "150 000₽", banner: "home-tournament-tuesday-tractor-150k-r300-a500.webp" },
+  { name: "Нокаут", buyin: "5 000₽", guarantee: "300 000₽", banner: "home-tournament-wednesday-knockout-300k.webp" },
+  { name: "Мистери", buyin: "300₽", guarantee: "100 000₽", banner: "home-tournament-thursday-mystery-100k.webp" },
+  { name: "Нокаут Прогрессив", buyin: "500₽", guarantee: "170 000₽", banner: "home-tournament-friday-knockout-progressive-170k.webp" },
+  { name: "Субботний турнир", buyin: "350₽ · R:350₽ / A:350₽", guarantee: "5 билетов по 10 000₽", banner: "home-tournament-wednesday-knockout-300k.webp" }
 ];
 
 function updateTournamentDayBlock() {
@@ -15317,6 +15335,9 @@ function updateTournamentDayBlock() {
   function formatTimer() {
     var n = new Date();
     var state = getTournamentDayState(n);
+    document.querySelectorAll("[data-evening-day]").forEach(function (row) {
+      row.classList.toggle("home-evening-tournament--today", Number(row.getAttribute("data-evening-day")) === state.weekday);
+    });
     var nameStr = state.t ? state.t.name : "";
     var buyinStr = state.t ? state.t.buyin : "";
     var guaranteeStr = state.t ? state.t.guarantee : "";
@@ -15347,22 +15368,7 @@ function updateTournamentDayBlock() {
     var trophyImg = document.getElementById("tournamentDayTrophyImg");
     var scheduleTrophyImg = document.getElementById("scheduleTournamentDayTrophyImg");
     var weekday = state.weekday;
-    var trophyFile;
-    if (nameStr === "Фриролл") {
-      trophyFile = "tournament-day-trophy.png";
-    } else if (weekday === 0) {
-      // Воскресный турнир недели
-      trophyFile = "tournament-day-sunday.png";
-    } else if (weekday === 3) {
-      // Среда — специальный кубок Moscow Poker Open 100 рублей
-      trophyFile = "tournament-day-moscow-open-100.png";
-    } else if (weekday === 2) {
-      // Турнир дня вторника — трактор
-      trophyFile = "tournament-day-tuesday.png";
-    } else {
-      // По умолчанию — классический кубок клуба
-      trophyFile = "tournament-day-two-aces.png";
-    }
+    var trophyFile = state.t && state.t.banner ? state.t.banner : "home-tournament-monday-mystery-bounty-170k.webp";
     var trophySrc = typeof getAssetUrl === "function" ? getAssetUrl(trophyFile) : "";
     if (trophyImg && trophySrc) {
       trophyImg.src = trophySrc;

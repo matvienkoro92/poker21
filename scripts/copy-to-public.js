@@ -13,7 +13,9 @@ const publicDir = path.join(root, 'public');
 const toCopy = [
   'index.html',
   'styles.css',
+  'styles-transfers.css',
   'app.js',
+  'app-transfers.js',
   'winter-rating-data.js',
   'updates-data.js',
   'preview-iphone.html',

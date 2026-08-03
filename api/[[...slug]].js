@@ -42,6 +42,8 @@ const handlers = {
   friends: () => require(path.join(handlersDir, "friends.js")),
   "share-button-stats": () => require(path.join(handlersDir, "share-button-stats.js")),
   "admin-report-shifts": () => require(path.join(handlersDir, "admin-report-shifts.js")),
+  transfers: () => require(path.join(handlersDir, "transfers.js")),
+  "yandex-disk-play": () => require(path.join(handlersDir, "yandex-disk-play.js")),
 };
 
 module.exports = async function handler(req, res) {

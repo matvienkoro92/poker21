@@ -23,6 +23,7 @@
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
+    <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
       .app.app--view-home { background: #0c0605 !important; }
@@ -154,99 +155,49 @@
         <section class="card__content">
           <!-- Главная -->
           <div class="view view--active" data-view="home">
-            <div class="home-welcome-outline">
-            <div class="welcome-title-row">
-              <div class="welcome-title-wrap">
-                <h1 class="title title--welcome">Добро пожаловать, Каталкинс!</h1>
-              </div>
+            <div class="home-top-menu" aria-label="Poker21">
+              <img src="./assets/logo-two-aces.png" alt="" class="home-top-menu__logo" />
+              <span class="home-top-menu__title">Poker21</span>
             </div>
-            <div class="hero-row">
-              <div class="hero">
-                <div class="hero__figure">
-                  <img
-                    src="./assets/logo-two-aces.png"
-                    alt="Poker21"
-                    class="hero__video hero__image"
-                  />
-                </div>
-              </div>
-              <div class="home-mini-icons">
-                <a
-                  class="home-mini-icon-item home-mini-icon-item--white home-mini-icon-item--hover-scale"
-                  href="https://t.me/+S-OvDj1TB5ZkMjky"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Чат в ТГ"
-                  aria-label="Чат в ТГ"
-                >
-                  <span class="home-mini-icon" aria-hidden="true">💬</span>
-                  <span class="home-mini-icon__label">Чат в ТГ</span>
-                </a>
-                <a
-                  class="home-mini-icon-item home-mini-icon-item--white home-mini-icon-item--hover-scale"
-                  href="https://t.me/poker21_news"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Канал"
-                  aria-label="Канал"
-                >
-                  <span class="home-mini-icon" aria-hidden="true">📡</span>
-                  <span class="home-mini-icon__label">Канал</span>
-                </a>
-              </div>
-            </div>
-
-            </div>
-
-            <div class="tournament-day-home-wrap">
-              <h2 class="tournament-day-home-wrap__title">Турнир дня</h2>
-              <a href="#" class="tournament-day-block tournament-day-block--home feature feature--link feature--app" data-view-target="schedule" aria-label="Турнир дня — перейти к расписанию">
-                <div class="feature__icon feature__icon--games feature__icon--trophy-img">
-                  <img id="tournamentDayTrophyImg" alt="" class="tournament-day-block__trophy-img tournament-day-block__trophy-img--hidden" width="80" height="80" />
-                </div>
-                <div class="feature__body tournament-day-block__body">
-                  <div class="feature__title tournament-day-block__name" id="tournamentDayName">—</div>
-                  <div class="feature__desc tournament-day-block__meta"><span id="tournamentDayBuyin">—</span> · <span id="tournamentDayGuarantee">—</span> · 18:00<br><span class="tournament-day-block__timer-label" id="tournamentDayTimerLabel"></span><span class="tournament-day-block__timer" id="tournamentDayTimer">—</span></div>
-                  <span class="tournament-day-block__cta">Расписание &gt;&gt;</span>
-                </div>
+            <a href="#" class="home-transfer-featured" data-view-target="transfers" aria-label="Разместить или взять реквизиты">
+              <span class="home-transfer-featured__icon" aria-hidden="true">💸</span>
+              <span class="home-transfer-featured__text">Разместить / взять реквизиты</span>
+              <span class="home-transfer-featured__arrow" aria-hidden="true">›</span>
+            </a>
+            <h2 class="home-quick-actions-title">Для ваших игроков</h2>
+            <nav class="home-quick-actions" aria-label="Быстрые разделы">
+              <a href="#" class="home-quick-action home-quick-action--schedule" data-view-target="schedule">
+                <span class="home-quick-action__suit" aria-hidden="true">♦</span><span class="home-quick-action__icon" aria-hidden="true">🗓️</span><span class="home-quick-action__label">Полное расписание турниров</span>
               </a>
-              <div class="tournament-day-actions-row">
-                <button
-                  type="button"
-                  class="tournament-day-share-btn"
-                  id="tournamentDayShareBtn"
-                  aria-label="Позвать друга на турнир дня"
-                >
-                  Позвать друга
-                </button>
-              </div>
-            </div>
-
-            <h2 class="features-section-title features-section-title--games">Игры и приложения</h2>
-            <div class="games-apps-block">
-                <div class="games-apps-grid">
-                <a href="#" class="feature feature--link feature--app" data-view-target="equilator" aria-label="Эквилятор">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📊</span></div>
-                  <div class="feature__body">
-                    <div class="feature__title">Эквилятор</div>
-                  </div>
-                </a>
-                <a href="#" class="feature feature--link feature--app" data-view-target="learn-play-hub">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📚</span></div>
-                  <div class="feature__body">
-                    <div class="feature__title">Научиться играть</div>
-                    <div class="feature__desc">Задачи и видео-уроки</div>
-                  </div>
-                </a>
-                <a href="#" class="feature feature--link feature--app" data-view-target="streams" aria-label="Стримы">
-                  <div class="feature__icon feature__icon--games"><span class="feature__icon-emoji" aria-hidden="true">📺</span></div>
-                  <div class="feature__body">
-                    <div class="feature__title">Стримы</div>
-                    <div class="feature__desc">(в разработке)</div>
-                  </div>
+              <a href="#" class="home-quick-action home-quick-action--learn" data-view-target="learn-play-hub">
+                <span class="home-quick-action__suit" aria-hidden="true">♥</span><span class="home-quick-action__icon" aria-hidden="true">📚</span><span class="home-quick-action__label">Уроки по покеру</span>
+              </a>
+              <a href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener noreferrer" class="home-quick-action home-quick-action--vpn">
+                <span class="home-quick-action__suit" aria-hidden="true">♣</span><span class="home-quick-action__icon" aria-hidden="true">🛡️</span><span class="home-quick-action__label">VPN от Poker21<br>за 100 ₽/мес</span>
+              </a>
+            </nav>
+            <section class="home-evening-tournaments" aria-labelledby="homeEveningTournamentsTitle">
+              <h2 class="home-evening-tournaments__title" id="homeEveningTournamentsTitle"><span>Турниры вечера в 18 МСК</span></h2>
+              <div class="home-evening-tournaments__layout">
+                <div class="home-evening-tournaments__week" aria-label="Турниры на неделю">
+                  <a href="#" class="home-evening-tournament" data-evening-day="1" data-view-target="schedule"><b>ПН</b><span><strong>Приз 170 000 ₽</strong><small>Magic MKO · 500 ₽ · 18:00 МСК</small></span></a>
+                  <a href="#" class="home-evening-tournament" data-evening-day="2" data-view-target="schedule"><b>ВТ</b><span><strong>Приз 150 000 ₽</strong><small>Турнир Тракториста · 300 ₽ · 18:00 МСК</small></span></a>
+                  <a href="#" class="home-evening-tournament" data-evening-day="3" data-view-target="schedule"><b>СР</b><span><strong>Приз 300 000 ₽</strong><small>Нокаут · 5 000 ₽ · 18:00 МСК</small></span></a>
+                  <a href="#" class="home-evening-tournament" data-evening-day="4" data-view-target="schedule"><b>ЧТ</b><span><strong>Приз 100 000 ₽</strong><small>Мистери · 300 ₽ · 18:00 МСК</small></span></a>
+                  <a href="#" class="home-evening-tournament" data-evening-day="5" data-view-target="schedule"><b>ПТ</b><span><strong>Приз 170 000 ₽</strong><small>Нокаут Прогрессив · 500 ₽ · 18:00 МСК</small></span></a>
+                  <a href="#" class="home-evening-tournament" data-evening-day="6" data-view-target="schedule"><b>СБ</b><span><strong>5 билетов по 10 000 ₽</strong><small>Субботний турнир · 350 ₽ · 18:00 МСК</small></span></a>
+                  <a href="#" class="home-evening-tournament" data-evening-day="0" data-view-target="schedule"><b>ВС</b><span><strong>Приз 300 000 ₽</strong><small>PKO Нокаут Прогрессив · 2 000 ₽ · 18:00 МСК</small></span></a>
+                </div>
+                <a href="#" class="home-evening-tournaments__poster" data-view-target="schedule" aria-label="Открыть расписание турниров">
+                  <img id="tournamentDayTrophyImg" alt="Афиша турнира вечера" class="tournament-day-block__trophy-img tournament-day-block__trophy-img--hidden" />
+                  <span class="home-evening-tournaments__poster-data" hidden>
+                    <strong id="tournamentDayName">—</strong>
+                    <small><span id="tournamentDayBuyin">—</span> · приз <span id="tournamentDayGuarantee">—</span></small>
+                    <em><span id="tournamentDayTimerLabel"></span><span id="tournamentDayTimer">—</span></em>
+                  </span>
                 </a>
               </div>
-              </div>
+            </section>
 
             <footer class="card__footer card__footer--home" id="homeFooter">
               <p class="footer-note">
@@ -1250,14 +1201,130 @@
             </div>
           </div>
 
++          <!-- Переводы -->
+          <div class="view" data-view="transfers" id="transfersView">
+            <section class="transfers-page" aria-labelledby="transfersTitle">
+              <header class="transfers-page__header">
+                <button type="button" class="bonus-game-back transfers-page__back" data-view-target="home" aria-label="На главную">←</button>
+                <div class="transfers-page__heading">
+                  <h1 class="title transfers-page__title" id="transfersTitle">Переводы</h1>
+                  <p class="transfers-page__viewer" id="transfersViewerId" hidden></p>
+                </div>
+                <div class="transfers-page__actions">
+                  <button type="button" class="transfers-page__subscribe" id="transfersSubscribeBtn" aria-pressed="false">Подписаться</button>
+                  <button type="button" class="transfers-page__share" data-transfers-share-section aria-label="Поделиться разделом Переводы">Поделиться</button>
+                </div>
+              </header>
+
+              <p class="transfers-page__access-locked" id="transfersAccessLocked" hidden></p>
+
+              <form class="transfers-create" id="transfersCreateForm" autocomplete="off" hidden>
+                <div class="transfers-create__mode">
+                  <div class="transfers-create__mode-btn transfers-create__mode-btn--heading" role="heading" aria-level="2">
+                    <span class="transfers-create__mode-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v4c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 10v4c0 1.7 3.1 3 7 3s7-1.3 7-3v-4"/><path d="M5 14v4c0 1.7 3.1 3 7 3s7-1.3 7-3v-4"/><path d="M12 4.6v2.8"/><path d="M10.7 5.4h2.6"/></svg>
+                    </span>
+                    <span>Хочу вывести</span>
+                  </div>
+                </div>
+                <div class="transfers-create__grid">
+                  <label class="transfers-field transfers-field--amount">
+                    <span class="transfers-field__label">Сумма</span>
+                    <input class="transfers-field__input" id="transfersAmountInput" type="number" min="1" max="2500" step="1" inputmode="numeric" placeholder="до 2500 ₽" required />
+                  </label>
+                  <label class="transfers-field transfers-field--comment">
+                    <span class="transfers-field__label">Комментарий</span>
+                    <input class="transfers-field__input" id="transfersCommentInput" type="text" maxlength="240" placeholder="необязательно" />
+                    <button type="button" class="transfers-field__emoji-toggle" id="transfersCommentEmojiToggle" aria-label="Добавить смайл" aria-expanded="false">☺</button>
+                    <span class="transfers-field__emoji-picker" id="transfersCommentEmojiPicker" aria-label="Смайлы" hidden>
+                      <button type="button" data-transfers-comment-emoji="👍">👍</button>
+                      <button type="button" data-transfers-comment-emoji="🤝">🤝</button>
+                      <button type="button" data-transfers-comment-emoji="😊">😊</button>
+                      <button type="button" data-transfers-comment-emoji="🔥">🔥</button>
+                      <button type="button" data-transfers-comment-emoji="💰">💰</button>
+                      <button type="button" data-transfers-comment-emoji="✅">✅</button>
+                      <button type="button" data-transfers-comment-emoji="🙏">🙏</button>
+                      <button type="button" data-transfers-comment-emoji="🎉">🎉</button>
+                    </span>
+                  </label>
+                </div>
+                <div class="transfers-field transfers-field--details" id="transfersDetailsField">
+                  <span class="transfers-field__label" id="transfersDetailsLabel">Реквизиты</span>
+                  <span class="transfers-field__hint">Эти данные увидят только игроки 10+ уровня.</span>
+                  <label class="transfers-requisites__bank">
+                    <span>Банк</span>
+                    <input class="transfers-field__input" id="transfersBankInput" type="text" maxlength="80" placeholder="Название банка" autocomplete="organization" />
+                  </label>
+                  <label class="transfers-requisites__recipient">
+                    <span>Получатель (ФИО)</span>
+                    <input class="transfers-field__input" id="transfersRecipientInput" type="text" maxlength="120" placeholder="Получатель (ФИО)" autocomplete="name" />
+                  </label>
+                  <div class="transfers-requisites__numbers">
+                    <label>
+                      <span>Номер</span>
+                      <input class="transfers-field__input" id="transfersPhoneInput" type="tel" maxlength="18" placeholder="+7 (999) 999-99-99" autocomplete="tel" inputmode="tel" />
+                    </label>
+                    <span class="transfers-requisites__or">или</span>
+                    <label>
+                      <span>Номер карты</span>
+                      <input class="transfers-field__input" id="transfersCardInput" type="text" maxlength="40" placeholder="Номер карты" autocomplete="cc-number" inputmode="numeric" />
+                    </label>
+                  </div>
+                  <label class="transfers-expiry">
+                    <span>Актуальное время размещения</span>
+                    <select class="transfers-expiry__select" id="transfersExpiryInput">
+                      <option value="15">15 минут</option>
+                      <option value="30" selected>30 минут</option>
+                      <option value="60">1 час</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="transfers-create__actions">
+                  <button type="submit" class="transfers-create__submit" id="transfersCreateSubmit">Разместить заявку</button>
+                  <span class="transfers-feedback" id="transfersCreateFeedback" aria-live="polite"></span>
+                </div>
+              </form>
+
+              <div class="transfers-tabs" role="tablist" aria-label="Список заявок" hidden>
+                <button type="button" class="transfers-tabs__btn transfers-tabs__btn--active" data-transfers-filter="active" aria-pressed="true">
+                  <span class="transfers-tabs__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+                  </span>
+                  <span>Активные</span>
+                </button>
+                <button type="button" class="transfers-tabs__btn" data-transfers-filter="mine" aria-pressed="false">
+                  <span class="transfers-tabs__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                  </span>
+                  <span>Мои</span>
+                </button>
+                <button type="button" class="transfers-tabs__btn" data-transfers-filter="completed" aria-pressed="false">
+                  <span class="transfers-tabs__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
+                  </span>
+                  <span>Закрытые</span>
+                </button>
+                <button type="button" class="transfers-tabs__btn" data-transfers-filter="create" aria-pressed="false">
+                  <span class="transfers-tabs__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                  </span>
+                  <span>Разместить</span>
+                </button>
+              </div>
+
+              <p class="transfers-page__access-note" id="transfersAccessNote">
+                Размещать и видеть заявки могут только игроки с уровнем 10+.
+              </p>
+
+              <div class="transfers-list" id="transfersList" aria-live="polite" hidden></div>
+              <p class="transfers-empty" id="transfersEmpty" hidden>Активных заявок пока нет, можете разместить свой вывод по кнопке «Разместить».</p>
+            </section>
+          </div>
+
           <!-- Скачать: только Poker21 -->
           <div class="view" data-view="download">
             <div class="download-page download-page--active" data-download-page="poker21">
               <h1 class="title download-title">Poker21</h1>
-
-              <p class="poker21-intro">
-                Качайте приложение и подавайте заявку в клуб.
-              </p>
 
               <div class="download-buttons-row">
                 <a
@@ -1287,6 +1354,7 @@
                   <span class="android-btn__text">Android</span>
                 </a>
               </div>
+
             </div>
 
           </div>
@@ -1629,149 +1697,149 @@
                 <a href="./assets/prilozhenie-k-obucheniyu.pdf" target="_blank" rel="noopener noreferrer" class="video-lessons__attachment" download="Приложение к обучению.pdf">Приложение к обучению (PDF)</a>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer1">
                   <div class="video-lessons__player-inner">
-                    <iframe class="video-lessons__iframe" title="Урок 1 — Префлоп-диапазоны" src="" data-video-src="https://disk.yandex.ru/i/zP4fadqf3vHPEA"></iframe>
-                    <a href="https://disk.yandex.ru/i/zP4fadqf3vHPEA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть видео в браузере</a>
+                    <video class="video-lessons__video" title="Урок 1 — Префлоп-диапазоны" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/zP4fadqf3vHPEA"></video>
+                    <a href="https://disk.yandex.ru/i/zP4fadqf3vHPEA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a>
                   </div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="2" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/TurgMWNdlC_UVQ" data-lesson-num="2" aria-expanded="false">
                   <span class="video-lessons__num">2</span>
-                  <span class="video-lessons__title">Урок 2</span>
+                  <span class="video-lessons__title">Префлоп-выставления</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer2">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/TurgMWNdlC_UVQ"></video><a href="https://disk.yandex.ru/i/TurgMWNdlC_UVQ" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="3" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/D01KoNyWLSktNw" data-lesson-num="3" aria-expanded="false">
                   <span class="video-lessons__num">3</span>
-                  <span class="video-lessons__title">Урок 3</span>
+                  <span class="video-lessons__title">Практика префлопа</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer3">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/D01KoNyWLSktNw"></video><a href="https://disk.yandex.ru/i/D01KoNyWLSktNw" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="4" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/W98502-sTwSFEA" data-lesson-num="4" aria-expanded="false">
                   <span class="video-lessons__num">4</span>
-                  <span class="video-lessons__title">Урок 4</span>
+                  <span class="video-lessons__title">Контбеты на флопе</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer4">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/W98502-sTwSFEA"></video><a href="https://disk.yandex.ru/i/W98502-sTwSFEA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="5" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/RnRTBzuL53MNeQ" data-lesson-num="5" aria-expanded="false">
                   <span class="video-lessons__num">5</span>
-                  <span class="video-lessons__title">Урок 5</span>
+                  <span class="video-lessons__title">Математика покера</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer5">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/RnRTBzuL53MNeQ"></video><a href="https://disk.yandex.ru/i/RnRTBzuL53MNeQ" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="6" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/QMsbD0BTf7LF2A" data-lesson-num="6" aria-expanded="false">
                   <span class="video-lessons__num">6</span>
-                  <span class="video-lessons__title">Урок 6</span>
+                  <span class="video-lessons__title">Розыгрыш средних рук на флопе</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer6">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/QMsbD0BTf7LF2A"></video><a href="https://disk.yandex.ru/i/QMsbD0BTf7LF2A" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="7" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/00CDFAqFwc-URA" data-lesson-num="7" aria-expanded="false">
                   <span class="video-lessons__num">7</span>
-                  <span class="video-lessons__title">Урок 7</span>
+                  <span class="video-lessons__title">Практика флопа</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer7">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/00CDFAqFwc-URA"></video><a href="https://disk.yandex.ru/i/00CDFAqFwc-URA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="8" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/plNlLdTd-BH9sw" data-lesson-num="8" aria-expanded="false">
                   <span class="video-lessons__num">8</span>
-                  <span class="video-lessons__title">Урок 8</span>
+                  <span class="video-lessons__title">Игра на тёрне</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer8">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/plNlLdTd-BH9sw"></video><a href="https://disk.yandex.ru/i/plNlLdTd-BH9sw" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="9" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/JMke_A00_A7qGA" data-lesson-num="9" aria-expanded="false">
                   <span class="video-lessons__num">9</span>
-                  <span class="video-lessons__title">Урок 9</span>
+                  <span class="video-lessons__title">Практика тёрна</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer9">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/JMke_A00_A7qGA"></video><a href="https://disk.yandex.ru/i/JMke_A00_A7qGA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="10" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/OlVyOoTjrlHWpQ" data-lesson-num="10" aria-expanded="false">
                   <span class="video-lessons__num">10</span>
-                  <span class="video-lessons__title">Урок 10</span>
+                  <span class="video-lessons__title">Игра на ривере</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer10">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/OlVyOoTjrlHWpQ"></video><a href="https://disk.yandex.ru/i/OlVyOoTjrlHWpQ" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="11" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/3vkmNfyz9-rseA" data-lesson-num="11" aria-expanded="false">
                   <span class="video-lessons__num">11</span>
-                  <span class="video-lessons__title">Урок 11</span>
+                  <span class="video-lessons__title">Розыгрыш премиумных рук</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer11">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/3vkmNfyz9-rseA"></video><a href="https://disk.yandex.ru/i/3vkmNfyz9-rseA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="12" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/mm8YvgRGyEsRCg" data-lesson-num="12" aria-expanded="false">
                   <span class="video-lessons__num">12</span>
-                  <span class="video-lessons__title">Урок 12</span>
+                  <span class="video-lessons__title">Практика: ривер и ранние/средние</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer12">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/mm8YvgRGyEsRCg"></video><a href="https://disk.yandex.ru/i/mm8YvgRGyEsRCg" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="13" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/VL_EMriPKGKajQ" data-lesson-num="13" aria-expanded="false">
                   <span class="video-lessons__num">13</span>
-                  <span class="video-lessons__title">Урок 13</span>
+                  <span class="video-lessons__title">Ранняя и средняя стадии турнира</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer13">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/VL_EMriPKGKajQ"></video><a href="https://disk.yandex.ru/i/VL_EMriPKGKajQ" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="14" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/GwxB4iibOxWlKA" data-lesson-num="14" aria-expanded="false">
                   <span class="video-lessons__num">14</span>
-                  <span class="video-lessons__title">Урок 14</span>
+                  <span class="video-lessons__title">Поздняя стадия турнира</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer14">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/GwxB4iibOxWlKA"></video><a href="https://disk.yandex.ru/i/GwxB4iibOxWlKA" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
               <div class="video-lessons__card">
-                <button type="button" class="video-lessons__item" data-video-url="#" data-lesson-num="15" aria-expanded="false">
+                <button type="button" class="video-lessons__item" data-video-url="https://disk.yandex.ru/i/8WyHiEJDTlHCug" data-lesson-num="15" aria-expanded="false">
                   <span class="video-lessons__num">15</span>
-                  <span class="video-lessons__title">Урок 15</span>
+                  <span class="video-lessons__title">Практика: поздняя стадия и финалка</span>
                   <span class="video-lessons__chevron" aria-hidden="true">▼</span>
                 </button>
                 <div class="video-lessons__player-wrap video-lessons__player-wrap--hidden" id="videoLessonPlayer15">
-                  <div class="video-lessons__player-inner"><p class="video-lessons__no-video">Ссылка на видео будет добавлена позже.</p></div>
+                  <div class="video-lessons__player-inner"><video class="video-lessons__video" controls playsinline preload="metadata" data-disk-public="https://disk.yandex.ru/i/8WyHiEJDTlHCug"></video><a href="https://disk.yandex.ru/i/8WyHiEJDTlHCug" target="_blank" rel="noopener noreferrer" class="video-lessons__open-external">Открыть на Яндекс.Диске</a></div>
                 </div>
               </div>
             </div>
@@ -2000,6 +2068,37 @@
             <h1 class="title schedule-title">Расписание турниров на неделю</h1>
             <p class="schedule-subtitle">Poker 21+</p>
 
+            <section class="schedule-section schedule-section--month-tournaments">
+              <h2 class="schedule-section__title">Турниры месяца</h2>
+              <div class="schedule-table-wrap schedule-table-wrap--month-tournaments">
+                <table class="schedule-table schedule-table--event-stack">
+                  <thead><tr><th>Тип</th><th>Дата</th><th>Турнир</th><th>Бай-ин</th><th>Ребай/Аддон</th><th>Гарантия / приз</th><th>Начало</th></tr></thead>
+                  <tbody>
+                    <tr class="schedule-row--major"><td><span class="schedule-tag schedule-tag--month">Май</span></td><td>31.05</td><td>Турнир месяца — Нокаут</td><td>10 000₽</td><td>R:10 000₽</td><td>500 000₽</td><td>18:00 МСК</td></tr>
+                    <tr class="schedule-row--satellite"><td><span class="schedule-tag schedule-tag--satellite">Сателлит</span></td><td>Ежедневно</td><td>К турниру месяца Нокаут</td><td>50₽</td><td>R:200₽ / A:200₽</td><td>1 билет за 10 000₽</td><td>15:00 МСК</td></tr>
+                    <tr class="schedule-row--satellite"><td><span class="schedule-tag schedule-tag--satellite">Сателлит</span></td><td>Ежедневно</td><td>Сателлит к Нокауту за 5 000₽</td><td>250₽</td><td>R:250₽ / A:250₽</td><td>1 билет за 5 000₽</td><td>19:00 МСК</td></tr>
+                    <tr class="schedule-row--satellite"><td><span class="schedule-tag schedule-tag--satellite">Сателлит</span></td><td>Ежедневно</td><td>Сателлит к Нокауту на 1 000 000₽</td><td>300₽</td><td>R:300₽ / A:500₽</td><td>1 билет за 10 000₽</td><td>19:00 МСК</td></tr>
+                    <tr class="schedule-row--major"><td><span class="schedule-tag schedule-tag--month">Июнь</span></td><td>28.06</td><td>Турнир месяца</td><td>3 000₽</td><td>R:3 000₽ / A:3 000₽</td><td>1 000 000₽</td><td>18:00 МСК</td></tr>
+                    <tr class="schedule-row--freeroll"><td><span class="schedule-tag schedule-tag--satellite">Сателлит</span></td><td>Ежедневно</td><td>Бесплатный сателлит к турниру месяца</td><td>0₽</td><td>—</td><td>9 000₽ — 3 билета за 3 000₽</td><td>16:00 МСК</td></tr>
+                    <tr class="schedule-row--major"><td><span class="schedule-tag schedule-tag--month">Июль</span></td><td>19.07</td><td>Нокаут Прогрессив</td><td>10 000₽</td><td>R:10 000₽</td><td>1 000 000₽</td><td>18:00 МСК</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="schedule-section schedule-section--week-tournament">
+              <h2 class="schedule-section__title">Турнир недели</h2>
+              <div class="schedule-table-wrap schedule-table-wrap--week-tournament">
+                <table class="schedule-table schedule-table--event-stack">
+                  <thead><tr><th>Тип</th><th>День</th><th>Турнир</th><th>Бай-ин</th><th>Ребай/Аддон</th><th>Гарантия / приз</th><th>Начало</th></tr></thead>
+                  <tbody>
+                    <tr class="schedule-row--major"><td><span class="schedule-tag schedule-tag--week">Неделя</span></td><td>Воскресенье</td><td>PKO Нокаут Прогрессив</td><td>2 000₽</td><td>R:2 000₽</td><td>300 000₽</td><td>18:00</td></tr>
+                    <tr class="schedule-row--satellite"><td><span class="schedule-tag schedule-tag--satellite">Сателлит</span></td><td>Ежедневно</td><td>К турниру недели</td><td>0₽</td><td>R:100₽ / A:150₽</td><td>1 билет за 2 000₽</td><td>10:00 МСК</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
             <section class="schedule-section schedule-section--tournament-day">
               <h2 class="schedule-section__title">Турниры дня в 18:00 МСК</h2>
               <div class="schedule-table-wrap schedule-table-wrap--tournament-day">
@@ -2015,13 +2114,13 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td>Понедельник</td><td>Magic MKO</td><td>500₽</td><td>R:500₽</td><td>100 000₽</td><td>18:00</td></tr>
-                   <tr><td>Вторник</td><td>Rebuy</td><td>300₽</td><td>R:300₽ / A:300₽</td><td>100 000₽</td><td>18:00</td></tr>
-                    <tr><td>Среда</td><td>Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>50 000₽</td><td>18:00</td></tr>
-                    <tr><td>Четверг</td><td>Нокаут Мистери</td><td>1 000₽</td><td>R:1 000₽</td><td>150 000₽</td><td>18:00</td></tr>
-                    <tr><td>Пятница</td><td>Нокаут Прогрессив</td><td>500₽</td><td>R:500₽</td><td>100 000₽</td><td>18:00</td></tr>
-                    <tr><td>Суббота</td><td><span class="schedule-freeroll-name">Фриролл</span></td><td>Бесплатно</td><td>R:500₽ / A:1 000₽</td><td>150 000₽</td><td>18:00</td></tr>
-                    <tr><td>Воскресенье</td><td>Турнир Недели Нокаут Меджик</td><td>2 000₽</td><td>R:2 000₽</td><td>250 000₽</td><td>18:00</td></tr>
+                    <tr><td>Понедельник</td><td>Magic MKO</td><td>500₽</td><td>R:500₽</td><td>170 000₽</td><td>18:00</td></tr>
+                    <tr><td>Вторник</td><td>Турнир Тракториста</td><td>300₽</td><td>R:300₽ / A:300₽</td><td>150 000₽</td><td>18:00</td></tr>
+                    <tr><td>Среда</td><td>Нокаут</td><td>5 000₽</td><td>R:5 000₽</td><td>300 000₽</td><td>18:00</td></tr>
+                    <tr><td>Четверг</td><td>Мистери</td><td>300₽</td><td>R:300₽</td><td>100 000₽</td><td>18:00</td></tr>
+                    <tr><td>Пятница</td><td>Нокаут Прогрессив</td><td>500₽</td><td>R:500₽</td><td>170 000₽</td><td>18:00</td></tr>
+                    <tr><td>Суббота</td><td>Субботний турнир</td><td>350₽</td><td>R:350₽ / A:350₽</td><td>5 билетов по 10 000₽</td><td>18:00</td></tr>
+                    <tr><td>Воскресенье</td><td>PKO Нокаут Прогрессив</td><td>2 000₽</td><td>R:2 000₽</td><td>300 000₽</td><td>18:00</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -2043,11 +2142,15 @@
                   <tbody>
                     <tr><td>Rebuy DV</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>30 000₽</td><td>12:00</td></tr>
                     <tr><td>Tournament Rebuy</td><td>100₽</td><td>R:100₽ / A:100₽</td><td>5 000₽</td><td>14:00</td></tr>
+                    <tr><td>Бесплатный сателлит к турниру месяца</td><td>0₽</td><td>—</td><td>9 000₽ — 3 билета за 3 000₽</td><td>16:00</td></tr>
                     <tr><td>Magic Chest</td><td>50₽</td><td>R:50₽</td><td>3 000₽</td><td>16:00</td></tr>
-                    <tr><td>Rebuy</td><td>800₽</td><td>R:800₽ / A:800₽</td><td>60 000₽</td><td>17:00</td></tr>
-                    <tr><td>HOK Magic</td><td>1 000₽</td><td>R:1 000₽</td><td>50 000₽</td><td>20:00</td></tr>
-                    <tr><td>MOK</td><td>300₽</td><td>R:300₽</td><td>15 000₽</td><td>21:00</td></tr>
+                    <tr><td>PKO/MKO</td><td>300₽</td><td>R:300₽</td><td>25 000₽</td><td>17:00</td></tr>
+                    <tr><td>PKO (кроме пятницы и субботы)</td><td>1 000₽</td><td>—</td><td>100 000₽</td><td>19:00</td></tr>
+                    <tr><td>Фризаут (пятница)</td><td>1 000₽</td><td>Без ребая и аддона</td><td>40 000₽</td><td>19:00</td></tr>
+                    <tr><td>Фризаут (суббота)</td><td>1 000₽</td><td>Без ребая и аддона</td><td>70 000₽</td><td>19:00</td></tr>
+                    <tr><td>PLO4</td><td>300₽</td><td>—</td><td>10 000₽</td><td>20:00</td></tr>
                     <tr><td>Energetic Tournament</td><td>200₽</td><td>R:200₽ / A:200₽</td><td>10 000₽</td><td>22:00</td></tr>
+                    <tr><td>MKO</td><td>50₽</td><td>—</td><td>3 000₽</td><td>23:00</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -2118,15 +2221,6 @@
           <span class="bottom-nav__icon">🏠</span>
           <span class="bottom-nav__label">Главная</span>
         </button>
-        <div class="bottom-nav__chat-wrap">
-          <button type="button" class="bottom-nav__item" data-view-target="chat" id="chatNavBtn">
-            <span class="bottom-nav__icon-wrap">
-              <span class="bottom-nav__icon">💬</span>
-              <span class="bottom-nav__badge" id="chatNavBadge" aria-live="polite" aria-label="Непрочитанных сообщений">0</span>
-            </span>
-            <span class="bottom-nav__label" id="chatNavLabel">Чаты</span>
-          </button>
-        </div>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <span class="bottom-nav__icon">📥</span>
           <span class="bottom-nav__label">Скачать</span>
@@ -3070,5 +3164,6 @@
     <script src="./winter-rating-data.js?v=34"></script>
     <script src="./poker-tasks-data.js"></script>
     <script src="./app.js?v=34"></script>
+    <script src="./app-transfers.js?v=1"></script>
   </body>
 </html>
