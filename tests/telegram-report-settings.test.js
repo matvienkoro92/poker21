@@ -93,10 +93,32 @@ test("/команды показывает справку по доступны�
   assert.match(sentMessage.text, /^<b>Доступные команды<\/b>/);
   assert.match(sentMessage.text, /<b>\/рейк клубов<\/b>/);
   assert.match(sentMessage.text, /<b>\/игры<\/b>/);
+  assert.match(sentMessage.text, /<b>\/джекпот<\/b>/);
   assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+});
+
+test("/джекпот выводит все сборы, выплаты и чистый остаток", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/джекпот", 8), res);
+  assert.deepEqual(res.body, { ok: true, jackpot: true, sent: true });
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^Джекпот союза\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
+  assert.match(sentMessage.text, /Сбор обычного джекпота — 221 584,72/);
+  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 101 182,47/);
+  assert.match(sentMessage.text, /<b>Всего собрано: 267 076,72<\/b>/);
+  assert.match(sentMessage.text, /<b>Всего выплачено: 101 182,47<\/b>/);
+  assert.match(sentMessage.text, /<b>Сборы минус выплаты: 165 894,25<\/b>$/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
