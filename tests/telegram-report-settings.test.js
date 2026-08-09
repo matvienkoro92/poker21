@@ -74,8 +74,10 @@ test("/итого за 1 неделю показывает игровые раз
   assert.match(sentMessage.text, /NLH: -259 665,01 ₽/);
   assert.match(sentMessage.text, /PLO5: -23 359,86 ₽/);
   assert.match(sentMessage.text, /<b>Комиссия \(рейк\): 518 455,97 ₽<\/b>/);
+  assert.match(sentMessage.text, /Итого рейк кеш: 366 770,97 ₽/);
+  assert.match(sentMessage.text, /<b>Комиссия MTT: 148 475,00 ₽<\/b>/);
   assert.match(sentMessage.text, /MTT-NLH: 147 075,00 ₽/);
-  assert.match(sentMessage.text, /Комиссия MTT: 148 475,00 ₽/);
+  assert.match(sentMessage.text, /SNG-NLH: 3 210,00 ₽/);
   assert.match(sentMessage.text, /<b>Итого Рейк \+ выигрыш: 133 631,73 ₽<\/b>/);
   assert.match(sentMessage.text, /Обслуживание 8%: -41 476,48 ₽/);
   assert.match(sentMessage.text, /<b>Итого к расчёту: 90 655,25 ₽<\/b>/);
