@@ -22,3 +22,5 @@ log.txt
 # APK и другие бинарники (GitHub не рекомендует > 50 MB)
 *.apk
 
+.vercel
+.env*

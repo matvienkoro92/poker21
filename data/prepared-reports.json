@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "reports": [
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-1004391487736",
+      "startDate": "2026-07-27",
+      "endDate": "2026-08-02",
+      "imagePath": "/assets/reports/dva-tuza/2026-07-27_2026-08-02.png",
+      "total": 90655.25,
+      "currency": "RUB"
+    }
+  ]
+}
