@@ -5,6 +5,7 @@ const test = require("node:test");
 
 process.env.TELEGRAM_BOT_TOKEN = "test-token";
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = "test-secret";
+process.env.REPORT_NOW_ISO = "2026-08-03T00:00:00.000Z";
 
 const handler = require("../lib/api-handlers/telegram-report-webhook");
 
@@ -55,6 +56,24 @@ test("/настройка больше не запускает диалог", as
   const res = responseRecorder();
   await handler(update("/настройка", 2), res);
   assert.deepEqual(res.body, { ok: true });
+});
+
+test("/сводка выводит клубы по рейку и отделяет нулевые", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/сводка", 4), res);
+  assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
+  assert.match(sentMessage.text, /^Сводка клубов по рейку\nПериод: 13\.07\.2026–19\.07\.2026/m);
+  assert.match(sentMessage.text, /1\. Два Туза — 724 837,89/);
+  assert.match(sentMessage.text, /27\. Храм — 0,20\n\nНулевой рейк:\n28\. CORONA — 0,00/);
+  assert.match(sentMessage.text, /39\. ••KARAVAN•• — 0,00$/);
 });
 
 test("/итого показывает игровые разбивки единственного оставшегося отчёта", async (t) => {
