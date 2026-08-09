@@ -3,6 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const { execFileSync } = require("child_process");
 const reports = require("../data/prepared-reports.json").reports || [];
 
@@ -46,15 +47,6 @@ function state() {
   try { return JSON.parse(fs.readFileSync(STATE_PATH, "utf8")); } catch (_) { return { sent: {} }; }
 }
 
-async function telegramUpload(token, method, fields, fileField, filePath, mime) {
-  const form = new FormData();
-  Object.entries(fields).forEach(([key, value]) => form.append(key, String(value)));
-  form.append(fileField, new Blob([fs.readFileSync(filePath)], { type: mime }), path.basename(filePath));
-  const response = await fetch(`https://api.telegram.org/bot${token}/${method}`, { method: "POST", body: form });
-  const result = await response.json().catch(() => ({}));
-  if (!result.ok) throw new Error(`${method}: ${result.description || response.status}`);
-}
-
 async function main() {
   const today = localIso(new Date());
   const week = previousWeek();
@@ -67,18 +59,23 @@ async function main() {
   );
   console.log(JSON.stringify({ today, week, mode: shouldSend ? "send" : "preview", reports: selected.map((r) => ({ club: r.club, chatId: r.chatId, period: `${r.startDate}/${r.endDate}` })) }, null, 2));
   if (!shouldSend || selected.length === 0) return;
-  const token = process.env.TELEGRAM_BOT_TOKEN || process.env.telegram_bot_token || process.env.TELEGRAM_TOKEN || process.env.BOT_TOKEN;
-  if (!token) throw new Error("Telegram bot token is missing");
-  for (const report of selected) {
-    const image = path.join(ROOT, String(report.imagePath).replace(/^\//, "assets/").replace(/^assets\/assets\//, "assets/"));
-    const excel = path.join(ROOT, String(report.excelPath).replace(/^\//, "assets/").replace(/^assets\/assets\//, "assets/"));
-    const caption = `Отчёт клуба «${report.club}»\nПериод: ${report.startDate}–${report.endDate}\n\nИтого к расчёту: ${Number(report.total).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
-    await telegramUpload(token, "sendPhoto", { chat_id: report.chatId, caption }, "photo", image, "image/png");
-    await telegramUpload(token, "sendDocument", { chat_id: report.chatId, caption: `Исходный Excel · ${report.startDate}–${report.endDate}` }, "document", excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    history.sent[`${report.chatId}:${report.startDate}:${report.endDate}`] = new Date().toISOString();
-    fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
-    fs.writeFileSync(STATE_PATH, `${JSON.stringify(history, null, 2)}\n`);
+  const secretPath = process.env.REPORT_DISPATCH_SECRET_FILE || path.join(os.homedir(), ".codex", "report-dispatch-secret");
+  const secret = fs.readFileSync(secretPath, "utf8").trim();
+  const response = await fetch("https://poker21-app.vercel.app/api/telegram-report-dispatch", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-report-dispatch-key": secret },
+    body: JSON.stringify({ periods: selected.map((report) => ({ chatId: report.chatId, startDate: report.startDate, endDate: report.endDate })) }),
+  });
+  const result = await response.json().catch(() => ({}));
+  console.log(JSON.stringify(result, null, 2));
+  if (!response.ok) throw new Error(result.error || `Dispatch failed: ${response.status}`);
+  for (const sent of result.results || []) {
+    if (!sent.ok) continue;
+    history.sent[`${sent.chatId}:${sent.startDate}:${sent.endDate}`] = new Date().toISOString();
   }
+  fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
+  fs.writeFileSync(STATE_PATH, `${JSON.stringify(history, null, 2)}\n`);
+  if (!result.ok) throw new Error("One or more reports failed to send");
 }
 
 main().catch((error) => { console.error(error.message || error); process.exitCode = 1; });
