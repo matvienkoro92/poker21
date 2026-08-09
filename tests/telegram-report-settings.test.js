@@ -79,10 +79,10 @@ test("/настройка сохраняет процент и применяе�
   assert.equal(res.body.sent, true);
   const photo = telegramCalls.at(-2);
   assert.equal(photo.method, "sendPhoto");
-  assert.match(photo.body.caption, /Обслуживание: 10,5% \(-54 437,88 ₽\)/);
-  assert.match(photo.body.caption, /Итого к расчёту: 77 693,85 ₽/);
+  assert.equal(photo.body.caption, "Отчёт клуба «Два Туза»\nПериод: 27.07.2026–02.08.2026\n\nИтого к расчёту: 77 693,85 ₽");
   const document = telegramCalls.at(-1);
   assert.equal(document.method, "sendDocument");
+  assert.match(document.body.document, /^https:\/\/raw\.githubusercontent\.com\//);
   assert.match(decodeURI(document.body.document), /Два_Туза_отчет_27\.07-02\.08\.2026\.xlsx$/);
 });
 
