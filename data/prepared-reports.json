@@ -5,6 +5,46 @@
       "club": "Два Туза",
       "clubId": "758417",
       "chatId": "-1004391487736",
+      "startDate": "2026-06-22",
+      "endDate": "2026-06-28",
+      "imagePath": "/assets/reports/dva-tuza/2026-06-22_2026-06-28.png",
+      "total": -327698.98,
+      "currency": "RUB"
+    },
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-1004391487736",
+      "startDate": "2026-06-29",
+      "endDate": "2026-07-05",
+      "imagePath": "/assets/reports/dva-tuza/2026-06-29_2026-07-05.png",
+      "total": 277653.46,
+      "currency": "RUB"
+    },
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-1004391487736",
+      "startDate": "2026-07-06",
+      "endDate": "2026-07-12",
+      "imagePath": "/assets/reports/dva-tuza/2026-07-06_2026-07-12.png",
+      "total": 275023.2,
+      "currency": "RUB"
+    },
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-1004391487736",
+      "startDate": "2026-07-20",
+      "endDate": "2026-07-26",
+      "imagePath": "/assets/reports/dva-tuza/2026-07-20_2026-07-26.png",
+      "total": -315043.83,
+      "currency": "RUB"
+    },
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-1004391487736",
       "startDate": "2026-07-27",
       "endDate": "2026-08-02",
       "imagePath": "/assets/reports/dva-tuza/2026-07-27_2026-08-02.png",
