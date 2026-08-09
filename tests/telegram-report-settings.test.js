@@ -40,15 +40,15 @@ test("/отчет применяет процент из кода и отпра�
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/отчет 27.07-02.08", 1), res);
+  await handler(update("/отчет 13.07-19.07", 1), res);
   assert.equal(res.body.sent, true);
   const photo = telegramCalls.at(-2);
   assert.equal(photo.method, "sendPhoto");
-  assert.equal(photo.body.caption, "Отчёт клуба «Два Туза»\nПериод: 27.07.2026–02.08.2026\n\nИтого к расчёту: 90 655,25 ₽");
+  assert.equal(photo.body.caption, "Отчёт клуба «Два Туза»\nПериод: 13.07.2026–19.07.2026\n\nИтого к расчёту: -81 432,84 ₽");
   const document = telegramCalls.at(-1);
   assert.equal(document.method, "sendDocument");
   assert.ok(document.body.document instanceof Blob);
-  assert.equal(document.body.document.name, "Два_Туза_отчет_27.07-02.08.2026.xlsx");
+  assert.equal(document.body.document.name, "Два_Туза_отчет_13.07-19.07.2026.xlsx");
 });
 
 test("/настройка больше не запускает диалог", async () => {
@@ -57,7 +57,7 @@ test("/настройка больше не запускает диалог", as
   assert.deepEqual(res.body, { ok: true });
 });
 
-test("/итого за 1 неделю показывает игровые разбивки и сверенные итоги", async (t) => {
+test("/итого показывает игровые разбивки единственного оставшегося отчёта", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
   global.fetch = async (url, options) => {
@@ -67,18 +67,18 @@ test("/итого за 1 неделю показывает игровые раз
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/итого за 1 неделю", 3), res);
+  await handler(update("/итого за 3 недели", 3), res);
   assert.equal(res.body.sent, true);
   assert.equal(sentMessage.parse_mode, "HTML");
-  assert.match(sentMessage.text, /<b>Выигрыш игроков: -384 824,24 ₽<\/b>/);
-  assert.match(sentMessage.text, /NLH: -259 665,01 ₽/);
-  assert.match(sentMessage.text, /PLO5: -23 359,86 ₽/);
-  assert.match(sentMessage.text, /<b>Комиссия \(рейк\): 518 455,97 ₽<\/b>/);
-  assert.match(sentMessage.text, /<b>-Итого рейк кеш: 366 770,97 ₽<\/b>/);
-  assert.match(sentMessage.text, /NLH 3-1: 9 462,62 ₽\n<b>-Комиссия MTT: 151 685,00 ₽<\/b>/);
-  assert.match(sentMessage.text, /MTT-NLH: 147 075,00 ₽/);
-  assert.match(sentMessage.text, /SNG-NLH: 3 210,00 ₽/);
-  assert.match(sentMessage.text, /<b>Баланс \(приложение\): 133 631,73 ₽<\/b>/);
-  assert.match(sentMessage.text, /Обслуживание 8%: -41 476,48 ₽/);
-  assert.match(sentMessage.text, /<b>Итого выигрыш \+ рейк: 90 655,25 ₽<\/b>/);
+  assert.match(sentMessage.text, /<b>Выигрыш игроков: -746 783,70 ₽<\/b>/);
+  assert.match(sentMessage.text, /NLH: -401 450,29 ₽/);
+  assert.match(sentMessage.text, /PLO5: -14 975,96 ₽/);
+  assert.match(sentMessage.text, /<b>Комиссия \(рейк\): 724 837,89 ₽<\/b>/);
+  assert.match(sentMessage.text, /<b>-Итого рейк кеш: 544 223,19 ₽<\/b>/);
+  assert.match(sentMessage.text, /NLH 3-1: 40 357,01 ₽\n<b>-Комиссия MTT: 180 614,70 ₽<\/b>/);
+  assert.match(sentMessage.text, /MTT-NLH: 172 549,70 ₽/);
+  assert.match(sentMessage.text, /SNG-NLH: 7 010,00 ₽/);
+  assert.match(sentMessage.text, /<b>Баланс \(приложение\): -21 945,81 ₽<\/b>/);
+  assert.match(sentMessage.text, /Обслуживание 8%: -57 987,03 ₽/);
+  assert.match(sentMessage.text, /<b>Итого выигрыш \+ рейк: -81 432,84 ₽<\/b>/);
 });
