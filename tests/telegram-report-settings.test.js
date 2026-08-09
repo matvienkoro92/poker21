@@ -97,10 +97,61 @@ test("/команды показывает справку по доступны�
   assert.match(sentMessage.text, /<b>\/игроки рейк<\/b>/);
   assert.match(sentMessage.text, /<b>\/игроки минус<\/b>/);
   assert.match(sentMessage.text, /<b>\/игроки плюс<\/b>/);
+  assert.match(sentMessage.text, /<b>\/клуб Два Туза<\/b>/);
+  assert.match(sentMessage.text, /<b>\/игрок 230740<\/b>/);
   assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+});
+
+test("/клуб находит клуб по части названия", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/клуб два туза", 10), res);
+  assert.deepEqual(res.body, { ok: true, club: true, sent: true });
+  assert.match(sentMessage.text, /^<b>Два Туза \(758417\)<\/b>/);
+  assert.match(sentMessage.text, /<b>Весь рейк: 724 837,89<\/b>/);
+  assert.match(sentMessage.text, /<b>Топ-5 по рейку<\/b>/);
+});
+
+test("/игрок находит игрока по ID", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/игрок 230740", 11), res);
+  assert.deepEqual(res.body, { ok: true, player: true, sent: true });
+  assert.match(sentMessage.text, /^<b>PlayerE32BA7 \(230740\)<\/b>/);
+  assert.match(sentMessage.text, /Клубы: new balance/);
+  assert.match(sentMessage.text, /<b>Рейк: 66 856,40<\/b>/);
+});
+
+test("/игрок допускает неточный ник", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/игрок playere32ba", 12), res);
+  assert.deepEqual(res.body, { ok: true, player: true, sent: true });
+  assert.match(sentMessage.text, /^<b>PlayerE32BA7 \(230740\)<\/b>/);
 });
 
 for (const [command, type, title, firstLine] of [
