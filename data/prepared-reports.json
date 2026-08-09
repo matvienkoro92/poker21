@@ -121,6 +121,34 @@
       "endDate": "2026-08-02",
       "imagePath": "/assets/reports/dva-tuza/2026-07-27_2026-08-02.png",
       "excelPath": "/assets/reports/dva-tuza/Два_Туза_отчет_27.07-02.08.2026.xlsx",
+      "gameBreakdown": {
+        "winnings": [
+          { "name": "NLH", "value": -259665.01 },
+          { "name": "6+NLH", "value": -2855.53 },
+          { "name": "PLO4", "value": -172.57 },
+          { "name": "PLO5", "value": -23359.86 },
+          { "name": "PLO6", "value": -79133.94 },
+          { "name": "Durak", "value": -5007 },
+          { "name": "TweneyOne", "value": -30822.6 },
+          { "name": "NLH 3-1", "value": -27597.65 },
+          { "name": "MTT-NLH", "value": 50479.92 },
+          { "name": "MTT-PLO6", "value": -5100 },
+          { "name": "SNG-NLH", "value": -1590 }
+        ],
+        "fees": [
+          { "name": "NLH", "value": 259610.35 },
+          { "name": "6+NLH", "value": 482.51 },
+          { "name": "PLO4", "value": 972.65 },
+          { "name": "PLO5", "value": 8797.12 },
+          { "name": "PLO6", "value": 65411.81 },
+          { "name": "Durak", "value": 2056 },
+          { "name": "TweneyOne", "value": 19977.91 },
+          { "name": "NLH 3-1", "value": 9462.62 },
+          { "name": "MTT-NLH", "value": 147075 },
+          { "name": "MTT-PLO6", "value": 1400 },
+          { "name": "SNG-NLH", "value": 3210 }
+        ]
+      },
       "metrics": {
         "winnings": -384824.24,
         "commission": 518455.97,

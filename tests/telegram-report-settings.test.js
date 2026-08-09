@@ -56,3 +56,27 @@ test("/настройка больше не запускает диалог", as
   await handler(update("/настройка", 2), res);
   assert.deepEqual(res.body, { ok: true });
 });
+
+test("/итого за 1 неделю показывает игровые разбивки и сверенные итоги", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/итого за 1 неделю", 3), res);
+  assert.equal(res.body.sent, true);
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /<b>Выигрыш игроков: -384 824,24 ₽<\/b>/);
+  assert.match(sentMessage.text, /NLH: -259 665,01 ₽/);
+  assert.match(sentMessage.text, /PLO5: -23 359,86 ₽/);
+  assert.match(sentMessage.text, /<b>Комиссия \(рейк\): 518 455,97 ₽<\/b>/);
+  assert.match(sentMessage.text, /MTT-NLH: 147 075,00 ₽/);
+  assert.match(sentMessage.text, /Комиссия MTT: 0,00 ₽/);
+  assert.match(sentMessage.text, /<b>Итого Рейк \+ выигрыш: 133 631,73 ₽<\/b>/);
+  assert.match(sentMessage.text, /Обслуживание 8%: -41 476,48 ₽/);
+  assert.match(sentMessage.text, /<b>Итого к расчёту: 90 655,25 ₽<\/b>/);
+});
