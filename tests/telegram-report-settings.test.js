@@ -58,7 +58,7 @@ test("/настройка больше не запускает диалог", as
   assert.deepEqual(res.body, { ok: true });
 });
 
-test("/сводка выводит клубы по рейку и отделяет нулевые", async (t) => {
+test("/рейк клубов выводит клубы по рейку и отделяет нулевые", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
   global.fetch = async (url, options) => {
@@ -68,7 +68,7 @@ test("/сводка выводит клубы по рейку и отделяе�
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/сводка", 4), res);
+  await handler(update("/рейк клубов", 4), res);
   assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
   assert.match(sentMessage.text, /^Сводка клубов по рейку\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/m);
@@ -91,11 +91,31 @@ test("/команды показывает справку по доступны�
   assert.deepEqual(res.body, { ok: true, commands: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
   assert.match(sentMessage.text, /^<b>Доступные команды<\/b>/);
-  assert.match(sentMessage.text, /<b>\/сводка<\/b>/);
+  assert.match(sentMessage.text, /<b>\/рейк клубов<\/b>/);
+  assert.match(sentMessage.text, /<b>\/игры<\/b>/);
   assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+});
+
+test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/игры", 7), res);
+  assert.deepEqual(res.body, { ok: true, games: true, sent: true });
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^Рейк союза по видам игр\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
+  assert.match(sentMessage.text, /<b>Весь рейк союза: 1 878 391,42<\/b>/);
+  assert.match(sentMessage.text, /NLH — 591 111,78\nPLO6 — 585 668,17/);
+  assert.match(sentMessage.text, /MTT-Durak — 65,00$/);
 });
 
 test("/оверлеи выводит турниры по убыванию и итог", async (t) => {

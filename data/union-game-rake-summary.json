@@ -1,0 +1,19 @@
+{
+  "startDate": "2026-07-13",
+  "endDate": "2026-07-19",
+  "games": [
+    { "name": "NLH", "rake": 591111.78 },
+    { "name": "PLO6", "rake": 585668.17 },
+    { "name": "MTT-NLH", "rake": 309258.7 },
+    { "name": "NLH 3-1", "rake": 197611.18 },
+    { "name": "TweneyOne", "rake": 136058.19 },
+    { "name": "PLO5", "rake": 36074.46 },
+    { "name": "SNG-NLH", "rake": 7515 },
+    { "name": "PLO4", "rake": 5550.64 },
+    { "name": "Durak", "rake": 3645 },
+    { "name": "6+", "rake": 2860.8 },
+    { "name": "MTT-PLO6", "rake": 2280 },
+    { "name": "OFC", "rake": 692.5 },
+    { "name": "MTT-Durak", "rake": 65 }
+  ]
+}
