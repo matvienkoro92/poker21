@@ -1,0 +1,40 @@
+{
+  "startDate": "2026-07-13",
+  "endDate": "2026-07-19",
+  "rake": [
+    { "playerId": "230740", "nick": "PlayerE32BA7", "clubs": ["new balance"], "value": 66856.4 },
+    { "playerId": "286730", "nick": "Coo1er91", "clubs": ["Два Туза"], "value": 65953.73 },
+    { "playerId": "520115", "nick": "Fast", "clubs": ["Kampashka 21"], "value": 63972.09 },
+    { "playerId": "125438", "nick": "Dins", "clubs": ["Два Туза"], "value": 59147.03 },
+    { "playerId": "590773", "nick": "Waaar", "clubs": ["Два Туза"], "value": 53260.84 },
+    { "playerId": "901151", "nick": "PlayerD50C40", "clubs": ["Joker♦️Poker", "Joker♦️VIP♦️Poker", "Pattaya Poker Club"], "value": 51804.78 },
+    { "playerId": "465670", "nick": "Adam1993", "clubs": ["Два Туза"], "value": 45888.23 },
+    { "playerId": "534992", "nick": "king00001", "clubs": ["Joker♦️Poker", "Два Туза"], "value": 42785.98 },
+    { "playerId": "467644", "nick": "SixSeven67", "clubs": ["TipTop"], "value": 38602.18 },
+    { "playerId": "166986", "nick": "Лето", "clubs": ["Kampashka 21"], "value": 37499.29 }
+  ],
+  "minus": [
+    { "playerId": "230740", "nick": "PlayerE32BA7", "clubs": ["new balance"], "value": -226956.81 },
+    { "playerId": "895695", "nick": "moshnyi", "clubs": ["MAGILAN"], "value": -207728.74 },
+    { "playerId": "520115", "nick": "Fast", "clubs": ["Kampashka 21"], "value": -185000 },
+    { "playerId": "286730", "nick": "Coo1er91", "clubs": ["Два Туза"], "value": -106815.96 },
+    { "playerId": "848335", "nick": "Anonymous", "clubs": ["Kampashka 21"], "value": -105631.79 },
+    { "playerId": "528264", "nick": "Player593B9E", "clubs": ["MAGILAN"], "value": -86186.12 },
+    { "playerId": "590773", "nick": "Waaar", "clubs": ["Два Туза"], "value": -85882.18 },
+    { "playerId": "953707", "nick": "sharovoff", "clubs": ["MAGILAN"], "value": -79812.51 },
+    { "playerId": "166986", "nick": "Лето", "clubs": ["Kampashka 21"], "value": -70000 },
+    { "playerId": "322488", "nick": "Anton0017", "clubs": ["Joker♦️VIP♦️Poker"], "value": -70000 }
+  ],
+  "plus": [
+    { "playerId": "208238", "nick": "ПокерМанки", "clubs": ["Kampashka 21", "RealPokerGame", "Два Туза", "КЛУБ POPEYE", "Клёвое место", "Храм"], "value": 150941.54 },
+    { "playerId": "371998", "nick": "FishKopcheny", "clubs": ["Два Туза"], "value": 134671.87 },
+    { "playerId": "699027", "nick": "G-pon", "clubs": ["Joker♦️VIP♦️Poker"], "value": 74821.33 },
+    { "playerId": "274603", "nick": "putri", "clubs": ["T O T"], "value": 67325 },
+    { "playerId": "729860", "nick": "PlayerAA1093", "clubs": ["Kampashka 21"], "value": 55925.8 },
+    { "playerId": "753963", "nick": "Maxim.Evdokimov", "clubs": ["Kampashka 21", "Два Туза"], "value": 55322.04 },
+    { "playerId": "978162", "nick": "мопсярик", "clubs": ["IMMORTALS"], "value": 37500.25 },
+    { "playerId": "672999", "nick": "NHL33", "clubs": ["Kampashka 21"], "value": 36915.1 },
+    { "playerId": "227798", "nick": "царь)))))", "clubs": ["Collaboration Club", "MAGILAN"], "value": 35718.49 },
+    { "playerId": "165084", "nick": "Медведь", "clubs": ["Kampashka 21", "ШАНС"], "value": 27901.51 }
+  ]
+}

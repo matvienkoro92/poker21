@@ -94,11 +94,38 @@ test("/команды показывает справку по доступны�
   assert.match(sentMessage.text, /<b>\/рейк клубов<\/b>/);
   assert.match(sentMessage.text, /<b>\/игры<\/b>/);
   assert.match(sentMessage.text, /<b>\/джекпот<\/b>/);
+  assert.match(sentMessage.text, /<b>\/игроки рейк<\/b>/);
+  assert.match(sentMessage.text, /<b>\/игроки минус<\/b>/);
+  assert.match(sentMessage.text, /<b>\/игроки плюс<\/b>/);
   assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
 });
+
+for (const [command, type, title, firstLine] of [
+  ["/игроки рейк", "рейк", "Топ-10 игроков по рейку", "1. <b>PlayerE32BA7</b> (230740) — 66 856,40 — new balance"],
+  ["/игроки минус", "минус", "Топ-10 игроков по проигрышу", "1. <b>PlayerE32BA7</b> (230740) — -226 956,81 — new balance"],
+  ["/игроки плюс", "плюс", "Топ-10 игроков по выигрышу", "1. <b>ПокерМанки</b> (208238) — 150 941,54 — Kampashka 21, RealPokerGame, Два Туза, КЛУБ POPEYE, Клёвое место, Храм"],
+]) {
+  test(`${command} выводит нужный топ-10`, async (t) => {
+    const originalFetch = global.fetch;
+    let sentMessage = null;
+    global.fetch = async (url, options) => {
+      sentMessage = JSON.parse(options.body);
+      return { ok: true, json: async () => ({ ok: true }) };
+    };
+    t.after(() => { global.fetch = originalFetch; });
+
+    const res = responseRecorder();
+    await handler(update(command, 9), res);
+    assert.deepEqual(res.body, { ok: true, players: type, sent: true });
+    assert.equal(sentMessage.parse_mode, "HTML");
+    assert.match(sentMessage.text, new RegExp(`^${title}\\n<b>Период: 13\\.07\\.2026–19\\.07\\.2026<\\/b>`));
+    assert.ok(sentMessage.text.includes(firstLine));
+    assert.match(sentMessage.text, /10\. /);
+  });
+}
 
 test("/джекпот выводит все сборы, выплаты и чистый остаток", async (t) => {
   const originalFetch = global.fetch;
