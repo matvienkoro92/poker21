@@ -11,6 +11,7 @@ const ROOT = path.resolve(__dirname, "..");
 const STATE_PATH = path.join(ROOT, ".codex", "report-send-history.json");
 const TIME_ZONE = "Asia/Novosibirsk";
 const shouldSend = process.argv.includes("--send");
+const allowResend = process.argv.includes("--resend");
 
 function localParts(date) {
   return Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
@@ -55,9 +56,9 @@ async function main() {
     report.startDate === week.startDate &&
     report.endDate === week.endDate &&
     processedDate(report) === today &&
-    !history.sent[`${report.chatId}:${report.startDate}:${report.endDate}`]
+    (allowResend || !history.sent[`${report.chatId}:${report.startDate}:${report.endDate}`])
   );
-  console.log(JSON.stringify({ today, week, mode: shouldSend ? "send" : "preview", reports: selected.map((r) => ({ club: r.club, chatId: r.chatId, period: `${r.startDate}/${r.endDate}` })) }, null, 2));
+  console.log(JSON.stringify({ today, week, mode: shouldSend ? "send" : "preview", resend: allowResend, reports: selected.map((r) => ({ club: r.club, chatId: r.chatId, period: `${r.startDate}/${r.endDate}` })) }, null, 2));
   if (!shouldSend || selected.length === 0) return;
   const secretPath = process.env.REPORT_DISPATCH_SECRET_FILE || path.join(os.homedir(), ".codex", "report-dispatch-secret");
   const secret = fs.readFileSync(secretPath, "utf8").trim();
