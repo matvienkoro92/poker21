@@ -41,7 +41,11 @@ test("/настройка сохраняет процент и применяе�
   const originalFetch = global.fetch;
 
   global.fetch = async (url, options) => {
-    const body = JSON.parse(options.body);
+    if (String(url).startsWith("https://raw.githubusercontent.com/")) {
+      return { ok: true, status: 200, arrayBuffer: async () => new Uint8Array([80, 75, 3, 4]).buffer };
+    }
+    const isForm = typeof FormData !== "undefined" && options.body instanceof FormData;
+    const body = isForm ? Object.fromEntries(options.body.entries()) : JSON.parse(options.body);
     if (String(url).includes("redis.test")) {
       const results = body.map((command) => {
         const [name, key, ...args] = command;
@@ -82,8 +86,8 @@ test("/настройка сохраняет процент и применяе�
   assert.equal(photo.body.caption, "Отчёт клуба «Два Туза»\nПериод: 27.07.2026–02.08.2026\n\nИтого к расчёту: 77 693,85 ₽");
   const document = telegramCalls.at(-1);
   assert.equal(document.method, "sendDocument");
-  assert.match(document.body.document, /^https:\/\/raw\.githubusercontent\.com\//);
-  assert.match(decodeURI(document.body.document), /Два_Туза_отчет_27\.07-02\.08\.2026\.xlsx$/);
+  assert.ok(document.body.document instanceof Blob);
+  assert.equal(document.body.document.name, "Два_Туза_отчет_27.07-02.08.2026.xlsx");
 });
 
 test("неверный процент не завершает настройку", async (t) => {
