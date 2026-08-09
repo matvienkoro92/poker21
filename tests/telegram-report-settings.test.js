@@ -77,6 +77,7 @@ test("/итого за 1 неделю показывает игровые раз
   assert.match(sentMessage.text, /<b>-Итого рейк кеш: 366 770,97 ₽<\/b>/);
   assert.match(sentMessage.text, /NLH 3-1: 9 462,62 ₽\n<b>-Комиссия MTT: 148 475,00 ₽<\/b>/);
   assert.match(sentMessage.text, /MTT-NLH: 147 075,00 ₽/);
+  assert.match(sentMessage.text, /<b>-Комиссия SNG: 3 210,00 ₽<\/b>/);
   assert.match(sentMessage.text, /SNG-NLH: 3 210,00 ₽/);
   assert.match(sentMessage.text, /<b>Баланс \(приложение\): 133 631,73 ₽<\/b>/);
   assert.match(sentMessage.text, /Обслуживание 8%: -41 476,48 ₽/);
