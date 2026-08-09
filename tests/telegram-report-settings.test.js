@@ -70,10 +70,51 @@ test("/сводка выводит клубы по рейку и отделяе�
   const res = responseRecorder();
   await handler(update("/сводка", 4), res);
   assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
-  assert.match(sentMessage.text, /^Сводка клубов по рейку\nПериод: 13\.07\.2026–19\.07\.2026/m);
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^Сводка клубов по рейку\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/m);
   assert.match(sentMessage.text, /1\. Два Туза — 724 837,89/);
-  assert.match(sentMessage.text, /27\. Храм — 0,20\n\nНулевой рейк:\n28\. CORONA — 0,00/);
+  assert.match(sentMessage.text, /27\. Храм — 0,20\n\n<b>Итого рейк: 1 878 391,42<\/b>\n\nНулевой рейк:\n28\. CORONA — 0,00/);
   assert.match(sentMessage.text, /39\. ••KARAVAN•• — 0,00$/);
+});
+
+test("/команды показывает справку по доступным командам", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/команды", 5), res);
+  assert.deepEqual(res.body, { ok: true, commands: true, sent: true });
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^<b>Доступные команды<\/b>/);
+  assert.match(sentMessage.text, /<b>\/сводка<\/b>/);
+  assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
+  assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
+  assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
+  assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+});
+
+test("/оверлеи выводит турниры по убыванию и итог", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/оверлеи", 6), res);
+  assert.deepEqual(res.body, { ok: true, overlays: true, sent: true });
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^Оверлеи турниров\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
+  assert.match(sentMessage.text, /1\. Субботний Фриролл 🏆 — 66 520,00/);
+  assert.match(sentMessage.text, /56\. Satellite 5 ticke💥 — 760,00/);
+  assert.match(sentMessage.text, /<b>Итого оверлей: 353 680,20<\/b>$/);
 });
 
 test("/итого показывает игровые разбивки единственного оставшегося отчёта", async (t) => {
