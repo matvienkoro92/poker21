@@ -5,6 +5,7 @@
   "description": "Приветственная страница покерного клуба Poker21 для Telegram Mini App.",
   "scripts": {
     "build": "node scripts/check-report-image-sizes.js && node scripts/copy-to-public.js",
+    "reports:process-master": "node scripts/process-master-weekly-report.mjs",
     "start": "npx serve .",
     "backup": "./scripts/backup.sh",
     "install-hooks": "cp scripts/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push scripts/backup.sh"
