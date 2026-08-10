@@ -305,6 +305,30 @@ test("/джекпот выводит общий сбор суперюниона,
   assert.match(sentMessage.text, /<b>Итого джекпот 21: -8 438,90<\/b>$/);
 });
 
+test("/расчеты выводит актуальные показатели, формулу и итог", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/расчеты", 18), res);
+  assert.deepEqual(res.body, { ok: true, calculations: true, sent: true });
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^Расчёты суперюниона\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+  assert.match(sentMessage.text, /Win\/lose всех лиг -2 792 778,73/);
+  assert.match(sentMessage.text, /Fee всех лиг \+<b>2 811 678,3723<\/b>/);
+  assert.match(sentMessage.text, /Insurance всех лиг \+<b>1 163,46<\/b>/);
+  assert.match(sentMessage.text, /Джекпот всех лиг \+<b>383 507,58<\/b>/);
+  assert.match(sentMessage.text, /Выплаты джекпота -<b>83 094,90<\/b>/);
+  assert.match(sentMessage.text, /Оверлей -<b>342 333,10<\/b>/);
+  assert.match(sentMessage.text, /<code>-2 792 778,73 \+ 2 811 678,3723 \+ 1 163,46 \+ 383 507,58 - 83 094,90 - 342 333,10<\/code>/);
+  assert.match(sentMessage.text, /<b>Итого: -21 857,32<\/b>$/);
+});
+
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;

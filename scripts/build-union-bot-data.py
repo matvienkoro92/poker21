@@ -168,12 +168,17 @@ def main():
     super_league_name_index = super_league_headers.index("      League      ")
     super_league_fee_index = super_league_headers.index("Jackpot Fee Total")
     super_league_payout_index = super_league_headers.index("Jackpot Payout Total")
+    super_league_result_index = super_league_headers.index("Total(Super Union)")
+    super_league_total_fee_index = super_league_headers.index("FeeTotal")
+    super_league_insurance_index = super_league_headers.index("Insurance Total")
     jackpot_leagues = []
+    super_league_total_row = None
     for row in super_league_sheet.iter_rows(min_row=5, values_only=True):
-        if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
-            continue
         league_label = str(row[super_league_name_index] or "").strip()
         if league_label.casefold() == "total":
+            super_league_total_row = row
+            continue
+        if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
             continue
         league_match = re.match(r"^(.*)\((\d+)\)$", league_label)
         jackpot_leagues.append({
@@ -198,6 +203,12 @@ def main():
         "unclassifiedPayout": round(super_league_payout - local_regular_payout - jackpot_21_payout, 2),
         "totalFee": super_league_fee,
         "totalPayout": super_league_payout,
+        "calculations": {
+            "winLose": float(super_league_total_row[super_league_result_index] or 0) if super_league_total_row else 0,
+            "fee": float(super_league_total_row[super_league_total_fee_index] or 0) if super_league_total_row else 0,
+            "insurance": float(super_league_total_row[super_league_insurance_index] or 0) if super_league_total_row else 0,
+            "overlay": round(sum(float(row["overlay"] or 0) for row in overlays), 2),
+        },
         "leagues": sorted(jackpot_leagues, key=lambda row: (-row["fee"], row["league"].casefold())),
     }
     write_json(output_dir / "union-jackpot-summary.json", jackpot_data)
