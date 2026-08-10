@@ -33,6 +33,9 @@ LEAGUE_SERVICE_PERCENT = {
 }
 
 CLUB_SERVICE_PERCENT = {
+    "Joker♦️Poker": 8,
+    "Joker♦️VIP♦️Poker": 8,
+    "Pattaya": 8,
     "Kampashka 21": 8,
     "TipTop": 8,
     "ШАНС": 10,
