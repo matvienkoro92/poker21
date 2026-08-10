@@ -8,6 +8,13 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 
+SUPER_LEAGUE_EXCHANGE_RATES = {
+    "PPCUNION": 100,
+    "AQUARIUM": 100,
+    "AF UNION": 100,
+}
+
+
 def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
@@ -181,14 +188,19 @@ def main():
         if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
             continue
         league_match = re.match(r"^(.*)\((\d+)\)$", league_label)
+        league_name = league_match.group(1).strip() if league_match else league_label
+        exchange_rate = SUPER_LEAGUE_EXCHANGE_RATES.get(league_name, 1)
         jackpot_leagues.append({
-            "league": league_match.group(1).strip() if league_match else league_label,
+            "league": league_name,
             "leagueId": league_match.group(2) if league_match else "",
             "fee": float(row[super_league_fee_index] or 0),
             "payout": float(row[super_league_payout_index] or 0),
+            "feeTotal": float(row[super_league_total_fee_index] or 0),
+            "insurance": float(row[super_league_insurance_index] or 0),
+            "exchangeRate": exchange_rate,
         })
-    super_league_fee = round(sum(row["fee"] for row in jackpot_leagues), 4)
-    super_league_payout = round(sum(row["payout"] for row in jackpot_leagues), 2)
+    super_league_fee = round(sum(row["fee"] * row["exchangeRate"] for row in jackpot_leagues), 4)
+    super_league_payout = round(sum(row["payout"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     local_regular_fee = round(sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows), 2)
     local_regular_payout = round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2)
     jackpot_21_fee = round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2)
@@ -205,8 +217,8 @@ def main():
         "totalPayout": super_league_payout,
         "calculations": {
             "winLose": float(super_league_total_row[super_league_result_index] or 0) if super_league_total_row else 0,
-            "fee": float(super_league_total_row[super_league_total_fee_index] or 0) if super_league_total_row else 0,
-            "insurance": float(super_league_total_row[super_league_insurance_index] or 0) if super_league_total_row else 0,
+            "fee": round(sum(row["feeTotal"] * row["exchangeRate"] for row in jackpot_leagues), 4),
+            "insurance": round(sum(row["insurance"] * row["exchangeRate"] for row in jackpot_leagues), 2),
             "overlay": round(sum(float(row["overlay"] or 0) for row in overlays), 2),
         },
         "leagues": sorted(jackpot_leagues, key=lambda row: (-row["fee"], row["league"].casefold())),

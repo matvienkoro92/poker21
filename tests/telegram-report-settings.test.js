@@ -285,27 +285,27 @@ test("/джекпот выводит общий сбор суперюниона,
   assert.deepEqual(res.body, { ok: true, jackpot: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
   assert.match(sentMessage.text, /^Джекпот суперюниона\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
-  assert.match(sentMessage.text, /<b>Общий джекпот по всем лигам: 383 507,58<\/b>/);
+  assert.match(sentMessage.text, /<b>Общий джекпот по всем лигам: 383 557,08<\/b>/);
   assert.match(sentMessage.text, /Анти-Рег — 246 302,96/);
   assert.match(sentMessage.text, /Off Cheats — 47 175,91/);
-  assert.match(sentMessage.text, /AF UNION — 0,50/);
+  assert.match(sentMessage.text, /AF UNION — 50,00/);
   assert.match(sentMessage.text, /PPCUNION — 1 288,76/);
   assert.match(sentMessage.text, /AQUARIUM — 138,69/);
-  assert.match(sentMessage.text, /Проверка: сумма по лигам 383 507,58 = общий джекпот 383 507,58/);
+  assert.match(sentMessage.text, /Проверка: сумма по лигам 383 557,08 = общий джекпот 383 557,08/);
   assert.match(sentMessage.text, /Обычный джекпот в лиге Антирег — 171 646,96/);
-  assert.match(sentMessage.text, /У остальных лиг — 137 204,62/);
-  assert.match(sentMessage.text, /Выплаты обычного джекпота — 0,00\n<b>итого джекпот покер: 308 851,58<\/b>/);
+  assert.match(sentMessage.text, /У остальных лиг — 137 254,12/);
+  assert.match(sentMessage.text, /Выплаты обычного джекпота — 0,00\n<b>итого джекпот покер: 308 901,08<\/b>/);
   assert.match(sentMessage.text, /Возвраты союзам:\nPPCUNION 50% -644\nVALT13 70% -315/);
   assert.match(sentMessage.text, /ONL YSTAR 70% -1 927\nRbpoker 70% -3 269/);
   assert.match(sentMessage.text, /QUBE 60% -0\nAQUARIUM 50% -69/);
   assert.match(sentMessage.text, /<b>Всего возвратов: -6 224<\/b>/);
   assert.match(sentMessage.text, /Jackpot 21 \(подтверждено\) — 74 656,00/);
   assert.match(sentMessage.text, /Выплаты Jackpot 21 — 83 094,90\nРазница: -8 438,90/);
-  assert.match(sentMessage.text, /<b>Итого джекпот покер: 302 627,58<\/b>/);
+  assert.match(sentMessage.text, /<b>Итого джекпот покер: 302 677,08<\/b>/);
   assert.match(sentMessage.text, /<b>Итого джекпот 21: -8 438,90<\/b>$/);
 });
 
-test("/расчеты выводит актуальные показатели, формулу и итог", async (t) => {
+test("/расчеты выводит актуальные показатели и итог без строки формулы", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
   global.fetch = async (url, options) => {
@@ -320,13 +320,13 @@ test("/расчеты выводит актуальные показатели, 
   assert.equal(sentMessage.parse_mode, "HTML");
   assert.match(sentMessage.text, /^Расчёты суперюниона\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
   assert.match(sentMessage.text, /Win\/lose всех лиг -2 792 778,73/);
-  assert.match(sentMessage.text, /Fee всех лиг \+<b>2 811 678,3723<\/b>/);
+  assert.match(sentMessage.text, /Fee всех лиг \+<b>2 830 227,2400<\/b>/);
   assert.match(sentMessage.text, /Insurance всех лиг \+<b>1 163,46<\/b>/);
-  assert.match(sentMessage.text, /Джекпот всех лиг \+<b>383 507,58<\/b>/);
+  assert.match(sentMessage.text, /Джекпот всех лиг \+<b>383 557,08<\/b>/);
   assert.match(sentMessage.text, /Выплаты джекпота -<b>83 094,90<\/b>/);
   assert.match(sentMessage.text, /Оверлей -<b>342 333,10<\/b>/);
-  assert.match(sentMessage.text, /<code>-2 792 778,73 \+ 2 811 678,3723 \+ 1 163,46 \+ 383 507,58 - 83 094,90 - 342 333,10<\/code>/);
-  assert.match(sentMessage.text, /<b>Итого: -21 857,32<\/b>$/);
+  assert.doesNotMatch(sentMessage.text, /<code>/);
+  assert.match(sentMessage.text, /<b>Итого: -3 258,95<\/b>$/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
