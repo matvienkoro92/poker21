@@ -71,10 +71,10 @@ test("/рейк клубов выводит клубы по рейку и отд
   await handler(update("/рейк клубов", 4), res);
   assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
-  assert.match(sentMessage.text, /^Сводка клубов по рейку\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/m);
-  assert.match(sentMessage.text, /1\. Два Туза — 724 837,89/);
-  assert.match(sentMessage.text, /27\. Храм — 0,20\n\n<b>Итого рейк: 1 878 391,42<\/b>\n\nНулевой рейк:\n28\. CORONA — 0,00/);
-  assert.match(sentMessage.text, /39\. ••KARAVAN•• — 0,00$/);
+  assert.match(sentMessage.text, /^Сводка клубов по рейку\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/m);
+  assert.match(sentMessage.text, /1\. Два Туза — 619 437,00/);
+  assert.match(sentMessage.text, /28\. РИВЕР КЛУБ — 5,00\n\n<b>Итого рейк: 1 905 711,67<\/b>\n\nНулевой рейк:/);
+  assert.match(sentMessage.text, /40\. /);
 });
 
 test("/команды показывает справку по доступным командам", async (t) => {
@@ -99,10 +99,34 @@ test("/команды показывает справку по доступны�
   assert.match(sentMessage.text, /<b>\/игроки плюс<\/b>/);
   assert.match(sentMessage.text, /<b>\/клуб Два Туза<\/b>/);
   assert.match(sentMessage.text, /<b>\/игрок 230740<\/b>/);
+  assert.match(sentMessage.text, /<b>\/активность<\/b>/);
   assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+});
+
+test("/активность выводит общие показатели и четыре топа", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/активность", 14), res);
+  assert.deepEqual(res.body, { ok: true, activity: true, sent: true });
+  assert.equal(sentMessage.parse_mode, "HTML");
+  assert.match(sentMessage.text, /^Активность клубов\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+  assert.match(sentMessage.text, /Активных клубов: 28/);
+  assert.match(sentMessage.text, /Активных игроков: 543/);
+  assert.match(sentMessage.text, /Раздач: 404 718/);
+  assert.match(sentMessage.text, /<b>Топ-10 по активным игрокам<\/b>\n1\. Два Туза — 278/);
+  assert.match(sentMessage.text, /<b>Топ-10 по играм<\/b>\n1\. Два Туза — 371/);
+  assert.match(sentMessage.text, /<b>Топ-10 по раздачам<\/b>\n1\. Два Туза — 203 323/);
+  assert.match(sentMessage.text, /<b>Топ-10 по рейку на игрока<\/b>\n1\. Fish Hunter — 20 644,20/);
 });
 
 test("/клуб находит клуб по части названия", async (t) => {
@@ -118,8 +142,23 @@ test("/клуб находит клуб по части названия", async
   await handler(update("/клуб два туза", 10), res);
   assert.deepEqual(res.body, { ok: true, club: true, sent: true });
   assert.match(sentMessage.text, /^<b>Два Туза \(758417\)<\/b>/);
-  assert.match(sentMessage.text, /<b>Весь рейк: 724 837,89<\/b>/);
+  assert.match(sentMessage.text, /<b>Весь рейк: 619 437,00<\/b>/);
   assert.match(sentMessage.text, /<b>Топ-5 по рейку<\/b>/);
+});
+
+test("/клуб находит латинское название по русскому написанию", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/клуб компашка", 13), res);
+  assert.deepEqual(res.body, { ok: true, club: true, sent: true });
+  assert.match(sentMessage.text, /^<b>Kampashka 21 \(680649\)<\/b>/);
 });
 
 test("/игрок находит игрока по ID", async (t) => {
@@ -136,7 +175,7 @@ test("/игрок находит игрока по ID", async (t) => {
   assert.deepEqual(res.body, { ok: true, player: true, sent: true });
   assert.match(sentMessage.text, /^<b>PlayerE32BA7 \(230740\)<\/b>/);
   assert.match(sentMessage.text, /Клубы: new balance/);
-  assert.match(sentMessage.text, /<b>Рейк: 66 856,40<\/b>/);
+  assert.match(sentMessage.text, /<b>Рейк: 200,00<\/b>/);
 });
 
 test("/игрок допускает неточный ник", async (t) => {
@@ -155,9 +194,9 @@ test("/игрок допускает неточный ник", async (t) => {
 });
 
 for (const [command, type, title, firstLine] of [
-  ["/игроки рейк", "рейк", "Топ-10 игроков по рейку", "1. <b>PlayerE32BA7</b> (230740) — 66 856,40 — new balance"],
-  ["/игроки минус", "минус", "Топ-10 игроков по проигрышу", "1. <b>PlayerE32BA7</b> (230740) — -226 956,81 — new balance"],
-  ["/игроки плюс", "плюс", "Топ-10 игроков по выигрышу", "1. <b>ПокерМанки</b> (208238) — 150 941,54 — Kampashka 21, RealPokerGame, Два Туза, КЛУБ POPEYE, Клёвое место, Храм"],
+  ["/игроки рейк", "рейк", "Топ-10 игроков по рейку", "1. <b>СвошникZ</b> (316424) — 139 157,80 — Kings KO"],
+  ["/игроки минус", "минус", "Топ-10 игроков по проигрышу", "1. <b>MupHbIu</b> (416594) — -186 162,28 — Joker♦️Poker"],
+  ["/игроки плюс", "плюс", "Топ-10 игроков по выигрышу", "1. <b>СвошникZ</b> (316424) — 224 984,43 — Kings KO"],
 ]) {
   test(`${command} выводит нужный топ-10`, async (t) => {
     const originalFetch = global.fetch;
@@ -172,7 +211,7 @@ for (const [command, type, title, firstLine] of [
     await handler(update(command, 9), res);
     assert.deepEqual(res.body, { ok: true, players: type, sent: true });
     assert.equal(sentMessage.parse_mode, "HTML");
-    assert.match(sentMessage.text, new RegExp(`^${title}\\n<b>Период: 13\\.07\\.2026–19\\.07\\.2026<\\/b>`));
+    assert.match(sentMessage.text, new RegExp(`^${title}\\n<b>Период: 03\\.08\\.2026–09\\.08\\.2026<\\/b>`));
     assert.ok(sentMessage.text.includes(firstLine));
     assert.match(sentMessage.text, /10\. /);
   });
@@ -191,12 +230,12 @@ test("/джекпот выводит все сборы, выплаты и чис
   await handler(update("/джекпот", 8), res);
   assert.deepEqual(res.body, { ok: true, jackpot: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
-  assert.match(sentMessage.text, /^Джекпот союза\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
-  assert.match(sentMessage.text, /Сбор обычного джекпота — 221 584,72/);
-  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 101 182,47/);
-  assert.match(sentMessage.text, /<b>Всего собрано: 267 076,72<\/b>/);
-  assert.match(sentMessage.text, /<b>Всего выплачено: 101 182,47<\/b>/);
-  assert.match(sentMessage.text, /<b>Сборы минус выплаты: 165 894,25<\/b>$/);
+  assert.match(sentMessage.text, /^Джекпот союза\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+  assert.match(sentMessage.text, /Сбор обычного джекпота — 171 646,96/);
+  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 83 094,90/);
+  assert.match(sentMessage.text, /<b>Всего собрано: 246 302,96<\/b>/);
+  assert.match(sentMessage.text, /<b>Всего выплачено: 83 094,90<\/b>/);
+  assert.match(sentMessage.text, /<b>Сборы минус выплаты: 163 208,06<\/b>$/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
@@ -212,10 +251,10 @@ test("/игры выводит весь рейк союза и разбивку 
   await handler(update("/игры", 7), res);
   assert.deepEqual(res.body, { ok: true, games: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
-  assert.match(sentMessage.text, /^Рейк союза по видам игр\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
-  assert.match(sentMessage.text, /<b>Весь рейк союза: 1 878 391,42<\/b>/);
-  assert.match(sentMessage.text, /NLH — 591 111,78\nPLO6 — 585 668,17/);
-  assert.match(sentMessage.text, /MTT-Durak — 65,00$/);
+  assert.match(sentMessage.text, /^Рейк союза по видам игр\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+  assert.match(sentMessage.text, /<b>Весь рейк союза: 1 905 711,67<\/b>/);
+  assert.match(sentMessage.text, /NLH — 566 045,69\nPLO6 — 506 603,30/);
+  assert.match(sentMessage.text, /OFC — 839,50$/);
 });
 
 test("/оверлеи выводит турниры по убыванию и итог", async (t) => {
@@ -231,10 +270,10 @@ test("/оверлеи выводит турниры по убыванию и и�
   await handler(update("/оверлеи", 6), res);
   assert.deepEqual(res.body, { ok: true, overlays: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
-  assert.match(sentMessage.text, /^Оверлеи турниров\n<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
-  assert.match(sentMessage.text, /1\. Субботний Фриролл 🏆 — 66 520,00/);
-  assert.match(sentMessage.text, /56\. Satellite 5 ticke💥 — 760,00/);
-  assert.match(sentMessage.text, /<b>Итого оверлей: 353 680,20<\/b>$/);
+  assert.match(sentMessage.text, /^Оверлеи турниров\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+  assert.match(sentMessage.text, /1\. 💥Big Boss 💥 — 120 000,00/);
+  assert.match(sentMessage.text, /45\. Magic Chest — 75,00/);
+  assert.match(sentMessage.text, /<b>Итого оверлей: 342 333,10<\/b>$/);
 });
 
 test("/итого показывает игровые разбивки единственного оставшегося отчёта", async (t) => {
