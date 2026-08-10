@@ -329,7 +329,7 @@ test("/расчеты выводит актуальные показатели �
   assert.match(sentMessage.text, /<b>Итого: -4 422,41<\/b>$/);
 });
 
-test("/союзы отправляет каждый союз отдельной картинкой с расчетом", async (t) => {
+test("/союзы отправляет два альбома с отдельной подписью у каждой картинки", async (t) => {
   const originalFetch = global.fetch;
   const sentMessages = [];
   global.fetch = async (url, options) => {
@@ -341,26 +341,37 @@ test("/союзы отправляет каждый союз отдельной 
   const res = responseRecorder();
   await handler(update("/союзы", 19), res);
   assert.deepEqual(res.body, { ok: true, unions: true, sent: true });
-  assert.equal(sentMessages.length, 15);
-  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMessage").map((row) => row.body.text), [
-    "<b>❗ ДЛЯ РОМАНА:</b>",
-    "<b>❗ ДЛЯ СЕРГЕЯ:</b>",
-  ]);
-  const photos = sentMessages.filter((row) => row.method === "sendPhoto");
+  assert.equal(sentMessages.length, 2);
+  assert.ok(sentMessages.every((row) => row.method === "sendMediaGroup"));
+  assert.deepEqual(sentMessages.map((row) => row.body.media.length), [9, 4]);
+  const photos = sentMessages.flatMap((row) => row.body.media.map((photo) => ({ method: "sendPhoto", body: { photo: photo.media, caption: photo.caption } })));
   assert.equal(photos.length, 13);
   assert.ok(photos.every((row) => row.body.photo.includes("/assets/reports/unions/2026-08-03_2026-08-09/")));
+  assert.ok(photos.every((row) => row.body.photo.endsWith("?v=refund-plus-1")));
   assert.deepEqual(photos.slice(0, 9).map((row) => row.body.caption.match(/^<b>(.+?)<\/b>/)[1]), [
-    "VAULT 13", "Rbpoker", "QUASAR", "PPCUNION", "ONL YSTARS", "Ginger", "BRO.POKER", "Bambuk", "AF UNION",
+    "❗ ДЛЯ РОМАНА:", "Rbpoker", "QUASAR", "PPCUNION", "ONL YSTARS", "Ginger", "BRO.POKER", "Bambuk", "AF UNION",
   ]);
+  assert.match(photos[0].body.caption, /<b>VAULT 13<\/b>/);
   assert.equal(photos.some((row) => row.body.caption.startsWith("<b>Анти-Рег</b>")), false);
   const bambuk = photos.find((row) => row.body.caption.startsWith("<b>Bambuk</b>"));
   assert.match(bambuk.body.caption, /Единый платёж за обслуживание 6%:/);
+  const vault = photos.find((row) => row.body.caption.includes("<b>VAULT 13</b>"));
+  assert.match(vault.body.caption, /Единый платёж за обслуживание 6%: -237,32/);
+  assert.match(vault.body.caption, /Итого к расчёту: 318,33/);
+  const ussr = photos.find((row) => row.body.caption.includes("<b>СССР</b>"));
+  assert.match(ussr.body.caption, /Единый платёж за обслуживание 8%: -10 091,00/);
+  const offCheats = photos.find((row) => row.body.caption.includes("<b>Off Cheats</b>"));
+  assert.match(offCheats.body.caption, /Единый платёж за обслуживание 8%: -25 246,50/);
+  const aquarium = photos.find((row) => row.body.caption.includes("<b>AQUARIUM</b>"));
+  assert.match(aquarium.body.caption, /Единый платёж за обслуживание 6%: -276,19/);
+  assert.match(aquarium.body.caption, /Итого к расчёту: -17 662,47/);
   const ppc = photos.find((row) => row.body.caption.startsWith("<b>PPCUNION</b>"));
   assert.match(ppc.body.caption, /Возврат джекпота: \+644,00/);
   assert.match(ppc.body.caption, /Итого к расчёту: 33 816,02/);
   assert.equal(sentMessages[0].body.reply_to_message_id, 19);
   assert.equal(sentMessages[1].body.reply_to_message_id, undefined);
-  assert.equal(sentMessages[10].body.text, "<b>❗ ДЛЯ СЕРГЕЯ:</b>");
+  assert.match(sentMessages[0].body.media[0].caption, /^<b>❗ ДЛЯ РОМАНА:<\/b>/);
+  assert.match(sentMessages[1].body.media[0].caption, /^<b>❗ ДЛЯ СЕРГЕЯ:<\/b>/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {

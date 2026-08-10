@@ -24,6 +24,14 @@ LEAGUE_JACKPOT_REFUNDS = {
     "AQUARIUM": 50,
 }
 
+LEAGUE_SERVICE_PERCENT = {
+    "СССР": 8,
+    "VAULT 13": 6,
+    "Off Cheats": 8,
+    "Bambuk": 6,
+    "AQUARIUM": 6,
+}
+
 
 def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
@@ -253,7 +261,7 @@ def main():
         overly = 0
         balance_final = round(balance + fraud + overly, 2)
         promo = 0
-        service_percent = 6 if row["league"].casefold() == "bambuk" else 5
+        service_percent = LEAGUE_SERVICE_PERCENT.get(row["league"], 5)
         service = round(-commission * service_percent / 100, 2)
         refund_percent = LEAGUE_JACKPOT_REFUNDS.get(row["league"], 0)
         jackpot_refund = int(row["fee"] * exchange_rate * refund_percent / 100)
