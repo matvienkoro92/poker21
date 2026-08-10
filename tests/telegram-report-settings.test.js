@@ -656,7 +656,7 @@ test("группу можно привязать к союзу по назван
   const commandsRes = responseRecorder();
   await handler(groupUpdate("/команды", 81, chatId), commandsRes);
   assert.match(calls.at(-1).body.text, /Команды союза «Rbpoker»/);
-  assert.match(calls.at(-1).body.text, /<b>\/клубы<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>\/клубы_союза<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/игроки рейк<\/b>/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/мой союз/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/сводка/);
@@ -674,7 +674,7 @@ test("группу можно привязать к союзу по назван
   assert.match(calls.at(-1).body.text, /Топ-10 игроков по рейку — Rbpoker/);
 
   const clubsRes = responseRecorder();
-  await handler(groupUpdate("/клубы", 84, chatId), clubsRes);
+  await handler(groupUpdate("/клубы_союза", 84, chatId), clubsRes);
   assert.deepEqual(clubsRes.body, { ok: true, clubMode: true, unionClubs: true, found: true, sent: true });
   assert.match(calls.at(-1).body.text, /<b>Клубы союза Rbpoker<\/b>/);
   assert.match(calls.at(-1).body.text, /Win\/Lose: [\s\S]*Рейк: [\s\S]*<b>Итого:/);
@@ -683,7 +683,7 @@ test("группу можно привязать к союзу по назван
   assert.match(calls.at(-1).body.text, /<b>Общий итог: -46 408,19<\/b>/);
 
   const datedClubsRes = responseRecorder();
-  await handler(groupUpdate("/клубы 03.08-09.08", 85, chatId), datedClubsRes);
+  await handler(groupUpdate("/клубы_союза 03.08-09.08", 85, chatId), datedClubsRes);
   assert.equal(datedClubsRes.body.found, true);
   assert.match(calls.at(-1).body.text, /Период: 03\.08\.2026–09\.08\.2026/);
 
