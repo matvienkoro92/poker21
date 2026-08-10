@@ -33,6 +33,19 @@ LEAGUE_SERVICE_PERCENT = {
 }
 
 CLUB_SERVICE_PERCENT = {
+    "Kampashka 21": 8,
+    "TipTop": 8,
+    "ШАНС": 10,
+    "CHICAGO.21": 10,
+    "SalamBro": 10,
+    "new balance": 10,
+    "GKpoker": 10,
+    "Амиго": 15,
+    "MAGILAN": 10,
+    "Collaboration Club": 20,
+    "IMMORTALS": 15,
+    "Спарта": 15,
+    "Beer and Bear": 15,
     "GARAGE": 8,
     "GoRiLaZzz": 10,
     "PC Arena": 8,

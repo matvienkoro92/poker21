@@ -435,6 +435,12 @@ test("/клубы подтверждает webhook заранее и повто�
   assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
   const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
   assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
+  const kampashka = photos.find((photo) => photo.caption.startsWith("<b>Kampashka 21</b>"));
+  assert.match(kampashka.caption, /Единый платёж за обслуживание 8%:/);
+  const collaboration = photos.find((photo) => photo.caption.startsWith("<b>Collaboration Club</b>"));
+  assert.match(collaboration.caption, /Единый платёж за обслуживание 20%:/);
+  const amigo = photos.find((photo) => photo.caption.startsWith("<b>Амиго</b>"));
+  assert.match(amigo.caption, /Единый платёж за обслуживание 15%:/);
   const firstRunCalls = sentMessages.length;
   const duplicateRes = responseRecorder();
   await handler(request, duplicateRes);
@@ -459,7 +465,7 @@ test("/клубы итого отправляет только округлён�
   assert.equal(sentMessages[0].body.reply_to_message_id, 22);
   assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
   assert.match(sentMessages[0].body.text, /Два Туза: -337 847/);
-  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 468 761<\/b>/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 470 545<\/b>/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
