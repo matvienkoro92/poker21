@@ -432,6 +432,9 @@ test("/клубы отправляет отчёты один раз и повт�
   assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 3, 2, 3]);
   const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
   assert.equal(photos.length, 28);
+  assert.deepEqual(sentMessages[1].body.media.map((photo) => photo.caption.match(/^<b>(.+?)<\/b>/)[1]), [
+    "River21", "T O T", "Sibir 70", "Два Туза", "РИВЕР КЛУБ", "Храм", "PC Arena", "GoRiLaZzz", "GARAGE", "RealPokerGame",
+  ]);
   assert.ok(photos.every((photo) => photo.media.endsWith("?v=club-salary-5")));
   assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
   const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
@@ -478,6 +481,7 @@ test("/клубы итого отправляет только округлён�
   assert.equal(sentMessages[0].method, "sendMessage");
   assert.equal(sentMessages[0].body.reply_to_message_id, 22);
   assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
+  assert.match(sentMessages[0].body.text, /<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>\nRiver21: 6 611\nT O T: -558\nSibir 70: -2 819\nДва Туза: -337 847\nРИВЕР КЛУБ: -46\nХрам: 1 683\nPC Arena: 8 121\nGoRiLaZzz: 6 573\nGARAGE: 4 802\nRealPokerGame: -3 072/);
   assert.match(sentMessages[0].body.text, /Два Туза: -337 847/);
   assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 183 019<\/b>/);
   assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: -173 740<\/b>\nJoker♦️Poker: -115 346/);
