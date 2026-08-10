@@ -488,7 +488,7 @@ test("/клубы итого отправляет только округлён�
   assert.match(sentMessages[0].body.text, /\n\n<b>Тимур:<\/b>\n<b>ИТОГО: 471 380<\/b>\nFish Hunter: 107 867/);
 });
 
-test("/доля выводит союзы в заданном порядке, рейк, процент и итог", async (t) => {
+test("/китайцы выводит союзы, рейк, процент и итог с картинкой", async (t) => {
   const originalFetch = global.fetch;
   const sentMessages = [];
   global.fetch = async (url, options) => {
@@ -498,7 +498,7 @@ test("/доля выводит союзы в заданном порядке, р
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/доля", 23), res);
+  await handler(update("/китайцы", 23), res);
   assert.deepEqual(res.body, { ok: true, chinese: true, sent: true });
   assert.deepEqual(sentMessages.map((row) => row.method), ["sendPhoto"]);
   assert.equal(sentMessages[0].body.reply_to_message_id, undefined);
@@ -514,12 +514,29 @@ test("/доля выводит союзы в заданном порядке, р
   assert.ok(lines.includes("<b>ИТОГО ПРОЦЕНТ: 212 763,77</b>"));
   assert.ok(lines.includes("60% Джеку = 127 658,26"));
   assert.ok(lines.includes("40% наша доля = 85 105,51"));
-  assert.ok(lines.includes("<b>Распределение нашей доли:</b>"));
+  assert.ok(!lines.includes("<b>Распределение нашей доли:</b>"));
+  assert.equal(sentMessages[0].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-table-3");
+});
+
+test("/доля выводит только распределение нашей доли", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = { method: url.split("/").at(-1), body: JSON.parse(options.body) };
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/доля", 24), res);
+  assert.deepEqual(res.body, { ok: true, share: true, sent: true });
+  assert.equal(sentMessage.method, "sendMessage");
+  const lines = sentMessage.body.text.split("\n");
+  assert.equal(lines[0], "<b>Распределение нашей доли:</b>");
   assert.ok(lines.includes("Андрюха 2% = 4 255,28"));
   assert.ok(lines.includes("Серёга 3,25% = 6 914,82"));
   assert.ok(lines.includes("Илюха 7% = 14 893,46"));
   assert.equal(lines.at(-1), "Роман 14,75% = 31 382,66");
-  assert.equal(sentMessages[0].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-table-2");
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {

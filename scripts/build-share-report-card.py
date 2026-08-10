@@ -24,10 +24,6 @@ RULES = [
     ("league", "596499", "AF UNION", 5),
 ]
 
-SPLITS = [("Андрюха", 2), ("Роман", 2), ("Макс", 3), ("Серёга", 3.25),
-          ("Диман", 4), ("Костян", 4), ("Илюха", 7), ("Роман", 14.75)]
-
-
 def font(size, bold=False):
     paths = [
         "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf",
@@ -69,7 +65,7 @@ def main():
     total_rake = round_money(sum((Decimal(str(row[2])) for row in rows), Decimal("0")))
     total = round_money(sum((row[3] for row in rows), Decimal("0")))
 
-    image_height = 902 + len(rows) * 48
+    image_height = 502 + len(rows) * 48
     image = Image.new("RGB", (1200, image_height), "#071A16")
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((35, 30, 1165, image_height - 30), radius=34, fill="#0D2922", outline="#2DD4A3", width=3)
@@ -96,15 +92,6 @@ def main():
     right(draw, 1120, y, money(total), total_font, "#6EE7B7")
     y += 58
     draw.text((78, y), f"60% Джеку = {money(round_money(total * Decimal('0.60')))}", font=body_bold, fill="#D7E3DF")
-    y += 40
-    draw.text((78, y), f"40% наша доля = {money(round_money(total * Decimal('0.40')))}", font=body_bold, fill="#D7E3DF")
-    y += 55
-    draw.text((78, y), "Распределение нашей доли", font=header, fill="#F8FAFC")
-    y += 44
-    for name, percent in SPLITS:
-        draw.text((78, y), f"{name} {str(percent).replace('.', ',')}%", font=body, fill="#D7E3DF")
-        right(draw, 1120, y, money(round_money(total * Decimal(str(percent)) / 100)), body_bold, "#6EE7B7")
-        y += 40
 
     output = Path(sys.argv[3])
     output.parent.mkdir(parents=True, exist_ok=True)
