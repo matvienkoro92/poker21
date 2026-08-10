@@ -680,8 +680,7 @@ test("группу можно привязать к союзу по назван
   assert.match(calls.at(-1).body.text, /<b>Major \(237780\) — Rbpoker<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>Рейк: 9 293,08<\/b>/);
   assert.match(calls.at(-1).body.text, /Страховка: 0,00/);
-  assert.match(calls.at(-1).body.text, /Сбор джекпота: 970,00/);
-  assert.match(calls.at(-1).body.text, /Выплаты джекпота: 0,00/);
+  assert.doesNotMatch(calls.at(-1).body.text, /джекпот/iu);
 
   const foreignPlayerRes = responseRecorder();
   await handler(groupUpdate("/игрок молоток", 832, chatId), foreignPlayerRes);
