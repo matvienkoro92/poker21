@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import hashlib
 import re
 import sys
 from collections import defaultdict
@@ -14,6 +15,15 @@ SUPER_LEAGUE_EXCHANGE_RATES = {
     "AF UNION": 100,
 }
 
+LEAGUE_JACKPOT_REFUNDS = {
+    "PPCUNION": 50,
+    "VAULT 13": 70,
+    "ONL YSTARS": 70,
+    "Rbpoker": 70,
+    "QUBE": 60,
+    "AQUARIUM": 50,
+}
+
 
 def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
@@ -26,6 +36,11 @@ def add_value(target, key, value):
 
 def top(rows, field, reverse=True, count=10):
     return sorted(rows, key=lambda row: row[field], reverse=reverse)[:count]
+
+
+def league_slug(value):
+    slug = re.sub(r"[^a-z0-9]+", "-", str(value).lower()).strip("-")
+    return slug or f"league-{hashlib.sha1(str(value).encode('utf-8')).hexdigest()[:10]}"
 
 
 def main():
@@ -197,6 +212,7 @@ def main():
             "payout": float(row[super_league_payout_index] or 0),
             "feeTotal": float(row[super_league_total_fee_index] or 0),
             "insurance": float(row[super_league_insurance_index] or 0),
+            "winLose": float(row[super_league_result_index] or 0),
             "exchangeRate": exchange_rate,
         })
     super_league_fee = round(sum(row["fee"] * row["exchangeRate"] for row in jackpot_leagues), 4)
@@ -224,6 +240,45 @@ def main():
         "leagues": sorted(jackpot_leagues, key=lambda row: (-row["fee"], row["league"].casefold())),
     }
     write_json(output_dir / "union-jackpot-summary.json", jackpot_data)
+
+    league_reports = []
+    for row in jackpot_leagues:
+        exchange_rate = row["exchangeRate"]
+        winnings = round(row["winLose"], 2)
+        commission = round(row["feeTotal"] * exchange_rate, 2)
+        balance = round(winnings + commission, 2)
+        fraud = 0
+        overly = 0
+        balance_final = round(balance + fraud + overly, 2)
+        promo = 0
+        service_percent = 6 if row["league"].casefold() == "bambuk" else 5
+        service = round(-commission * service_percent / 100, 2)
+        refund_percent = LEAGUE_JACKPOT_REFUNDS.get(row["league"], 0)
+        jackpot_refund = -int(row["fee"] * exchange_rate * refund_percent / 100)
+        total = round(balance_final + promo + service + jackpot_refund, 2)
+        league_reports.append({
+            "league": row["league"],
+            "leagueId": row["leagueId"],
+            "startDate": start_date,
+            "endDate": end_date,
+            "imagePath": f"/assets/reports/unions/{start_date}_{end_date}/{league_slug(row['league'])}.png",
+            "metrics": {
+                "winnings": winnings,
+                "commission": commission,
+                "balance": balance,
+                "fraud": fraud,
+                "overly": overly,
+                "balanceFinal": balance_final,
+                "promo": promo,
+                "servicePercent": service_percent,
+                "service": service,
+                "jackpotRefundPercent": refund_percent,
+                "jackpotRefund": jackpot_refund,
+                "total": total,
+            },
+        })
+    league_report_data = {**base, "reports": league_reports}
+    write_json(output_dir / "union-league-reports.json", league_report_data)
 
     player_tops_data = {
         **base,
@@ -264,6 +319,7 @@ def main():
         "games": game_rake_data,
         "overlays": overlay_data,
         "jackpot": jackpot_data,
+        "leagueReports": league_report_data,
         "playerTops": player_tops_data,
         "activity": activity_data,
     }

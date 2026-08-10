@@ -329,6 +329,33 @@ test("/расчеты выводит актуальные показатели �
   assert.match(sentMessage.text, /<b>Итого: -4 422,41<\/b>$/);
 });
 
+test("/союзы отправляет каждый союз отдельной картинкой с расчетом", async (t) => {
+  const originalFetch = global.fetch;
+  const sentMessages = [];
+  global.fetch = async (url, options) => {
+    sentMessages.push({ method: url.split("/").at(-1), body: JSON.parse(options.body) });
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/союзы", 19), res);
+  assert.deepEqual(res.body, { ok: true, unions: true, sent: true });
+  assert.equal(sentMessages.length, 14);
+  assert.ok(sentMessages.every((row) => row.method === "sendPhoto"));
+  assert.ok(sentMessages.every((row) => row.body.photo.includes("/assets/reports/unions/2026-08-03_2026-08-09/")));
+  const antiReg = sentMessages.find((row) => row.body.caption.startsWith("<b>Анти-Рег</b>"));
+  assert.match(antiReg.body.caption, /Выигрыш: -1 574 521,96/);
+  assert.match(antiReg.body.caption, /Комиссия кэш \+ MTT: 1 905 711,67/);
+  assert.match(antiReg.body.caption, /Единый платёж за обслуживание 5%: -95 285,58/);
+  const bambuk = sentMessages.find((row) => row.body.caption.startsWith("<b>Bambuk</b>"));
+  assert.match(bambuk.body.caption, /Единый платёж за обслуживание 6%:/);
+  const ppc = sentMessages.find((row) => row.body.caption.startsWith("<b>PPCUNION</b>"));
+  assert.match(ppc.body.caption, /Возврат джекпота: -644,00/);
+  assert.equal(sentMessages[0].body.reply_to_message_id, 19);
+  assert.equal(sentMessages[1].body.reply_to_message_id, undefined);
+});
+
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
