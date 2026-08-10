@@ -726,7 +726,10 @@ test("группу можно привязать к союзу по назван
   await handler(groupUpdate("/клубы_союза", 84, chatId), clubsRes);
   assert.deepEqual(clubsRes.body, { ok: true, clubMode: true, unionClubs: true, found: true, sent: true });
   assert.match(calls.at(-1).body.text, /<b>Клубы союза Rbpoker<\/b>/);
-  assert.match(calls.at(-1).body.text, /Win\/Lose: [\s\S]*Рейк: [\s\S]*<b>Итого:/);
+  assert.match(calls.at(-1).body.text, /<b>Pokerrates<\/b>[\s\S]*Игроков всего: 28[\s\S]*Активных игроков: 28[\s\S]*Win\/Lose: [\s\S]*Рейк: [\s\S]*<b>Итого:/);
+  assert.match(calls.at(-1).body.text, /<b>PokerJoker21<\/b>[\s\S]*Игроков всего: 4[\s\S]*Активных игроков: 4/);
+  assert.match(calls.at(-1).body.text, /<b>Игроков всего: 32<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>Активных игроков: 32<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>Итого Win\/Lose: -90 676,44<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>Итого рейк: 44 268,25<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>Общий итог: -46 408,19<\/b>/);

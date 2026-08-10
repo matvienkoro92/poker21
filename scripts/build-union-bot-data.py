@@ -281,9 +281,15 @@ def main():
                 club_id = club_match.group(2) if club_match else ""
                 club_name = club_match.group(1).strip() if club_match else club_label
                 club_key = club_id or club_name.casefold()
-                club = league_clubs[league_id].setdefault(club_key, {"clubId": club_id, "club": club_name, "rake": 0.0, "winLose": 0.0})
+                club = league_clubs[league_id].setdefault(club_key, {
+                    "clubId": club_id, "club": club_name, "rake": 0.0, "winLose": 0.0,
+                    "playerIds": set(), "activePlayerIds": set(),
+                })
                 club["rake"] += float(row[5] or 0) * exchange_rate
                 club["winLose"] += float(row[4] or 0) * exchange_rate
+                club["playerIds"].add(player_id)
+                if any(float(row[index] or 0) != 0 for index in [4, 5, super_league_insurance_player_index, super_league_jackpot_fee_player_index, super_league_jackpot_payout_player_index]):
+                    club["activePlayerIds"].add(player_id)
         if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
             continue
         jackpot_leagues.append({
@@ -327,7 +333,11 @@ def main():
                 "jackpotPayout": round(row["jackpotPayout"], 2),
             } for row in players_for_league], key=lambda row: row["nick"].casefold()),
             "clubs": sorted([
-                {**row, "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2)} for row in league_clubs.get(league_id, {}).values()
+                {
+                    "clubId": row["clubId"], "club": row["club"],
+                    "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2),
+                    "players": len(row["playerIds"]), "activePlayers": len(row["activePlayerIds"]),
+                } for row in league_clubs.get(league_id, {}).values()
             ], key=lambda row: (-row["rake"], row["club"].casefold())),
             "rake": player_top("rake"),
             "minus": player_top("winnings", reverse=False, positive=False),
