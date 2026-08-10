@@ -560,6 +560,7 @@ test("/сводка выводит итоги по направлениям с �
   assert.match(sentMessage.body.text, /6\. Откаты: <b>\+11 626,32<\/b>/);
   assert.match(sentMessage.body.text, /7\. Оверлей: <b>-342 333,10<\/b>/);
   assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b>/);
+  assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b>\n\n<b>ИТОГО: -4 422,41<\/b>$/);
 });
 
 test("/откаты распределяет клубную разницу выше 8%", async (t) => {
