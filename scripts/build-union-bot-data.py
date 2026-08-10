@@ -238,21 +238,48 @@ def main():
     super_league_result_index = super_league_headers.index("Total(Super Union)")
     super_league_total_fee_index = super_league_headers.index("FeeTotal")
     super_league_insurance_index = super_league_headers.index("Insurance Total")
+    super_league_club_index = super_league_headers.index("      Club      ")
+    super_league_player_index = super_league_headers.index("Player ID")
     jackpot_leagues = []
+    league_players = defaultdict(dict)
+    league_clubs = defaultdict(dict)
     super_league_total_row = None
     for row in super_league_sheet.iter_rows(min_row=5, values_only=True):
         league_label = str(row[super_league_name_index] or "").strip()
         if league_label.casefold() == "total":
             super_league_total_row = row
             continue
-        if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
-            continue
         league_match = re.match(r"^(.*)\((\d+)\)$", league_label)
         league_name = league_match.group(1).strip() if league_match else league_label
+        league_id = league_match.group(2) if league_match else ""
         exchange_rate = SUPER_LEAGUE_EXCHANGE_RATES.get(league_name, 1)
+        if isinstance(row[super_league_player_index], (int, float)) and league_id:
+            player_id = str(int(row[super_league_player_index]))
+            player = league_players[league_id].setdefault(player_id, {
+                "playerId": player_id,
+                "nick": str(row[2] or player_id).strip(),
+                "clubs": set(),
+                "rake": 0.0,
+                "winnings": 0.0,
+            })
+            club_label = str(row[super_league_club_index] or "").strip()
+            club_match = re.match(r"^(.*)\((\d+)\)$", club_label)
+            if club_label:
+                player["clubs"].add(club_match.group(1).strip() if club_match else club_label)
+            player["rake"] += float(row[5] or 0) * exchange_rate
+            player["winnings"] += float(row[4] or 0) * exchange_rate
+            if club_label:
+                club_id = club_match.group(2) if club_match else ""
+                club_name = club_match.group(1).strip() if club_match else club_label
+                club_key = club_id or club_name.casefold()
+                club = league_clubs[league_id].setdefault(club_key, {"clubId": club_id, "club": club_name, "rake": 0.0, "winLose": 0.0})
+                club["rake"] += float(row[5] or 0) * exchange_rate
+                club["winLose"] += float(row[4] or 0) * exchange_rate
+        if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
+            continue
         jackpot_leagues.append({
             "league": league_name,
-            "leagueId": league_match.group(2) if league_match else "",
+            "leagueId": league_id,
             "fee": float(row[super_league_fee_index] or 0),
             "payout": float(row[super_league_payout_index] or 0),
             "feeTotal": float(row[super_league_total_fee_index] or 0),
@@ -260,6 +287,35 @@ def main():
             "winLose": float(row[super_league_result_index] or 0),
             "exchangeRate": exchange_rate,
         })
+    league_names = {row["leagueId"]: row["league"] for row in jackpot_leagues}
+    league_player_rows = []
+    for league_id, players_by_id in league_players.items():
+        players_for_league = list(players_by_id.values())
+        def player_top(field, reverse=True, positive=None):
+            selected = players_for_league
+            if positive is True:
+                selected = [row for row in selected if row[field] > 0]
+            elif positive is False:
+                selected = [row for row in selected if row[field] < 0]
+            selected = sorted(selected, key=lambda row: row[field], reverse=reverse)[:10]
+            return [{
+                "playerId": row["playerId"],
+                "nick": row["nick"],
+                "clubs": sorted(row["clubs"]),
+                "value": round(row[field], 2),
+            } for row in selected]
+        league_player_rows.append({
+            "leagueId": league_id,
+            "league": league_names.get(league_id, league_id),
+            "clubs": sorted([
+                {**row, "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2)} for row in league_clubs.get(league_id, {}).values()
+            ], key=lambda row: (-row["rake"], row["club"].casefold())),
+            "rake": player_top("rake"),
+            "minus": player_top("winnings", reverse=False, positive=False),
+            "plus": player_top("winnings", positive=True),
+        })
+    league_player_tops_data = {**base, "leagues": sorted(league_player_rows, key=lambda row: row["league"].casefold())}
+    write_json(output_dir / "union-league-player-tops.json", league_player_tops_data)
     super_league_fee = round(sum(row["fee"] * row["exchangeRate"] for row in jackpot_leagues), 4)
     super_league_payout = round(sum(row["payout"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     local_regular_fee = round(sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows), 2)
@@ -426,6 +482,7 @@ def main():
         "leagueReports": league_report_data,
         "clubReports": club_report_data,
         "playerTops": player_tops_data,
+        "leaguePlayerTops": league_player_tops_data,
         "activity": activity_data,
     }
     periods = [row for row in archive.get("periods", []) if not (row.get("startDate") == start_date and row.get("endDate") == end_date)]

@@ -664,8 +664,28 @@ test("группу можно привязать к союзу по назван
   assert.equal(calls.at(-1).method, "sendPhoto");
   assert.match(calls.at(-1).body.caption, /^<b>Rbpoker<\/b>/);
 
+  const playersRes = responseRecorder();
+  await handler(groupUpdate("/игроки рейк", 83, chatId), playersRes);
+  assert.deepEqual(playersRes.body, { ok: true, clubMode: true, unionPlayers: "рейк", sent: true });
+  assert.equal(calls.at(-1).method, "sendMessage");
+  assert.match(calls.at(-1).body.text, /Топ-10 игроков по рейку — Rbpoker/);
+
+  const clubsRes = responseRecorder();
+  await handler(groupUpdate("/клубы", 84, chatId), clubsRes);
+  assert.deepEqual(clubsRes.body, { ok: true, clubMode: true, unionClubs: true, found: true, sent: true });
+  assert.match(calls.at(-1).body.text, /<b>Клубы союза Rbpoker<\/b>/);
+  assert.match(calls.at(-1).body.text, /Win\/Lose: [\s\S]*Рейк: [\s\S]*<b>Итого:/);
+  assert.match(calls.at(-1).body.text, /<b>Итого Win\/Lose: -90 676,44<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>Итого рейк: 44 268,25<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>Общий итог: -46 408,19<\/b>/);
+
+  const datedClubsRes = responseRecorder();
+  await handler(groupUpdate("/клубы 03.08-09.08", 85, chatId), datedClubsRes);
+  assert.equal(datedClubsRes.body.found, true);
+  assert.match(calls.at(-1).body.text, /Период: 03\.08\.2026–09\.08\.2026/);
+
   const unbindRes = responseRecorder();
-  await handler(groupUpdate("/отвязать", 83, chatId), unbindRes);
+  await handler(groupUpdate("/отвязать", 86, chatId), unbindRes);
   assert.equal(unbindRes.body.unbound, true);
 });
 
