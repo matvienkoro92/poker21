@@ -329,7 +329,7 @@ test("/расчеты выводит актуальные показатели �
   assert.match(sentMessage.text, /<b>Итого: -4 422,41<\/b>$/);
 });
 
-test("/союзы отправляет отдельные заголовки, два альбома и отчёт СССР для Ильи", async (t) => {
+test("/союзы отправляет отдельные заголовки, два альбома и отчёт Jokers для Ильи", async (t) => {
   const originalFetch = global.fetch;
   const sentMessages = [];
   global.fetch = async (url, options) => {
@@ -381,7 +381,9 @@ test("/союзы отправляет отдельные заголовки, д
   assert.equal(photos.filter((row) => /Возврат джекпота/.test(row.body.caption)).length, 5);
   assert.equal(sentMessages[0].body.reply_to_message_id, 19);
   assert.equal(sentMessages[1].body.reply_to_message_id, undefined);
-  assert.match(ilyaPhotoMessage.body.caption, /^<b>СССР<\/b>/);
+  assert.match(ilyaPhotoMessage.body.caption, /^<b>Jokers<\/b>/);
+  const sergeyAlbum = sentMessages[3].body.media;
+  assert.ok(sergeyAlbum.some((photo) => photo.caption.startsWith("<b>СССР</b>")));
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
