@@ -341,19 +341,26 @@ test("/союзы отправляет каждый союз отдельной 
   const res = responseRecorder();
   await handler(update("/союзы", 19), res);
   assert.deepEqual(res.body, { ok: true, unions: true, sent: true });
-  assert.equal(sentMessages.length, 14);
-  assert.ok(sentMessages.every((row) => row.method === "sendPhoto"));
-  assert.ok(sentMessages.every((row) => row.body.photo.includes("/assets/reports/unions/2026-08-03_2026-08-09/")));
-  const antiReg = sentMessages.find((row) => row.body.caption.startsWith("<b>Анти-Рег</b>"));
-  assert.match(antiReg.body.caption, /Выигрыш: -1 574 521,96/);
-  assert.match(antiReg.body.caption, /Комиссия кэш \+ MTT: 1 905 711,67/);
-  assert.match(antiReg.body.caption, /Единый платёж за обслуживание 5%: -95 285,58/);
-  const bambuk = sentMessages.find((row) => row.body.caption.startsWith("<b>Bambuk</b>"));
+  assert.equal(sentMessages.length, 15);
+  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMessage").map((row) => row.body.text), [
+    "<b>❗ ДЛЯ РОМАНА:</b>",
+    "<b>❗ ДЛЯ СЕРГЕЯ:</b>",
+  ]);
+  const photos = sentMessages.filter((row) => row.method === "sendPhoto");
+  assert.equal(photos.length, 13);
+  assert.ok(photos.every((row) => row.body.photo.includes("/assets/reports/unions/2026-08-03_2026-08-09/")));
+  assert.deepEqual(photos.slice(0, 9).map((row) => row.body.caption.match(/^<b>(.+?)<\/b>/)[1]), [
+    "VAULT 13", "Rbpoker", "QUASAR", "PPCUNION", "ONL YSTARS", "Ginger", "BRO.POKER", "Bambuk", "AF UNION",
+  ]);
+  assert.equal(photos.some((row) => row.body.caption.startsWith("<b>Анти-Рег</b>")), false);
+  const bambuk = photos.find((row) => row.body.caption.startsWith("<b>Bambuk</b>"));
   assert.match(bambuk.body.caption, /Единый платёж за обслуживание 6%:/);
-  const ppc = sentMessages.find((row) => row.body.caption.startsWith("<b>PPCUNION</b>"));
-  assert.match(ppc.body.caption, /Возврат джекпота: -644,00/);
+  const ppc = photos.find((row) => row.body.caption.startsWith("<b>PPCUNION</b>"));
+  assert.match(ppc.body.caption, /Возврат джекпота: \+644,00/);
+  assert.match(ppc.body.caption, /Итого к расчёту: 33 816,02/);
   assert.equal(sentMessages[0].body.reply_to_message_id, 19);
   assert.equal(sentMessages[1].body.reply_to_message_id, undefined);
+  assert.equal(sentMessages[10].body.text, "<b>❗ ДЛЯ СЕРГЕЯ:</b>");
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {

@@ -243,6 +243,8 @@ def main():
 
     league_reports = []
     for row in jackpot_leagues:
+        if row["league"].casefold() == "анти-рег":
+            continue
         exchange_rate = row["exchangeRate"]
         winnings = round(row["winLose"], 2)
         commission = round(row["feeTotal"] * exchange_rate, 2)
@@ -254,7 +256,7 @@ def main():
         service_percent = 6 if row["league"].casefold() == "bambuk" else 5
         service = round(-commission * service_percent / 100, 2)
         refund_percent = LEAGUE_JACKPOT_REFUNDS.get(row["league"], 0)
-        jackpot_refund = -int(row["fee"] * exchange_rate * refund_percent / 100)
+        jackpot_refund = int(row["fee"] * exchange_rate * refund_percent / 100)
         total = round(balance_final + promo + service + jackpot_refund, 2)
         league_reports.append({
             "league": row["league"],
