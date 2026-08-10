@@ -26,6 +26,14 @@ function update(text, messageId) {
   };
 }
 
+function groupUpdate(text, messageId, chatId = -100999000111) {
+  return {
+    method: "POST",
+    headers: { "x-telegram-bot-api-secret-token": "test-secret" },
+    body: { message: { message_id: messageId, text, chat: { id: chatId, type: "supergroup" }, from: { id: 42 } } },
+  };
+}
+
 test("/отчет применяет процент из кода и отправляет оригинальный Excel", async (t) => {
   const telegramCalls = [];
   const originalFetch = global.fetch;
@@ -105,6 +113,8 @@ test("/команды показывает справку по доступны�
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+  assert.match(sentMessage.text, /<b>Общая бухгалтерия<\/b>[\s\S]*<b>Союзы и клубы<\/b>[\s\S]*<b>Игроки<\/b>/);
+  assert.match(sentMessage.text, /<b>Периоды<\/b>[\s\S]*<b>Отчёты<\/b>[\s\S]*<b>Справка<\/b>/);
 });
 
 test("команда статистики принимает период, а без периода показывает последнюю неделю", async (t) => {
@@ -552,15 +562,15 @@ test("/сводка выводит итоги по направлениям с �
   await handler(update("/сводка", 25), res);
   assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
   assert.equal(sentMessage.method, "sendMessage");
-  assert.match(sentMessage.body.text, /1\. Доля разработчика \(китайцев\): <b>127 658,26<\/b>/);
-  assert.match(sentMessage.body.text, /2\. Наша доля: <b>85 105,51<\/b>/);
-  assert.match(sentMessage.body.text, /3\. Джекпоты: <b>294 238,18<\/b>/);
-  assert.match(sentMessage.body.text, /4\. Клубы нашего союза \(Anti-Reg\): <b>164 106,45<\/b>/);
-  assert.match(sentMessage.body.text, /5\. Другие союзы без Anti-Reg: <b>-347 824,03<\/b>/);
-  assert.match(sentMessage.body.text, /6\. Откаты: <b>\+11 626,32<\/b>/);
-  assert.match(sentMessage.body.text, /7\. Оверлей: <b>-342 333,10<\/b>/);
-  assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b>/);
-  assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b>\n\n<b>ИТОГО: -4 422,41<\/b>$/);
+  assert.match(sentMessage.body.text, /1\. Доля разработчика \(китайцев\): <b>127 658,26<\/b> — \/китайцы/);
+  assert.match(sentMessage.body.text, /2\. Наша доля: <b>85 105,51<\/b> — \/доля/);
+  assert.match(sentMessage.body.text, /3\. Джекпоты: <b>294 238,18<\/b> — \/джекпот/);
+  assert.match(sentMessage.body.text, /4\. Клубы нашего союза \(Anti-Reg\): <b>164 106,45<\/b> — \/клубы итого/);
+  assert.match(sentMessage.body.text, /5\. Другие союзы без Anti-Reg: <b>-347 824,03<\/b> — \/союзы итого/);
+  assert.match(sentMessage.body.text, /6\. Откаты: <b>\+11 626,32<\/b> — \/откаты/);
+  assert.match(sentMessage.body.text, /7\. Оверлей: <b>-342 333,10<\/b> — \/оверлеи/);
+  assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b> — \/клубы/);
+  assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b> — \/клубы\n\n<b>ИТОГО: -4 422,41<\/b>$/);
 });
 
 test("/откаты распределяет клубную разницу выше 8%", async (t) => {
@@ -582,6 +592,81 @@ test("/откаты распределяет клубную разницу вы�
   assert.match(sentMessage.body.text, /<b>Итого Тимуру: 5 202,85<\/b>/);
   assert.match(sentMessage.body.text, /<b>ВСЕГО ОТКАТОВ: 11 626,32<\/b>/);
   assert.doesNotMatch(sentMessage.body.text, /Два Туза/);
+});
+
+test("привязанный чат получает только команды и данные своего клуба", async (t) => {
+  const originalFetch = global.fetch;
+  const calls = [];
+  global.fetch = async (url, options) => {
+    const method = String(url).split("/").at(-1);
+    const body = JSON.parse(options.body);
+    calls.push({ method, body });
+    if (method === "getChatMember") return { ok: true, json: async () => ({ ok: true, result: { status: "administrator" } }) };
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const bindRes = responseRecorder();
+  await handler(groupUpdate("/привязать Два Туза", 70), bindRes);
+  assert.equal(bindRes.body.binding, true);
+  assert.equal(bindRes.body.type, "club");
+  assert.equal(bindRes.body.clubId, "758417");
+
+  const commandsRes = responseRecorder();
+  await handler(groupUpdate("/команды", 71), commandsRes);
+  assert.deepEqual(commandsRes.body, { ok: true, clubMode: true, commands: true, sent: true });
+  assert.match(calls.at(-1).body.text, /Команды клуба «Два Туза»/);
+  assert.doesNotMatch(calls.at(-1).body.text, /\/сводка/);
+
+  const reportRes = responseRecorder();
+  await handler(groupUpdate("/мой клуб", 72), reportRes);
+  assert.deepEqual(reportRes.body, { ok: true, clubMode: true, report: true, sent: true });
+  assert.equal(calls.at(-1).method, "sendPhoto");
+  assert.match(calls.at(-1).body.caption, /^<b>Два Туза<\/b>/);
+
+  const restrictedRes = responseRecorder();
+  await handler(groupUpdate("/сводка", 73), restrictedRes);
+  assert.equal(restrictedRes.body.restricted, true);
+  assert.match(calls.at(-1).body.text, /доступна только статистика клуба «Два Туза»/);
+
+  const unbindRes = responseRecorder();
+  await handler(groupUpdate("/отвязать", 74), unbindRes);
+  assert.equal(unbindRes.body.unbound, true);
+});
+
+test("группу можно привязать к союзу по названию", async (t) => {
+  const originalFetch = global.fetch;
+  const calls = [];
+  global.fetch = async (url, options) => {
+    const method = String(url).split("/").at(-1);
+    const body = JSON.parse(options.body);
+    calls.push({ method, body });
+    if (method === "getChatMember") return { ok: true, json: async () => ({ ok: true, result: { status: "creator" } }) };
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+  const chatId = -100999000222;
+
+  const bindRes = responseRecorder();
+  await handler(groupUpdate("/привязать союз Rbpoker", 80, chatId), bindRes);
+  assert.equal(bindRes.body.binding, true);
+  assert.equal(bindRes.body.type, "union");
+  assert.equal(bindRes.body.leagueId, "854851");
+
+  const commandsRes = responseRecorder();
+  await handler(groupUpdate("/команды", 81, chatId), commandsRes);
+  assert.match(calls.at(-1).body.text, /Команды союза «Rbpoker»/);
+  assert.doesNotMatch(calls.at(-1).body.text, /\/сводка/);
+
+  const reportRes = responseRecorder();
+  await handler(groupUpdate("/мой союз", 82, chatId), reportRes);
+  assert.equal(reportRes.body.sent, true);
+  assert.equal(calls.at(-1).method, "sendPhoto");
+  assert.match(calls.at(-1).body.caption, /^<b>Rbpoker<\/b>/);
+
+  const unbindRes = responseRecorder();
+  await handler(groupUpdate("/отвязать", 83, chatId), unbindRes);
+  assert.equal(unbindRes.body.unbound, true);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
