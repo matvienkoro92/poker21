@@ -345,12 +345,14 @@ test("/союзы отправляет отдельные заголовки, д
   assert.deepEqual(sentMessages.map((row) => row.method), [
     "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMessage", "sendPhoto", "sendMessage",
   ]);
-  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMessage").map((row) => row.body.text), [
-    "<b>❗ ДЛЯ РОМАНА:</b>",
-    "<b>❗ ДЛЯ СЕРГЕЯ:</b>",
-    "<b>❗ ДЛЯ ИЛЬИ:</b>",
-    "<b>ИТОГО сумма по всем союзам Романа: -55 492,10</b>\n<b>ИТОГО сумма по всем союзам Сергея: -462 147,93</b>\n<b>ИТОГО сумма по всем союзам Ильи: 169 816,00</b>",
+  const textMessages = sentMessages.filter((row) => row.method === "sendMessage").map((row) => row.body.text);
+  assert.deepEqual(textMessages.slice(0, 3), [
+    "<b>❗ ДЛЯ РОМАНА:</b>", "<b>❗ ДЛЯ СЕРГЕЯ:</b>", "<b>❗ ДЛЯ ИЛЬИ:</b>",
   ]);
+  const totalsText = textMessages[3];
+  assert.match(totalsText, /^<b>Роман:<\/b>\n<b>ИТОГО: -55 492,10<\/b>\nVAULT 13: 318,33\nRbpoker: -45 352,60/);
+  assert.match(totalsText, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: -462 147,93<\/b>\nAQUARIUM: -17 662,47\nOff Cheats: -185 821,81\nСССР: -258 663,65/);
+  assert.match(totalsText, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816,00<\/b>\nJokers: 169 816,00$/);
   const albumPhotos = sentMessages
     .filter((row) => row.method === "sendMediaGroup")
     .flatMap((row) => row.body.media.map((photo) => ({ method: "sendPhoto", body: { photo: photo.media, caption: photo.caption } })));
