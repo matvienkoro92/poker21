@@ -391,6 +391,26 @@ test("/союзы отправляет отдельные заголовки, д
   assert.ok(sergeyAlbum.some((photo) => photo.caption.startsWith("<b>СССР</b>")));
 });
 
+test("/союзы итого отправляет только итоговое сообщение", async (t) => {
+  const originalFetch = global.fetch;
+  const sentMessages = [];
+  global.fetch = async (url, options) => {
+    sentMessages.push({ method: url.split("/").at(-1), body: JSON.parse(options.body) });
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/союзы итого", 20), res);
+  assert.deepEqual(res.body, { ok: true, unionTotals: true, sent: true });
+  assert.equal(sentMessages.length, 1);
+  assert.equal(sentMessages[0].method, "sendMessage");
+  assert.equal(sentMessages[0].body.reply_to_message_id, 20);
+  assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -55 492,10<\/b>\nVAULT 13: 318,33/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: -462 147,93<\/b>/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816,00<\/b>\nJokers: 169 816,00$/);
+});
+
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
