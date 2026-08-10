@@ -294,15 +294,15 @@ test("/джекпот выводит общий сбор суперюниона,
   assert.match(sentMessage.text, /Проверка: сумма по лигам 383 507,58 = общий джекпот 383 507,58/);
   assert.match(sentMessage.text, /Обычный джекпот в лиге Антирег — 171 646,96/);
   assert.match(sentMessage.text, /У остальных лиг — 137 204,62/);
-  assert.match(sentMessage.text, /Jackpot 21 \(подтверждено\) — 74 656,00/);
-  assert.match(sentMessage.text, /<b>итого:<\/b>\n\nВыплаты обычного джекпота — 0,00/);
-  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 83 094,90\n<b>Всего выплачено: 83 094,90<\/b>/);
-  assert.match(sentMessage.text, /<b>Сборы минус выплаты: 300 412,68<\/b>/);
+  assert.match(sentMessage.text, /Выплаты обычного джекпота — 0,00\n<b>итого джекпот покер: 308 851,58<\/b>/);
   assert.match(sentMessage.text, /Возвраты союзам:\nPPCUNION 50% -644\nVALT13 70% -315/);
   assert.match(sentMessage.text, /ONL YSTAR 70% -1 927\nRbpoker 70% -3 269/);
   assert.match(sentMessage.text, /QUBE 60% -0\nAQUARIUM 50% -69/);
   assert.match(sentMessage.text, /<b>Всего возвратов: -6 224<\/b>/);
-  assert.match(sentMessage.text, /<b>Полный итог: 294 188,68<\/b>$/);
+  assert.match(sentMessage.text, /Jackpot 21 \(подтверждено\) — 74 656,00/);
+  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 83 094,90\nРазница: -8 438,90/);
+  assert.match(sentMessage.text, /<b>Итого джекпот покер: 302 627,58<\/b>/);
+  assert.match(sentMessage.text, /<b>Итого джекпот 21: -8 438,90<\/b>$/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
