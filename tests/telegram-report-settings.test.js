@@ -341,12 +341,15 @@ test("/союзы отправляет отдельные заголовки, д
   const res = responseRecorder();
   await handler(update("/союзы", 19), res);
   assert.deepEqual(res.body, { ok: true, unions: true, sent: true });
-  assert.equal(sentMessages.length, 6);
+  assert.equal(sentMessages.length, 7);
   assert.deepEqual(sentMessages.map((row) => row.method), [
-    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMessage", "sendPhoto",
+    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMessage", "sendPhoto", "sendMessage",
   ]);
   assert.deepEqual(sentMessages.filter((row) => row.method === "sendMessage").map((row) => row.body.text), [
-    "<b>❗ ДЛЯ РОМАНА:</b>", "<b>❗ ДЛЯ СЕРГЕЯ:</b>", "<b>❗ ДЛЯ ИЛЬИ:</b>",
+    "<b>❗ ДЛЯ РОМАНА:</b>",
+    "<b>❗ ДЛЯ СЕРГЕЯ:</b>",
+    "<b>❗ ДЛЯ ИЛЬИ:</b>",
+    "<b>ИТОГО сумма по всем союзам Романа: -55 492,10</b>\n<b>ИТОГО сумма по всем союзам Сергея: -462 147,93</b>\n<b>ИТОГО сумма по всем союзам Ильи: 169 816,00</b>",
   ]);
   const albumPhotos = sentMessages
     .filter((row) => row.method === "sendMediaGroup")
