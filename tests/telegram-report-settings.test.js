@@ -290,12 +290,11 @@ test("/джекпот выводит общий сбор суперюниона,
   assert.match(sentMessage.text, /Off Cheats — 47 175,91/);
   assert.match(sentMessage.text, /AF UNION — 0,50/);
   assert.match(sentMessage.text, /Проверка: сумма по лигам 382 094,40 = общий джекпот 382 094,40/);
-  assert.match(sentMessage.text, /Обычный джекпот \(подтверждено\) — 171 646,96/);
-  assert.match(sentMessage.text, /Выплаты обычного джекпота — 0,00\n\nJackpot 21/);
+  assert.match(sentMessage.text, /Обычный джекпот в лиге Антирег — 171 646,96/);
+  assert.match(sentMessage.text, /У остальных лиг — 135 791,44/);
   assert.match(sentMessage.text, /Jackpot 21 \(подтверждено\) — 74 656,00/);
-  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 83 094,90/);
-  assert.match(sentMessage.text, /Не разделено по типу у остальных лиг — 135 791,44/);
-  assert.match(sentMessage.text, /<b>Всего выплачено: 83 094,90<\/b>/);
+  assert.match(sentMessage.text, /<b>итого:<\/b>\n\nВыплаты обычного джекпота — 0,00/);
+  assert.match(sentMessage.text, /Выплаты Jackpot 21 — 83 094,90\n<b>Всего выплачено: 83 094,90<\/b>/);
   assert.match(sentMessage.text, /<b>Сборы минус выплаты: 298 999,50<\/b>$/);
 });
 
