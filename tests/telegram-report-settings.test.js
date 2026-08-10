@@ -679,10 +679,13 @@ test("группу можно привязать к союзу по назван
   assert.equal(calls.at(-1).method, "sendPhoto");
   assert.match(calls.at(-1).body.caption, /^<b>Rbpoker<\/b>/);
   assert.equal(calls.at(-1).body.reply_markup.inline_keyboard[0][0].callback_data, "bound:clubs");
+  const webhookSetup = calls.find((call) => call.method === "setWebhook");
+  assert.deepEqual(webhookSetup.body.allowed_updates, ["message", "edited_message", "callback_query"]);
 
   const callbackRes = responseRecorder();
   await handler(callbackUpdate("bound:clubs", 820, chatId), callbackRes);
   assert.equal(callbackRes.body.unionClubs, true);
+  assert.ok(calls.some((call) => call.method === "answerCallbackQuery" && call.body.callback_query_id === "callback-820"));
   assert.match(calls.at(-1).body.text, /Клубы союза Rbpoker/);
 
   const totalRes = responseRecorder();
