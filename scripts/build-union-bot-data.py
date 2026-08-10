@@ -32,6 +32,23 @@ LEAGUE_SERVICE_PERCENT = {
     "AQUARIUM": 6,
 }
 
+CLUB_SERVICE_PERCENT = {
+    "GARAGE": 8,
+    "GoRiLaZzz": 10,
+    "PC Arena": 8,
+    "RealPokerGame": 10,
+    "River21": 10,
+    "Sibir 70": 10,
+    "Два Туза": 8,
+    "РИВЕР КЛУБ": 20,
+    "T O T": 8,
+    "Храм": 10,
+}
+
+CLUB_SALARY = {
+    "Два Туза": -1500,
+}
+
 
 def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
@@ -290,6 +307,63 @@ def main():
     league_report_data = {**base, "reports": league_reports}
     write_json(output_dir / "union-league-reports.json", league_report_data)
 
+    anti_reg_clubs = {}
+    super_league_club_index = super_league_headers.index("      Club      ")
+    super_league_player_index = super_league_headers.index("Player ID")
+    for row in super_league_sheet.iter_rows(min_row=5, values_only=True):
+        if not isinstance(row[super_league_player_index], (int, float)):
+            continue
+        league_label = str(row[super_league_name_index] or "").strip()
+        club_label = str(row[super_league_club_index] or "").strip()
+        league_match = re.match(r"^(.*)\((\d+)\)$", league_label)
+        club_match = re.match(r"^(.*)\((\d+)\)$", club_label)
+        league_name = league_match.group(1).strip() if league_match else league_label
+        if not club_match or league_name.casefold() != "анти-рег":
+            continue
+        club_name, club_id = club_match.group(1).strip(), club_match.group(2)
+        anti_reg_clubs[club_id] = (club_name, league_match.group(2) if league_match else "")
+
+    club_reports = []
+    for club_id, (club_name, league_id) in anti_reg_clubs.items():
+        source_metrics = club_metrics.get(club_id)
+        if not source_metrics:
+            continue
+        league_name = "Анти-Рег"
+        winnings = round(source_metrics["winnings"], 2)
+        commission = round(source_metrics["rake"], 2)
+        balance = round(winnings + commission, 2)
+        service_percent = CLUB_SERVICE_PERCENT.get(club_name, 10)
+        service = round(-commission * service_percent / 100, 2)
+        salary = CLUB_SALARY.get(club_name, 0)
+        total = round(balance + salary + service, 2)
+        club_reports.append({
+            "club": club_name,
+            "clubId": club_id,
+            "league": league_name,
+            "leagueId": league_id,
+            "startDate": start_date,
+            "endDate": end_date,
+            "imagePath": f"/assets/reports/clubs/{start_date}_{end_date}/{league_slug(club_name)}-{club_id}.png",
+            "metrics": {
+                "winnings": winnings,
+                "commission": commission,
+                "balance": balance,
+                "fraud": 0,
+                "overly": 0,
+                "balanceFinal": balance,
+                "promo": 0,
+                "salary": salary,
+                "servicePercent": service_percent,
+                "service": service,
+                "jackpotRefundPercent": 0,
+                "jackpotRefund": 0,
+                "total": total,
+            },
+        })
+    club_reports.sort(key=lambda row: (row["league"].casefold(), row["club"].casefold()))
+    club_report_data = {**base, "reports": club_reports}
+    write_json(output_dir / "union-club-reports.json", club_report_data)
+
     player_tops_data = {
         **base,
         "rake": [{"playerId": row["id"], "nick": row["nick"], "clubs": [club_metrics[cid]["name"] for cid in row["clubs"] if cid in club_metrics], "value": row["rake"]} for row in top(player_rows, "rake")],
@@ -330,6 +404,7 @@ def main():
         "overlays": overlay_data,
         "jackpot": jackpot_data,
         "leagueReports": league_report_data,
+        "clubReports": club_report_data,
         "playerTops": player_tops_data,
         "activity": activity_data,
     }

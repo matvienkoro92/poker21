@@ -35,7 +35,7 @@ def main():
         image = Image.new("RGB", (1200, 1080), "#071A16")
         draw = ImageDraw.Draw(image)
         draw.rounded_rectangle((40, 35, 1160, 1045), radius=34, fill="#0D2922", outline="#2DD4A3", width=3)
-        draw.text((80, 72), report["league"], font=title_font, fill="#F8FAFC")
+        draw.text((80, 72), report.get("club", report["league"]), font=title_font, fill="#F8FAFC")
         period = f"{report['startDate']} — {report['endDate']}"
         draw.text((82, 137), period, font=period_font, fill="#94A3B8")
         draw.line((80, 190, 1120, 190), fill="#245B4D", width=2)
@@ -48,6 +48,7 @@ def main():
             ("Overly", metrics["overly"]),
             ("Баланс итог", metrics["balanceFinal"]),
             ("Акция", metrics["promo"]),
+            *([("ЗП", metrics["salary"])] if float(metrics.get("salary", 0)) != 0 else []),
             (f"Обслуживание {metrics['servicePercent']}%", metrics["service"]),
         ]
         if float(metrics.get("jackpotRefund", 0)) > 0:

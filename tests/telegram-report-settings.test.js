@@ -350,9 +350,9 @@ test("/союзы отправляет отдельные заголовки, д
     "<b>❗ ДЛЯ РОМАНА:</b>", "<b>❗ ДЛЯ СЕРГЕЯ:</b>", "<b>❗ ДЛЯ ИЛЬИ:</b>",
   ]);
   const totalsText = textMessages[3];
-  assert.match(totalsText, /^<b>Роман:<\/b>\n<b>ИТОГО: -55 492,10<\/b>\nVAULT 13: 318,33\nRbpoker: -45 352,60/);
-  assert.match(totalsText, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: -462 147,93<\/b>\nAQUARIUM: -17 662,47\nOff Cheats: -185 821,81\nСССР: -258 663,65/);
-  assert.match(totalsText, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816,00<\/b>\nJokers: 169 816,00$/);
+  assert.match(totalsText, /^<b>Роман:<\/b>\n<b>ИТОГО: -55 492<\/b>\nVAULT 13: 318\nRbpoker: -45 353/);
+  assert.match(totalsText, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: -462 148<\/b>\nAQUARIUM: -17 662\nOff Cheats: -185 822\nСССР: -258 664/);
+  assert.match(totalsText, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816<\/b>\nJokers: 169 816$/);
   const albumPhotos = sentMessages
     .filter((row) => row.method === "sendMediaGroup")
     .flatMap((row) => row.body.media.map((photo) => ({ method: "sendPhoto", body: { photo: photo.media, caption: photo.caption } })));
@@ -406,9 +406,63 @@ test("/союзы итого отправляет только итоговое 
   assert.equal(sentMessages.length, 1);
   assert.equal(sentMessages[0].method, "sendMessage");
   assert.equal(sentMessages[0].body.reply_to_message_id, 20);
-  assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -55 492,10<\/b>\nVAULT 13: 318,33/);
-  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: -462 147,93<\/b>/);
-  assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816,00<\/b>\nJokers: 169 816,00$/);
+  assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -55 492<\/b>\nVAULT 13: 318/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: -462 148<\/b>/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816<\/b>\nJokers: 169 816$/);
+});
+
+test("/клубы отправляет клубные отчёты Роману и Сергею с итоговой сводкой", async (t) => {
+  const originalFetch = global.fetch;
+  const sentMessages = [];
+  global.fetch = async (url, options) => {
+    sentMessages.push({ method: url.split("/").at(-1), body: JSON.parse(options.body) });
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/клубы", 21), res);
+  assert.deepEqual(res.body, { ok: true, clubs: true, sent: true });
+  assert.deepEqual(sentMessages.map((row) => row.method), [
+    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMediaGroup", "sendMessage",
+  ]);
+  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 8]);
+  assert.equal(sentMessages[0].body.text, "<b>❗ ДЛЯ РОМАНА:</b>");
+  assert.equal(sentMessages[2].body.text, "<b>❗ ДЛЯ СЕРГЕЯ:</b>");
+  const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
+  assert.equal(photos.length, 28);
+  assert.ok(photos.every((photo) => photo.media.includes("/assets/reports/clubs/2026-08-03_2026-08-09/")));
+  assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
+  const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
+  assert.match(dvaTuza.caption, /Единый платёж за обслуживание 8%: -49 554,96/);
+  assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
+  assert.match(dvaTuza.caption, /Итого к расчёту: -337 846,89/);
+  const riverClub = photos.find((photo) => photo.caption.startsWith("<b>РИВЕР КЛУБ</b>"));
+  assert.match(riverClub.caption, /Единый платёж за обслуживание 20%: -1,00/);
+  const sergeyPhoto = photos.find((photo) => photo.caption.startsWith("<b>Beer and Bear</b>"));
+  assert.match(sergeyPhoto.caption, /Единый платёж за обслуживание 10%:/);
+  assert.match(sentMessages.at(-1).body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
+  assert.match(sentMessages.at(-1).body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 468 761<\/b>/);
+});
+
+test("/клубы итого отправляет только округлённую клубную сводку", async (t) => {
+  const originalFetch = global.fetch;
+  const sentMessages = [];
+  global.fetch = async (url, options) => {
+    sentMessages.push({ method: url.split("/").at(-1), body: JSON.parse(options.body) });
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/клубы итого", 22), res);
+  assert.deepEqual(res.body, { ok: true, clubTotals: true, sent: true });
+  assert.equal(sentMessages.length, 1);
+  assert.equal(sentMessages[0].method, "sendMessage");
+  assert.equal(sentMessages[0].body.reply_to_message_id, 22);
+  assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
+  assert.match(sentMessages[0].body.text, /Два Туза: -337 847/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 468 761<\/b>/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
