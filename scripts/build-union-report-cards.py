@@ -49,8 +49,10 @@ def main():
             ("Баланс итог", metrics["balanceFinal"]),
             ("Акция", metrics["promo"]),
             (f"Обслуживание {metrics['servicePercent']}%", metrics["service"]),
-            ("Возврат джекпота", metrics["jackpotRefund"]),
         ]
+        if float(metrics.get("jackpotRefund", 0)) > 0:
+            rows.append(("Возврат джекпота", metrics["jackpotRefund"]))
+        row_step = 73 if len(rows) == 9 else 83
         y = 225
         for index, (label, value) in enumerate(rows):
             if index in (2, 5):
@@ -60,7 +62,7 @@ def main():
             value_box = draw.textbbox((0, 0), value_text, font=value_font)
             color = "#6EE7B7" if float(value) >= 0 else "#FB7185"
             draw.text((1115 - (value_box[2] - value_box[0]), y), value_text, font=value_font, fill=color)
-            y += 73
+            y += row_step
         draw.line((80, 900, 1120, 900), fill="#2DD4A3", width=3)
         draw.text((85, 936), "Итого к расчёту", font=total_font, fill="#F8FAFC")
         total_text = money(metrics["total"])
