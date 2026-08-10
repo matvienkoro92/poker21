@@ -490,9 +490,9 @@ test("/клубы итого отправляет только округлён�
 
 test("/доля выводит союзы в заданном порядке, рейк, процент и итог", async (t) => {
   const originalFetch = global.fetch;
-  let sentMessage = null;
+  const sentMessages = [];
   global.fetch = async (url, options) => {
-    sentMessage = { method: url.split("/").at(-1), body: JSON.parse(options.body) };
+    sentMessages.push({ method: url.split("/").at(-1), body: JSON.parse(options.body) });
     return { ok: true, json: async () => ({ ok: true }) };
   };
   t.after(() => { global.fetch = originalFetch; });
@@ -500,23 +500,24 @@ test("/доля выводит союзы в заданном порядке, р
   const res = responseRecorder();
   await handler(update("/доля", 23), res);
   assert.deepEqual(res.body, { ok: true, chinese: true, sent: true });
-  assert.equal(sentMessage.method, "sendMessage");
-  assert.equal(sentMessage.body.reply_to_message_id, 23);
-  const lines = sentMessage.body.text.split("\n");
-  assert.equal(lines[0], "<b>Китайцы</b>");
-  assert.equal(lines[1], "8% — Клуб 384445 — общий рейк: 0,00 — процент: 0,00");
-  assert.equal(lines[2], "8% — Anti-Reg — общий рейк: 1 905 711,67 — процент: 152 456,93");
-  assert.equal(lines[3], "8% — Anti-Reg (0) — общий рейк: 0,00 — процент: 0,00");
-  assert.equal(lines[4], "5% — PPCUNION — общий рейк: 12 701,80 — процент: 635,09");
-  assert.ok(lines.includes("5% — ONLYSTARS — общий рейк: 13 437,50 — процент: 671,88"));
-  assert.ok(lines.includes("5% — BRAZIL — общий рейк: 0,00 — процент: 0,00"));
+  assert.deepEqual(sentMessages.map((row) => row.method), ["sendMessage", "sendPhoto"]);
+  assert.equal(sentMessages[0].body.reply_to_message_id, 23);
+  const lines = sentMessages[0].body.text.split("\n");
+  assert.equal(lines[0], "8% — Anti-Reg — 1 905 711,67 — 152 456,93");
+  assert.equal(lines[1], "5% — PPCUNION — 12 701,80 — 635,09");
+  assert.ok(!lines.some((line) => line.includes("Клуб 384445")));
+  assert.ok(!lines.some((line) => line.includes("Anti-Reg (0)")));
+  assert.ok(lines.includes("5% — ONLYSTARS — 13 437,50 — 671,88"));
+  assert.ok(!lines.some((line) => line.includes("BRAZIL")));
   assert.ok(lines.includes("<b>ИТОГО: 212 763,77</b>"));
   assert.ok(lines.includes("60% Джеку = 127 658,26"));
   assert.ok(lines.includes("40% наша доля = 85 105,51"));
+  assert.ok(lines.includes("<b>Распределение нашей доли:</b>"));
   assert.ok(lines.includes("Андрюха 2% = 4 255,28"));
   assert.ok(lines.includes("Серёга 3,25% = 6 914,82"));
   assert.ok(lines.includes("Илюха 7% = 14 893,46"));
   assert.equal(lines.at(-1), "Роман 14,75% = 31 382,66");
+  assert.equal(sentMessages[1].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-table-1");
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
