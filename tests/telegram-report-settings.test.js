@@ -500,16 +500,18 @@ test("/доля выводит союзы в заданном порядке, р
   const res = responseRecorder();
   await handler(update("/доля", 23), res);
   assert.deepEqual(res.body, { ok: true, chinese: true, sent: true });
-  assert.deepEqual(sentMessages.map((row) => row.method), ["sendMessage", "sendPhoto"]);
-  assert.equal(sentMessages[0].body.reply_to_message_id, 23);
-  const lines = sentMessages[0].body.text.split("\n");
+  assert.deepEqual(sentMessages.map((row) => row.method), ["sendPhoto"]);
+  assert.equal(sentMessages[0].body.reply_to_message_id, undefined);
+  const lines = sentMessages[0].body.caption.split("\n");
+  assert.ok(sentMessages[0].body.caption.length <= 1024);
   assert.equal(lines[0], "8% — Anti-Reg — 1 905 711,67 — 152 456,93");
   assert.equal(lines[1], "5% — PPCUNION — 12 701,80 — 635,09");
   assert.ok(!lines.some((line) => line.includes("Клуб 384445")));
   assert.ok(!lines.some((line) => line.includes("Anti-Reg (0)")));
   assert.ok(lines.includes("5% — ONLYSTARS — 13 437,50 — 671,88"));
   assert.ok(!lines.some((line) => line.includes("BRAZIL")));
-  assert.ok(lines.includes("<b>ИТОГО: 212 763,77</b>"));
+  assert.ok(lines.includes("<b>ИТОГО РЕЙК: 2 830 227,24</b>"));
+  assert.ok(lines.includes("<b>ИТОГО ПРОЦЕНТ: 212 763,77</b>"));
   assert.ok(lines.includes("60% Джеку = 127 658,26"));
   assert.ok(lines.includes("40% наша доля = 85 105,51"));
   assert.ok(lines.includes("<b>Распределение нашей доли:</b>"));
@@ -517,7 +519,7 @@ test("/доля выводит союзы в заданном порядке, р
   assert.ok(lines.includes("Серёга 3,25% = 6 914,82"));
   assert.ok(lines.includes("Илюха 7% = 14 893,46"));
   assert.equal(lines.at(-1), "Роман 14,75% = 31 382,66");
-  assert.equal(sentMessages[1].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-table-1");
+  assert.equal(sentMessages[0].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-table-2");
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {

@@ -66,6 +66,7 @@ def main():
         amount = round_money(Decimal(str(rake)) * Decimal(str(percent)) / 100)
         if rake != 0 or amount != 0:
             rows.append((percent, label, rake, amount))
+    total_rake = round_money(sum((Decimal(str(row[2])) for row in rows), Decimal("0")))
     total = round_money(sum((row[3] for row in rows), Decimal("0")))
 
     image_height = 902 + len(rows) * 48
@@ -91,6 +92,7 @@ def main():
     draw.line((75, y + 5, 1125, y + 5), fill="#2DD4A3", width=3)
     y += 28
     draw.text((78, y), "ИТОГО", font=total_font, fill="#F8FAFC")
+    right(draw, 850, y, money(total_rake), total_font, "#F8FAFC")
     right(draw, 1120, y, money(total), total_font, "#6EE7B7")
     y += 58
     draw.text((78, y), f"60% Джеку = {money(round_money(total * Decimal('0.60')))}", font=body_bold, fill="#D7E3DF")
