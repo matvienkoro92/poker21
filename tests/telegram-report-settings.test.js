@@ -432,6 +432,7 @@ test("/клубы отправляет отчёты один раз и повт�
   assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 8]);
   const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
   assert.equal(photos.length, 28);
+  assert.ok(photos.every((photo) => photo.media.endsWith("?v=club-rates-2")));
   assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
   const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
   assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
