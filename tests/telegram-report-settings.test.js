@@ -321,12 +321,12 @@ test("/расчеты выводит актуальные показатели �
   assert.match(sentMessage.text, /^Расчёты суперюниона\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
   assert.match(sentMessage.text, /Win\/lose всех лиг -2 792 778,73/);
   assert.match(sentMessage.text, /Fee всех лиг \+<b>2 830 227,2400<\/b>/);
-  assert.match(sentMessage.text, /Insurance всех лиг \+<b>1 163,46<\/b>/);
+  assert.doesNotMatch(sentMessage.text, /Insurance/);
   assert.match(sentMessage.text, /Джекпот всех лиг \+<b>383 557,08<\/b>/);
   assert.match(sentMessage.text, /Выплаты джекпота -<b>83 094,90<\/b>/);
   assert.match(sentMessage.text, /Оверлей -<b>342 333,10<\/b>/);
   assert.doesNotMatch(sentMessage.text, /<code>/);
-  assert.match(sentMessage.text, /<b>Итого: -3 258,95<\/b>$/);
+  assert.match(sentMessage.text, /<b>Итого: -4 422,41<\/b>$/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
