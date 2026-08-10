@@ -163,12 +163,42 @@ def main():
     for row in union.iter_rows(min_row=5, values_only=True):
         if isinstance(row[1], (int, float)):
             raw_union_rows.append(dict(zip(union_headers, row)))
+    super_league_sheet = workbook["Supper Union League Statistics"]
+    super_league_headers = [cell.value for cell in next(super_league_sheet.iter_rows(min_row=4, max_row=4))]
+    super_league_name_index = super_league_headers.index("      League      ")
+    super_league_fee_index = super_league_headers.index("Jackpot Fee Total")
+    super_league_payout_index = super_league_headers.index("Jackpot Payout Total")
+    jackpot_leagues = []
+    for row in super_league_sheet.iter_rows(min_row=5, values_only=True):
+        if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
+            continue
+        league_label = str(row[super_league_name_index] or "").strip()
+        if league_label.casefold() == "total":
+            continue
+        league_match = re.match(r"^(.*)\((\d+)\)$", league_label)
+        jackpot_leagues.append({
+            "league": league_match.group(1).strip() if league_match else league_label,
+            "leagueId": league_match.group(2) if league_match else "",
+            "fee": float(row[super_league_fee_index] or 0),
+            "payout": float(row[super_league_payout_index] or 0),
+        })
+    super_league_fee = round(sum(row["fee"] for row in jackpot_leagues), 4)
+    super_league_payout = round(sum(row["payout"] for row in jackpot_leagues), 2)
+    local_regular_fee = round(sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows), 2)
+    local_regular_payout = round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2)
+    jackpot_21_fee = round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2)
+    jackpot_21_payout = round(sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows), 2)
     jackpot_data = {
         **base,
-        "regularFee": round(sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows), 2),
-        "regularPayout": round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2),
-        "jackpot21Fee": round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2),
-        "jackpot21Payout": round(sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows), 2),
+        "regularFee": local_regular_fee,
+        "regularPayout": local_regular_payout,
+        "jackpot21Fee": jackpot_21_fee,
+        "jackpot21Payout": jackpot_21_payout,
+        "unclassifiedFee": round(super_league_fee - local_regular_fee - jackpot_21_fee, 4),
+        "unclassifiedPayout": round(super_league_payout - local_regular_payout - jackpot_21_payout, 2),
+        "totalFee": super_league_fee,
+        "totalPayout": super_league_payout,
+        "leagues": sorted(jackpot_leagues, key=lambda row: (-row["fee"], row["league"].casefold())),
     }
     write_json(output_dir / "union-jackpot-summary.json", jackpot_data)
 
