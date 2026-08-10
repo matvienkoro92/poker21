@@ -504,13 +504,8 @@ test("/китайцы выводит союзы, рейк, процент и и�
   assert.equal(sentMessages[0].body.reply_to_message_id, undefined);
   const lines = sentMessages[0].body.caption.split("\n");
   assert.ok(sentMessages[0].body.caption.length <= 1024);
-  assert.equal(lines[0], "8% — Anti-Reg — 1 905 711,67 — 152 456,93");
-  assert.equal(lines[1], "5% — PPCUNION — 12 701,80 — 635,09");
-  assert.ok(!lines.some((line) => line.includes("Клуб 384445")));
-  assert.ok(!lines.some((line) => line.includes("Anti-Reg (0)")));
-  assert.ok(lines.includes("5% — ONLYSTARS — 13 437,50 — 671,88"));
-  assert.ok(!lines.some((line) => line.includes("BRAZIL")));
-  assert.ok(lines.includes("<b>ИТОГО РЕЙК: 2 830 227,24</b>"));
+  assert.equal(lines[0], "<b>ИТОГО РЕЙК: 2 830 227,24</b>");
+  assert.ok(!lines.some((line) => line.includes("Anti-Reg")));
   assert.ok(lines.includes("<b>ИТОГО ПРОЦЕНТ: 212 763,77</b>"));
   assert.ok(lines.includes("60% Джеку = 127 658,26"));
   assert.ok(lines.includes("40% наша доля = 85 105,51"));
@@ -530,13 +525,18 @@ test("/доля выводит только распределение наше�
   const res = responseRecorder();
   await handler(update("/доля", 24), res);
   assert.deepEqual(res.body, { ok: true, share: true, sent: true });
-  assert.equal(sentMessage.method, "sendMessage");
-  const lines = sentMessage.body.text.split("\n");
-  assert.equal(lines[0], "<b>Распределение нашей доли:</b>");
+  assert.equal(sentMessage.method, "sendPhoto");
+  const lines = sentMessage.body.caption.split("\n");
+  assert.equal(lines[0], "<b>ИТОГО РЕЙК: 2 830 227,24</b>");
+  assert.ok(lines.includes("<b>ИТОГО ПРОЦЕНТ: 212 763,77</b>"));
+  assert.ok(lines.includes("60% Джеку = 127 658,26"));
+  assert.ok(lines.includes("40% наша доля = 85 105,51"));
+  assert.ok(lines.includes("<b>Распределение нашей доли:</b>"));
   assert.ok(lines.includes("Андрюха 2% = 4 255,28"));
   assert.ok(lines.includes("Серёга 3,25% = 6 914,82"));
   assert.ok(lines.includes("Илюха 7% = 14 893,46"));
   assert.equal(lines.at(-1), "Роман 14,75% = 31 382,66");
+  assert.equal(sentMessage.body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09-full.png?v=share-full-1");
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {

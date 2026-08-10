@@ -24,6 +24,9 @@ RULES = [
     ("league", "596499", "AF UNION", 5),
 ]
 
+SPLITS = [("Андрюха", 2), ("Роман", 2), ("Макс", 3), ("Серёга", 3.25),
+          ("Диман", 4), ("Костян", 4), ("Илюха", 7), ("Роман", 14.75)]
+
 def font(size, bold=False):
     paths = [
         "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf",
@@ -49,8 +52,9 @@ def right(draw, x, y, text, selected_font, fill):
 
 
 def main():
-    if len(sys.argv) != 4:
-        raise SystemExit("Usage: build-share-report-card.py JACKPOT.json DIRECTORY.json OUTPUT.png")
+    if len(sys.argv) not in (4, 5):
+        raise SystemExit("Usage: build-share-report-card.py JACKPOT.json DIRECTORY.json OUTPUT.png [full]")
+    full = len(sys.argv) == 5 and sys.argv[4] == "full"
     jackpot = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
     directory = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
     leagues = {str(row.get("leagueId")): row for row in jackpot.get("leagues", [])}
@@ -65,33 +69,44 @@ def main():
     total_rake = round_money(sum((Decimal(str(row[2])) for row in rows), Decimal("0")))
     total = round_money(sum((row[3] for row in rows), Decimal("0")))
 
-    image_height = 502 + len(rows) * 48
+    row_height = 58
+    image_height = (1010 if full else 540) + len(rows) * row_height
     image = Image.new("RGB", (1200, image_height), "#071A16")
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((35, 30, 1165, image_height - 30), radius=34, fill="#0D2922", outline="#2DD4A3", width=3)
-    title, header, body, body_bold, total_font = font(48, True), font(25, True), font(23), font(23, True), font(32, True)
+    title, header, body, body_bold, total_font = font(58, True), font(31, True), font(29), font(29, True), font(39, True)
     draw.text((75, 65), "Доля", font=title, fill="#F8FAFC")
-    draw.text((75, 135), f"{jackpot['startDate']} — {jackpot['endDate']}", font=font(24), fill="#94A3B8")
-    y = 205
-    draw.rounded_rectangle((60, y - 10, 1140, y + 42), radius=10, fill="#123C32")
+    draw.text((75, 145), f"{jackpot['startDate']} — {jackpot['endDate']}", font=font(29), fill="#94A3B8")
+    y = 220
+    draw.rounded_rectangle((60, y - 10, 1140, y + 50), radius=10, fill="#123C32")
     draw.text((78, y), "%", font=header, fill="#D7E3DF")
     draw.text((165, y), "Союз", font=header, fill="#D7E3DF")
     right(draw, 850, y, "Рейк", header, "#D7E3DF")
     right(draw, 1120, y, "Сумма", header, "#D7E3DF")
-    y += 58
+    y += 70
     for percent, label, rake, amount in rows:
         draw.text((78, y), f"{percent:g}%", font=body_bold, fill="#6EE7B7")
         draw.text((165, y), label, font=body, fill="#F8FAFC")
         right(draw, 850, y, money(rake), body, "#D7E3DF")
         right(draw, 1120, y, money(amount), body_bold, "#6EE7B7")
-        y += 48
+        y += row_height
     draw.line((75, y + 5, 1125, y + 5), fill="#2DD4A3", width=3)
     y += 28
     draw.text((78, y), "ИТОГО", font=total_font, fill="#F8FAFC")
     right(draw, 850, y, money(total_rake), total_font, "#F8FAFC")
     right(draw, 1120, y, money(total), total_font, "#6EE7B7")
-    y += 58
+    y += 68
     draw.text((78, y), f"60% Джеку = {money(round_money(total * Decimal('0.60')))}", font=body_bold, fill="#D7E3DF")
+    if full:
+        y += 50
+        draw.text((78, y), f"40% наша доля = {money(round_money(total * Decimal('0.40')))}", font=body_bold, fill="#D7E3DF")
+        y += 65
+        draw.text((78, y), "Распределение нашей доли", font=header, fill="#F8FAFC")
+        y += 52
+        for name, percent in SPLITS:
+            draw.text((78, y), f"{name} {str(percent).replace('.', ',')}%", font=body, fill="#D7E3DF")
+            right(draw, 1120, y, money(round_money(total * Decimal(str(percent)) / 100)), body_bold, "#6EE7B7")
+            y += 46
 
     output = Path(sys.argv[3])
     output.parent.mkdir(parents=True, exist_ok=True)
