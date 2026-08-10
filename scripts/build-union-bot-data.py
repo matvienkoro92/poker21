@@ -307,6 +307,13 @@ def main():
         league_player_rows.append({
             "leagueId": league_id,
             "league": league_names.get(league_id, league_id),
+            "players": sorted([{
+                "playerId": row["playerId"],
+                "nick": row["nick"],
+                "clubs": sorted(row["clubs"]),
+                "rake": round(row["rake"], 2),
+                "winnings": round(row["winnings"], 2),
+            } for row in players_for_league], key=lambda row: row["nick"].casefold()),
             "clubs": sorted([
                 {**row, "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2)} for row in league_clubs.get(league_id, {}).values()
             ], key=lambda row: (-row["rake"], row["club"].casefold())),

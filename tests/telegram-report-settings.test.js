@@ -658,6 +658,7 @@ test("группу можно привязать к союзу по назван
   assert.match(calls.at(-1).body.text, /Команды союза «Rbpoker»/);
   assert.match(calls.at(-1).body.text, /<b>\/клубы_союза<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/игроки рейк<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>\/игрок ID или ник<\/b>/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/мой союз/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/сводка/);
 
@@ -672,6 +673,16 @@ test("группу можно привязать к союзу по назван
   assert.deepEqual(playersRes.body, { ok: true, clubMode: true, unionPlayers: "рейк", sent: true });
   assert.equal(calls.at(-1).method, "sendMessage");
   assert.match(calls.at(-1).body.text, /Топ-10 игроков по рейку — Rbpoker/);
+
+  const playerRes = responseRecorder();
+  await handler(groupUpdate("/игрок 237780", 831, chatId), playerRes);
+  assert.deepEqual(playerRes.body, { ok: true, clubMode: true, unionPlayer: "237780", sent: true });
+  assert.match(calls.at(-1).body.text, /<b>Major \(237780\) — Rbpoker<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>Рейк: 9 293,08<\/b>/);
+
+  const foreignPlayerRes = responseRecorder();
+  await handler(groupUpdate("/игрок молоток", 832, chatId), foreignPlayerRes);
+  assert.match(calls.at(-1).body.text, /в союзе «Rbpoker» не найден/);
 
   const clubsRes = responseRecorder();
   await handler(groupUpdate("/клубы_союза", 84, chatId), clubsRes);
