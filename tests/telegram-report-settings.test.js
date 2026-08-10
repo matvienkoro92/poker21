@@ -432,12 +432,13 @@ test("/клубы отправляет отчёты один раз и повт�
   assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 3, 2, 3]);
   const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
   assert.equal(photos.length, 28);
-  assert.ok(photos.every((photo) => photo.media.endsWith("?v=club-rates-4")));
+  assert.ok(photos.every((photo) => photo.media.endsWith("?v=club-salary-5")));
   assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
   const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
   assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
   const kampashka = photos.find((photo) => photo.caption.startsWith("<b>Kampashka 21</b>"));
   assert.match(kampashka.caption, /Единый платёж за обслуживание 8%:/);
+  assert.match(kampashka.caption, /ЗП: -1 500,00 ₽/);
   const collaboration = photos.find((photo) => photo.caption.startsWith("<b>Collaboration Club</b>"));
   assert.match(collaboration.caption, /Единый платёж за обслуживание 20%:/);
   const amigo = photos.find((photo) => photo.caption.startsWith("<b>Амиго</b>"));
@@ -478,7 +479,7 @@ test("/клубы итого отправляет только округлён�
   assert.equal(sentMessages[0].body.reply_to_message_id, 22);
   assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
   assert.match(sentMessages[0].body.text, /Два Туза: -337 847/);
-  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 184 519<\/b>/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 183 019<\/b>/);
   assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: -173 740<\/b>\nJoker♦️Poker: -115 346/);
   assert.match(sentMessages[0].body.text, /\n\n<b>Тимур:<\/b>\n<b>ИТОГО: 471 380<\/b>\nFish Hunter: 107 867/);
 });

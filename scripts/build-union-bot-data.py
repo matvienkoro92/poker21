@@ -66,6 +66,7 @@ CLUB_SERVICE_PERCENT = {
 
 CLUB_SALARY = {
     "Два Туза": -1500,
+    "Kampashka 21": -1500,
 }
 
 
