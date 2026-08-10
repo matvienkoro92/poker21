@@ -488,7 +488,7 @@ test("/клубы итого отправляет только округлён�
   assert.match(sentMessages[0].body.text, /\n\n<b>Тимур:<\/b>\n<b>ИТОГО: 471 380<\/b>\nFish Hunter: 107 867/);
 });
 
-test("/китайцы выводит союзы в заданном порядке, рейк, процент и итог", async (t) => {
+test("/доля выводит союзы в заданном порядке, рейк, процент и итог", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
   global.fetch = async (url, options) => {
@@ -498,7 +498,7 @@ test("/китайцы выводит союзы в заданном порядк
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/китайцы", 23), res);
+  await handler(update("/доля", 23), res);
   assert.deepEqual(res.body, { ok: true, chinese: true, sent: true });
   assert.equal(sentMessage.method, "sendMessage");
   assert.equal(sentMessage.body.reply_to_message_id, 23);
