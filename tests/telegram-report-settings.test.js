@@ -656,7 +656,7 @@ test("группу можно привязать к союзу по назван
   const chatId = -100999000222;
 
   const bindRes = responseRecorder();
-  await handler(groupUpdate("/привязать союз Rbpoker", 80, chatId), bindRes);
+  await handler(groupUpdate("/привязать Rbpoker", 80, chatId), bindRes);
   assert.equal(bindRes.body.binding, true);
   assert.equal(bindRes.body.type, "union");
   assert.equal(bindRes.body.leagueId, "854851");
