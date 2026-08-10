@@ -539,6 +539,28 @@ test("/доля выводит только распределение наше�
   assert.equal(sentMessage.body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09-full.png?v=share-full-1");
 });
 
+test("/сводка выводит итоги по направлениям без откатов", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = { method: url.split("/").at(-1), body: JSON.parse(options.body) };
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/сводка", 25), res);
+  assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
+  assert.equal(sentMessage.method, "sendMessage");
+  assert.match(sentMessage.body.text, /1\. Доля разработчика \(китайцев\): <b>127 658,26<\/b>/);
+  assert.match(sentMessage.body.text, /2\. Наша доля: <b>85 105,51<\/b>/);
+  assert.match(sentMessage.body.text, /3\. Джекпоты: <b>294 238,18<\/b>/);
+  assert.match(sentMessage.body.text, /4\. Клубы нашего союза \(Anti-Reg\): <b>164 106,45<\/b>/);
+  assert.match(sentMessage.body.text, /5\. Другие союзы без Anti-Reg: <b>-347 824,03<\/b>/);
+  assert.match(sentMessage.body.text, /7\. Оверлей: <b>-342 333,10<\/b>/);
+  assert.doesNotMatch(sentMessage.body.text, /Откаты/);
+});
+
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
