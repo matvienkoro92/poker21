@@ -670,6 +670,7 @@ test("группу можно привязать к союзу по назван
   const commandsRes = responseRecorder();
   await handler(groupUpdate("/команды", 81, chatId), commandsRes);
   assert.match(calls.at(-1).body.text, /Команды союза «Rbpoker»/);
+  assert.match(calls.at(-1).body.text, /<b>Отчёты<\/b>[\s\S]*<b>Клубы<\/b>[\s\S]*<b>Игроки<\/b>[\s\S]*<b>Автоматическая отправка<\/b>[\s\S]*<b>Управление привязкой<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/клубы_союза<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/игроки рейк<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/игрок ID или ник<\/b>/);
