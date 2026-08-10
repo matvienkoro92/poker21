@@ -24,6 +24,7 @@ const handlers = {
   "send-to-user": () => require(path.join(handlersDir, "send-to-user.js")),
   "telegram-report-webhook": () => require(path.join(handlersDir, "telegram-report-webhook.js")),
   "telegram-report-dispatch": () => require(path.join(handlersDir, "telegram-report-dispatch.js")),
+  "telegram-bound-auto-report": () => require(path.join(handlersDir, "telegram-bound-auto-report.js")),
   "send-bulk": () => require(path.join(handlersDir, "send-bulk.js")),
   "cron-reminder-10min": () => require(path.join(handlersDir, "cron-reminder-10min.js")),
   "freeroll-reminder-subscribe": () => require(path.join(handlersDir, "freeroll-reminder-subscribe.js")),

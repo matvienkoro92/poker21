@@ -34,6 +34,14 @@ function groupUpdate(text, messageId, chatId = -100999000111) {
   };
 }
 
+function callbackUpdate(data, messageId, chatId = -100999000111) {
+  return {
+    method: "POST",
+    headers: { "x-telegram-bot-api-secret-token": "test-secret" },
+    body: { callback_query: { id: `callback-${messageId}`, data, from: { id: 42 }, message: { message_id: messageId, chat: { id: chatId, type: "supergroup" } } } },
+  };
+}
+
 test("/отчет применяет процент из кода и отправляет оригинальный Excel", async (t) => {
   const telegramCalls = [];
   const originalFetch = global.fetch;
@@ -659,6 +667,9 @@ test("группу можно привязать к союзу по назван
   assert.match(calls.at(-1).body.text, /<b>\/клубы_союза<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/игроки рейк<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>\/игрок ID или ник<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>\/итого_союза<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>\/топ_клубов рейк<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>\/автоотчет вкл<\/b>/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/мой союз/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/сводка/);
 
@@ -667,6 +678,28 @@ test("группу можно привязать к союзу по назван
   assert.equal(reportRes.body.sent, true);
   assert.equal(calls.at(-1).method, "sendPhoto");
   assert.match(calls.at(-1).body.caption, /^<b>Rbpoker<\/b>/);
+  assert.equal(calls.at(-1).body.reply_markup.inline_keyboard[0][0].callback_data, "bound:clubs");
+
+  const callbackRes = responseRecorder();
+  await handler(callbackUpdate("bound:clubs", 820, chatId), callbackRes);
+  assert.equal(callbackRes.body.unionClubs, true);
+  assert.match(calls.at(-1).body.text, /Клубы союза Rbpoker/);
+
+  const totalRes = responseRecorder();
+  await handler(groupUpdate("/итого_союза", 821, chatId), totalRes);
+  assert.deepEqual(totalRes.body, { ok: true, clubMode: true, unionTotal: true, sent: true });
+  assert.match(calls.at(-1).body.text, /Rbpoker — короткое итого/);
+
+  const clubTopRes = responseRecorder();
+  await handler(groupUpdate("/топ_клубов рейк", 822, chatId), clubTopRes);
+  assert.deepEqual(clubTopRes.body, { ok: true, clubMode: true, unionClubTop: "рейк", sent: true });
+  assert.match(calls.at(-1).body.text, /Топ клубов по рейку — Rbpoker/);
+  assert.match(calls.at(-1).body.text, /1\. <b>Pokerrates<\/b> — 38 741,61/);
+
+  const autoRes = responseRecorder();
+  await handler(groupUpdate("/автоотчет вкл", 823, chatId), autoRes);
+  assert.equal(autoRes.body.autoReport, true);
+  assert.match(calls.at(-1).body.text, /Автоотчёт: включён/);
 
   const playersRes = responseRecorder();
   await handler(groupUpdate("/игроки рейк", 83, chatId), playersRes);
