@@ -411,7 +411,7 @@ test("/союзы итого отправляет только итоговое 
   assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816<\/b>\nJokers: 169 816$/);
 });
 
-test("/клубы подтверждает webhook заранее и повторно один запрос не отправляет", async (t) => {
+test("/клубы отправляет отчёты один раз и повторно один запрос не обрабатывает", async (t) => {
   const originalFetch = global.fetch;
   const sentMessages = [];
   global.fetch = async (url, options) => {
@@ -424,7 +424,7 @@ test("/клубы подтверждает webhook заранее и повто�
   const request = update("/клубы", 21);
   request.body.update_id = 2100;
   await handler(request, res);
-  assert.deepEqual(res.body, { ok: true, clubs: true, accepted: true });
+  assert.deepEqual(res.body, { ok: true, clubs: true, sent: true });
   assert.deepEqual(sentMessages.map((row) => row.method), [
     "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMediaGroup", "sendMessage",
   ]);
