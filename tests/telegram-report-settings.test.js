@@ -411,7 +411,7 @@ test("/союзы итого отправляет только итоговое 
   assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816<\/b>\nJokers: 169 816$/);
 });
 
-test("/клубы аварийно остановлена и ничего не отправляет", async (t) => {
+test("/клубы подтверждает webhook заранее и повторно один запрос не отправляет", async (t) => {
   const originalFetch = global.fetch;
   const sentMessages = [];
   global.fetch = async (url, options) => {
@@ -421,9 +421,25 @@ test("/клубы аварийно остановлена и ничего не �
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/клубы", 21), res);
-  assert.deepEqual(res.body, { ok: true, clubs: true, stopped: true });
-  assert.equal(sentMessages.length, 0);
+  const request = update("/клубы", 21);
+  request.body.update_id = 2100;
+  await handler(request, res);
+  assert.deepEqual(res.body, { ok: true, clubs: true, accepted: true });
+  assert.deepEqual(sentMessages.map((row) => row.method), [
+    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMediaGroup", "sendMessage",
+  ]);
+  assert.ok(sentMessages.every((row) => row.body.reply_to_message_id === undefined));
+  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 8]);
+  const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
+  assert.equal(photos.length, 28);
+  assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
+  const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
+  assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
+  const firstRunCalls = sentMessages.length;
+  const duplicateRes = responseRecorder();
+  await handler(request, duplicateRes);
+  assert.deepEqual(duplicateRes.body, { ok: true, clubs: true, duplicate: true });
+  assert.equal(sentMessages.length, firstRunCalls);
 });
 
 test("/клубы итого отправляет только округлённую клубную сводку", async (t) => {
