@@ -656,10 +656,13 @@ test("группу можно привязать к союзу по назван
   const commandsRes = responseRecorder();
   await handler(groupUpdate("/команды", 81, chatId), commandsRes);
   assert.match(calls.at(-1).body.text, /Команды союза «Rbpoker»/);
+  assert.match(calls.at(-1).body.text, /<b>\/клубы<\/b>/);
+  assert.match(calls.at(-1).body.text, /<b>\/игроки рейк<\/b>/);
+  assert.doesNotMatch(calls.at(-1).body.text, /\/мой союз/);
   assert.doesNotMatch(calls.at(-1).body.text, /\/сводка/);
 
   const reportRes = responseRecorder();
-  await handler(groupUpdate("/мой союз", 82, chatId), reportRes);
+  await handler(groupUpdate("/отчет", 82, chatId), reportRes);
   assert.equal(reportRes.body.sent, true);
   assert.equal(calls.at(-1).method, "sendPhoto");
   assert.match(calls.at(-1).body.caption, /^<b>Rbpoker<\/b>/);
