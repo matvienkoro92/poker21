@@ -100,10 +100,64 @@ test("/команды показывает справку по доступны�
   assert.match(sentMessage.text, /<b>\/клуб Два Туза<\/b>/);
   assert.match(sentMessage.text, /<b>\/игрок 230740<\/b>/);
   assert.match(sentMessage.text, /<b>\/активность<\/b>/);
+  assert.match(sentMessage.text, /<b>\/период 20\.07-26\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/оверлеи<\/b>/);
   assert.match(sentMessage.text, /<b>\/отчет 13\.07-19\.07<\/b>/);
   assert.match(sentMessage.text, /<b>\/итого за все время<\/b>/);
   assert.match(sentMessage.text, /<b>\/команды<\/b>/);
+});
+
+test("команда статистики принимает период, а без периода показывает последнюю неделю", async (t) => {
+  const originalFetch = global.fetch;
+  const messages = [];
+  global.fetch = async (url, options) => {
+    messages.push(JSON.parse(options.body));
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  await handler(update("/игры 13.07-19.07", 51), responseRecorder());
+  assert.match(messages.at(-1).text, /<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
+  assert.match(messages.at(-1).text, /<b>Весь рейк союза: 1 878 391,42<\/b>/);
+
+  await handler(update("/игры", 52), responseRecorder());
+  assert.match(messages.at(-1).text, /<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+});
+
+test("период показывает доступные недели и сообщает об отсутствующей", async (t) => {
+  const originalFetch = global.fetch;
+  const messages = [];
+  global.fetch = async (url, options) => {
+    messages.push(JSON.parse(options.body));
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  await handler(update("/период", 53), responseRecorder());
+  assert.match(messages.at(-1).text, /03\.08\.2026–09\.08\.2026/);
+  assert.match(messages.at(-1).text, /13\.07\.2026–19\.07\.2026/);
+
+  const res = responseRecorder();
+  await handler(update("/клуб Два Туза 20.07-26.07", 54), res);
+  assert.equal(res.body.found, false);
+  assert.match(messages.at(-1).text, /Статистика за период 20\.07-26\.07 не найдена/);
+});
+
+test("клуб и игрок принимают период после поискового запроса", async (t) => {
+  const originalFetch = global.fetch;
+  const messages = [];
+  global.fetch = async (url, options) => {
+    messages.push(JSON.parse(options.body));
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  await handler(update("/клуб Два Туза 13.07-19.07", 55), responseRecorder());
+  assert.match(messages.at(-1).text, /<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
+  assert.match(messages.at(-1).text, /<b>Весь рейк: 724 837,89<\/b>/);
+
+  await handler(update("/игрок Waaar 13.07-19.07", 56), responseRecorder());
+  assert.match(messages.at(-1).text, /<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
 });
 
 test("/активность выводит общие показатели и четыре топа", async (t) => {

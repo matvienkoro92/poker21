@@ -127,17 +127,19 @@ def main():
         player["winGames"] = sorted(player["winGames"].items(), key=lambda item: -abs(item[1]))
         player["rakeGames"] = sorted(player["rakeGames"].items(), key=lambda item: -item[1])
         player_rows.append(player)
-    write_json(output_dir / "union-directory.json", {
+    directory_data = {
         **base,
         "clubs": sorted(club_metrics.values(), key=lambda club: club["name"].casefold()),
         "players": sorted(player_rows, key=lambda player: int(player["id"])),
-    })
+    }
+    write_json(output_dir / "union-directory.json", directory_data)
 
     rake_clubs = [club_metrics[club_id] for club_id in member_club_ids if club_id in club_metrics]
-    write_json(output_dir / "union-member-rake-summary.json", {
+    member_rake_data = {
         **base,
-        "clubs": [{"club": club["name"], "clubId": club["id"], "rake": club["rake"]} for club in top(rake_clubs, "rake") + sorted(rake_clubs, key=lambda club: -club["rake"])[10:]],
-    })
+        "clubs": [{"club": club["name"], "clubId": club["id"], "rake": club["rake"]} for club in sorted(rake_clubs, key=lambda club: (-club["rake"], club["name"].casefold()))],
+    }
+    write_json(output_dir / "union-member-rake-summary.json", member_rake_data)
 
     games_sheet = workbook["Union Game Statistics"]
     game_headers = [cell.value for cell in next(games_sheet.iter_rows(min_row=5, max_row=5))]
@@ -152,27 +154,31 @@ def main():
             game_rake[str(row[type_index])] += float(row[fee_index])
         if isinstance(row[overlay_index], (int, float)) and row[overlay_index] != 0:
             overlays.append({"name": str(row[name_index] or "Без названия").strip(), "overlay": float(row[overlay_index])})
-    write_json(output_dir / "union-game-rake-summary.json", {**base, "games": [{"name": name, "rake": value} for name, value in sorted(game_rake.items(), key=lambda item: -item[1])]})
-    write_json(output_dir / "union-overlay-summary.json", {**base, "tournaments": sorted(overlays, key=lambda row: -row["overlay"])})
+    game_rake_data = {**base, "games": [{"name": name, "rake": value} for name, value in sorted(game_rake.items(), key=lambda item: -item[1])]}
+    overlay_data = {**base, "tournaments": sorted(overlays, key=lambda row: -row["overlay"])}
+    write_json(output_dir / "union-game-rake-summary.json", game_rake_data)
+    write_json(output_dir / "union-overlay-summary.json", overlay_data)
 
     raw_union_rows = []
     for row in union.iter_rows(min_row=5, values_only=True):
         if isinstance(row[1], (int, float)):
             raw_union_rows.append(dict(zip(union_headers, row)))
-    write_json(output_dir / "union-jackpot-summary.json", {
+    jackpot_data = {
         **base,
-        "regularFee": sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows),
-        "regularPayout": sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows),
-        "jackpot21Fee": sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows),
-        "jackpot21Payout": sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows),
-    })
+        "regularFee": round(sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows), 2),
+        "regularPayout": round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2),
+        "jackpot21Fee": round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2),
+        "jackpot21Payout": round(sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows), 2),
+    }
+    write_json(output_dir / "union-jackpot-summary.json", jackpot_data)
 
-    write_json(output_dir / "union-player-tops.json", {
+    player_tops_data = {
         **base,
         "rake": [{"playerId": row["id"], "nick": row["nick"], "clubs": [club_metrics[cid]["name"] for cid in row["clubs"] if cid in club_metrics], "value": row["rake"]} for row in top(player_rows, "rake")],
         "minus": [{"playerId": row["id"], "nick": row["nick"], "clubs": [club_metrics[cid]["name"] for cid in row["clubs"] if cid in club_metrics], "value": row["winnings"]} for row in top([row for row in player_rows if row["winnings"] < 0], "winnings", False)],
         "plus": [{"playerId": row["id"], "nick": row["nick"], "clubs": [club_metrics[cid]["name"] for cid in row["clubs"] if cid in club_metrics], "value": row["winnings"]} for row in top([row for row in player_rows if row["winnings"] > 0], "winnings")],
-    })
+    }
+    write_json(output_dir / "union-player-tops.json", player_tops_data)
 
     activity_rows = []
     for club_id, club in club_metrics.items():
@@ -183,7 +189,7 @@ def main():
         if row["rake"] or row["games"] or row["hands"] or row["activePlayers"]:
             row["rakePerPlayer"] = round(row["rake"] / row["activePlayers"], 2) if row["activePlayers"] else 0
             activity_rows.append(row)
-    write_json(output_dir / "union-activity-summary.json", {
+    activity_data = {
         **base,
         "activeClubs": len(activity_rows),
         "activePlayers": sum(row["activePlayers"] for row in activity_rows),
@@ -193,7 +199,25 @@ def main():
         "topGames": top(activity_rows, "games"),
         "topHands": top(activity_rows, "hands"),
         "topRakePerPlayer": top(activity_rows, "rakePerPlayer"),
-    })
+    }
+    write_json(output_dir / "union-activity-summary.json", activity_data)
+
+    archive_path = output_dir / "union-periods.json"
+    archive = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else {"periods": []}
+    bundle = {
+        **base,
+        "directory": directory_data,
+        "memberRake": member_rake_data,
+        "games": game_rake_data,
+        "overlays": overlay_data,
+        "jackpot": jackpot_data,
+        "playerTops": player_tops_data,
+        "activity": activity_data,
+    }
+    periods = [row for row in archive.get("periods", []) if not (row.get("startDate") == start_date and row.get("endDate") == end_date)]
+    periods.append(bundle)
+    archive["periods"] = sorted(periods, key=lambda row: row["endDate"], reverse=True)
+    write_json(archive_path, archive)
     print(json.dumps({"period": [start_date, end_date], "clubs": len(club_metrics), "memberClubs": len(member_club_ids), "players": len(player_rows), "overlays": len(overlays)}, ensure_ascii=False))
 
 
