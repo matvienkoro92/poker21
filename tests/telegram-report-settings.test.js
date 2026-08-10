@@ -539,7 +539,7 @@ test("/доля выводит только распределение наше�
   assert.equal(sentMessage.body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09-full.png?v=share-full-1");
 });
 
-test("/сводка выводит итоги по направлениям без откатов", async (t) => {
+test("/сводка выводит итоги по направлениям с откатами и зарплатой", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
   global.fetch = async (url, options) => {
@@ -557,8 +557,30 @@ test("/сводка выводит итоги по направлениям бе
   assert.match(sentMessage.body.text, /3\. Джекпоты: <b>294 238,18<\/b>/);
   assert.match(sentMessage.body.text, /4\. Клубы нашего союза \(Anti-Reg\): <b>164 106,45<\/b>/);
   assert.match(sentMessage.body.text, /5\. Другие союзы без Anti-Reg: <b>-347 824,03<\/b>/);
+  assert.match(sentMessage.body.text, /6\. Откаты: <b>\+11 626,32<\/b>/);
   assert.match(sentMessage.body.text, /7\. Оверлей: <b>-342 333,10<\/b>/);
-  assert.doesNotMatch(sentMessage.body.text, /Откаты/);
+  assert.match(sentMessage.body.text, /8\. ЗП: <b>\+3 000,00<\/b>/);
+});
+
+test("/откаты распределяет клубную разницу выше 8%", async (t) => {
+  const originalFetch = global.fetch;
+  let sentMessage = null;
+  global.fetch = async (url, options) => {
+    sentMessage = { method: url.split("/").at(-1), body: JSON.parse(options.body) };
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await handler(update("/откаты", 26), res);
+  assert.deepEqual(res.body, { ok: true, kickbacks: true, sent: true });
+  assert.equal(sentMessage.method, "sendMessage");
+  assert.match(sentMessage.body.text, /<b>Роман:<\/b>[\s\S]*GoRiLaZzz 10% — \+31,21/);
+  assert.match(sentMessage.body.text, /<b>Итого Роману: 218,89<\/b>/);
+  assert.match(sentMessage.body.text, /<b>Итого Сергею: 6 204,59<\/b>/);
+  assert.match(sentMessage.body.text, /<b>Итого Тимуру: 5 202,85<\/b>/);
+  assert.match(sentMessage.body.text, /<b>ВСЕГО ОТКАТОВ: 11 626,32<\/b>/);
+  assert.doesNotMatch(sentMessage.body.text, /Два Туза/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {
