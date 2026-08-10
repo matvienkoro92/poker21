@@ -288,7 +288,7 @@ def main():
                 club["rake"] += float(row[5] or 0) * exchange_rate
                 club["winLose"] += float(row[4] or 0) * exchange_rate
                 club["playerIds"].add(player_id)
-                if any(float(row[index] or 0) != 0 for index in [4, 5, super_league_insurance_player_index, super_league_jackpot_fee_player_index, super_league_jackpot_payout_player_index]):
+                if float(row[4] or 0) != 0 or float(row[5] or 0) != 0:
                     club["activePlayerIds"].add(player_id)
         if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
             continue
