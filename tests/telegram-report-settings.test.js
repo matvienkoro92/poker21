@@ -632,6 +632,12 @@ test("привязанный чат получает только команды
   assert.equal(calls.at(-1).method, "sendPhoto");
   assert.match(calls.at(-1).body.caption, /^<b>Два Туза<\/b>/);
 
+  const callsBeforeChat = calls.length;
+  const chatRes = responseRecorder();
+  await handler(groupUpdate("привет", 721), chatRes);
+  assert.deepEqual(chatRes.body, { ok: true, clubMode: true, ignored: true });
+  assert.equal(calls.length, callsBeforeChat, "бот не должен отвечать на обычную переписку");
+
   const restrictedRes = responseRecorder();
   await handler(groupUpdate("/сводка", 73), restrictedRes);
   assert.equal(restrictedRes.body.restricted, true);
