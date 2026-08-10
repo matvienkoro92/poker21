@@ -426,13 +426,13 @@ test("/клубы отправляет отчёты один раз и повт�
   await handler(request, res);
   assert.deepEqual(res.body, { ok: true, clubs: true, sent: true });
   assert.deepEqual(sentMessages.map((row) => row.method), [
-    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMediaGroup", "sendMessage",
+    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMessage",
   ]);
   assert.ok(sentMessages.every((row) => row.body.reply_to_message_id === undefined));
-  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 8]);
+  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 3, 2, 3]);
   const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
   assert.equal(photos.length, 28);
-  assert.ok(photos.every((photo) => photo.media.endsWith("?v=club-rates-3")));
+  assert.ok(photos.every((photo) => photo.media.endsWith("?v=club-rates-4")));
   assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
   const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
   assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
@@ -446,6 +446,14 @@ test("/клубы отправляет отчёты один раз и повт�
   assert.match(jokerPoker.caption, /Единый платёж за обслуживание 8%:/);
   const jokerVip = photos.find((photo) => photo.caption.startsWith("<b>Joker♦️VIP♦️Poker</b>"));
   assert.match(jokerVip.caption, /Единый платёж за обслуживание 8%:/);
+  assert.equal(sentMessages[5].body.text, "<b>❗ ДЛЯ ИЛЬИ:</b>");
+  assert.equal(sentMessages[7].body.text, "<b>❗ ДЛЯ ТИМУРА:</b>");
+  const kingsKo = photos.find((photo) => photo.caption.startsWith("<b>Kings KO</b>"));
+  assert.match(kingsKo.caption, /Единый платёж за обслуживание 8%:/);
+  const fishHunter = photos.find((photo) => photo.caption.startsWith("<b>Fish Hunter</b>"));
+  assert.match(fishHunter.caption, /Единый платёж за обслуживание 15%:/);
+  const ludomany = photos.find((photo) => photo.caption.startsWith("<b>Лудоманы</b>"));
+  assert.match(ludomany.caption, /Единый платёж за обслуживание 15%:/);
   const firstRunCalls = sentMessages.length;
   const duplicateRes = responseRecorder();
   await handler(request, duplicateRes);
@@ -470,7 +478,9 @@ test("/клубы итого отправляет только округлён�
   assert.equal(sentMessages[0].body.reply_to_message_id, 22);
   assert.match(sentMessages[0].body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
   assert.match(sentMessages[0].body.text, /Два Туза: -337 847/);
-  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 477 302<\/b>/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 184 519<\/b>/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: -173 740<\/b>\nJoker♦️Poker: -115 346/);
+  assert.match(sentMessages[0].body.text, /\n\n<b>Тимур:<\/b>\n<b>ИТОГО: 471 380<\/b>\nFish Hunter: 107 867/);
 });
 
 test("/игры выводит весь рейк союза и разбивку по играм", async (t) => {

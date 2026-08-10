@@ -33,6 +33,9 @@ LEAGUE_SERVICE_PERCENT = {
 }
 
 CLUB_SERVICE_PERCENT = {
+    "Kings KO": 8,
+    "Fish Hunter": 15,
+    "Лудоманы": 15,
     "Joker♦️Poker": 8,
     "Joker♦️VIP♦️Poker": 8,
     "Pattaya": 8,
