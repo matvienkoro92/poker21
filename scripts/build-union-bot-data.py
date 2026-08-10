@@ -240,6 +240,9 @@ def main():
     super_league_insurance_index = super_league_headers.index("Insurance Total")
     super_league_club_index = super_league_headers.index("      Club      ")
     super_league_player_index = super_league_headers.index("Player ID")
+    super_league_insurance_player_index = super_league_headers.index("Insurance")
+    super_league_jackpot_fee_player_index = super_league_headers.index("Jackpot Fee")
+    super_league_jackpot_payout_player_index = super_league_headers.index("Jackpot Payout")
     jackpot_leagues = []
     league_players = defaultdict(dict)
     league_clubs = defaultdict(dict)
@@ -261,6 +264,9 @@ def main():
                 "clubs": set(),
                 "rake": 0.0,
                 "winnings": 0.0,
+                "insurance": 0.0,
+                "jackpotFee": 0.0,
+                "jackpotPayout": 0.0,
             })
             club_label = str(row[super_league_club_index] or "").strip()
             club_match = re.match(r"^(.*)\((\d+)\)$", club_label)
@@ -268,6 +274,9 @@ def main():
                 player["clubs"].add(club_match.group(1).strip() if club_match else club_label)
             player["rake"] += float(row[5] or 0) * exchange_rate
             player["winnings"] += float(row[4] or 0) * exchange_rate
+            player["insurance"] += float(row[super_league_insurance_player_index] or 0) * exchange_rate
+            player["jackpotFee"] += float(row[super_league_jackpot_fee_player_index] or 0) * exchange_rate
+            player["jackpotPayout"] += float(row[super_league_jackpot_payout_player_index] or 0) * exchange_rate
             if club_label:
                 club_id = club_match.group(2) if club_match else ""
                 club_name = club_match.group(1).strip() if club_match else club_label
@@ -313,6 +322,9 @@ def main():
                 "clubs": sorted(row["clubs"]),
                 "rake": round(row["rake"], 2),
                 "winnings": round(row["winnings"], 2),
+                "insurance": round(row["insurance"], 2),
+                "jackpotFee": round(row["jackpotFee"], 2),
+                "jackpotPayout": round(row["jackpotPayout"], 2),
             } for row in players_for_league], key=lambda row: row["nick"].casefold()),
             "clubs": sorted([
                 {**row, "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2)} for row in league_clubs.get(league_id, {}).values()

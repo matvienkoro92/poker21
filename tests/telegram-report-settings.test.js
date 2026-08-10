@@ -679,6 +679,9 @@ test("группу можно привязать к союзу по назван
   assert.deepEqual(playerRes.body, { ok: true, clubMode: true, unionPlayer: "237780", sent: true });
   assert.match(calls.at(-1).body.text, /<b>Major \(237780\) — Rbpoker<\/b>/);
   assert.match(calls.at(-1).body.text, /<b>Рейк: 9 293,08<\/b>/);
+  assert.match(calls.at(-1).body.text, /Страховка: 0,00/);
+  assert.match(calls.at(-1).body.text, /Сбор джекпота: 970,00/);
+  assert.match(calls.at(-1).body.text, /Выплаты джекпота: 0,00/);
 
   const foreignPlayerRes = responseRecorder();
   await handler(groupUpdate("/игрок молоток", 832, chatId), foreignPlayerRes);
