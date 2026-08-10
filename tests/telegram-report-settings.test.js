@@ -411,7 +411,7 @@ test("/союзы итого отправляет только итоговое 
   assert.match(sentMessages[0].body.text, /\n\n<b>Илья:<\/b>\n<b>ИТОГО: 169 816<\/b>\nJokers: 169 816$/);
 });
 
-test("/клубы отправляет клубные отчёты Роману и Сергею с итоговой сводкой", async (t) => {
+test("/клубы аварийно остановлена и ничего не отправляет", async (t) => {
   const originalFetch = global.fetch;
   const sentMessages = [];
   global.fetch = async (url, options) => {
@@ -422,27 +422,8 @@ test("/клубы отправляет клубные отчёты Роману 
 
   const res = responseRecorder();
   await handler(update("/клубы", 21), res);
-  assert.deepEqual(res.body, { ok: true, clubs: true, sent: true });
-  assert.deepEqual(sentMessages.map((row) => row.method), [
-    "sendMessage", "sendMediaGroup", "sendMessage", "sendMediaGroup", "sendMediaGroup", "sendMessage",
-  ]);
-  assert.deepEqual(sentMessages.filter((row) => row.method === "sendMediaGroup").map((row) => row.body.media.length), [10, 10, 8]);
-  assert.equal(sentMessages[0].body.text, "<b>❗ ДЛЯ РОМАНА:</b>");
-  assert.equal(sentMessages[2].body.text, "<b>❗ ДЛЯ СЕРГЕЯ:</b>");
-  const photos = sentMessages.filter((row) => row.method === "sendMediaGroup").flatMap((row) => row.body.media);
-  assert.equal(photos.length, 28);
-  assert.ok(photos.every((photo) => photo.media.includes("/assets/reports/clubs/2026-08-03_2026-08-09/")));
-  assert.ok(photos.every((photo) => !photo.caption.includes("Возврат джекпота")));
-  const dvaTuza = photos.find((photo) => photo.caption.startsWith("<b>Два Туза</b>"));
-  assert.match(dvaTuza.caption, /Единый платёж за обслуживание 8%: -49 554,96/);
-  assert.match(dvaTuza.caption, /ЗП: -1 500,00 ₽/);
-  assert.match(dvaTuza.caption, /Итого к расчёту: -337 846,89/);
-  const riverClub = photos.find((photo) => photo.caption.startsWith("<b>РИВЕР КЛУБ</b>"));
-  assert.match(riverClub.caption, /Единый платёж за обслуживание 20%: -1,00/);
-  const sergeyPhoto = photos.find((photo) => photo.caption.startsWith("<b>Beer and Bear</b>"));
-  assert.match(sergeyPhoto.caption, /Единый платёж за обслуживание 10%:/);
-  assert.match(sentMessages.at(-1).body.text, /^<b>Роман:<\/b>\n<b>ИТОГО: -316 552<\/b>/);
-  assert.match(sentMessages.at(-1).body.text, /\n\n<b>Сергей:<\/b>\n<b>ИТОГО: 468 761<\/b>/);
+  assert.deepEqual(res.body, { ok: true, clubs: true, stopped: true });
+  assert.equal(sentMessages.length, 0);
 });
 
 test("/клубы итого отправляет только округлённую клубную сводку", async (t) => {
