@@ -171,19 +171,35 @@ def main():
             add_value(player["winGames"], str(member_headers[index]), row[index])
         for index in list(range(31, 44)) + list(range(45, 49)) + list(range(50, 53)):
             add_value(player["rakeGames"], str(member_headers[index]), row[index])
-        club_player = club_players[club_id].setdefault(player_id, {"id": player_id, "nick": nick, "winnings": 0.0, "rake": 0.0})
+        club_player = club_players[club_id].setdefault(player_id, {
+            "id": player_id, "nick": nick, "winnings": 0.0, "rake": 0.0,
+            "cashRake": 0.0, "mttRake": 0.0, "sngRake": 0.0, "insurance": 0.0,
+            "winGames": {}, "rakeGames": {},
+        })
         club_player["nick"] = nick
         club_player["winnings"] += float(row[9] or 0)
-        club_player["rake"] += float(row[30] or 0) + float(row[44] or 0) + float(row[49] or 0)
+        club_player["cashRake"] += float(row[30] or 0)
+        club_player["mttRake"] += float(row[44] or 0)
+        club_player["sngRake"] += float(row[49] or 0)
+        club_player["insurance"] += float(row[53] or 0)
+        club_player["rake"] = club_player["cashRake"] + club_player["mttRake"] + club_player["sngRake"]
+        for index in range(10, 30):
+            add_value(club_player["winGames"], str(member_headers[index]), row[index])
+        for index in list(range(31, 44)) + list(range(45, 49)) + list(range(50, 53)):
+            add_value(club_player["rakeGames"], str(member_headers[index]), row[index])
 
     for club_id, club in club_metrics.items():
         rows = list(club_players.get(club_id, {}).values())
+        for row in rows:
+            row["winGames"] = sorted(row["winGames"].items(), key=lambda item: -abs(item[1]))
+            row["rakeGames"] = sorted(row["rakeGames"].items(), key=lambda item: -item[1])
         club["jackpotFee"] = club.pop("regularJackpotFee") + club.pop("jackpot21Fee")
         club["jackpotPayout"] = club.pop("regularJackpotPayout") + club.pop("jackpot21Payout")
         club["players"] = len(rows)
         club["topRake"] = top(rows, "rake", True, 5)
         club["topPlus"] = top([row for row in rows if row["winnings"] > 0], "winnings", True, 5)
         club["topMinus"] = top([row for row in rows if row["winnings"] < 0], "winnings", False, 5)
+        club["playerRows"] = sorted(rows, key=lambda row: row["nick"].casefold())
 
     player_rows = []
     for player in players.values():
