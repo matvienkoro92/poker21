@@ -39,7 +39,7 @@ test("автоотчёт отправляет только отчёт привя
   const sentLocks = new Set();
   const pipeline = async (commands) => commands.map((command) => {
     const [name, key] = command;
-    if (name === "KEYS") return { result: Object.keys(bindings) };
+    if (name === "SCAN") return { result: ["0", Object.keys(bindings)] };
     if (name === "GET") return { result: bindings[key] || null };
     if (name === "SET" && command.includes("NX")) {
       if (sentLocks.has(key)) return { result: null };
@@ -79,7 +79,7 @@ test("dry-run ничего не отправляет и точно показы�
   const key = "poker21:telegram-report:club-chat:-2001";
   let mutations = 0;
   const pipeline = async (commands) => commands.map((command) => {
-    if (command[0] === "KEYS") return { result: [key] };
+    if (command[0] === "SCAN") return { result: ["0", [key]] };
     if (command[0] === "GET") return { result: JSON.stringify({ type: "union", leagueId: "854851", league: "Rbpoker", autoReport: true }) };
     mutations += 1;
     return { result: "OK" };
