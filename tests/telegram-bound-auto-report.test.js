@@ -102,3 +102,37 @@ test("dry-run ничего не отправляет и точно показы�
     imagePath: "/assets/reports/unions/2026-08-03_2026-08-09/rbpoker.png",
   });
 });
+
+test("изменение баланса из автоотчёта попадает в незаписанные операции", async (t) => {
+  const key = "poker21:telegram-report:club-chat:-3001";
+  const binding = { type: "club", clubId: "128900", club: "Beer and Bear", autoReport: true };
+  const commandsSeen = [];
+  const pipeline = async (commands) => {
+    commandsSeen.push(...commands);
+    return commands.map((command) => {
+      if (command[0] === "SCAN") return { result: ["0", [key]] };
+      if (command[0] === "GET") return { result: JSON.stringify(binding) };
+      if (command[0] === "SET") return { result: "OK" };
+      if (command[0] === "INCRBY") return { result: "-2962804" };
+      return { result: 1 };
+    });
+  };
+  const loaded = loadHandler(pipeline);
+  t.after(loaded.restore);
+  const originalFetch = global.fetch;
+  global.fetch = async () => ({ ok: true, json: async () => ({ ok: true }) });
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = responseRecorder();
+  await loaded.handler(request(), res);
+
+  assert.equal(res.body.ok, true);
+  const unrecorded = commandsSeen.find((command) => command[0] === "LPUSH" && command[1] === "poker21:telegram-report:balance-operations:unrecorded");
+  assert.ok(unrecorded);
+  const operation = JSON.parse(unrecorded[2]);
+  assert.equal(operation.type, "club");
+  assert.equal(operation.name, "Beer and Bear");
+  assert.equal(operation.rub.action, "adjust");
+  assert.equal(operation.rub.cents, -2962804);
+  assert.match(operation.actor, /^Автоотчёт /);
+});
