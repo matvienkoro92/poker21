@@ -9,5 +9,8 @@
     "start": "npx serve .",
     "backup": "./scripts/backup.sh",
     "install-hooks": "cp scripts/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push scripts/backup.sh"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
   }
 }
