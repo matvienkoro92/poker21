@@ -250,11 +250,11 @@ def main():
     super_league_sheet = workbook["Supper Union League Statistics"]
     super_league_headers = [cell.value for cell in next(super_league_sheet.iter_rows(min_row=4, max_row=4))]
     super_league_name_index = super_league_headers.index("      League      ")
-    super_league_fee_index = super_league_headers.index("Jackpot Fee Total")
-    super_league_payout_index = super_league_headers.index("Jackpot Payout Total")
+    super_league_fee_index = super_league_headers.index("Jackpot Fee Total(Super Union)")
+    super_league_payout_index = super_league_headers.index("Jackpot Payout Total(Super Union)")
     super_league_result_index = super_league_headers.index("Total(Super Union)")
-    super_league_total_fee_index = super_league_headers.index("FeeTotal")
-    super_league_insurance_index = super_league_headers.index("Insurance Total")
+    super_league_total_fee_index = super_league_headers.index("FeeTotal(Super Union)")
+    super_league_insurance_index = super_league_headers.index("Insurance Total(Super Union)")
     super_league_club_index = super_league_headers.index("      Club      ")
     super_league_player_index = super_league_headers.index("Player ID")
     super_league_insurance_player_index = super_league_headers.index("Insurance")
