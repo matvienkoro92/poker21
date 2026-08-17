@@ -259,7 +259,7 @@ def main():
     super_league_insurance_player_index = super_league_headers.index("Insurance")
     super_league_jackpot_fee_player_index = super_league_headers.index("Jackpot Fee")
     super_league_jackpot_payout_player_index = super_league_headers.index("Jackpot Payout")
-    jackpot_leagues = []
+    jackpot_leagues_by_id = {}
     league_players = defaultdict(dict)
     league_clubs = defaultdict(dict)
     super_league_total_row = None
@@ -308,7 +308,7 @@ def main():
                     club["activePlayerIds"].add(player_id)
         if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
             continue
-        jackpot_leagues.append({
+        candidate = {
             "league": league_name,
             "leagueId": league_id,
             "fee": float(row[super_league_fee_index] or 0),
@@ -317,7 +317,14 @@ def main():
             "insurance": float(row[super_league_insurance_index] or 0),
             "winLose": float(row[super_league_result_index] or 0),
             "exchangeRate": exchange_rate,
-        })
+        }
+        league_key = league_id or league_name.casefold()
+        current = jackpot_leagues_by_id.get(league_key)
+        candidate_score = sum(abs(candidate[field]) for field in ("fee", "payout", "feeTotal", "insurance", "winLose"))
+        current_score = sum(abs(current[field]) for field in ("fee", "payout", "feeTotal", "insurance", "winLose")) if current else -1
+        if candidate_score > current_score:
+            jackpot_leagues_by_id[league_key] = candidate
+    jackpot_leagues = list(jackpot_leagues_by_id.values())
     league_names = {row["leagueId"]: row["league"] for row in jackpot_leagues}
     league_player_rows = []
     for league_id, players_by_id in league_players.items():
