@@ -255,6 +255,8 @@ def main():
     super_league_result_index = super_league_headers.index("Total(Super Union)")
     super_league_total_fee_index = super_league_headers.index("FeeTotal(Super Union)")
     super_league_insurance_index = super_league_headers.index("Insurance Total(Super Union)")
+    super_league_mtt_fee_index = super_league_headers.index("Jackpot Mtt Fee Total(Super Union)")
+    super_league_mtt_payout_index = super_league_headers.index("Jackpot Mtt Payout Total(Super Union)")
     super_league_club_index = super_league_headers.index("      Club      ")
     super_league_player_index = super_league_headers.index("Player ID")
     super_league_insurance_player_index = super_league_headers.index("Insurance")
@@ -316,13 +318,15 @@ def main():
             "payout": float(row[super_league_payout_index] or 0),
             "feeTotal": float(row[super_league_total_fee_index] or 0),
             "insurance": float(row[super_league_insurance_index] or 0),
+            "mttFee": float(row[super_league_mtt_fee_index] or 0),
+            "mttPayout": float(row[super_league_mtt_payout_index] or 0),
             "winLose": float(row[super_league_result_index] or 0),
             "exchangeRate": exchange_rate,
         }
         league_key = league_id or league_name.casefold()
         current = jackpot_leagues_by_id.get(league_key)
-        candidate_score = sum(abs(candidate[field]) for field in ("fee", "payout", "feeTotal", "insurance", "winLose"))
-        current_score = sum(abs(current[field]) for field in ("fee", "payout", "feeTotal", "insurance", "winLose")) if current else -1
+        candidate_score = sum(abs(candidate[field]) for field in ("fee", "payout", "feeTotal", "insurance", "mttFee", "mttPayout", "winLose"))
+        current_score = sum(abs(current[field]) for field in ("fee", "payout", "feeTotal", "insurance", "mttFee", "mttPayout", "winLose")) if current else -1
         if candidate_score > current_score:
             jackpot_leagues_by_id[league_key] = candidate
     jackpot_leagues = list(jackpot_leagues_by_id.values())
@@ -375,8 +379,8 @@ def main():
     local_regular_payout = round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2)
     jackpot_21_fee = round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2)
     jackpot_21_payout = round(sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows), 2)
-    jackpot_mtt_fee = round(sum(float(row.get("Jackpot Fee Mtt") or 0) for row in raw_union_rows), 2)
-    jackpot_mtt_payout = round(sum(float(row.get("Jackpot Payout Mtt") or 0) for row in raw_union_rows), 2)
+    jackpot_mtt_fee = round(sum(row["mttFee"] * row["exchangeRate"] for row in jackpot_leagues), 2)
+    jackpot_mtt_payout = round(sum(row["mttPayout"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     jackpot_topup = round(sum(float(row.get("Jackpot Topup") or 0) for row in raw_union_rows), 2)
     jackpot_data = {
         **base,
@@ -442,25 +446,32 @@ def main():
     league_report_data = {**base, "reports": league_reports}
     write_json(output_dir / "union-league-reports.json", league_report_data)
 
-    anti_reg_clubs = {}
-    super_league_club_index = super_league_headers.index("      Club      ")
-    super_league_player_index = super_league_headers.index("Player ID")
-    for row in super_league_sheet.iter_rows(min_row=5, values_only=True):
-        if not isinstance(row[super_league_player_index], (int, float)):
-            continue
-        league_label = str(row[super_league_name_index] or "").strip()
-        club_label = str(row[super_league_club_index] or "").strip()
-        league_match = re.match(r"^(.*)\((\d+)\)$", league_label)
-        club_match = re.match(r"^(.*)\((\d+)\)$", club_label)
-        league_name = league_match.group(1).strip() if league_match else league_label
-        if not club_match or league_name.casefold() != "анти-рег":
+    group_sheet = workbook["Supper Union Group Statistics"]
+    group_headers = [cell.value for cell in next(group_sheet.iter_rows(min_row=4, max_row=4))]
+    group_club_index = group_headers.index("      Club      ")
+    group_winnings_index = group_headers.index("Total")
+    group_fee_index = group_headers.index("FeeTotal")
+    group_club_metrics = {}
+    for row in group_sheet.iter_rows(min_row=5, values_only=True):
+        club_match = re.match(r"^(.*)\((\d+)\)$", str(row[group_club_index] or "").strip())
+        if not club_match:
             continue
         club_name, club_id = club_match.group(1).strip(), club_match.group(2)
-        anti_reg_clubs[club_id] = (club_name, league_match.group(2) if league_match else "")
+        candidate = {
+            "id": club_id,
+            "name": club_name,
+            "winnings": float(row[group_winnings_index] or 0),
+            "rake": float(row[group_fee_index] or 0),
+        }
+        current = group_club_metrics.get(club_id)
+        if not current or abs(candidate["winnings"]) + abs(candidate["rake"]) > abs(current["winnings"]) + abs(current["rake"]):
+            group_club_metrics[club_id] = candidate
+
+    anti_reg_clubs = {club_id: (row["name"], "184691") for club_id, row in group_club_metrics.items()}
 
     club_reports = []
     for club_id, (club_name, league_id) in anti_reg_clubs.items():
-        source_metrics = club_metrics.get(club_id)
+        source_metrics = club_metrics.get(club_id) or group_club_metrics.get(club_id)
         if not source_metrics:
             continue
         league_name = "Анти-Рег"
