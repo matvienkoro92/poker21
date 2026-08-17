@@ -125,6 +125,9 @@ def main():
             "regularJackpotPayout": values.get("Jackpot Payout") or 0,
             "jackpot21Fee": values.get("Jackpot Fee 21") or 0,
             "jackpot21Payout": values.get("Jackpot Payout 21") or 0,
+            "jackpotMttFee": values.get("Jackpot Fee Mtt") or 0,
+            "jackpotMttPayout": values.get("Jackpot Payout Mtt") or 0,
+            "jackpotTopup": values.get("Jackpot Topup") or 0,
             "games": values.get("Games") or 0,
             "hands": values.get("Hands") or 0,
         }
@@ -193,8 +196,8 @@ def main():
         for row in rows:
             row["winGames"] = sorted(row["winGames"].items(), key=lambda item: -abs(item[1]))
             row["rakeGames"] = sorted(row["rakeGames"].items(), key=lambda item: -item[1])
-        club["jackpotFee"] = club.pop("regularJackpotFee") + club.pop("jackpot21Fee")
-        club["jackpotPayout"] = club.pop("regularJackpotPayout") + club.pop("jackpot21Payout")
+        club["jackpotFee"] = club.pop("regularJackpotFee") + club.pop("jackpot21Fee") + club["jackpotMttFee"] + club["jackpotTopup"]
+        club["jackpotPayout"] = club.pop("regularJackpotPayout") + club.pop("jackpot21Payout") + club["jackpotMttPayout"]
         club["players"] = len(rows)
         club["topRake"] = top(rows, "rake", True, 5)
         club["topPlus"] = top([row for row in rows if row["winnings"] > 0], "winnings", True, 5)
@@ -374,16 +377,22 @@ def main():
     local_regular_payout = round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2)
     jackpot_21_fee = round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2)
     jackpot_21_payout = round(sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows), 2)
+    jackpot_mtt_fee = round(sum(float(row.get("Jackpot Fee Mtt") or 0) for row in raw_union_rows), 2)
+    jackpot_mtt_payout = round(sum(float(row.get("Jackpot Payout Mtt") or 0) for row in raw_union_rows), 2)
+    jackpot_topup = round(sum(float(row.get("Jackpot Topup") or 0) for row in raw_union_rows), 2)
     jackpot_data = {
         **base,
         "regularFee": local_regular_fee,
         "regularPayout": local_regular_payout,
         "jackpot21Fee": jackpot_21_fee,
         "jackpot21Payout": jackpot_21_payout,
+        "jackpotMttFee": jackpot_mtt_fee,
+        "jackpotMttPayout": jackpot_mtt_payout,
+        "jackpotTopup": jackpot_topup,
         "unclassifiedFee": round(super_league_fee - local_regular_fee - jackpot_21_fee, 4),
         "unclassifiedPayout": round(super_league_payout - local_regular_payout - jackpot_21_payout, 2),
-        "totalFee": super_league_fee,
-        "totalPayout": super_league_payout,
+        "totalFee": round(super_league_fee + jackpot_mtt_fee + jackpot_topup, 4),
+        "totalPayout": round(super_league_payout + jackpot_mtt_payout, 2),
         "calculations": {
             "winLose": float(super_league_total_row[super_league_result_index] or 0) if super_league_total_row else 0,
             "fee": round(sum(row["feeTotal"] * row["exchangeRate"] for row in jackpot_leagues), 4),
