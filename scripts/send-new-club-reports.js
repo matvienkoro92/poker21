@@ -12,6 +12,7 @@ const STATE_PATH = path.join(ROOT, ".codex", "report-send-history.json");
 const TIME_ZONE = "Asia/Novosibirsk";
 const shouldSend = process.argv.includes("--send");
 const allowResend = process.argv.includes("--resend");
+const REPORT_BLOCKED_CLUB_IDS = new Set(["964699"]); // Kings KO
 
 function localParts(date) {
   return Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
@@ -53,6 +54,7 @@ async function main() {
   const week = previousWeek();
   const history = state();
   const selected = reports.filter((report) =>
+    !REPORT_BLOCKED_CLUB_IDS.has(String(report.clubId)) &&
     report.startDate === week.startDate &&
     report.endDate === week.endDate &&
     processedDate(report) === today &&
