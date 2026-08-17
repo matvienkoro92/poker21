@@ -67,6 +67,7 @@ CLUB_SALARY = {
     "Два Туза": -1500,
     "Kampashka 21": -1500,
     "Joker♦️Poker": -1500,
+    "Kings KO": 4500,
 }
 
 
