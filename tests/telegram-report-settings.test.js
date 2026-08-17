@@ -648,6 +648,39 @@ test("привязанный чат получает только команды
   assert.equal(unbindRes.body.unbound, true);
 });
 
+test("главная отчётная группа сохраняет все команды при клубной привязке", async (t) => {
+  const originalFetch = global.fetch;
+  const calls = [];
+  global.fetch = async (url, options) => {
+    const method = String(url).split("/").at(-1);
+    const body = JSON.parse(options.body);
+    calls.push({ method, body });
+    if (method === "getChatMember") return { ok: true, json: async () => ({ ok: true, result: { status: "administrator" } }) };
+    return { ok: true, json: async () => ({ ok: true }) };
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const chatId = -1004472155269;
+  const bindRes = responseRecorder();
+  await handler(groupUpdate("/привязать Два Туза", 75, chatId), bindRes);
+  assert.equal(bindRes.body.binding, true);
+
+  const summaryRes = responseRecorder();
+  await handler(groupUpdate("/сводка", 76, chatId), summaryRes);
+  assert.deepEqual(summaryRes.body, { ok: true, summary: true, sent: true });
+  assert.match(calls.at(-1).body.text, /ИТОГО/);
+
+  const commandsRes = responseRecorder();
+  await handler(groupUpdate("/команды", 77, chatId), commandsRes);
+  assert.deepEqual(commandsRes.body, { ok: true, commands: true, sent: true });
+  assert.match(calls.at(-1).body.text, /\/сводка/);
+  assert.match(calls.at(-1).body.text, /\/балансы/);
+
+  const unbindRes = responseRecorder();
+  await handler(groupUpdate("/отвязать", 78, chatId), unbindRes);
+  assert.equal(unbindRes.body.unbound, true);
+});
+
 test("группу можно привязать к союзу по названию", async (t) => {
   const originalFetch = global.fetch;
   const calls = [];
