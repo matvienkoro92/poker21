@@ -9,11 +9,9 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 
-SUPER_LEAGUE_EXCHANGE_RATES = {
-    "PPCUNION": 100,
-    "AQUARIUM": 100,
-    "AF UNION": 100,
-}
+# Начиная с выгрузки 10–16.08.2026 суммы суперюниона уже приведены
+# к рублям в самом Excel. Дополнительная конвертация не применяется.
+SUPER_LEAGUE_EXCHANGE_RATES = {}
 
 LEAGUE_JACKPOT_REFUNDS = {
     "PPCUNION": 50,
