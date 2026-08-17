@@ -11,32 +11,104 @@
       "excelPath": "/assets/reports/dva-tuza/Два_Туза_отчет_13.07-19.07.2026.xlsx",
       "gameBreakdown": {
         "winnings": [
-          { "name": "NLH", "value": -401450.29 },
-          { "name": "6+NLH", "value": 11505.29 },
-          { "name": "PLO4", "value": -4001.13 },
-          { "name": "PLO5", "value": -14975.96 },
-          { "name": "PLO6", "value": -122585.08 },
-          { "name": "Durak", "value": -1790.5 },
-          { "name": "TweneyOne", "value": -25816.4 },
-          { "name": "NLH 3-1", "value": -199348.65 },
-          { "name": "MTT-NLH", "value": 16959.02 },
-          { "name": "MTT-PLO6", "value": -2190 },
-          { "name": "MTT-Durak", "value": 3035 },
-          { "name": "SNG-NLH", "value": -6125 }
+          {
+            "name": "NLH",
+            "value": -401450.29
+          },
+          {
+            "name": "6+NLH",
+            "value": 11505.29
+          },
+          {
+            "name": "PLO4",
+            "value": -4001.13
+          },
+          {
+            "name": "PLO5",
+            "value": -14975.96
+          },
+          {
+            "name": "PLO6",
+            "value": -122585.08
+          },
+          {
+            "name": "Durak",
+            "value": -1790.5
+          },
+          {
+            "name": "TweneyOne",
+            "value": -25816.4
+          },
+          {
+            "name": "NLH 3-1",
+            "value": -199348.65
+          },
+          {
+            "name": "MTT-NLH",
+            "value": 16959.02
+          },
+          {
+            "name": "MTT-PLO6",
+            "value": -2190
+          },
+          {
+            "name": "MTT-Durak",
+            "value": 3035
+          },
+          {
+            "name": "SNG-NLH",
+            "value": -6125
+          }
         ],
         "fees": [
-          { "name": "NLH", "value": 348812.89 },
-          { "name": "6+NLH", "value": 1769.41 },
-          { "name": "PLO4", "value": 1913.44 },
-          { "name": "PLO5", "value": 7491.4 },
-          { "name": "PLO6", "value": 130891.11 },
-          { "name": "Durak", "value": 933 },
-          { "name": "TweneyOne", "value": 12054.93 },
-          { "name": "NLH 3-1", "value": 40357.01 },
-          { "name": "MTT-NLH", "value": 172549.7 },
-          { "name": "MTT-PLO6", "value": 1050 },
-          { "name": "MTT-Durak", "value": 5 },
-          { "name": "SNG-NLH", "value": 7010 }
+          {
+            "name": "NLH",
+            "value": 348812.89
+          },
+          {
+            "name": "6+NLH",
+            "value": 1769.41
+          },
+          {
+            "name": "PLO4",
+            "value": 1913.44
+          },
+          {
+            "name": "PLO5",
+            "value": 7491.4
+          },
+          {
+            "name": "PLO6",
+            "value": 130891.11
+          },
+          {
+            "name": "Durak",
+            "value": 933
+          },
+          {
+            "name": "TweneyOne",
+            "value": 12054.93
+          },
+          {
+            "name": "NLH 3-1",
+            "value": 40357.01
+          },
+          {
+            "name": "MTT-NLH",
+            "value": 172549.7
+          },
+          {
+            "name": "MTT-PLO6",
+            "value": 1050
+          },
+          {
+            "name": "MTT-Durak",
+            "value": 5
+          },
+          {
+            "name": "SNG-NLH",
+            "value": 7010
+          }
         ]
       },
       "metrics": {
@@ -57,6 +129,370 @@
         "overlay": 0
       },
       "total": -81432.84,
+      "currency": "RUB"
+    },
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-1004391487736",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/league-ddbeaa48d7-758417.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Два Туза_758417_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -581133.07,
+        "commission": 464821.35,
+        "balance": -116311.72,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -116311.72,
+        "promo": 0,
+        "salary": -1500,
+        "servicePercent": 8,
+        "service": -37185.71,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -154997.43
+      },
+      "total": -154997.43,
+      "currency": "RUB"
+    },
+    {
+      "club": "Два Туза",
+      "clubId": "758417",
+      "chatId": "-4271456764",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/league-ddbeaa48d7-758417.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Два Туза_758417_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -581133.07,
+        "commission": 464821.35,
+        "balance": -116311.72,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -116311.72,
+        "promo": 0,
+        "salary": -1500,
+        "servicePercent": 8,
+        "service": -37185.71,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -154997.43
+      },
+      "total": -154997.43,
+      "currency": "RUB"
+    },
+    {
+      "club": "Джокер",
+      "clubId": "577707",
+      "chatId": "-5173725032",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/joker-poker-577707.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Joker♦️Poker_577707_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -521228.51,
+        "commission": 299858.47,
+        "balance": -221370.04,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -221370.04,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 8,
+        "service": -23988.68,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -245358.72
+      },
+      "total": -245358.72,
+      "currency": "RUB"
+    },
+    {
+      "club": "Кампашка",
+      "clubId": "680649",
+      "chatId": "-5358380766",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/kampashka-21-680649.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Kampashka 21_680649_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -361992.01,
+        "commission": 179331.35,
+        "balance": -182660.66,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -182660.66,
+        "promo": 0,
+        "salary": -1500,
+        "servicePercent": 8,
+        "service": -14346.51,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -198507.17
+      },
+      "total": -198507.17,
+      "currency": "RUB"
+    },
+    {
+      "club": "Кингс ко",
+      "clubId": "964699",
+      "chatId": "-5523407774",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/kings-ko-964699.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Kings KO_964699_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -194152.69,
+        "commission": 479319.34,
+        "balance": 285166.65,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 285166.65,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 8,
+        "service": -38345.55,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 246821.1
+      },
+      "total": 246821.1,
+      "currency": "RUB"
+    },
+    {
+      "club": "Клёвое место",
+      "clubId": "493900",
+      "chatId": "-5592095586",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/league-acb8955e6b-493900.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Клёвое место_493900_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -51,
+        "commission": 5.1,
+        "balance": -45.9,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -45.9,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -0.51,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -46.41
+      },
+      "total": -46.41,
+      "currency": "RUB"
+    },
+    {
+      "club": "Коллаб",
+      "clubId": "190714",
+      "chatId": "-1003814084575",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/collaboration-club-190714.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Collaboration Club_190714_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -1389.76,
+        "commission": 1869.42,
+        "balance": 479.66,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 479.66,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 20,
+        "service": -373.88,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 105.78
+      },
+      "total": 105.78,
+      "currency": "RUB"
+    },
+    {
+      "club": "Храм",
+      "clubId": "392560",
+      "chatId": "-5583178793",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/league-8243f943ea-392560.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Храм_392560_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -4154.1,
+        "commission": 2070.06,
+        "balance": -2084.04,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -2084.04,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -207.01,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -2291.05
+      },
+      "total": -2291.05,
+      "currency": "RUB"
+    },
+    {
+      "club": "GoRiLaZzz",
+      "clubId": "600335",
+      "chatId": "-5165935205",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/gorilazzz-600335.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/GoRiLaZzz_600335_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -207.27,
+        "commission": 516.37,
+        "balance": 309.1,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 309.1,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -51.64,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 257.46
+      },
+      "total": 257.46,
+      "currency": "RUB"
+    },
+    {
+      "club": "PC Arena",
+      "clubId": "600344",
+      "chatId": "-5151188717",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/pc-arena-600344.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/PC Arena_600344_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -63194.13,
+        "commission": 25279.07,
+        "balance": -37915.06,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -37915.06,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 8,
+        "service": -2022.33,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -39937.39
+      },
+      "total": -39937.39,
+      "currency": "RUB"
+    },
+    {
+      "club": "RealPokerGame",
+      "clubId": "410724",
+      "chatId": "-5544949322",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/realpokergame-410724.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/RealPokerGame_410724_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": 7370.36,
+        "commission": 5500.36,
+        "balance": 12870.72,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 12870.72,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -550.04,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 12320.68
+      },
+      "total": 12320.68,
+      "currency": "RUB"
+    },
+    {
+      "club": "River21",
+      "clubId": "345180",
+      "chatId": "-5581469040",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/river21-345180.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/River21_345180_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": -27882.35,
+        "commission": 6473.92,
+        "balance": -21408.43,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": -21408.43,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -647.39,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": -22055.82
+      },
+      "total": -22055.82,
+      "currency": "RUB"
+    },
+    {
+      "club": "Sibir 70",
+      "clubId": "944687",
+      "chatId": "-5396461447",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/sibir-70-944687.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/Sibir 70_944687_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": 14463.46,
+        "commission": 2838.16,
+        "balance": 17301.62,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 17301.62,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -283.82,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 17017.8
+      },
+      "total": 17017.8,
+      "currency": "RUB"
+    },
+    {
+      "club": "T O T",
+      "clubId": "626238",
+      "chatId": "-1003961882479",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16",
+      "imagePath": "/assets/reports/clubs/2026-08-10_2026-08-16/t-o-t-626238.png",
+      "excelPath": "/assets/reports/clubs/2026-08-10_2026-08-16/excel/T O T_626238_2026-08-10_2026-08-16.xlsx",
+      "metrics": {
+        "winnings": 2300,
+        "commission": 720,
+        "balance": 3020,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 3020,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 8,
+        "service": -57.6,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 2962.4
+      },
+      "total": 2962.4,
       "currency": "RUB"
     }
   ]
