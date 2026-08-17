@@ -34,6 +34,7 @@ CLUB_SERVICE_PERCENT = {
     "Kings KO": 8,
     "Fish Hunter": 15,
     "Лудоманы": 15,
+    "FEBOS": 30,
     "Joker♦️Poker": 8,
     "Joker♦️VIP♦️Poker": 8,
     "Pattaya": 8,
@@ -65,6 +66,7 @@ CLUB_SERVICE_PERCENT = {
 CLUB_SALARY = {
     "Два Туза": -1500,
     "Kampashka 21": -1500,
+    "Joker♦️Poker": -1500,
 }
 
 
