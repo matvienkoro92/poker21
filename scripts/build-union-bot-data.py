@@ -423,7 +423,8 @@ def main():
         service_percent = LEAGUE_SERVICE_PERCENT.get(row["league"], 5)
         service = round(-commission * service_percent / 100, 2)
         refund_percent = LEAGUE_JACKPOT_REFUNDS.get(row["league"], 0)
-        jackpot_refund = int(row["fee"] * exchange_rate * refund_percent / 100)
+        # Откат союзу считается со всего его джекпот-сбора: кеш + Jackpot 21 + MTT.
+        jackpot_refund = int((row["fee"] + row["mttFee"]) * exchange_rate * refund_percent / 100)
         total = round(balance_final + promo + service + jackpot_refund, 2)
         league_reports.append({
             "league": row["league"],
