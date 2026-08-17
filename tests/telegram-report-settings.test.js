@@ -74,7 +74,7 @@ test("/настройка больше не запускает диалог", as
   assert.deepEqual(res.body, { ok: true });
 });
 
-test("/рейк клубов выводит клубы по рейку и отделяет нулевые", async (t) => {
+test("/клубы рейк выводит клубы по рейку и отделяет нулевые", async (t) => {
   const originalFetch = global.fetch;
   let sentMessage = null;
   global.fetch = async (url, options) => {
@@ -84,7 +84,7 @@ test("/рейк клубов выводит клубы по рейку и отд
   t.after(() => { global.fetch = originalFetch; });
 
   const res = responseRecorder();
-  await handler(update("/рейк клубов", 4), res);
+  await handler(update("/клубы рейк", 4), res);
   assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
   assert.match(sentMessage.text, /^Сводка клубов по рейку\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/m);
@@ -107,7 +107,7 @@ test("/команды показывает справку по доступны�
   assert.deepEqual(res.body, { ok: true, commands: true, sent: true });
   assert.equal(sentMessage.parse_mode, "HTML");
   assert.match(sentMessage.text, /^<b>Доступные команды<\/b>/);
-  assert.match(sentMessage.text, /<b>\/рейк клубов<\/b>/);
+  assert.match(sentMessage.text, /<b>\/клубы рейк<\/b>/);
   assert.match(sentMessage.text, /<b>\/игры<\/b>/);
   assert.match(sentMessage.text, /<b>\/джекпот<\/b>/);
   assert.match(sentMessage.text, /<b>\/игроки рейк<\/b>/);
