@@ -305,11 +305,22 @@ def main():
                 club_key = club_id or club_name.casefold()
                 club = league_clubs[league_id].setdefault(club_key, {
                     "clubId": club_id, "club": club_name, "rake": 0.0, "winLose": 0.0,
-                    "playerIds": set(), "activePlayerIds": set(),
+                    "playerIds": set(), "activePlayerIds": set(), "playerRows": {},
                 })
                 club["rake"] += float(row[5] or 0) * exchange_rate
                 club["winLose"] += float(row[4] or 0) * exchange_rate
                 club["playerIds"].add(player_id)
+                club_player = club["playerRows"].setdefault(player_id, {
+                    "playerId": player_id, "nick": str(row[2] or player_id).strip(),
+                    "rake": 0.0, "winnings": 0.0, "insurance": 0.0,
+                    "jackpotFee": 0.0, "jackpotPayout": 0.0,
+                })
+                club_player["nick"] = str(row[2] or player_id).strip()
+                club_player["rake"] += float(row[5] or 0) * exchange_rate
+                club_player["winnings"] += float(row[4] or 0) * exchange_rate
+                club_player["insurance"] += float(row[super_league_insurance_player_index] or 0) * exchange_rate
+                club_player["jackpotFee"] += float(row[super_league_jackpot_fee_player_index] or 0) * exchange_rate
+                club_player["jackpotPayout"] += float(row[super_league_jackpot_payout_player_index] or 0) * exchange_rate
                 if float(row[4] or 0) != 0 or float(row[5] or 0) != 0:
                     club["activePlayerIds"].add(player_id)
         if not isinstance(row[super_league_fee_index], (int, float)) and not isinstance(row[super_league_payout_index], (int, float)):
@@ -368,6 +379,13 @@ def main():
                     "clubId": row["clubId"], "club": row["club"],
                     "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2),
                     "players": len(row["playerIds"]), "activePlayers": len(row["activePlayerIds"]),
+                    "playerRows": sorted([{
+                        "playerId": player["playerId"], "nick": player["nick"],
+                        "rake": round(player["rake"], 2), "winnings": round(player["winnings"], 2),
+                        "insurance": round(player["insurance"], 2),
+                        "jackpotFee": round(player["jackpotFee"], 2),
+                        "jackpotPayout": round(player["jackpotPayout"], 2),
+                    } for player in row["playerRows"].values()], key=lambda player: player["nick"].casefold()),
                 } for row in league_clubs.get(league_id, {}).values()
             ], key=lambda row: (-row["rake"], row["club"].casefold())),
             "rake": player_top("rake"),
