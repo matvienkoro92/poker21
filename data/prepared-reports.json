@@ -496,32 +496,6 @@
       "currency": "RUB"
     },
     {
-      "club": "Два Туза",
-      "clubId": "758417",
-      "chatId": "-4271456764",
-      "startDate": "2026-08-17",
-      "endDate": "2026-08-23",
-      "imagePath": "/assets/reports/clubs/2026-08-17_2026-08-23/league-ddbeaa48d7-758417.png",
-      "excelPath": "/assets/reports/clubs/2026-08-17_2026-08-23/excel/Два Туза_758417_2026-08-17_2026-08-23.xlsx",
-      "metrics": {
-        "winnings": -748000.9,
-        "commission": 483944.68,
-        "balance": -264056.22,
-        "fraud": 0,
-        "overly": 0,
-        "balanceFinal": -264056.22,
-        "promo": 0,
-        "salary": -1500,
-        "servicePercent": 8,
-        "service": -38715.57,
-        "jackpotRefundPercent": 0,
-        "jackpotRefund": 0,
-        "total": -304271.79
-      },
-      "total": -304271.79,
-      "currency": "RUB"
-    },
-    {
       "club": "Джокер",
       "clubId": "577707",
       "chatId": "-5173725032",
