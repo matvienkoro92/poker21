@@ -16,6 +16,7 @@ const calculated = JSON.parse(await fs.readFile(calculatedReportsPath, "utf8"));
 const periodKey = `${source.startDate}_${source.endDate}`;
 const targetExcelDir = path.join(root, "assets", "reports", "clubs", periodKey, "excel");
 await fs.mkdir(targetExcelDir, { recursive: true });
+const blockedTargets = new Set(["758417:-1004391487736"]); // Dva Tuza must not be prepared for the main Anti-Reg reports group
 
 const latestMappings = new Map();
 for (const report of prepared.reports || []) {
@@ -36,6 +37,7 @@ const next = [];
 
 for (const mapping of latestMappings.values()) {
   const clubId = String(mapping.clubId);
+  if (blockedTargets.has(`${clubId}:${mapping.chatId}`)) continue;
   const raw = sourceById.get(clubId);
   const report = calculatedById.get(clubId);
   if (!raw || !report) continue;

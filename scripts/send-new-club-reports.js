@@ -13,6 +13,7 @@ const TIME_ZONE = "Asia/Novosibirsk";
 const shouldSend = process.argv.includes("--send");
 const allowResend = process.argv.includes("--resend");
 const REPORT_BLOCKED_CLUB_IDS = new Set(["964699", "577707", "190714", "680649"]); // Kings KO, Joker Poker, Collaboration Club, Kampashka 21
+const REPORT_BLOCKED_TARGETS = new Set(["758417:-1004391487736"]); // Do not send Dva Tuza to the main Anti-Reg reports group
 
 function localParts(date) {
   return Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
@@ -55,6 +56,7 @@ async function main() {
   const history = state();
   const selected = reports.filter((report) =>
     !REPORT_BLOCKED_CLUB_IDS.has(String(report.clubId)) &&
+    !REPORT_BLOCKED_TARGETS.has(`${report.clubId}:${report.chatId}`) &&
     report.startDate === week.startDate &&
     report.endDate === week.endDate &&
     processedDate(report) === today &&
