@@ -858,6 +858,32 @@
       },
       "total": -316.93,
       "currency": "RUB"
+    },
+    {
+      "club": "Джентельмены",
+      "clubId": "795520",
+      "chatId": "-5514886071",
+      "startDate": "2026-08-17",
+      "endDate": "2026-08-23",
+      "imagePath": "/assets/reports/clubs/2026-08-17_2026-08-23/league-2a98ad8f3c-795520.png",
+      "excelPath": "/assets/reports/clubs/2026-08-17_2026-08-23/excel/Джентельмены_795520_2026-08-17_2026-08-23.xlsx",
+      "metrics": {
+        "winnings": 9433.74,
+        "commission": 5742.67,
+        "balance": 15176.41,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 15176.41,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 10,
+        "service": -574.27,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 14602.14
+      },
+      "total": 14602.14,
+      "currency": "RUB"
     }
   ]
 }

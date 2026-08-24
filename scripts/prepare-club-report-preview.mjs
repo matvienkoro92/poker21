@@ -3,7 +3,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const [clubDataPath, calculatedReportsPath, sourceExcelDir] = process.argv.slice(2);
+const [clubDataPath, calculatedReportsPath, sourceExcelDir, ...options] = process.argv.slice(2);
 if (!clubDataPath || !calculatedReportsPath || !sourceExcelDir) {
   throw new Error("Usage: prepare-club-report-preview.mjs CLUBS.json UNION_CLUB_REPORTS.json EXCEL_DIR");
 }
@@ -21,6 +21,13 @@ const latestMappings = new Map();
 for (const report of prepared.reports || []) {
   if (!report.chatId || !report.clubId) continue;
   latestMappings.set(`${report.clubId}:${report.chatId}`, report);
+}
+for (const option of options) {
+  if (!option.startsWith("--map=")) continue;
+  const [clubId, chatId, ...nameParts] = option.slice(6).split(":");
+  const club = nameParts.join(":");
+  if (!clubId || !chatId || !club) throw new Error(`Invalid mapping: ${option}`);
+  latestMappings.set(`${clubId}:${chatId}`, { clubId, chatId, club });
 }
 const sourceById = new Map((source.clubs || []).map((report) => [String(report.id), report]));
 const calculatedById = new Map((calculated.reports || []).map((report) => [String(report.clubId), report]));
