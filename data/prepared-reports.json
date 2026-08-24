@@ -832,6 +832,32 @@
       },
       "total": 14602.14,
       "currency": "RUB"
+    },
+    {
+      "club": "GARAGE",
+      "clubId": "301285",
+      "chatId": "-5377965622",
+      "startDate": "2026-08-17",
+      "endDate": "2026-08-23",
+      "imagePath": "/assets/reports/clubs/2026-08-17_2026-08-23/garage-301285.png",
+      "excelPath": "/assets/reports/clubs/2026-08-17_2026-08-23/excel/GARAGE_301285_2026-08-17_2026-08-23.xlsx",
+      "metrics": {
+        "winnings": -7634.62,
+        "commission": 37309.69,
+        "balance": 29675.07,
+        "fraud": 0,
+        "overly": 0,
+        "balanceFinal": 29675.07,
+        "promo": 0,
+        "salary": 0,
+        "servicePercent": 8,
+        "service": -2984.78,
+        "jackpotRefundPercent": 0,
+        "jackpotRefund": 0,
+        "total": 26690.29
+      },
+      "total": 26690.29,
+      "currency": "RUB"
     }
   ]
 }
