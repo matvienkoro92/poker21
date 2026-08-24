@@ -12,7 +12,7 @@ const STATE_PATH = path.join(ROOT, ".codex", "report-send-history.json");
 const TIME_ZONE = "Asia/Novosibirsk";
 const shouldSend = process.argv.includes("--send");
 const allowResend = process.argv.includes("--resend");
-const REPORT_BLOCKED_CLUB_IDS = new Set(["964699", "577707", "190714"]); // Kings KO, Joker Poker, Collaboration Club
+const REPORT_BLOCKED_CLUB_IDS = new Set(["964699", "577707", "190714", "680649"]); // Kings KO, Joker Poker, Collaboration Club, Kampashka 21
 
 function localParts(date) {
   return Object.fromEntries(new Intl.DateTimeFormat("en-CA", {

@@ -468,32 +468,19 @@ def main():
     league_report_data = {**base, "reports": league_reports}
     write_json(output_dir / "union-league-reports.json", league_report_data)
 
-    group_sheet = workbook["Supper Union Group Statistics"]
-    group_headers = [cell.value for cell in next(group_sheet.iter_rows(min_row=4, max_row=4))]
-    group_club_index = group_headers.index("      Club      ")
-    group_winnings_index = group_headers.index("Total")
-    group_fee_index = group_headers.index("FeeTotal")
-    group_club_metrics = {}
-    for row in group_sheet.iter_rows(min_row=5, values_only=True):
-        club_match = re.match(r"^(.*)\((\d+)\)$", str(row[group_club_index] or "").strip())
-        if not club_match:
-            continue
-        club_name, club_id = club_match.group(1).strip(), club_match.group(2)
-        candidate = {
-            "id": club_id,
-            "name": club_name,
-            "winnings": float(row[group_winnings_index] or 0),
-            "rake": float(row[group_fee_index] or 0),
-        }
-        current = group_club_metrics.get(club_id)
-        if not current or abs(candidate["winnings"]) + abs(candidate["rake"]) > abs(current["winnings"]) + abs(current["rake"]):
-            group_club_metrics[club_id] = candidate
-
-    anti_reg_clubs = {club_id: (row["name"], "184691") for club_id, row in group_club_metrics.items()}
+    # Union Data is already scoped to the selected Anti-Reg union and is the
+    # authoritative club summary. New exports no longer contain the old
+    # "Supper Union Group Statistics" sheet; their league sheet includes clubs
+    # from every union and therefore must not be used for Anti-Reg club cards.
+    anti_reg_clubs = {
+        club_id: (row["name"], "184691")
+        for club_id, row in club_metrics.items()
+        if club_id in member_club_ids
+    }
 
     club_reports = []
     for club_id, (club_name, league_id) in anti_reg_clubs.items():
-        source_metrics = club_metrics.get(club_id) or group_club_metrics.get(club_id)
+        source_metrics = club_metrics.get(club_id)
         if not source_metrics:
             continue
         league_name = "Анти-Рег"
