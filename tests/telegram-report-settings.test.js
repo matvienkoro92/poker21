@@ -522,13 +522,14 @@ test("/китайцы выводит союзы, рейк, процент и и�
   assert.equal(sentMessages[0].body.reply_to_message_id, undefined);
   const lines = sentMessages[0].body.caption.split("\n");
   assert.ok(sentMessages[0].body.caption.length <= 1024);
-  assert.equal(lines[0], "<b>ИТОГО РЕЙК: 2 830 227,24</b>");
+  assert.equal(lines[0], "<b>Период: 03.08.2026–09.08.2026</b>");
+  assert.ok(lines.includes("<b>ИТОГО РЕЙК: 2 830 227,24</b>"));
   assert.ok(!lines.some((line) => line.includes("Anti-Reg")));
   assert.ok(lines.includes("<b>ИТОГО ПРОЦЕНТ: 212 763,77</b>"));
   assert.ok(lines.includes("60% Джеку = 127 658,26"));
   assert.ok(lines.includes("40% наша доля = 85 105,51"));
   assert.ok(!lines.includes("<b>Распределение нашей доли:</b>"));
-  assert.equal(sentMessages[0].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-table-3");
+  assert.equal(sentMessages[0].body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09.png?v=share-period-1");
 });
 
 test("/доля выводит только распределение нашей доли", async (t) => {
@@ -545,7 +546,8 @@ test("/доля выводит только распределение наше�
   assert.deepEqual(res.body, { ok: true, share: true, sent: true });
   assert.equal(sentMessage.method, "sendPhoto");
   const lines = sentMessage.body.caption.split("\n");
-  assert.equal(lines[0], "<b>ИТОГО РЕЙК: 2 830 227,24</b>");
+  assert.equal(lines[0], "<b>Период: 03.08.2026–09.08.2026</b>");
+  assert.ok(lines.includes("<b>ИТОГО РЕЙК: 2 830 227,24</b>"));
   assert.ok(lines.includes("<b>ИТОГО ПРОЦЕНТ: 212 763,77</b>"));
   assert.ok(lines.includes("60% Джеку = 127 658,26"));
   assert.ok(lines.includes("40% наша доля = 85 105,51"));
@@ -554,7 +556,7 @@ test("/доля выводит только распределение наше�
   assert.ok(lines.includes("Серёга 3,25% = 6 914,82"));
   assert.ok(lines.includes("Илюха 7% = 14 893,46"));
   assert.equal(lines.at(-1), "Роман 14,75% = 31 382,66");
-  assert.equal(sentMessage.body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09-full.png?v=share-full-1");
+  assert.equal(sentMessage.body.photo, "https://poker21-app.vercel.app/assets/reports/share/2026-08-03_2026-08-09-full.png?v=share-period-full-1");
 });
 
 test("/сводка выводит итоги по направлениям с откатами и зарплатой", async (t) => {
@@ -570,6 +572,7 @@ test("/сводка выводит итоги по направлениям с �
   await handler(update("/сводка", 25), res);
   assert.deepEqual(res.body, { ok: true, summary: true, sent: true });
   assert.equal(sentMessage.method, "sendMessage");
+  assert.match(sentMessage.body.text, /^<b>СВОДКА<\/b>\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
   assert.match(sentMessage.body.text, /1\. Доля разработчика \(китайцев\): <b>127 658,26<\/b> — \/китайцы/);
   assert.match(sentMessage.body.text, /2\. Наша доля: <b>85 105,51<\/b> — \/доля/);
   assert.match(sentMessage.body.text, /3\. Джекпоты: <b>294 238,18<\/b> — \/джекпот/);
@@ -594,6 +597,7 @@ test("/откаты распределяет клубную разницу вы�
   await handler(update("/откаты", 26), res);
   assert.deepEqual(res.body, { ok: true, kickbacks: true, sent: true });
   assert.equal(sentMessage.method, "sendMessage");
+  assert.match(sentMessage.body.text, /^<b>ОТКАТЫ ОТ ПРОЦЕНТА ВЫШЕ 8%<\/b>\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
   assert.match(sentMessage.body.text, /<b>Роман:<\/b>[\s\S]*GoRiLaZzz 10% — \+31,21/);
   assert.match(sentMessage.body.text, /<b>Итого Роману: 218,89<\/b>/);
   assert.match(sentMessage.body.text, /<b>Итого Сергею: 6 204,59<\/b>/);
