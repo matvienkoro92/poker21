@@ -178,11 +178,11 @@ test("клуб и игрок принимают период после поис
   assert.match(messages.at(-1).text, /<b>Период: 13\.07\.2026–19\.07\.2026<\/b>/);
 });
 
-test("/активность выводит общие показатели и четыре топа", async (t) => {
+test("/активность выводит союзы, клубы и нулевые позиции без статистики по играм", async (t) => {
   const originalFetch = global.fetch;
-  let sentMessage = null;
+  const sentMessages = [];
   global.fetch = async (url, options) => {
-    sentMessage = JSON.parse(options.body);
+    sentMessages.push(JSON.parse(options.body));
     return { ok: true, json: async () => ({ ok: true }) };
   };
   t.after(() => { global.fetch = originalFetch; });
@@ -190,15 +190,19 @@ test("/активность выводит общие показатели и ч
   const res = responseRecorder();
   await handler(update("/активность", 14), res);
   assert.deepEqual(res.body, { ok: true, activity: true, sent: true });
-  assert.equal(sentMessage.parse_mode, "HTML");
-  assert.match(sentMessage.text, /^Активность клубов\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
-  assert.match(sentMessage.text, /Активных клубов: 28/);
-  assert.match(sentMessage.text, /Активных игроков: 543/);
-  assert.match(sentMessage.text, /Раздач: 404 718/);
-  assert.match(sentMessage.text, /<b>Топ-10 по активным игрокам<\/b>\n1\. Два Туза — 278/);
-  assert.match(sentMessage.text, /<b>Топ-10 по играм<\/b>\n1\. Два Туза — 371/);
-  assert.match(sentMessage.text, /<b>Топ-10 по раздачам<\/b>\n1\. Два Туза — 203 323/);
-  assert.match(sentMessage.text, /<b>Топ-10 по рейку на игрока<\/b>\n1\. Fish Hunter — 20 644,20/);
+  assert.ok(sentMessages.every((message) => message.parse_mode === "HTML"));
+  assert.ok(sentMessages.every((message) => message.text.length <= 3900));
+  const text = sentMessages.map((message) => message.text).join("\n");
+  assert.match(text, /^Активность союзов и клубов\n<b>Период: 03\.08\.2026–09\.08\.2026<\/b>/);
+  assert.match(text, /<b>Общая статистика по союзам<\/b>/);
+  assert.match(text, /<b>Союзы по активным игрокам<\/b>/);
+  assert.match(text, /Анти-Рег — 543/);
+  assert.match(text, /<b>Клубы союза Anti-Reg<\/b>/);
+  assert.match(text, /Активных клубов: 28/);
+  assert.match(text, /Раздач: 404 718/);
+  assert.match(text, /<b>Клубы по активным игрокам<\/b>\n1\. Два Туза — 278/);
+  assert.match(text, /CORONA — 0/);
+  assert.doesNotMatch(text, /по играм|\nИгр:/i);
 });
 
 test("/клуб находит клуб по части названия", async (t) => {

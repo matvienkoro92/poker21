@@ -529,19 +529,39 @@ def main():
 
     activity_rows = []
     for club_id, club in club_metrics.items():
+        if club_id not in member_club_ids:
+            continue
         row = {
             "club": club["name"], "clubId": club_id, "rake": club["rake"], "games": club["games"],
             "hands": member_hands[club_id], "activePlayers": len(active_ids[club_id]),
         }
-        if row["rake"] or row["games"] or row["hands"] or row["activePlayers"]:
-            row["rakePerPlayer"] = round(row["rake"] / row["activePlayers"], 2) if row["activePlayers"] else 0
-            activity_rows.append(row)
+        row["rakePerPlayer"] = round(row["rake"] / row["activePlayers"], 2) if row["activePlayers"] else 0
+        activity_rows.append(row)
+
+    league_activity_rows = []
+    activity_leagues_by_id = {row["leagueId"]: row for row in league_player_rows}
+    for league_summary in jackpot_leagues:
+        league = activity_leagues_by_id.get(league_summary["leagueId"], {
+            "league": league_summary["league"], "leagueId": league_summary["leagueId"], "players": [],
+        })
+        active_players = sum(
+            1 for player in league["players"]
+            if player["rake"] or player["winnings"] or player["insurance"] or player["jackpotFee"] or player["jackpotPayout"]
+        )
+        rake = round(sum(player["rake"] for player in league["players"]), 2)
+        league_activity_rows.append({
+            "league": league["league"], "leagueId": league["leagueId"],
+            "activePlayers": active_players, "rake": rake,
+            "rakePerPlayer": round(rake / active_players, 2) if active_players else 0,
+        })
     activity_data = {
         **base,
-        "activeClubs": len(activity_rows),
+        "activeClubs": sum(1 for row in activity_rows if row["activePlayers"] or row["rake"] or row["games"] or row["hands"]),
         "activePlayers": sum(row["activePlayers"] for row in activity_rows),
         "games": sum(row["games"] for row in activity_rows),
         "hands": sum(row["hands"] for row in activity_rows),
+        "clubs": sorted(activity_rows, key=lambda row: (-row["activePlayers"], row["club"].casefold())),
+        "leagues": sorted(league_activity_rows, key=lambda row: (-row["activePlayers"], row["league"].casefold())),
         "topPlayers": top(activity_rows, "activePlayers"),
         "topGames": top(activity_rows, "games"),
         "topHands": top(activity_rows, "hands"),
