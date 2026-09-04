@@ -4,6 +4,18 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('each balance history operation is rendered in its own block', () => {
+  const context = vm.createContext({
+    formatBalanceHistoryEntry: entry => entry.text,
+  });
+  vm.runInContext(source.slice(source.indexOf('function formatBalanceHistoryBlocks('), source.indexOf('function formatUnrecordedBalanceOperation(')), context);
+  assert.equal(context.formatBalanceHistoryBlocks([
+    { text: '+100 ₽ — дата\nКомментарий: проверка' },
+    { text: '−50 ₽ — дата' },
+  ]), '<blockquote>+100 ₽ — дата\nКомментарий: проверка</blockquote>\n\n<blockquote>−50 ₽ — дата</blockquote>');
+  assert.equal(context.formatBalanceHistoryBlocks([]), '');
+});
+
 test('each party pays one percent, rounded to the nearest kopeck or cent', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function paymentBalanceDeltas('), source.indexOf('function formatPaymentAmount(')), context);
