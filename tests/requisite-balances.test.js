@@ -348,7 +348,7 @@ test('refresh edits the tracked menu with freshly read balances', async () => {
   await context.module.exports.refreshMenu('chat', async (method, body) => { calls.push({ method, body }); return { ok: true }; });
   assert.equal(calls[0].method, 'editMessageReplyMarkup');
   assert.equal(calls[0].body.message_id, 44);
-  assert.match(calls[0].body.reply_markup.inline_keyboard[0][0].text.replace(/\s/g, ''), /1500,00₽/);
+  assert.match(calls[0].body.reply_markup.inline_keyboard[0][0].text.replace(/\s/g, ''), /1500₽/);
   assert.equal(calls[0].body.reply_markup.inline_keyboard[1][0].style, 'success');
 });
 
@@ -357,15 +357,15 @@ test('pulse menu shows the balance and a green requisites button at the bottom',
   const context = vm.createContext({ balanceButtonText, requisiteButtonText });
   vm.runInContext(source.slice(source.indexOf('function pulseMainKeyboard('), source.indexOf('function pulseCalculationsKeyboard(')), context);
   const rows = context.pulseMainKeyboard({ type: 'club' }, { cents: -12345, usdCents: 500 }, 5).inline_keyboard;
-  assert.equal(rows.at(-1)[0].text, '💳 Реквизиты — 5, баланс 0,00 ₽');
-  assert.equal(context.pulseMainKeyboard({}, {}, 0).inline_keyboard.at(-1)[0].text, '💳 Реквизиты — 0, баланс 0,00 ₽');
-  assert.match(requisiteButtonText(2, { paymentCents: -608000 }).replace(/\s/g, ''), /Реквизиты—2,баланс-6080,00₽/);
+  assert.equal(rows.at(-1)[0].text, '💳 Реквизиты — 5, баланс 0 ₽');
+  assert.equal(context.pulseMainKeyboard({}, {}, 0).inline_keyboard.at(-1)[0].text, '💳 Реквизиты — 0, баланс 0 ₽');
+  assert.match(requisiteButtonText(2, { paymentCents: -608000 }).replace(/\s/g, ''), /Реквизиты—2,баланс-6080₽/);
   assert.match(rows.at(-2)[0].text, /Клубный баланс/);
   assert.equal(rows.at(-1)[0].callback_data, 'paymenu:list');
   assert.equal(rows.at(-1)[0].style, 'success');
-  assert.match(rows.at(-2)[0].text, /-123,45 ₽/);
-  assert.match(rows.at(-2)[0].text, /5,00 \$/);
-  assert.match(balanceButtonText({ cents: 0 }), /0,00 ₽/);
+  assert.match(rows.at(-2)[0].text, /-123 ₽/);
+  assert.match(rows.at(-2)[0].text, /5 \$/);
+  assert.match(balanceButtonText({ cents: 0 }), /0 ₽/);
 });
 
 test('requisites count matches the visible registry', () => {
