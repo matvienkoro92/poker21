@@ -4,6 +4,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('requisites menu includes a back button to pulse even for an empty registry', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function paymentDetailsMenuButtons('), source.indexOf('function visiblePaymentDetails(')), context);
+  const rows = context.paymentDetailsMenuButtons();
+  assert.equal(rows.at(-1)[0].text, '⬅️ Назад');
+  assert.equal(rows.at(-1)[0].callback_data, 'pulse:menu');
+});
+
 test('refresh edits the tracked menu with freshly read balances', async () => {
   const calls = [];
   const context = vm.createContext({ module: { exports: {} }, console, require: () => ({
