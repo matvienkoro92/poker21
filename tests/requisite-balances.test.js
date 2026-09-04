@@ -4,6 +4,28 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('player search accepts next plain message only from the requesting user and chat', async () => {
+  const pending = new Map([['poker21:telegram-report:player-search:pending:chat:one', '1']]);
+  const context = vm.createContext({
+    isRedisConfigured: () => true,
+    redisPipeline: async ([[command, key]]) => {
+      assert.equal(command, 'GETDEL');
+      const result = pending.get(key);
+      pending.delete(key);
+      return [{ result }];
+    },
+  });
+  vm.runInContext(source.slice(source.indexOf('function playerSearchPendingKey('), source.indexOf('function paymentDetailsPlacementKey(')), context);
+  const message = { text: 'Кулер', chat: { id: 'chat' }, from: { id: 'one' } };
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, from: { id: 'two' } }), false);
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, chat: { id: 'other' } }), false);
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, text: '/пульс' }), false);
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, reply_to_message: { text: 'Другая форма' } }), false);
+  assert.equal(await context.acceptsPlayerSearchMessage(message), true);
+  assert.equal(await context.acceptsPlayerSearchMessage(message), false);
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, reply_to_message: { text: '🔎 Поиск игрока' } }), true);
+});
+
 test('activity preserves player date buttons and counts unique active players across weeks', async () => {
   const calls = [];
   const periods = [{ startDate: 'a', endDate: 'b' }, { startDate: 'c', endDate: 'd' }];
