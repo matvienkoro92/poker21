@@ -4,6 +4,17 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('registry marks only our claimed payments as in progress', () => {
+  const context = vm.createContext({ formatPaymentAmount: () => '5 000 ₽' });
+  vm.runInContext(source.slice(source.indexOf('function paymentRegistryButton('), source.indexOf('function visiblePaymentDetails(')), context);
+  const item = { id: 'x', owner: { chatId: 'owner' }, payer: { chatId: 'payer' }, status: 'claimed' };
+  assert.match(context.paymentRegistryButton(item, 0, 'payer').text, /^🟡 .*Взят в работу$/);
+  assert.doesNotMatch(context.paymentRegistryButton(item, 0, 'owner').text, /Взят в работу/);
+  assert.match(context.paymentRegistryButton({ ...item, status: 'awaiting_receipt' }, 0, 'payer').text, /Взят в работу/);
+  assert.match(context.paymentRegistryButton({ ...item, status: 'paid' }, 0, 'payer').text, /Ждёт подтверждения/);
+  assert.doesNotMatch(context.paymentRegistryButton({ ...item, status: 'open' }, 0, 'payer').text, /Взят в работу/);
+});
+
 test('activity button edits its original message and includes back navigation', async () => {
   const calls = [];
   const context = vm.createContext({
