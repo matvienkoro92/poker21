@@ -4,6 +4,24 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('requisite validation reports specific input errors', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function isPaymentConfirmCommand(')), context);
+  for (const [input, reason] of [
+    ['5000\n+79999999999\nСбер', 'missing_fields'],
+    ['5000\n+79999999999\nСбер\nИван\nлишнее', 'extra_fields'],
+    ['abc\n+79999999999\nСбер\nИван', 'amount_format'],
+    ['0\n+79999999999\nСбер\nИван', 'amount_value'],
+    ['5000\n123\nСбер\nИван', 'phone'],
+    ['5000|+79999999999||Иван', 'bank'],
+    ['5000|+79999999999|Сбер|', 'recipient'],
+  ]) {
+    assert.equal(context.parsePaymentDetailsCommand(`/разместить ${input}`).reason, reason);
+    assert.match(context.paymentDetailsFormText(true, reason), /^❗ /);
+    assert.doesNotMatch(context.paymentDetailsFormText(true, reason), /Не удалось распознать/);
+  }
+});
+
 test('requisite non-text input ignores service events including pin notifications', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function isNonTextPlacementInput('), source.indexOf('function paymentDetailsFormText(')), context);
