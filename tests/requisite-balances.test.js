@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
-test('pulse root remains untouched and callbacks reuse a separate workspace', async () => {
+test('pulse navigation keeps the original message ID without creating a workspace', async () => {
   let stored = null;
   const calls = [];
   const context = vm.createContext({
@@ -17,16 +17,13 @@ test('pulse root remains untouched and callbacks reuse a separate workspace', as
   });
   vm.runInContext(source.slice(source.indexOf('async function routePulseRootCallback('), source.indexOf('async function sendPulseMainMenu(')), context);
   const callback = { id: 'x', data: 'pulse:balance', message: { message_id: 100, chat: { id: 'chat' }, text: '❤️ Пульс клуба — Два Туза', reply_markup: { inline_keyboard: [[{ callback_data: 'pulse:balance' }]] } } };
-  assert.equal((await context.routePulseRootCallback(callback)).message.message_id, 200);
-  assert.equal((await context.routePulseRootCallback(callback)).message.message_id, 200);
-  assert.equal(calls[0].method, 'sendMessage');
-  assert.equal(calls[1].method, 'editMessageText');
-  assert.equal(calls[1].body.message_id, 200);
+  assert.equal((await context.routePulseRootCallback(callback)).message.message_id, 100);
+  assert.equal((await context.routePulseRootCallback(callback)).message.message_id, 100);
   assert.ok(calls.every(call => call.body.message_id !== 100));
   assert.equal(callback.message.message_id, 100);
   const workspaceCallback = { ...callback, message: { ...callback.message, message_id: 200 } };
   assert.equal(await context.routePulseRootCallback(workspaceCallback), workspaceCallback);
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 0);
 });
 
 test('placement reuses one bot message for prompt, error and confirmation', async () => {
