@@ -4,6 +4,28 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('placement reuses one bot message for prompt, error and confirmation', async () => {
+  const calls = [];
+  let stored = null;
+  const context = vm.createContext({
+    paymentPlacementMessageKey: () => 'key',
+    redisPipeline: async commands => commands.map(command => {
+      if (command[0] === 'SET') stored = command[2];
+      return { result: command[0] === 'GET' ? stored : 'OK' };
+    }),
+    telegram: async (method, body) => { calls.push({ method, body }); return { ok: true, result: { message_id: 42 } }; },
+  });
+  vm.runInContext(source.slice(source.indexOf('async function sendPaymentPlacementMessage('), source.indexOf('async function sendOrEditPaymentMessage(')), context);
+  await context.sendPaymentPlacementMessage('chat', 'user', 'prompt', [], 42);
+  await context.sendPaymentPlacementMessage('chat', 'user', 'error');
+  await context.sendPaymentPlacementMessage('chat', 'user', 'published');
+  assert.equal(calls.length, 3);
+  for (const call of calls) {
+    assert.equal(call.method, 'editMessageText');
+    assert.equal(call.body.message_id, 42);
+  }
+});
+
 test('plain requisites message is accepted without reply metadata or a pending prompt', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function paymentDetailsFormText(')), context);
