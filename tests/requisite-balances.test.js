@@ -4,6 +4,26 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('dynamics subpages have back navigation to dynamics, not only main menu', async () => {
+  const calls = [];
+  const context = vm.createContext({
+    insightPlayers: () => ({ periods: [], rows: [] }),
+    escapeTelegramHtml: String, displayIso: String,
+    telegram: async (_, body) => { calls.push(body); return { ok: true }; },
+  });
+  vm.runInContext(source.slice(source.indexOf('function pulseKeyboard('), source.indexOf('function pulseMainKeyboard(')), context);
+  for (const mode of ['week', 'month']) {
+    assert.ok(context.pulseKeyboard(mode).inline_keyboard.flat().some(b => b.callback_data === 'pulse:dynamics'));
+  }
+  assert.ok(!context.pulseKeyboard('').inline_keyboard.flat().some(b => b.callback_data === 'pulse:dynamics'));
+  vm.runInContext(source.slice(source.indexOf('async function sendInsightPlayers('), source.indexOf('function insightPulseMetrics(')), context);
+  for (const kind of ['new', 'sleeping', 'sleeping2', 'returned', 'stable']) {
+    await context.sendInsightPlayers('chat', { type: 'club', club: 'Test' }, kind, 123, true);
+    assert.equal(calls.at(-1).message_id, 123);
+    assert.equal(calls.at(-1).reply_markup.inline_keyboard[0][0].callback_data, 'pulse:dynamics');
+  }
+});
+
 test('legacy search saves its first result ID and reuses it on the next query', async () => {
   let state = '1';
   const context = vm.createContext({
