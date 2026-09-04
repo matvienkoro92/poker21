@@ -4,6 +4,26 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('activity preserves player date buttons and counts unique active players across weeks', async () => {
+  const calls = [];
+  const periods = [{ startDate: 'a', endDate: 'b' }, { startDate: 'c', endDate: 'd' }];
+  const context = vm.createContext({
+    availableBoundReportPeriods: () => periods,
+    insightRowsForBinding: () => [{ id: 'one', active: true, rake: 20, hands: 5 }],
+    escapeTelegramHtml: String, displayIso: String, formatInteger: String, formatRake: String,
+    telegram: async (_, body) => { calls.push(body); return { ok: true }; },
+  });
+  vm.runInContext(source.slice(source.indexOf('function pulsePlayersKeyboard('), source.indexOf('function pulseTotalsKeyboard(')), context);
+  vm.runInContext(source.slice(source.indexOf('async function sendPulsePlayerTops('), source.indexOf('async function sendBoundClubPlayerProfile(')), context);
+  await context.sendPulsePlayerTops('chat', { type: 'club', club: 'Test' }, 'activity', periods, 3n, 123);
+  assert.equal(calls[0].message_id, 123);
+  assert.match(calls[0].text, /Активных игроков: 1/);
+  assert.match(calls[0].text, /Рейк: 40/);
+  const buttons = calls[0].reply_markup.inline_keyboard.flat();
+  assert.ok(buttons.some(button => button.callback_data === 'pulse:players:toggle:0:activity:3'));
+  assert.ok(buttons.some(button => button.callback_data === 'pulse:player:select:activity:3' && button.style === 'success'));
+});
+
 test('ruble requisite maximum is 10000 inclusive for commands and plain messages', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function isPaymentConfirmCommand(')), context);
