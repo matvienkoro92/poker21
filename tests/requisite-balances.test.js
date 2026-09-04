@@ -4,6 +4,31 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('merge submits signed balances and both histories in one atomic idempotent operation', async () => {
+  const context = vm.createContext({
+    scanRedisKeys: async () => ['poker21:telegram-report:payment-balance:club'],
+    chatBalanceKey: id => `main:${id}`, chatBalanceHistoryKey: id => `history:${id}`,
+    UNRECORDED_BALANCE_OPERATIONS_KEY: 'unrecorded',
+    refreshMenu: async () => {}, telegram: async () => {},
+    redisPipeline: async ([[command, script, count, operationKey, auditKey, accounts]]) => {
+      assert.equal(command, 'EVAL');
+      assert.equal(operationKey, 'poker21:telegram-report:requisite-merge:op');
+      assert.equal(JSON.parse(accounts)[0].target, 'main:club');
+      assert.match(script, /EXISTS/);
+      assert.match(script, /INCRBY', a.target, amount/);
+      assert.match(script, /SET', a.source, '0'/);
+      assert.match(script, /entry.rub.cents = -amount/);
+      assert.match(script, /LPUSH', a.history/);
+      assert.match(script, /LPUSH', a.paymentHistory/);
+      return [{ result: [1, -1921000] }];
+    },
+  });
+  vm.runInContext(source.slice(source.indexOf('async function mergeRequisiteBalances('), source.indexOf('async function totalRequisiteFees(')), context);
+  const result = await context.mergeRequisiteBalances('op', 'admin');
+  assert.equal(result.cents, -1921000);
+  assert.equal(result.count, 1);
+});
+
 test('requisite limit command defaults to rubles and accepts zero, not negative or dollar limits', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function requisiteLimitKey('), source.indexOf('async function savePaymentWithinLimit(')), context);
@@ -419,6 +444,7 @@ test('payment history shows five confirmed operations for this chat with histori
     PAYMENT_DETAILS_INDEX_KEY: 'index',
     scanRedisKeys: async () => ['index', ...items.map((_, i) => String(i))],
     redisPipeline: async commands => commands.map(([method, key]) => {
+      if (method === 'LRANGE') return { result: [] };
       assert.equal(method, 'GET');
       return { result: JSON.stringify(items[Number(key)]) };
     }),
