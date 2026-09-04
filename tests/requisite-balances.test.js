@@ -4,6 +4,12 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('payment confirmation ends with resulting balance for each party', () => {
+  assert.ok(source.includes('Итоговый баланс по реквизитам: ${formatBalanceAmount(ownerAfter, symbol)}'));
+  assert.ok(source.includes('Итоговый баланс по реквизитам: ${formatBalanceAmount(payerAfter, symbol)}'));
+  assert.ok(!source.includes('Итого изменение: ${formatBalanceAmount(deltas.'));
+});
+
 test('pulse navigation keeps the original message ID without creating a workspace', async () => {
   let stored = null;
   const calls = [];
