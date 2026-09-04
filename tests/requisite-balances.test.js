@@ -4,6 +4,26 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('each party pays one percent, rounded to the nearest kopeck or cent', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function paymentBalanceDeltas('), source.indexOf('function formatPaymentAmount(')), context);
+  for (const [amount, fee, owner, payer] of [
+    [1000000, 10000, -1010000, 990000],
+    [10000, 100, -10100, 9900],
+    [12345, 123, -12468, 12222],
+    [150, 2, -152, 148],
+    [1, 0, -1, 1],
+  ]) {
+    const delta = context.paymentBalanceDeltas(amount);
+    assert.equal(delta.feeCents, fee);
+    assert.equal(delta.ownerDeltaCents, owner);
+    assert.equal(delta.payerDeltaCents, payer);
+    assert.equal(delta.ownerDeltaCents + delta.payerDeltaCents, fee ? -2 * fee : 0);
+  }
+  assert.match(source, /\["INCRBY", ownerBalanceKey, String\(deltas.ownerDeltaCents\)\]/);
+  assert.match(source, /\["INCRBY", payerBalanceKey, String\(deltas.payerDeltaCents\)\]/);
+});
+
 test('requisite balance command accepts mentions and rejects mutations', () => {
   const code = source.slice(source.indexOf('function isRequisiteBalancesCommand('), source.indexOf('function isRecordBalancesCommand('));
   const context = vm.createContext({});
