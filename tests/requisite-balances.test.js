@@ -28,12 +28,29 @@ test('pulse menu shows the balance and a green requisites button at the bottom',
   const { balanceButtonText } = require('../lib/pulse-balance-menu');
   const context = vm.createContext({ balanceButtonText });
   vm.runInContext(source.slice(source.indexOf('function pulseMainKeyboard('), source.indexOf('function pulseCalculationsKeyboard(')), context);
-  const rows = context.pulseMainKeyboard({ type: 'club' }, { cents: -12345, usdCents: 500 }).inline_keyboard;
+  const rows = context.pulseMainKeyboard({ type: 'club' }, { cents: -12345, usdCents: 500 }, 5).inline_keyboard;
+  assert.equal(rows.at(-1)[0].text, '💳 Реквизиты — 5');
+  assert.equal(context.pulseMainKeyboard({}, {}, 0).inline_keyboard.at(-1)[0].text, '💳 Реквизиты — 0');
   assert.equal(rows.at(-1)[0].callback_data, 'paymenu:list');
   assert.equal(rows.at(-1)[0].style, 'success');
   assert.match(rows.at(-2)[0].text, /-123,45 ₽/);
   assert.match(rows.at(-2)[0].text, /5,00 \$/);
   assert.match(balanceButtonText({ cents: 0 }), /0,00 ₽/);
+});
+
+test('requisites count matches the visible registry', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function visiblePaymentDetails('), source.indexOf('async function sendPaymentDetailsRegistry(')), context);
+  const items = [
+    { status: 'open', owner: { chatId: 'other' } },
+    { status: 'claimed', owner: { chatId: 'me' } },
+    { status: 'paid', payer: { chatId: 'me' } },
+    { status: 'claimed', owner: { chatId: 'other' } },
+    { status: 'confirmed', owner: { chatId: 'me' } },
+    { status: 'removed', owner: { chatId: 'me' } },
+  ];
+  assert.equal(context.visiblePaymentDetails(items, 'me').length, 3);
+  assert.equal(context.visiblePaymentDetails(items, 'me', false).length, 4);
 });
 
 test('balance menu hides set balance but keeps history, add and subtract', () => {
