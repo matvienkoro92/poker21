@@ -20,7 +20,7 @@ test('payment history shows five confirmed operations for this chat with histori
   const items = Array.from({ length: 7 }, (_, i) => ({
     status: 'confirmed', confirmedAt: `2026-09-0${i + 1}`, amountCents: 10000,
     owner: { chatId: 'owner', name: 'Owner' }, payer: { chatId: 'payer', name: 'Payer' },
-    ...(i === 6 ? { currency: 'usd', balanceOperation: { ownerDeltaCents: -10100, payerDeltaCents: 9900, feeCents: 100 } } : {}),
+    ...(i === 6 ? { currency: 'usd', balanceOperation: { ownerDeltaCents: -10100, payerDeltaCents: 9900, feeCents: 100, feePercent: 1 } } : {}),
   }));
   items.push({ ...items[6], status: 'paid' }, { ...items[6], owner: { chatId: 'other' }, payer: { chatId: 'other2' } });
   const context = vm.createContext({
@@ -38,6 +38,14 @@ test('payment history shows five confirmed operations for this chat with histori
   assert.equal(rows.length, 5);
   assert.equal(rows[0].usd.cents, -10100);
   assert.equal(rows[1].rub.cents, -10000);
+  assert.equal(rows[0].commission, 'Комиссия 1%: −1 $ (уже учтена в сумме операции)');
+  assert.equal(rows[1].commission, '');
+  context.formatBalanceAmount = cents => String(cents);
+  context.formatBalanceTimestamp = value => value;
+  context.escapeTelegramHtml = value => value;
+  vm.runInContext(source.slice(source.indexOf('function formatBalanceHistoryEntry('), source.indexOf('function formatBalanceHistoryBlocks(')), context);
+  assert.match(context.formatBalanceHistoryEntry(rows[0]), /\nКомиссия 1%: −1 \$/);
+  assert.doesNotMatch(context.formatBalanceHistoryEntry(rows[1]), /Комиссия/);
   assert.equal((await context.getPaymentBalanceHistory('payer'))[0].usd.cents, 9900);
   const menu = source.slice(source.indexOf('async function sendChatBalance('), source.indexOf('async function sendChatBalanceHistory('));
   assert.match(menu, /getChatBalance\(chatId, 5\)/);
