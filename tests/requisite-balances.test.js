@@ -4,6 +4,29 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('legacy search saves its first result ID and reuses it on the next query', async () => {
+  let state = '1';
+  const context = vm.createContext({
+    isRedisConfigured: () => true,
+    telegram: async () => ({ ok: true, result: { message_id: 987 } }),
+    redisPipeline: async ([args]) => {
+      if (args[0] === 'SET') {
+        assert.deepEqual(Array.from(args.slice(3)), ['XX', 'KEEPTTL']);
+        state = args[2];
+      }
+      return [{ result: state }];
+    },
+  });
+  vm.runInContext(source.slice(source.indexOf('function playerSearchPendingKey('), source.indexOf('function paymentDetailsPlacementKey(')), context);
+  const message = { text: 'Nick', chat: { id: 'chat' }, from: { id: 'user' } };
+  assert.equal(await context.acceptsPlayerSearchMessage(message), true);
+  assert.equal(message.playerSearchMessageId, 0);
+  await context.playerSearchSender(message)('sendMessage', {});
+  const next = { ...message, text: 'Next' };
+  assert.equal(await context.acceptsPlayerSearchMessage(next), true);
+  assert.equal(next.playerSearchMessageId, 987);
+});
+
 test('club and union search edit the same message for found, missing and ambiguous results', async () => {
   for (const type of ['Club', 'Union']) {
     for (const count of [0, 1, 2]) {
