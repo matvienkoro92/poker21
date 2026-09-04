@@ -4,14 +4,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
-test('player search accepts next plain message only from the requesting user and chat', async () => {
+test('player search accepts repeated messages from the requesting user until expiry or command', async () => {
   const pending = new Map([['poker21:telegram-report:player-search:pending:chat:one', '1']]);
   const context = vm.createContext({
     isRedisConfigured: () => true,
     redisPipeline: async ([[command, key]]) => {
-      assert.equal(command, 'GETDEL');
+      assert.ok(['GET', 'DEL'].includes(command));
       const result = pending.get(key);
-      pending.delete(key);
+      if (command === 'DEL') pending.delete(key);
       return [{ result }];
     },
   });
@@ -19,9 +19,14 @@ test('player search accepts next plain message only from the requesting user and
   const message = { text: 'Кулер', chat: { id: 'chat' }, from: { id: 'one' } };
   assert.equal(await context.acceptsPlayerSearchMessage({ ...message, from: { id: 'two' } }), false);
   assert.equal(await context.acceptsPlayerSearchMessage({ ...message, chat: { id: 'other' } }), false);
-  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, text: '/пульс' }), false);
   assert.equal(await context.acceptsPlayerSearchMessage({ ...message, reply_to_message: { text: 'Другая форма' } }), false);
   assert.equal(await context.acceptsPlayerSearchMessage(message), true);
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, text: 'Waaar' }), true);
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, text: '442135' }), true);
+  pending.clear(); // Redis TTL expiry.
+  assert.equal(await context.acceptsPlayerSearchMessage(message), false);
+  pending.set('poker21:telegram-report:player-search:pending:chat:one', '1');
+  assert.equal(await context.acceptsPlayerSearchMessage({ ...message, text: '/пульс' }), false);
   assert.equal(await context.acceptsPlayerSearchMessage(message), false);
   assert.equal(await context.acceptsPlayerSearchMessage({ ...message, reply_to_message: { text: '🔎 Поиск игрока' } }), true);
 });
