@@ -20,18 +20,24 @@ test('requisite balance command accepts mentions and rejects mutations', () => {
 test('requisite summary reads separate payment balances and never mutates Redis', async () => {
   const messages = [];
   const key = 'poker21:telegram-report:club-chat:-123';
+  const bindings = {
+    [key]: { type: 'club', club: 'Test Club', clubId: '123' },
+    [`${key}1`]: { type: 'club', club: 'Два Туза', clubId: '758417' },
+    [`${key}2`]: { type: 'club', club: 'Kampashka 21', clubId: '680649' },
+    [`${key}3`]: { type: 'union', league: 'Off Cheats', leagueId: '184285' },
+  };
   const context = vm.createContext({
     isRedisConfigured: () => true,
-    scanRedisKeys: async () => [key],
+    scanRedisKeys: async () => Object.keys(bindings),
     redisPipeline: async (commands) => {
       assert.ok(commands.every(command => command[0] === 'GET'));
       return commands.map(([, key]) => ({ result: key.startsWith('poker21:')
-        ? JSON.stringify({ type: 'club', club: 'Test Club', clubId: '123' })
+        ? JSON.stringify(bindings[key])
         : key.startsWith('usd:') ? '-500' : '12500' }));
     },
     paymentBalanceKey: id => `rub:${id}`,
     paymentBalanceUsdKey: id => `usd:${id}`,
-    isHiddenBalanceBinding: () => false,
+    isHiddenBalanceBinding: binding => binding.clubId !== '123',
     normalizeLookup: value => value.toLowerCase(),
     storedBalanceMarker: () => '',
     escapeTelegramHtml: value => value,
@@ -44,4 +50,10 @@ test('requisite summary reads separate payment balances and never mutates Redis'
   assert.match(messages[0].text, /Балансы по реквизитам/);
   assert.match(messages[0].text, /Test Club — 125 RUB; -5 USD/);
   assert.match(messages[0].text, /Только подтверждённые оплаты/);
+  assert.match(messages[0].text, /Два Туза — 125 RUB; -5 USD/);
+  assert.match(messages[0].text, /Kampashka 21 — 125 RUB; -5 USD/);
+  assert.doesNotMatch(messages[0].text, /Off Cheats/);
+  messages.length = 0;
+  assert.equal(await context.sendAllPaymentBalances('main', 2), true);
+  assert.doesNotMatch(messages[0].text, /Два Туза|Kampashka 21|Off Cheats/);
 });
