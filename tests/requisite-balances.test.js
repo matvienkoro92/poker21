@@ -487,6 +487,8 @@ test('requisite summary reads separate payment balances and never mutates Redis'
     [`${key}3`]: { type: 'union', league: 'Off Cheats', leagueId: '184285' },
   };
   const context = vm.createContext({
+    totalRequisiteFees: async () => 2000,
+    formatRake: String,
     isRedisConfigured: () => true,
     scanRedisKeys: async () => Object.keys(bindings),
     redisPipeline: async (commands) => {
