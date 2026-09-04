@@ -4,6 +4,31 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('pulse root remains untouched and callbacks reuse a separate workspace', async () => {
+  let stored = null;
+  const calls = [];
+  const context = vm.createContext({
+    isRedisConfigured: () => true,
+    redisPipeline: async commands => commands.map(command => {
+      if (command[0] === 'SET') stored = command[2];
+      return { result: command[0] === 'GET' ? stored : 'OK' };
+    }),
+    telegram: async (method, body) => { calls.push({ method, body }); return { ok: true, result: { message_id: 200 } }; },
+  });
+  vm.runInContext(source.slice(source.indexOf('async function routePulseRootCallback('), source.indexOf('async function sendPulseMainMenu(')), context);
+  const callback = { id: 'x', data: 'pulse:balance', message: { message_id: 100, chat: { id: 'chat' }, text: '❤️ Пульс клуба — Два Туза', reply_markup: { inline_keyboard: [[{ callback_data: 'pulse:balance' }]] } } };
+  assert.equal((await context.routePulseRootCallback(callback)).message.message_id, 200);
+  assert.equal((await context.routePulseRootCallback(callback)).message.message_id, 200);
+  assert.equal(calls[0].method, 'sendMessage');
+  assert.equal(calls[1].method, 'editMessageText');
+  assert.equal(calls[1].body.message_id, 200);
+  assert.ok(calls.every(call => call.body.message_id !== 100));
+  assert.equal(callback.message.message_id, 100);
+  const workspaceCallback = { ...callback, message: { ...callback.message, message_id: 200 } };
+  assert.equal(await context.routePulseRootCallback(workspaceCallback), workspaceCallback);
+  assert.equal(calls.length, 2);
+});
+
 test('placement reuses one bot message for prompt, error and confirmation', async () => {
   const calls = [];
   let stored = null;
