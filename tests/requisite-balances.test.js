@@ -107,12 +107,14 @@ test('refresh edits the tracked menu with freshly read balances', async () => {
 });
 
 test('pulse menu shows the balance and a green requisites button at the bottom', () => {
-  const { balanceButtonText } = require('../lib/pulse-balance-menu');
-  const context = vm.createContext({ balanceButtonText });
+  const { balanceButtonText, requisiteButtonText } = require('../lib/pulse-balance-menu');
+  const context = vm.createContext({ balanceButtonText, requisiteButtonText });
   vm.runInContext(source.slice(source.indexOf('function pulseMainKeyboard('), source.indexOf('function pulseCalculationsKeyboard(')), context);
   const rows = context.pulseMainKeyboard({ type: 'club' }, { cents: -12345, usdCents: 500 }, 5).inline_keyboard;
-  assert.equal(rows.at(-1)[0].text, '💳 Реквизиты — 5');
-  assert.equal(context.pulseMainKeyboard({}, {}, 0).inline_keyboard.at(-1)[0].text, '💳 Реквизиты — 0');
+  assert.equal(rows.at(-1)[0].text, '💳 Реквизиты — 5, баланс 0,00 ₽');
+  assert.equal(context.pulseMainKeyboard({}, {}, 0).inline_keyboard.at(-1)[0].text, '💳 Реквизиты — 0, баланс 0,00 ₽');
+  assert.match(requisiteButtonText(2, { paymentCents: -608000 }).replace(/\s/g, ''), /Реквизиты—2,баланс-6080,00₽/);
+  assert.match(rows.at(-2)[0].text, /Клубный баланс/);
   assert.equal(rows.at(-1)[0].callback_data, 'paymenu:list');
   assert.equal(rows.at(-1)[0].style, 'success');
   assert.match(rows.at(-2)[0].text, /-123,45 ₽/);
