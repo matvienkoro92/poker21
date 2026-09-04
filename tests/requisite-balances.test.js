@@ -4,6 +4,19 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('ruble requisite maximum is 10000 inclusive for commands and plain messages', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function isPaymentConfirmCommand(')), context);
+  const details = '\n+7 999 999-99-99\nСбер\nАндрей';
+  for (const amount of ['9999,99', '10000', '10 000 ₽']) assert.equal(context.parsePaymentDetailsCommand(`/реквизиты ${amount}${details}`).action, 'publish');
+  for (const amount of ['10000,01', '10001', '50000']) {
+    assert.equal(context.parsePaymentDetailsCommand(`/разместить ${amount}${details}`).reason, 'amount_limit');
+    assert.equal(context.parsePaymentDetailsMessage(`${amount}${details}`).reason, 'amount_limit');
+  }
+  assert.equal(context.parsePaymentDetailsCommand(`/разместить 10001$${details}`).action, 'publish');
+  assert.match(context.paymentDetailsFormText(true, 'amount_limit'), /Максимальная сумма одной заявки — 10 000 ₽/);
+});
+
 test('registry marks only our claimed payments as in progress', () => {
   const context = vm.createContext({ formatPaymentAmount: () => '5 000 ₽' });
   vm.runInContext(source.slice(source.indexOf('function paymentRegistryButton('), source.indexOf('function visiblePaymentDetails(')), context);
