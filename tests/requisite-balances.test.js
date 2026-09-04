@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
-test('balance history separates entries without quote blocks', () => {
+test('balance history renders consecutive entries without blank lines or quote blocks', () => {
   const context = vm.createContext({
     formatBalanceHistoryEntry: entry => entry.text,
   });
@@ -12,7 +12,7 @@ test('balance history separates entries without quote blocks', () => {
   assert.equal(context.formatBalanceHistoryBlocks([
     { text: '+100 ₽ — дата\nКомментарий: проверка' },
     { text: '−50 ₽ — дата' },
-  ]), '+100 ₽ — дата\nКомментарий: проверка\n\n−50 ₽ — дата');
+  ]), '+100 ₽ — дата\nКомментарий: проверка\n−50 ₽ — дата');
   assert.equal(context.formatBalanceHistoryBlocks([]), '');
 });
 
