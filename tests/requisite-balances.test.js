@@ -8,10 +8,10 @@ test('registry marks only our claimed payments as in progress', () => {
   const context = vm.createContext({ formatPaymentAmount: () => '5 000 ₽' });
   vm.runInContext(source.slice(source.indexOf('function paymentRegistryButton('), source.indexOf('function visiblePaymentDetails(')), context);
   const item = { id: 'x', owner: { chatId: 'owner' }, payer: { chatId: 'payer' }, status: 'claimed' };
-  assert.match(context.paymentRegistryButton(item, 0, 'payer').text, /^🟡 .*Взят в работу$/);
+  assert.equal(context.paymentRegistryButton(item, 0, 'payer').text, '🟡 1 · 5 000 ₽');
   assert.doesNotMatch(context.paymentRegistryButton(item, 0, 'owner').text, /Взят в работу/);
-  assert.match(context.paymentRegistryButton({ ...item, status: 'awaiting_receipt' }, 0, 'payer').text, /Взят в работу/);
-  assert.match(context.paymentRegistryButton({ ...item, status: 'paid' }, 0, 'payer').text, /Ждёт подтверждения/);
+  assert.equal(context.paymentRegistryButton({ ...item, status: 'awaiting_receipt' }, 0, 'payer').text, '🟡 1 · 5 000 ₽');
+  assert.equal(context.paymentRegistryButton({ ...item, status: 'paid' }, 0, 'payer').text, '🔵 1 · 5 000 ₽');
   assert.doesNotMatch(context.paymentRegistryButton({ ...item, status: 'open' }, 0, 'payer').text, /Взят в работу/);
 });
 
