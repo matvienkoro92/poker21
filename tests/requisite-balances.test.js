@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
-test('each balance history operation is rendered in its own block', () => {
+test('balance history separates entries without quote blocks', () => {
   const context = vm.createContext({
     formatBalanceHistoryEntry: entry => entry.text,
   });
@@ -12,8 +12,37 @@ test('each balance history operation is rendered in its own block', () => {
   assert.equal(context.formatBalanceHistoryBlocks([
     { text: '+100 ₽ — дата\nКомментарий: проверка' },
     { text: '−50 ₽ — дата' },
-  ]), '<blockquote>+100 ₽ — дата\nКомментарий: проверка</blockquote>\n\n<blockquote>−50 ₽ — дата</blockquote>');
+  ]), '+100 ₽ — дата\nКомментарий: проверка\n\n−50 ₽ — дата');
   assert.equal(context.formatBalanceHistoryBlocks([]), '');
+});
+
+test('payment history shows five confirmed operations for this chat with historical fees preserved', async () => {
+  const items = Array.from({ length: 7 }, (_, i) => ({
+    status: 'confirmed', confirmedAt: `2026-09-0${i + 1}`, amountCents: 10000,
+    owner: { chatId: 'owner', name: 'Owner' }, payer: { chatId: 'payer', name: 'Payer' },
+    ...(i === 6 ? { currency: 'usd', balanceOperation: { ownerDeltaCents: -10100, payerDeltaCents: 9900, feeCents: 100 } } : {}),
+  }));
+  items.push({ ...items[6], status: 'paid' }, { ...items[6], owner: { chatId: 'other' }, payer: { chatId: 'other2' } });
+  const context = vm.createContext({
+    isRedisConfigured: () => true,
+    PAYMENT_DETAILS_INDEX_KEY: 'index',
+    scanRedisKeys: async () => ['index', ...items.map((_, i) => String(i))],
+    redisPipeline: async commands => commands.map(([method, key]) => {
+      assert.equal(method, 'GET');
+      return { result: JSON.stringify(items[Number(key)]) };
+    }),
+    formatRake: String,
+  });
+  vm.runInContext(source.slice(source.indexOf('async function getPaymentBalanceHistory('), source.indexOf('function formatUnrecordedBalanceOperation(')), context);
+  const rows = await context.getPaymentBalanceHistory('owner');
+  assert.equal(rows.length, 5);
+  assert.equal(rows[0].usd.cents, -10100);
+  assert.equal(rows[1].rub.cents, -10000);
+  assert.equal((await context.getPaymentBalanceHistory('payer'))[0].usd.cents, 9900);
+  const menu = source.slice(source.indexOf('async function sendChatBalance('), source.indexOf('async function sendChatBalanceHistory('));
+  assert.match(menu, /getChatBalance\(chatId, 5\)/);
+  assert.ok(menu.indexOf('formatBalanceHistoryBlocks(balance.history)') < menu.indexOf('<b>Баланс по реквизитам:</b>'));
+  assert.ok(menu.indexOf('formatBalanceHistoryBlocks(paymentHistory)') > menu.indexOf('<b>Баланс по реквизитам:</b>'));
 });
 
 test('each party pays one percent, rounded to the nearest kopeck or cent', () => {
