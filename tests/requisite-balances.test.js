@@ -4,6 +4,18 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('requisite non-text input ignores service events including pin notifications', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function isNonTextPlacementInput('), source.indexOf('function paymentDetailsFormText(')), context);
+  const base = { chat: { id: -123 }, from: { id: 42 } };
+  for (const event of [{ pinned_message: { text: 'Реквизиты', photo: [{}] } }, { new_chat_members: [{}] }, { left_chat_member: {} }, { new_chat_title: 'Test' }, {}]) {
+    assert.equal(context.isNonTextPlacementInput({ ...base, ...event }), false);
+  }
+  assert.equal(context.isNonTextPlacementInput({ ...base, photo: [{}] }), true);
+  assert.equal(context.isNonTextPlacementInput({ ...base, voice: {} }), true);
+  assert.equal(context.isNonTextPlacementInput({ ...base, text: '5000' }), false);
+});
+
 test('dynamics subpages have back navigation to dynamics, not only main menu', async () => {
   const calls = [];
   const context = vm.createContext({
