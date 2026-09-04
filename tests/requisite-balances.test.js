@@ -494,7 +494,7 @@ test('requisite balance command accepts mentions and rejects mutations', () => {
   const code = source.slice(source.indexOf('function isRequisiteBalancesCommand('), source.indexOf('function isRecordBalancesCommand('));
   const context = vm.createContext({});
   vm.runInContext(code, context);
-  for (const value of ['/баланс реквизиты', '/баланс@Poker21Bot РЕКВИЗИТЫ', ' /баланс   реквизиты ']) {
+  for (const value of ['/баланс реквизиты', '/балансы реквизиты', '/баланс реквизитов', '/балансы реквизитов', '/балансы@Poker21Bot реквизитов', '/баланс@Poker21Bot РЕКВИЗИТЫ', ' /баланс   реквизиты ']) {
     assert.equal(context.isRequisiteBalancesCommand(value), true);
   }
   for (const value of ['/баланс', '/баланс +100р', '/баланс реквизиты +100', '/реквизиты']) {
