@@ -4,6 +4,41 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('requisite limit command defaults to rubles and accepts zero, not negative or dollar limits', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function requisiteLimitKey('), source.indexOf('async function savePaymentWithinLimit(')), context);
+  for (const [text, cents] of [['0', 0], ['10000', 1000000], ['10 000,50 ₽', 1000050]]) {
+    assert.equal(context.parseRequisiteLimit(`/лимит реквизиты ${text}`).cents, cents);
+  }
+  assert.equal(context.parseRequisiteLimit('/лимит реквизиты').action, 'view');
+  for (const text of ['-1', 'abc', '100$']) assert.equal(context.parseRequisiteLimit(`/лимит реквизиты ${text}`).action, 'invalid');
+});
+
+test('credit check fails closed and uses atomic check plus creation with all active reservations', async () => {
+  let result = null;
+  const context = vm.createContext({
+    paymentBalanceKey: id => `balance:${id}`, requisiteLimitKey: id => `limit:${id}`, paymentDetailsKey: id => `details:${id}`,
+    redisPipeline: async ([[command, script, keyCount, balanceKey, limitKey]]) => {
+      assert.equal(command, 'EVAL');
+      assert.equal(keyCount, '3');
+      assert.equal(balanceKey, 'balance:club');
+      assert.equal(limitKey, 'limit:club');
+      assert.match(script, /or '0'/);
+      for (const status of ['open', 'claimed', 'awaiting_receipt', 'paid']) assert.ok(script.includes(`row.status == '${status}'`));
+      assert.match(script, /balance \+ limit - reserved < needed/);
+      assert.match(script, /redis.call\('SET', KEYS\[3\], ARGV\[5\]\)/);
+      return [{ result }];
+    },
+  });
+  vm.runInContext(source.slice(source.indexOf('async function savePaymentWithinLimit('), source.indexOf('function formatPaymentAmount(')), context);
+  const item = { id: 'one', owner: { chatId: 'club' }, currency: 'rub', amountCents: 100000 };
+  assert.equal((await context.savePaymentWithinLimit(item)).unavailable, true);
+  result = [0, 0, 0, 0, 101000];
+  assert.equal((await context.savePaymentWithinLimit(item)).shortfall, 101000);
+  result = [1, 0, 101000, 0, 101000];
+  assert.equal((await context.savePaymentWithinLimit(item)).saved, true);
+});
+
 test('requisite validation reports specific input errors', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function isPaymentConfirmCommand(')), context);
@@ -158,7 +193,7 @@ test('ruble requisite maximum is 10000 inclusive for commands and plain messages
     assert.equal(context.parsePaymentDetailsCommand(`/разместить ${amount}${details}`).reason, 'amount_limit');
     assert.equal(context.parsePaymentDetailsMessage(`${amount}${details}`).reason, 'amount_limit');
   }
-  assert.equal(context.parsePaymentDetailsCommand(`/разместить 10001$${details}`).action, 'publish');
+  assert.equal(context.parsePaymentDetailsCommand(`/разместить 10001$${details}`).reason, 'currency');
   assert.match(context.paymentDetailsFormText(true, 'amount_limit'), /Максимальная сумма одной заявки — 10 000 ₽/);
 });
 
@@ -425,8 +460,8 @@ test('each party pays one percent, rounded to the nearest kopeck or cent', () =>
     assert.equal(delta.payerDeltaCents, payer);
     assert.equal(delta.ownerDeltaCents + delta.payerDeltaCents, fee ? -2 * fee : 0);
   }
-  assert.match(source, /\["INCRBY", ownerBalanceKey, String\(deltas.ownerDeltaCents\)\]/);
-  assert.match(source, /\["INCRBY", payerBalanceKey, String\(deltas.payerDeltaCents\)\]/);
+  assert.match(source, /redis.call\('INCRBY', KEYS\[1\], ARGV\[1\]\)/);
+  assert.match(source, /redis.call\('INCRBY', KEYS\[2\], ARGV\[2\]\)/);
 });
 
 test('requisite balance command accepts mentions and rejects mutations', () => {
@@ -473,10 +508,10 @@ test('requisite summary reads separate payment balances and never mutates Redis'
   vm.runInContext(source.slice(start, source.indexOf('async function sendBoundClubCommands(', start)), context);
   assert.equal(await context.sendAllPaymentBalances('main', 1, true), true);
   assert.match(messages[0].text, /Балансы по реквизитам/);
-  assert.match(messages[0].text, /Test Club — 125 RUB; -5 USD/);
+  assert.match(messages[0].text, /Test Club — 125 RUB; 0 USD/);
   assert.match(messages[0].text, /Только подтверждённые оплаты/);
-  assert.match(messages[0].text, /Два Туза — 125 RUB; -5 USD/);
-  assert.match(messages[0].text, /Kampashka 21 — 125 RUB; -5 USD/);
+  assert.match(messages[0].text, /Два Туза — 125 RUB; 0 USD/);
+  assert.match(messages[0].text, /Kampashka 21 — 125 RUB; 0 USD/);
   assert.doesNotMatch(messages[0].text, /Off Cheats/);
   messages.length = 0;
   assert.equal(await context.sendAllPaymentBalances('main', 2), true);
