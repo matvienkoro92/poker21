@@ -4,6 +4,17 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('plain requisites message is accepted without reply metadata or a pending prompt', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function paymentDetailsFormText(')), context);
+  const parsed = context.parsePaymentDetailsMessage('6000\n+7 999 999-99-99\nСбер\nАндрей Андреич');
+  assert.equal(parsed.action, 'publish');
+  assert.equal(parsed.amountCents, 600000);
+  assert.equal(context.parsePaymentDetailsMessage('обычное сообщение'), null);
+  assert.equal(context.parsePaymentDetailsMessage('/баланс'), null);
+  assert.equal(context.parsePaymentDetailsMessage('6000', true).action, 'invalid');
+});
+
 test('global requisite balances allow digits chat without granting other club chats access', () => {
   const context = vm.createContext({ isMainReportChat: id => String(id) === 'main' });
   vm.runInContext(source.slice(source.indexOf('function canViewRequisiteBalances('), source.indexOf('function isAntiregReportChat(')), context);
