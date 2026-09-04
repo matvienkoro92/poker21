@@ -4,6 +4,15 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('global requisite balances allow digits chat without granting other club chats access', () => {
+  const context = vm.createContext({ isMainReportChat: id => String(id) === 'main' });
+  vm.runInContext(source.slice(source.indexOf('function canViewRequisiteBalances('), source.indexOf('function isAntiregReportChat(')), context);
+  assert.equal(context.canViewRequisiteBalances('-4271456764'), true);
+  assert.equal(context.canViewRequisiteBalances(-4271456764), true);
+  assert.equal(context.canViewRequisiteBalances('main'), true);
+  assert.equal(context.canViewRequisiteBalances('-1234'), false);
+});
+
 test('requisites menu includes a back button to pulse even for an empty registry', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function paymentDetailsMenuButtons('), source.indexOf('function visiblePaymentDetails(')), context);
