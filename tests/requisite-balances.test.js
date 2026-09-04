@@ -4,6 +4,15 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('balance timestamps use Moscow time with an explicit label', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function formatBalanceTimestamp('), source.indexOf('function formatBalanceAmount(')), context);
+  assert.equal(context.formatBalanceTimestamp('2026-09-04T15:30:00.000Z'), '04.09.2026 18:30 МСК');
+  assert.equal(context.formatBalanceTimestamp('2026-09-04T22:30:00.000Z'), '05.09.2026 01:30 МСК');
+  assert.equal(context.formatBalanceTimestamp(null), '');
+  assert.equal(context.formatBalanceTimestamp('invalid'), '');
+});
+
 test('balance history renders consecutive entries without blank lines or quote blocks', () => {
   const context = vm.createContext({
     formatBalanceHistoryEntry: entry => entry.text,
