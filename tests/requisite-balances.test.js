@@ -4,6 +4,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('balance menu hides set balance but keeps history, add and subtract', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function balanceMenuKeyboard('), source.indexOf('async function sendChatBalance(')), context);
+  const callbacks = context.balanceMenuKeyboard().inline_keyboard.flat().map(button => button.callback_data);
+  assert.equal(callbacks.includes('balmenu:set'), false);
+  for (const callback of ['balmenu:history', 'balmenu:add', 'balmenu:subtract', 'pulse:menu']) assert.ok(callbacks.includes(callback));
+});
+
 test('history lets the user choose a Moscow week and separates both ledgers', async () => {
   const calls = [];
   const context = vm.createContext({
