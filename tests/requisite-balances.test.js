@@ -4,6 +4,23 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('activity button edits its original message and includes back navigation', async () => {
+  const calls = [];
+  const context = vm.createContext({
+    insightPeriods: () => [{ startDate: '2026-08-24', endDate: '2026-08-30' }],
+    insightRowsForBinding: () => [{ active: true, rake: 100, hands: 2 }],
+    escapeTelegramHtml: String, displayIso: String, formatInteger: String, formatRake: String,
+    telegram: async (method, body) => { calls.push({ method, body }); return { ok: true }; },
+  });
+  vm.runInContext(source.slice(source.indexOf('async function sendBoundActivity('), source.indexOf('async function readPlayingTablesCached(')), context);
+  await context.sendBoundActivity('chat', { type: 'club', club: 'GARAGE' }, null, 77);
+  assert.equal(calls[0].method, 'editMessageText');
+  assert.equal(calls[0].body.message_id, 77);
+  assert.equal(calls[0].body.reply_markup.inline_keyboard[0][0].callback_data, 'pulse:players');
+  await context.sendBoundActivity('chat', { type: 'club', club: 'GARAGE' }, 78);
+  assert.equal(calls[1].method, 'sendMessage');
+});
+
 test('payment confirmation ends with resulting balance for each party', () => {
   assert.ok(source.includes('Итоговый баланс по реквизитам: ${formatBalanceAmount(ownerAfter, symbol)}'));
   assert.ok(source.includes('Итоговый баланс по реквизитам: ${formatBalanceAmount(payerAfter, symbol)}'));
