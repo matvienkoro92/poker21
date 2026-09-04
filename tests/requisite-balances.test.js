@@ -4,6 +4,31 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('club and union search edit the same message for found, missing and ambiguous results', async () => {
+  for (const type of ['Club', 'Union']) {
+    for (const count of [0, 1, 2]) {
+      const calls = [];
+      const players = Array.from({ length: count }, (_, i) => ({ id: String(i), playerId: String(i), nick: 'Nick' }));
+      const context = vm.createContext({
+        latestUnionData: {}, boundClubData: () => ({ playerRows: players }),
+        lookupScore: () => 0, escapeTelegramHtml: String, displayIso: String, formatRake: String,
+        telegram: async (method, body) => { calls.push({ method, body }); return { ok: true }; },
+      });
+      const name = `sendBound${type}PlayerProfile`;
+      const start = source.indexOf(`async function ${name}(`);
+      const ends = [source.indexOf('\nfunction ', start + 1), source.indexOf('\nasync function ', start + 1)].filter(n => n > start);
+      vm.runInContext(source.slice(start, Math.min(...ends)), context);
+      await context[name]('chat', { leagueId: 'L', club: 'Club', league: 'Union' }, 'Nick', {
+        leaguePlayerTops: { leagues: [{ leagueId: 'L', players }] },
+      }, '\n\nПодсказка /завершить', 123);
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0].method, 'editMessageText');
+      assert.equal(calls[0].body.message_id, 123);
+      assert.match(calls[0].body.text, /Подсказка \/завершить$/);
+    }
+  }
+});
+
 test('player search accepts repeated messages from the requesting user until expiry or command', async () => {
   const pending = new Map([['poker21:telegram-report:player-search:pending:chat:one', '1']]);
   const context = vm.createContext({
