@@ -4,6 +4,26 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
+test('history lets the user choose a Moscow week and separates both ledgers', async () => {
+  const calls = [];
+  const context = vm.createContext({
+    getChatBalance: async (_, limit) => { assert.equal(limit, 0); return { history: [{ timestamp: '2026-09-06T21:30:00Z', actor: 'main' }] }; },
+    getPaymentBalanceHistory: async (_, limit) => { assert.equal(limit, Infinity); return [{ timestamp: '2026-09-06T20:30:00Z', actor: 'payment' }]; },
+    formatBalanceOwner: () => 'клуба',
+    formatBalanceHistoryEntry: entry => entry.actor,
+    telegram: async (_, body) => { calls.push(body); return { ok: true }; },
+  });
+  vm.runInContext(source.slice(source.indexOf('function balanceHistoryWeek('), source.indexOf('function paymentDetailsStatusText(')), context);
+  assert.equal(context.balanceHistoryWeek('2026-09-06T21:30:00Z'), '2026-09-07');
+  assert.equal(context.balanceHistoryWeek('2026-09-06T20:30:00Z'), '2026-08-31');
+  await context.sendChatBalanceHistory('chat', {}, 1);
+  assert.equal(calls[0].reply_markup.inline_keyboard[0][0].callback_data, 'balmenu:week:2026-09-07:0');
+  await context.sendChatBalanceHistory('chat', {}, 1, '2026-08-31');
+  assert.match(calls[1].text, /<b>Текущий баланс<\/b>\nНет операций./);
+  assert.match(calls[1].text, /<b>Реквизиты<\/b>\npayment/);
+  assert.doesNotMatch(calls[1].text, /\nmain/);
+});
+
 test('balance timestamps use Moscow time with an explicit label', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function formatBalanceTimestamp('), source.indexOf('function formatBalanceAmount(')), context);
@@ -43,7 +63,7 @@ test('payment history shows five confirmed operations for this chat with histori
     formatRake: String,
   });
   vm.runInContext(source.slice(source.indexOf('async function getPaymentBalanceHistory('), source.indexOf('function formatUnrecordedBalanceOperation(')), context);
-  const rows = await context.getPaymentBalanceHistory('owner');
+  const rows = await context.getPaymentBalanceHistory('owner', 5);
   assert.equal(rows.length, 5);
   assert.equal(rows[0].usd.cents, -10100);
   assert.equal(rows[1].rub.cents, -10000);
@@ -57,7 +77,7 @@ test('payment history shows five confirmed operations for this chat with histori
   assert.doesNotMatch(context.formatBalanceHistoryEntry(rows[1]), /Комиссия/);
   assert.equal((await context.getPaymentBalanceHistory('payer'))[0].usd.cents, 9900);
   const menu = source.slice(source.indexOf('async function sendChatBalance('), source.indexOf('async function sendChatBalanceHistory('));
-  assert.match(menu, /getChatBalance\(chatId, 5\)/);
+  assert.match(menu, /getChatBalance\(chatId, 3\)/);
   assert.ok(menu.indexOf('formatBalanceHistoryBlocks(balance.history)') < menu.indexOf('<b>Баланс по реквизитам:</b>'));
   assert.ok(menu.indexOf('formatBalanceHistoryBlocks(paymentHistory)') > menu.indexOf('<b>Баланс по реквизитам:</b>'));
 });
