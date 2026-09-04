@@ -72,6 +72,10 @@ test('requisites menu includes a back button to pulse even for an empty registry
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function paymentDetailsMenuButtons('), source.indexOf('function visiblePaymentDetails(')), context);
   const rows = context.paymentDetailsMenuButtons();
+  assert.equal(rows.at(-2)[0].text, '🔕 Уведомления — выкл');
+  for (const preference of ['under5000', 'from5000', 'all']) {
+    assert.equal(context.paymentDetailsMenuButtons(preference).at(-2)[0].text, '🔔 Уведомления — вкл');
+  }
   assert.equal(rows.at(-1)[0].text, '⬅️ Назад');
   assert.equal(rows.at(-1)[0].callback_data, 'pulse:menu');
 });
