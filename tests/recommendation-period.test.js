@@ -26,10 +26,12 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.equal(result.players.length, 5);
   assert.equal(result.single.length, 3);
   assert.deepEqual(Array.from(ctx.recommendationActionButtons(result).flat(), b => b.callback_data),
-    ['weeklyhistory:attention:0', 'weeklyhistory:analysis:0', 'weeklyhistory:inactive:0']);
+    ['weeklyhistory:attention:0', 'weeklyhistory:inactive:0', 'weeklyhistory:analysis:0']);
   assert.ok(ctx.recommendationActionButtons(result).every(row => row.length === 1));
-  assert.equal(ctx.recommendationActionButtons(result).at(-1)[0].text, '💤 Перестали играть');
+  assert.equal(ctx.recommendationActionButtons(result)[1][0].text, '💤 Перестали играть');
   const summary = await ctx.weeklySummary('1', binding);
+  assert.match(summary.text, /<b>Краткий вывод:<\/b>/);
+  assert.match(summary.text, /<b>Что сделать дальше:<\/b>/);
   assert.match(summary.text, /Из 5 игроков/);
   assert.doesNotMatch(summary.text, /Что делать|Краткий итог/);
   const analysis = await ctx.sendPlayerHistory('1', binding, 'analysis', 0, 2);
