@@ -81,3 +81,18 @@ test('material loss below 50 percent ranks above smaller drops and tiny changes 
   assert.ok(a.decline.some(p=>p.id==='large'));
   assert.ok(!a.growth.some(p=>p.id==='tiny'));
 });
+
+test('key players are recalculated from the latest four reports until they cover 70 percent of rake', () => {
+  const periods = Array.from({ length: 5 }, (_, index) => ({
+    startDate: new Date(Date.UTC(2026, 7, 24) - index * 7 * 86400000).toISOString().slice(0, 10),
+    rows: index < 4
+      ? [{ id: 'a', active: true, rake: 40 }, { id: 'b', active: true, rake: 30 }, { id: 'c', active: true, rake: 20 }, { id: 'd', active: true, rake: 10 }]
+      : [{ id: 'old', active: true, rake: 10000 }],
+  }));
+  const result = analyze(periods);
+  assert.deepEqual(result.key.map(player => player.id), ['a', 'b']);
+  assert.equal(result.keyWindowWeeks, 4);
+  assert.equal(result.fourWeekTotal, 400);
+  assert.equal(result.keyRakeShare, 70);
+  assert.equal(result.players.find(player => player.id === 'old').totalRake, 0);
+});
