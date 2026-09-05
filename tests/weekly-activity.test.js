@@ -69,3 +69,15 @@ test('contribution analysis uses IDs, aggregates rows, separates newcomers and f
   assert.equal(gap.growth.length,0);
   assert.equal(gap.decline.length,0);
 });
+test('material loss below 50 percent ranks above smaller drops and tiny changes are excluded', () => {
+  const periods = [0,1].map(i=>({startDate:i?'2026-08-17':'2026-08-24',rows:[
+    {id:'large',active:true,rake:i?10000:5300},
+    {id:'small',active:true,rake:i?1000:200},
+    {id:'tiny',active:true,rake:i?1:2},
+    {id:'stable',active:true,rake:20000}
+  ]}));
+  const a=analyze(periods);
+  assert.equal(a.attention[0].id,'large');
+  assert.ok(a.decline.some(p=>p.id==='large'));
+  assert.ok(!a.growth.some(p=>p.id==='tiny'));
+});
