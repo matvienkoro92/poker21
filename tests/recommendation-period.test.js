@@ -26,16 +26,21 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.equal(result.players.length, 5);
   assert.equal(result.single.length, 3);
   assert.deepEqual(Array.from(ctx.recommendationActionButtons(result).flat(), b => b.callback_data),
-    ['weeklyhistory:first:0', 'weeklyhistory:middle:0', 'weeklyhistory:long:0', 'weeklyhistory:single:0', 'weeklyhistory:key:0', 'weeklyhistory:growth:0', 'weeklyhistory:decline:0', 'weeklyhistory:attention:0']);
+    ['weeklyhistory:key:0', 'weeklyhistory:growth:0', 'weeklyhistory:decline:0', 'weeklyhistory:attention:0', 'weeklyhistory:inactive:0']);
   assert.ok(ctx.recommendationActionButtons(result).every(row => row.length === 1));
-  assert.equal(ctx.recommendationActionButtons(result)[0][0].text, 'Пропущена последняя неделя · 1');
+  assert.equal(ctx.recommendationActionButtons(result).at(-1)[0].text, 'Перестали играть');
   const summary = await ctx.weeklySummary('1', binding);
   assert.match(summary.text, /Из 5 игроков/);
   assert.doesNotMatch(summary.text, /Что делать|Краткий итог/);
+  const submenu = await ctx.sendPlayerHistory('1', binding, 'inactive', 0, 2);
+  assert.match(submenu.text, /Не играли в отчётную неделю: 3/);
+  assert.ok(submenu.reply_markup.inline_keyboard.every(row => row.length === 1));
+  assert.ok(submenu.reply_markup.inline_keyboard.flat().some(b => b.callback_data === 'weeklyhistory:first:0'));
   const list = await ctx.sendPlayerHistory('1', binding, 'single', 99, 2);
   assert.match(list.text, /first \(first\)/);
   assert.match(list.text, /long \(long\)/);
   assert.match(list.text, /страница 1\/1/);
+  assert.ok(list.reply_markup.inline_keyboard.flat().some(b => b.callback_data === 'weeklyhistory:inactive:0'));
 });
 test('missing player data does not mark everyone inactive; unfinished reports excluded', async () => {
   const periods = fixtures();
