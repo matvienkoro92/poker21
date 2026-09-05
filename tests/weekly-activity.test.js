@@ -47,3 +47,25 @@ test('exact absence durations keep two, three, four and longer audiences separat
   assert.equal(new Set(groups.map(p => p.id)).size, a.inactive.length);
   assert.equal(groups.length, a.inactive.length);
 });
+test('contribution analysis uses IDs, aggregates rows, separates newcomers and flags key drops', () => {
+  const current = [ {id:'key',nick:'New nick',active:true,rake:20}, {id:'key',active:true,rake:20},
+    {id:'up',active:true,rake:100}, {id:'new',active:true,rake:50} ];
+  const previous = [{id:'key',nick:'Old nick',active:true,rake:1000}, {id:'up',active:true,rake:10}];
+  const periods = [{startDate:'2026-08-24',rows:current},{startDate:'2026-08-17',rows:previous}];
+  const a = analyze(periods);
+  assert.equal(a.key[0].id,'key');
+  assert.equal(a.key[0].currentRake,40);
+  assert.equal(a.key[0].nick,'New nick');
+  assert.deepEqual(a.growth.map(p=>p.id),['up']);
+  assert.deepEqual(a.decline.map(p=>p.id),['key']);
+  assert.deepEqual(a.attention.map(p=>p.id),['key']);
+  periods[0].rows = current.filter(p=>p.id!=='key');
+  const absent = analyze(periods);
+  assert.equal(absent.decline.length,0);
+  assert.equal(absent.attention[0].id,'key');
+  periods[1].startDate='2026-08-10';
+  const gap=analyze(periods);
+  assert.equal(gap.comparable,false);
+  assert.equal(gap.growth.length,0);
+  assert.equal(gap.decline.length,0);
+});

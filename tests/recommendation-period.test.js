@@ -4,11 +4,11 @@ const vm = require('node:vm');
 const source = require('node:fs').readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 function context(periods) {
   const ctx = { require: p => require('../lib/' + p.replace('../', '')), availableBoundReportPeriods: () => periods,
-    insightRowsForBinding: p => p.directory.clubs[0].playerRows, displayIso: String, escapeTelegramHtml: String,
+    insightRowsForBinding: p => p.directory.clubs[0].playerRows, displayIso: String, escapeTelegramHtml: String, formatRake: String,
     telegram: async (method, payload) => payload };
   vm.createContext(ctx);
   vm.runInContext(source.slice(source.indexOf('function recommendationActionButtons('), source.indexOf('async function sendClubExport(')), ctx);
-  vm.runInContext(source.slice(source.indexOf('async function weeklySummary('), source.indexOf('async function enqueueWeeklySummaries(')), ctx);
+  vm.runInContext(source.slice(source.indexOf('function playerContributionText('), source.indexOf('async function enqueueWeeklySummaries(')), ctx);
   return ctx;
 }
 const row = (id, nick = id) => ({ id, nick, active: true, rake: 0, hands: 1 });
@@ -26,12 +26,12 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.equal(result.players.length, 5);
   assert.equal(result.single.length, 3);
   assert.deepEqual(Array.from(ctx.recommendationActionButtons(result).flat(), b => b.callback_data),
-    ['weeklyhistory:first:0', 'weeklyhistory:middle:0', 'weeklyhistory:long:0', 'weeklyhistory:single:0']);
+    ['weeklyhistory:first:0', 'weeklyhistory:middle:0', 'weeklyhistory:long:0', 'weeklyhistory:single:0', 'weeklyhistory:key:0', 'weeklyhistory:growth:0', 'weeklyhistory:decline:0', 'weeklyhistory:attention:0']);
   assert.ok(ctx.recommendationActionButtons(result).every(row => row.length === 1));
   assert.equal(ctx.recommendationActionButtons(result)[0][0].text, 'Пропущена последняя неделя · 1');
   const summary = await ctx.weeklySummary('1', binding);
   assert.match(summary.text, /Из 5 игроков/);
-  assert.doesNotMatch(summary.text, /Что делать|Рейк|вклад/);
+  assert.doesNotMatch(summary.text, /Что делать|Краткий итог/);
   const list = await ctx.sendPlayerHistory('1', binding, 'single', 99, 2);
   assert.match(list.text, /first \(first\)/);
   assert.match(list.text, /long \(long\)/);
