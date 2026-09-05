@@ -23,6 +23,16 @@ test('financial callbacks do not reroute notifications', async () => {
   }, async () => {});
 });
 
+test('analysis and dynamics return to combined analytics menu', async () => {
+  for (const data of ['pulse:analysis', 'pulse:dynamics']) {
+    await run(request(data), response(), async (_, res) => {
+      const next = navigation('editMessageText', { chat_id: 5, message_id: 9, text: 'Analytics', reply_markup: { inline_keyboard: [] } });
+      assert.ok(next.body.reply_markup.inline_keyboard.flat().some(button => button.callback_data === 'pulse:analytics'));
+      res.json({ ok: true });
+    }, async () => assert.fail('unexpected error'));
+  }
+});
+
 test('exceptions produce user response with error id and acknowledge handled update', async () => {
   const sent = [];
   const res = response();

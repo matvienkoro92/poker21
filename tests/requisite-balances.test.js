@@ -365,6 +365,9 @@ test('pulse menu shows the balance and a green requisites button at the bottom',
   const context = vm.createContext({ balanceButtonText, requisiteButtonText });
   vm.runInContext(source.slice(source.indexOf('function pulseMainKeyboard('), source.indexOf('function pulseCalculationsKeyboard(')), context);
   const rows = context.pulseMainKeyboard({ type: 'club' }, { cents: -12345, usdCents: 500 }, 5).inline_keyboard;
+  assert.deepEqual(Array.from(rows[0], button => button.text), ['👥 Данные игроков', '📊 Аналитика']);
+  assert.deepEqual(Array.from(rows[0], button => button.callback_data), ['pulse:players', 'pulse:analytics']);
+  assert.ok(!rows.flat().some(button => button.callback_data === 'pulse:dynamics' || button.callback_data === 'pulse:analysis'));
   assert.equal(rows.at(-1)[0].text, '💳 Реквизиты — 5, баланс 0 ₽');
   assert.equal(context.pulseMainKeyboard({}, {}, 0).inline_keyboard.at(-1)[0].text, '💳 Реквизиты — 0, баланс 0 ₽');
   assert.match(requisiteButtonText(2, { paymentCents: -608000 }).replace(/\s/g, ''), /Реквизиты—2,баланс-6080₽/);
