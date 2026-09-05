@@ -340,9 +340,10 @@ test('requisites menu includes a back button to pulse even for an empty registry
 
 test('refresh edits the tracked menu with freshly read balances', async () => {
   const calls = [];
-  const context = vm.createContext({ module: { exports: {} }, console, require: () => ({
+  const context = vm.createContext({ module: { exports: {} }, console, require: name => name === 'node:async_hooks' ? require(name) : ({
     isConfigured: () => true,
     pipeline: async commands => {
+      if (commands[0][0] === 'EVAL') return [{ result: 1 }];
       assert.ok(commands.every(command => command[0] === 'GET'));
       return [
         { result: JSON.stringify({ messageId: 44, markup: { inline_keyboard: [[{ text: 'old', callback_data: 'pulse:balance' }], [{ text: 'Реквизиты', callback_data: 'paymenu:list', style: 'success' }]] } }) },
@@ -351,11 +352,12 @@ test('refresh edits the tracked menu with freshly read balances', async () => {
     },
   }) });
   vm.runInContext(fs.readFileSync(require.resolve('../lib/pulse-balance-menu'), 'utf8'), context);
-  await context.module.exports.refreshMenu('chat', async (method, body) => { calls.push({ method, body }); return { ok: true }; });
+  await context.module.exports.refreshMenu('chat', async (method, body) => { calls.push({ method, body }); return { ok: true }; }, [{ status: 'open' }, { status: 'cancelled' }]);
   assert.equal(calls[0].method, 'editMessageReplyMarkup');
   assert.equal(calls[0].body.message_id, 44);
   assert.match(calls[0].body.reply_markup.inline_keyboard[0][0].text.replace(/\s/g, ''), /1500₽/);
   assert.equal(calls[0].body.reply_markup.inline_keyboard[1][0].style, 'success');
+  assert.match(calls[0].body.reply_markup.inline_keyboard[1][0].text, /Реквизиты — 1,/);
 });
 
 test('pulse menu shows the balance and a green requisites button at the bottom', () => {
