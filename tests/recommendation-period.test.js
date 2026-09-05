@@ -27,6 +27,8 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.equal(result.single.length, 3);
   assert.deepEqual(Array.from(ctx.recommendationActionButtons(result).flat(), b => b.callback_data),
     ['weeklyhistory:first:0', 'weeklyhistory:middle:0', 'weeklyhistory:long:0', 'weeklyhistory:single:0']);
+  assert.ok(ctx.recommendationActionButtons(result).every(row => row.length === 1));
+  assert.equal(ctx.recommendationActionButtons(result)[0][0].text, 'Пропущена последняя неделя · 1');
   const summary = await ctx.weeklySummary('1', binding);
   assert.match(summary.text, /Из 5 игроков/);
   assert.doesNotMatch(summary.text, /Что делать|Рейк|вклад/);

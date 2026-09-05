@@ -32,3 +32,18 @@ test('empty history and first report do not invent inactive players', () => {
   assert.equal(analyze([]).players.length, 0);
   assert.equal(analyze(periods().slice(0, 1)).inactive.length, 0);
 });
+
+test('exact absence durations keep two, three, four and longer audiences separate', () => {
+  const p = Array.from({length: 7}, (_, i) => ({
+    startDate: new Date(Date.UTC(2026, 7, 24) - i * 7 * 86400000).toISOString().slice(0, 10),
+    rows: i ? [row(String(i))] : []
+  }));
+  const a = analyze(p);
+  assert.deepEqual(a.middle.map(p => p.id), ['2']);
+  assert.deepEqual(a.third.map(p => p.id), ['3']);
+  assert.deepEqual(a.long.map(p => p.id), ['4']);
+  assert.deepEqual(a.older.map(p => p.id), ['5', '6']);
+  const groups = [...a.first, ...a.middle, ...a.third, ...a.long, ...a.older, ...a.unknown];
+  assert.equal(new Set(groups.map(p => p.id)).size, a.inactive.length);
+  assert.equal(groups.length, a.inactive.length);
+});
