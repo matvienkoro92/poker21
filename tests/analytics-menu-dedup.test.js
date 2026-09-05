@@ -21,9 +21,12 @@ test('club analysis menu keeps distinct cohorts without overlapping inactive lis
 
 test('recommendations contain action filters but no duplicate section links', () => {
   const body = source.slice(source.indexOf('async function weeklySummary('), source.indexOf('async function enqueueWeeklySummaries('));
-  assert.match(body, /weeklyhistory:contact:0:week/);
-  assert.match(body, /weeklyhistory:risk:0:week/);
-  assert.match(body, /weeklyhistory:growth:0:week/);
-  assert.match(body, /weeklyhistory:stopped:0:week/);
+  const buttons = source.slice(source.indexOf('function recommendationActionButtons('), source.indexOf('function playerHistoryForBinding('));
+  assert.match(buttons, /weeklyhistory:contact:0/);
+  assert.match(buttons, /weeklyhistory:risk:0/);
+  assert.match(buttons, /weeklyhistory:growth:0/);
+  assert.match(buttons, /weeklyhistory:stopped:0/);
+  assert.match(body, /recommendationActionButtons/);
+  assert.doesNotMatch(body, /Всё время|Последняя неделя.*callback_data/);
   assert.doesNotMatch(body, /pulse:weeklyplayer|callback_data: "pulse:players"|callback_data: "pulse:dynamics"/);
 });
