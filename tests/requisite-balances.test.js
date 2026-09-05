@@ -9,6 +9,7 @@ test('merge submits signed balances and both histories in one atomic idempotent 
     scanRedisKeys: async () => ['poker21:telegram-report:payment-balance:club'],
     chatBalanceKey: id => `main:${id}`, chatBalanceHistoryKey: id => `history:${id}`,
     UNRECORDED_BALANCE_OPERATIONS_KEY: 'unrecorded',
+    drainFinancialOutbox: async () => {},
     refreshMenu: async () => {}, telegram: async () => {},
     redisPipeline: async ([[command, script, count, operationKey, auditKey, accounts]]) => {
       assert.equal(command, 'EVAL');
@@ -250,10 +251,15 @@ test('activity button edits its original message and includes back navigation', 
   assert.equal(calls[1].method, 'sendMessage');
 });
 
-test('payment confirmation ends with resulting balance for each party', () => {
-  assert.ok(source.includes('Итоговый баланс по реквизитам: ${formatBalanceAmount(ownerAfter, symbol)}'));
-  assert.ok(source.includes('Итоговый баланс по реквизитам: ${formatBalanceAmount(payerAfter, symbol)}'));
-  assert.ok(!source.includes('Итого изменение: ${formatBalanceAmount(deltas.'));
+test('payment confirmation reports resulting balances through durable outbox', () => {
+  const { messages } = require('../lib/financial-outbox');
+  const payloads = messages({ kind: 'deal', item: { id: 'test', amountCents: 10000, owner: { chatId: 'owner', name: 'Owner' }, payer: { chatId: 'payer', name: 'Payer' }, balanceOperation: { feeCents: 100 } }, ownerAfter: -10100, payerAfter: 9900 });
+  assert.equal(payloads.length, 3);
+  for (const body of payloads) {
+    assert.match(body.text, /Итоговые балансы/);
+    assert.match(body.text, /-101,00/);
+    assert.match(body.text, /99,00/);
+  }
 });
 
 test('pulse navigation keeps the original message ID without creating a workspace', async () => {
