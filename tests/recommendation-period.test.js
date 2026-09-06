@@ -93,3 +93,26 @@ test('signal callback rejects non-admin changes and stale buttons before writing
   await ctx.handleSignal(callback('checked'),res);assert.equal(writes,1);
   await ctx.handleSignal(callback('view'),res);assert.equal(writes,1);
 });
+
+test('key submenu exposes shared groups with working list and back navigation',async()=>{
+ const periods=fixtures();periods.forEach((p,i)=>{p.directory.clubs[0].playerRows=[{id:'a',nick:'A',active:true,rake:100},...(i===0?[{id:'b',nick:'B',active:true,rake:1000}]:[])];});
+ const ctx=context(periods),binding={type:'club',clubId:'club',club:'Club'};
+ const menu=await ctx.sendPlayerHistory('chat',binding,'key',0,1);
+ assert.deepEqual(Array.from(menu.reply_markup.inline_keyboard.slice(0,4),r=>r[0].callback_data),['weeklyhistory:stablekey:0','weeklyhistory:newkey:0','weeklyhistory:support:0','weeklyhistory:keyall:0']);
+ for(const kind of ['stablekey','newkey','support','keyall']){
+  const list=await ctx.sendPlayerHistory('chat',binding,kind,0,1);
+  assert.ok(list.reply_markup.inline_keyboard.flat().some(b=>b.callback_data==='weeklyhistory:key:0'));
+  assert.match(list.text,/Всего:/);
+ }
+});
+
+test('legacy core agrees with recommendation keys and calendar rake',()=>{
+ const periods=fixtures();periods.forEach((p,i)=>{p.directory.clubs[0].playerRows=[{id:'p',nick:'P',active:true,rake:10},...(i===4?[{id:'old',nick:'Old',active:true,rake:100000}]:[])];});
+ const ctx=context(periods),binding={type:'club',clubId:'club',club:'Club'};
+ Object.assign(ctx,{CLUB_ANALYSIS_START_DATE:'2020-01-01',insightPeriods:()=>periods,insightActiveMap:p=>new Map(p.directory.clubs[0].playerRows.map(r=>[r.id,r]))});
+ vm.runInContext(source.slice(source.indexOf('function clubHistoryAnalysis('),source.indexOf('function analysisOwner(')),ctx);
+ const legacy=ctx.clubHistoryAnalysis(binding),weekly=ctx.playerHistoryForBinding(binding);
+ assert.deepEqual(Array.from(legacy.core,p=>p.id),Array.from(weekly.key,p=>p.id));
+ assert.equal(legacy.totalRake,weekly.fourWeekTotal);
+ assert.equal(legacy.core[0].activeWeeks,4);
+});

@@ -138,3 +138,18 @@ test('breakdown accounts for newcomers, returns, continuing and absent players',
   ]));
   assert.deepEqual(r.breakdown,{new:50,returned:30,continuing:-20,absent:-40});
 });
+
+test('key subgroups use the same calendar window and stop support at 90 percent',()=>{
+  const history=makeHistory(Array.from({length:6},(_,i)=>[
+    rakeRow('stable',40),rakeRow('regular',20),rakeRow('tail',10),
+    ...(i===0?[rakeRow('new',400)]:[]),...(i===5?[rakeRow('ancient',100000)]:[])
+  ]));
+  const r=analyze(history);
+  assert.deepEqual(r.keyall.map(p=>p.id),r.key.map(p=>p.id));
+  assert.deepEqual(r.newkey.map(p=>p.id),['new']);
+  assert.deepEqual(r.stablekey.map(p=>p.id),['stable']);
+  assert.deepEqual(r.support.map(p=>p.id),['regular']);
+  assert.ok(!r.key.some(p=>p.id==='ancient'));
+  const gap=analyze([history[0],history[3],history[5]]);
+  assert.equal(gap.support.length,0);
+});
