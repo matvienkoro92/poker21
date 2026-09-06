@@ -34,3 +34,59 @@ test('multiple changes in one request refresh all tracked menus once',async()=>{
   assert.equal(scans,1);assert.equal(sent.length,2);
   for(const s of sent){assert.equal(s.method,'editMessageReplyMarkup');assert.equal(s.body.message_id,9);assert.match(s.body.reply_markup.inline_keyboard[0][0].text,/— 1,/);}
 });
+
+function registryHarness() {
+  const store=new Map(),sent=[];
+  const pipeline=async commands=>commands.map(([cmd,...args])=>{
+    if(cmd==='GET')return {result:store.get(args[0])||null};
+    if(cmd==='SET'){store.set(args[0],args[1]);return {result:'OK'};}
+    if(cmd==='EVAL'){
+      const [script,,key,expected,value]=args;
+      const stored=store.get(key);
+      if(script.includes('cjson.decode')){if(stored&&String(JSON.parse(stored).messageId)===expected)store.delete(key);}
+      else if(stored===expected){if(value)store.set(key,value);else store.delete(key);}
+      return {result:1};
+    }
+    throw Error(`Unexpected ${cmd}`);
+  });
+  const ctx={module:{exports:{}},console,require:name=>name==='node:async_hooks'?require(name):{isConfigured:()=>true,pipeline}};
+  vm.createContext(ctx);vm.runInContext(fs.readFileSync(require.resolve('../lib/pulse-balance-menu'),'utf8'),ctx);
+  const telegram=async(method,body)=>{sent.push({method,body});return {ok:true};};
+  return {api:ctx.module.exports,store,sent,telegram};
+}
+const registryPayload=text=>({chat_id:'a',text,parse_mode:'HTML',reply_markup:{inline_keyboard:[[
+  {text:'Разместить',callback_data:'paymenu:place'},{text:'Убрать',callback_data:'paymenu:remove'}
+]]}});
+
+test('open registry edits the same message only when actual contents change',async()=>{
+  const {api,sent,telegram}=registryHarness();
+  await api.trackMenu('sendMessage',registryPayload('Нет заявок'),{ok:true,result:{message_id:7}});
+  await api.refreshMenu('a',telegram,[],async()=>registryPayload('Нет заявок'));
+  assert.equal(sent.length,0);
+  await api.refreshMenu('a',telegram,[],async()=>registryPayload('Новая заявка; доступно 900'));
+  assert.equal(sent.length,1);assert.equal(sent[0].method,'editMessageText');assert.equal(sent[0].body.message_id,7);
+  await api.refreshMenu('a',telegram,[],async()=>registryPayload('Новая заявка; доступно 900'));
+  assert.equal(sent.length,1);
+  await api.refreshMenu('a',telegram,[],async()=>registryPayload('Нет заявок; доступно 1000'));
+  assert.equal(sent.length,2);
+});
+
+test('navigation during rendering and deleted messages do not get overwritten',async()=>{
+  const {api,sent,telegram,store}=registryHarness();
+  await api.trackMenu('editMessageText',{...registryPayload('Нет заявок'),message_id:7},{ok:true});
+  await api.refreshMenu('a',telegram,[],async()=>{
+    await api.trackMenu('editMessageText',{chat_id:'a',message_id:7,text:'Ввод суммы',reply_markup:{inline_keyboard:[]}},{ok:true});
+    return registryPayload('Новая заявка');
+  });
+  assert.equal(sent.length,0);
+  await api.trackMenu('editMessageText',{...registryPayload('Нет заявок'),message_id:8},{ok:true});
+  await api.refreshMenu('a',async()=>({ok:false,description:'Bad Request: message to edit not found'}),[],async()=>registryPayload('Новая заявка'));
+  assert.equal(store.size,0);
+});
+
+test('opening unchanged registry still registers it for future events',async()=>{
+  const {api,sent,telegram}=registryHarness();
+  await api.trackMenu('editMessageText',{...registryPayload('Нет заявок'),message_id:9},{ok:false,description:'Bad Request: message is not modified'});
+  await api.refreshMenu('a',telegram,[],async()=>registryPayload('Баланс изменился'));
+  assert.equal(sent.length,1);assert.equal(sent[0].body.message_id,9);
+});

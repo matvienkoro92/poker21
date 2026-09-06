@@ -31,7 +31,7 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.equal(ctx.recommendationActionButtons(result)[1][0].text, '💤 Перестали играть');
   const summary = await ctx.weeklySummary('1', binding);
   assert.match(summary.text, /<b>Краткий вывод:<\/b>/);
-  assert.match(summary.text, /<b>Что сделать дальше:<\/b>/);
+  assert.match(summary.text, /<b>⚠️ Проработать<\/b>/);
   assert.match(summary.text, /Из 5 игроков/);
   assert.doesNotMatch(summary.text, /Что делать|Краткий итог/);
   const analysis = await ctx.sendPlayerHistory('1', binding, 'analysis', 0, 2);
@@ -65,11 +65,11 @@ test('reviewed signals leave the summary but remain accessible with reversible s
   const r=ctx.playerHistoryForBinding(binding),p=r.attention[0];
   const review=require('../lib/weekly-recommendations');
   let summary=await ctx.weeklySummary('chat',binding);
-  assert.match(summary.text,/Проверьте сигналы: .*Gone/);
+  assert.match(summary.text,/• ⭐ Gone \(gone\) — Нет игры/);
   await review.save(redis,'chat',binding,r,review.token(binding,r,p),'checked','admin');
   summary=await ctx.weeklySummary('chat',binding);
-  assert.doesNotMatch(summary.text,/Проверьте сигналы: .*Gone/);
-  assert.match(summary.text,/проверено 1/);
+  assert.doesNotMatch(summary.text,/• ⭐ Gone \(gone\)/);
+  assert.match(summary.text,/Проверено — 1/);
   const list=await ctx.sendPlayerHistory('chat',binding,'attention',0,1);
   assert.match(list.text,/Gone/);assert.match(list.text,/Проверено/);
   const card=await ctx.sendWeeklySignal('chat',binding,r,p,1);

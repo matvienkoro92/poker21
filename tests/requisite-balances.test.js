@@ -5,10 +5,12 @@ const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
 
 test('merge submits signed balances and both histories in one atomic idempotent operation', async () => {
+  let changed = 0;
   const context = vm.createContext({
     scanRedisKeys: async () => ['poker21:telegram-report:payment-balance:club'],
     chatBalanceKey: id => `main:${id}`, chatBalanceHistoryKey: id => `history:${id}`,
     UNRECORDED_BALANCE_OPERATIONS_KEY: 'unrecorded',
+    markRequisitesChanged: () => { changed++; },
     drainFinancialOutbox: async () => {},
     refreshMenu: async () => {}, telegram: async () => {},
     redisPipeline: async ([[command, script, count, operationKey, auditKey, accounts]]) => {
@@ -28,6 +30,7 @@ test('merge submits signed balances and both histories in one atomic idempotent 
   const result = await context.mergeRequisiteBalances('op', 'admin');
   assert.equal(result.cents, -1921000);
   assert.equal(result.count, 1);
+  assert.equal(changed, 1);
 });
 
 test('requisite limit command defaults to rubles and accepts zero, not negative or dollar limits', () => {
