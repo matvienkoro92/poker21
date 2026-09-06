@@ -29,5 +29,5 @@ test('scheduled weekly summary does not reference callback-only state',()=>{
   // Bound to the function body, not subsequent callback handlers.
   const body=scheduled.slice(0,scheduled.indexOf('\n}\n')+3);
   assert.doesNotMatch(body,/weeklyPlayer|callbackQuery|res\.status/);
-  assert.match(body,/availableBoundReportPeriods\(binding\)\[0\]/);
+  assert.doesNotMatch(body,/scanRedisKeys|redisPipeline|weeklySummary\(/);
 });

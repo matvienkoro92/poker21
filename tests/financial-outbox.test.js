@@ -57,3 +57,19 @@ test('network failure remains queued, never becomes delivered', async () => {
   assert.equal(f.values.has(PREFIX + 'test:delivered'), false);
   assert.equal(f.due.size, 1);
 });
+
+ test('queued activity summary is cancelled while financial events still deliver', async () => {
+  const f = fixture();
+  const id = 'weekly:group:2026-08-24';
+  f.values.set(PREFIX + id, JSON.stringify({ kind: 'summary', payload: { chat_id: 'group', text: 'activity' } }));
+  f.due.set(id, 0);
+  const sent = [];
+  await drain({ redis: f.redis, now: () => 100, send: async body => {
+    sent.push(body.chat_id); return { ok: true, result: { message_id: sent.length } };
+  } });
+  assert.deepEqual(sent, ['a', 'b']);
+  assert.equal(f.due.size, 0);
+  assert.equal(f.values.get(PREFIX + id + ':cancelled'), '100');
+  assert.equal(f.values.has(PREFIX + id + ':delivered'), false);
+  assert.ok(f.values.has(PREFIX + id));
+});
