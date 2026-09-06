@@ -2,8 +2,8 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const source = require('node:fs').readFileSync(require.resolve('../lib/api-handlers/telegram-report-webhook'), 'utf8');
-function context(periods) {
-  const ctx = { require: p => require('../lib/' + p.replace('../', '')), availableBoundReportPeriods: () => periods,
+function context(periods, redisPipeline = async commands => commands.map(() => ({ result: null }))) {
+  const ctx = { redisPipeline, require: p => require('../lib/' + p.replace('../', '')), availableBoundReportPeriods: () => periods,
     insightRowsForBinding: p => p.directory.clubs[0].playerRows, displayIso: String, escapeTelegramHtml: String, formatRake: String,
     telegram: async (method, payload) => payload };
   vm.createContext(ctx);
@@ -55,4 +55,41 @@ test('missing player data does not mark everyone inactive; unfinished reports ex
   const summary = await ctx.weeklySummary('1', { type: 'club', clubId: 'club' });
   assert.match(summary.text, /нет данных игроков/);
   assert.doesNotMatch(summary.text, /Не играли/);
+});
+
+test('reviewed signals leave the summary but remain accessible with reversible status controls',async()=>{
+  const periods=fixtures();
+  periods.forEach((p,i)=>{p.directory.clubs[0].playerRows=i===1?[{id:'gone',nick:'Gone',active:true,rake:200}]:[]});
+  const memory=new Map();const redis=async commands=>commands.map(([cmd,key,value])=>cmd==='GET'?{result:memory.get(key)||null}:(memory.set(key,value),{result:'OK'}));
+  const ctx=context(periods,redis),binding={type:'club',clubId:'club',club:'Club'};
+  const r=ctx.playerHistoryForBinding(binding),p=r.attention[0];
+  const review=require('../lib/weekly-recommendations');
+  let summary=await ctx.weeklySummary('chat',binding);
+  assert.match(summary.text,/Проверьте сигналы: .*Gone/);
+  await review.save(redis,'chat',binding,r,review.token(binding,r,p),'checked','admin');
+  summary=await ctx.weeklySummary('chat',binding);
+  assert.doesNotMatch(summary.text,/Проверьте сигналы: .*Gone/);
+  assert.match(summary.text,/проверено 1/);
+  const list=await ctx.sendPlayerHistory('chat',binding,'attention',0,1);
+  assert.match(list.text,/Gone/);assert.match(list.text,/Проверено/);
+  const card=await ctx.sendWeeklySignal('chat',binding,r,p,1);
+  assert.match(card.text,/Что проверить/);
+  assert.equal(card.reply_markup.inline_keyboard.filter(row=>row[0].callback_data.startsWith('weeklysignal:')).length,3);
+});
+
+test('signal callback rejects non-admin changes and stale buttons before writing',async()=>{
+  const periods=fixtures();periods.forEach((p,i)=>{p.directory.clubs[0].playerRows=i===1?[{id:'p',nick:'P',active:true,rake:100}]:[]});
+  const binding={type:'club',clubId:'club',club:'Club'};let writes=0,admin=false;
+  const ctx=context(periods,async commands=>commands.map(([cmd])=>{if(cmd==='SET')writes++;return {result:cmd==='SET'?'OK':null}}));
+  const r=ctx.playerHistoryForBinding(binding),review=require('../lib/weekly-recommendations');
+  const token=review.token(binding,r,r.attention[0]);
+  Object.assign(ctx,{getPulseBinding:async()=>binding,isTelegramChatAdmin:async()=>admin});
+  const body=source.slice(source.indexOf('  const signalCallback ='),source.indexOf('  const exportCallback ='));
+  vm.runInContext(`async function handleSignal(callbackQuery,res) { ${body} }`,ctx);
+  const res={status(){return this},json(value){return value}};
+  const callback=(action,t=token)=>({id:'cb',data:`weeklysignal:${action}:${t}`,from:{id:42},message:{message_id:1,chat:{id:'chat'}}});
+  await ctx.handleSignal(callback('checked'),res);assert.equal(writes,0);
+  admin=true;await ctx.handleSignal(callback('checked','0'.repeat(24)),res);assert.equal(writes,0);
+  await ctx.handleSignal(callback('checked'),res);assert.equal(writes,1);
+  await ctx.handleSignal(callback('view'),res);assert.equal(writes,1);
 });

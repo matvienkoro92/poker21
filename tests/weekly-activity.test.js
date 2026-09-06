@@ -96,3 +96,45 @@ test('key players are recalculated from the latest four reports until they cover
   assert.equal(result.keyRakeShare, 70);
   assert.equal(result.players.find(player => player.id === 'old').totalRake, 0);
 });
+
+const makeHistory = values => values.map((rows,i) => ({
+  startDate: new Date(Date.UTC(2026,7,24)-i*7*86400000).toISOString().slice(0,10), rows
+}));
+const rakeRow = (id,rake) => ({id,nick:id,rake,active:rake>0});
+test('significant absence is actionable even outside the key group', () => {
+  const r=analyze(makeHistory([[rakeRow('a',1000)],[rakeRow('a',1000),rakeRow('b',200)]]));
+  assert.equal(r.players.find(p=>p.id==='b').key,false);
+  assert.deepEqual(r.attention.map(p=>p.id),['b']);
+  assert.equal(r.breakdown.absent,-200);
+  assert.equal(Object.values(r.breakdown).reduce((s,n)=>s+n,0),r.currentTotal-r.previousTotal);
+});
+test('calendar window excludes old reports and missing data is not a zero baseline', () => {
+  const history=makeHistory(Array.from({length:7},(_,i)=>[rakeRow('a',i===6?10000:100)]));
+  history.splice(1,1);history[1].rows=null;
+  const r=analyze(history);
+  assert.equal(r.coverageWeeks,2);
+  assert.equal(r.fourWeekTotal,200);
+  assert.equal(r.players[0].baselineWeeks,2);
+  assert.equal(r.players[0].baselineRake,100);
+  assert.equal(r.players[0].baselineReady,false);
+});
+test('historically key player survives a change of current key composition',()=>{
+  const r=analyze(makeHistory([[rakeRow('new',10000)],[rakeRow('old',100)],[rakeRow('old',100)],[rakeRow('old',100)],[rakeRow('old',100)]]));
+  assert.equal(r.key[0].id,'new');
+  assert.equal(r.attention[0].id,'old');
+  assert.equal(r.attention[0].previousKey,true);
+});
+test('normalization after a spike is not a risk, gradual decline is',()=>{
+  const spike=analyze(makeHistory([100,1000,100,100,100].map(n=>[rakeRow('p',n)])));
+  assert.equal(spike.decline.length,1);assert.equal(spike.attention.length,0);
+  const gradual=analyze(makeHistory([60,70,80,90,100].map(n=>[rakeRow('p',n)])));
+  assert.equal(gradual.attention[0].baselineRake,85);
+  assert.equal(gradual.attention[0].attentionReason,'Рейк ниже обычного уровня');
+});
+test('breakdown accounts for newcomers, returns, continuing and absent players',()=>{
+  const r=analyze(makeHistory([
+    [rakeRow('a',80),rakeRow('new',50),rakeRow('back',30)],
+    [rakeRow('a',100),rakeRow('gone',40)], [rakeRow('back',20)]
+  ]));
+  assert.deepEqual(r.breakdown,{new:50,returned:30,continuing:-20,absent:-40});
+});
