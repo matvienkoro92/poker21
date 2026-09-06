@@ -74,7 +74,8 @@ test('reviewed signals leave the summary but remain accessible with reversible s
   assert.match(list.text,/Gone/);assert.match(list.text,/Проверено/);
   const card=await ctx.sendWeeklySignal('chat',binding,r,p,1);
   assert.match(card.text,/Что проверить/);
-  assert.equal(card.reply_markup.inline_keyboard.filter(row=>row[0].callback_data.startsWith('weeklysignal:')).length,3);
+  assert.equal(card.reply_markup.inline_keyboard.filter(row=>row[0].callback_data.startsWith('weeklysignal:')).length,2);
+  assert.ok(!card.reply_markup.inline_keyboard.flat().some(button=>button.callback_data.startsWith('weeklysignal:open:')));
 });
 
 test('signal callback rejects non-admin changes and stale buttons before writing',async()=>{
