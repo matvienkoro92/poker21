@@ -65,7 +65,7 @@ test('reviewed signals leave the summary but remain accessible with reversible s
   const r=ctx.playerHistoryForBinding(binding),p=r.attention[0];
   const review=require('../lib/weekly-recommendations');
   let summary=await ctx.weeklySummary('chat',binding);
-  assert.match(summary.text,/• ⭐ Gone \(gone\) — Нет игры/);
+  assert.match(summary.text,/• ⭐ Gone \(gone\) — не играл в отчётную неделю/);
   await review.save(redis,'chat',binding,r,review.token(binding,r,p),'checked','admin');
   summary=await ctx.weeklySummary('chat',binding);
   assert.doesNotMatch(summary.text,/• ⭐ Gone \(gone\)/);
