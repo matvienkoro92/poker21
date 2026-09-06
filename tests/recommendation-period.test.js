@@ -26,7 +26,7 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.equal(result.players.length, 5);
   assert.equal(result.single.length, 3);
   assert.deepEqual(Array.from(ctx.recommendationActionButtons(result).flat(), b => b.callback_data),
-    ['weeklyhistory:attention:0', 'weeklyhistory:inactive:0', 'weeklyhistory:analysis:0']);
+    ['weeklyhistory:attention:0', 'weeklyhistory:inactive:0', 'weeklyhistory:analysis:0', 'playermoves:0']);
   assert.ok(ctx.recommendationActionButtons(result).every(row => row.length === 1));
   assert.equal(ctx.recommendationActionButtons(result)[1][0].text, '💤 Перестали играть');
   const summary = await ctx.weeklySummary('1', binding);
@@ -36,7 +36,7 @@ test('summary covers all history and buttons open full paginated groups', async 
   assert.doesNotMatch(summary.text, /Что делать|Краткий итог/);
   const analysis = await ctx.sendPlayerHistory('1', binding, 'analysis', 0, 2);
   assert.deepEqual(Array.from(analysis.reply_markup.inline_keyboard.slice(0,3), r=>r[0].callback_data), ['weeklyhistory:key:0','weeklyhistory:growth:0','weeklyhistory:decline:0']);
-  assert.equal(summary.reply_markup.inline_keyboard.length, 4);
+  assert.equal(summary.reply_markup.inline_keyboard.length, 5);
   const submenu = await ctx.sendPlayerHistory('1', binding, 'inactive', 0, 2);
   assert.match(submenu.text, /Не играли в отчётную неделю: 3/);
   assert.ok(submenu.reply_markup.inline_keyboard.every(row => row.length === 1));
