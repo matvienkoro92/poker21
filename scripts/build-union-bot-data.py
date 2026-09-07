@@ -258,6 +258,8 @@ def main():
     super_league_result_index = super_league_headers.index("Total(Super Union)")
     super_league_total_fee_index = super_league_headers.index("FeeTotal(Super Union)")
     super_league_insurance_index = super_league_headers.index("Insurance Total(Super Union)")
+    super_league_21_fee_index = super_league_headers.index("Jackpot Fee 21 Total(Super Union)")
+    super_league_21_payout_index = super_league_headers.index("Jackpot Payout 21 Total(Super Union)")
     super_league_mtt_fee_index = super_league_headers.index("Jackpot Mtt Fee Total(Super Union)")
     super_league_mtt_payout_index = super_league_headers.index("Jackpot Mtt Payout Total(Super Union)")
     super_league_club_index = super_league_headers.index("      Club      ")
@@ -332,6 +334,8 @@ def main():
             "payout": float(row[super_league_payout_index] or 0),
             "feeTotal": float(row[super_league_total_fee_index] or 0),
             "insurance": float(row[super_league_insurance_index] or 0),
+            "fee21": float(row[super_league_21_fee_index] or 0),
+            "payout21": float(row[super_league_21_payout_index] or 0),
             "mttFee": float(row[super_league_mtt_fee_index] or 0),
             "mttPayout": float(row[super_league_mtt_payout_index] or 0),
             "winLose": float(row[super_league_result_index] or 0),
@@ -339,8 +343,8 @@ def main():
         }
         league_key = league_id or league_name.casefold()
         current = jackpot_leagues_by_id.get(league_key)
-        candidate_score = sum(abs(candidate[field]) for field in ("fee", "payout", "feeTotal", "insurance", "mttFee", "mttPayout", "winLose"))
-        current_score = sum(abs(current[field]) for field in ("fee", "payout", "feeTotal", "insurance", "mttFee", "mttPayout", "winLose")) if current else -1
+        candidate_score = sum(abs(candidate[field]) for field in ("fee", "payout", "fee21", "payout21", "feeTotal", "insurance", "mttFee", "mttPayout", "winLose"))
+        current_score = sum(abs(current[field]) for field in ("fee", "payout", "fee21", "payout21", "feeTotal", "insurance", "mttFee", "mttPayout", "winLose")) if current else -1
         if candidate_score > current_score:
             jackpot_leagues_by_id[league_key] = candidate
     jackpot_leagues = list(jackpot_leagues_by_id.values())
@@ -398,8 +402,8 @@ def main():
     super_league_payout = round(sum(row["payout"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     local_regular_fee = round(sum(float(row.get("Jackpot Fee") or 0) for row in raw_union_rows), 2)
     local_regular_payout = round(sum(float(row.get("Jackpot Payout") or 0) for row in raw_union_rows), 2)
-    jackpot_21_fee = round(sum(float(row.get("Jackpot Fee 21") or 0) for row in raw_union_rows), 2)
-    jackpot_21_payout = round(sum(float(row.get("Jackpot Payout 21") or 0) for row in raw_union_rows), 2)
+    jackpot_21_fee = round(sum(row["fee21"] * row["exchangeRate"] for row in jackpot_leagues), 2)
+    jackpot_21_payout = round(sum(row["payout21"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     jackpot_mtt_fee = round(sum(row["mttFee"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     jackpot_mtt_payout = round(sum(row["mttPayout"] * row["exchangeRate"] for row in jackpot_leagues), 2)
     jackpot_topup = round(sum(float(row.get("Jackpot Topup") or 0) for row in raw_union_rows), 2)
@@ -412,10 +416,10 @@ def main():
         "jackpotMttFee": jackpot_mtt_fee,
         "jackpotMttPayout": jackpot_mtt_payout,
         "jackpotTopup": jackpot_topup,
-        "unclassifiedFee": round(super_league_fee - local_regular_fee - jackpot_21_fee, 4),
-        "unclassifiedPayout": round(super_league_payout - local_regular_payout - jackpot_21_payout, 2),
-        "totalFee": round(super_league_fee + jackpot_mtt_fee + jackpot_topup, 4),
-        "totalPayout": round(super_league_payout + jackpot_mtt_payout, 2),
+        "unclassifiedFee": round(super_league_fee - local_regular_fee, 4),
+        "unclassifiedPayout": round(super_league_payout - local_regular_payout, 2),
+        "totalFee": round(super_league_fee + jackpot_21_fee + jackpot_mtt_fee + jackpot_topup, 4),
+        "totalPayout": round(super_league_payout + jackpot_21_payout + jackpot_mtt_payout, 2),
         "calculations": {
             "winLose": float(super_league_total_row[super_league_result_index] or 0) if super_league_total_row else 0,
             "fee": round(sum(row["feeTotal"] * row["exchangeRate"] for row in jackpot_leagues), 4),
