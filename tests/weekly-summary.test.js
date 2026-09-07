@@ -119,3 +119,14 @@ test('MTT payouts increase recipients exactly once while raw winnings stay uncha
   assert.equal(dva.metrics.jackpotMttPayout, 34653.67);
   assert.equal(dva.metrics.total, -725717.45);
 });
+
+test('next report does not credit MTT payouts again when already included in winnings', async () => {
+  const { ctx, calls } = harness();
+  const next = JSON.parse(JSON.stringify(data));
+  next.jackpot.startDate = '2026-09-07';
+  next.jackpot.endDate = '2026-09-13';
+  next.jackpot.calculations.winLose += next.jackpot.jackpotMttPayout;
+  await ctx.sendCalculations(1, 1, next);
+  assert.ok(calls[0].body.text.includes('-8.43'));
+  assert.doesNotMatch(calls[0].body.text, /вне Win\/lose/);
+});

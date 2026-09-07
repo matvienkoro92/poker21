@@ -104,6 +104,9 @@ def main():
         raise ValueError("Report period was not found in Union Data!A2")
     start_date, end_date = period.groups()
     base = {"startDate": start_date, "endDate": end_date}
+    # Only this export omitted MTT jackpot payouts from winnings.
+    # Starting 2026-09-07 payouts are included in winnings by the source.
+    separate_mtt_payout = (start_date, end_date) == ("2026-08-31", "2026-09-06")
 
     union_headers = [cell.value for cell in next(union.iter_rows(min_row=4, max_row=4))]
     club_metrics = {}
@@ -440,7 +443,7 @@ def main():
         balance = round(winnings + commission, 2)
         fraud = 0
         overly = 0
-        mtt_payout = round(row["mttPayout"] * exchange_rate, 2)
+        mtt_payout = round(row["mttPayout"] * exchange_rate, 2) if separate_mtt_payout else 0
         balance_final = round(balance + fraud + overly + mtt_payout, 2)
         promo = 0
         service_percent = LEAGUE_SERVICE_PERCENT.get(row["league"], 5)
@@ -496,7 +499,7 @@ def main():
         service_percent = CLUB_SERVICE_PERCENT.get(club_name, 10)
         service = round(-commission * service_percent / 100, 2)
         salary = CLUB_SALARY.get(club_name, 0)
-        mtt_payout = round(source_metrics["jackpotMttPayout"], 2)
+        mtt_payout = round(source_metrics["jackpotMttPayout"], 2) if separate_mtt_payout else 0
         balance_final = round(balance + mtt_payout, 2)
         total = round(balance_final + salary + service, 2)
         club_reports.append({
