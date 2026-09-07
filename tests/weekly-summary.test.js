@@ -14,6 +14,7 @@ function harness() {
     formatRake: n => Number(n).toFixed(2), formatRake4: n => Number(n).toFixed(4),
     formatInteger: n => String(Math.round(n)), formatPercent: n => String(n), escapeTelegramHtml: s => String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;'),
     telegram: async (method, body) => { calls.push({ method, body }); return { ok: true }; },
+    telegramPhotoUpload: async (chatId, item) => { calls.push({ method: 'uploadPhoto', body: { chat_id: chatId, photo: item.media, caption: item.caption } }); return { ok: true }; },
   });
   for (const constant of ['CHINESE_RAKE_RULES', 'KICKBACK_GROUPS']) {
     const start = source.indexOf(`const ${constant} = [`);
@@ -70,10 +71,33 @@ test('club and union totals preserve kopecks and all reports', () => {
 test('share command images exist and overlay output fits a Telegram message', async () => {
   const { ctx, calls } = harness();
   await ctx.sendChineseRake(1,data); await ctx.sendShareDistribution(1,data); await ctx.sendOverlays(1,1,data);
-  for (const {body} of calls.filter(c => c.method === 'sendPhoto')) {
+  assert.equal(calls.filter(c => c.method === 'uploadPhoto').length, 2);
+  assert.equal(calls.filter(c => c.method === 'sendPhoto').length, 0);
+  for (const {body} of calls.filter(c => c.method === 'uploadPhoto')) {
     assert.ok(fs.existsSync(path.join(__dirname, '..', new URL(body.photo).pathname)));
     assert.ok(body.caption.length <= 1024);
   }
   assert.ok(calls[2].body.text.length < 4096);
   assert.ok(calls[2].body.text.includes('318827.50'));
+});
+
+ test('photo upload sends image bytes as multipart instead of a remote photo URL', async () => {
+  const context = vm.createContext({
+    FormData, Blob, BOT_TOKEN: 'test-token', console,
+    fetch: async (url, options) => {
+      if (url === 'https://example.test/report.png') return { ok: true, blob: async () => new Blob(['image-bytes'], { type: 'image/png' }) };
+      assert.equal(url, 'https://api.telegram.org/bottest-token/sendPhoto');
+      assert.equal(options.method, 'POST');
+      assert.equal(options.body.get('chat_id'), '1');
+      assert.equal(options.body.get('caption'), 'Report');
+      assert.equal(options.body.get('parse_mode'), 'HTML');
+      assert.equal(await options.body.get('photo').text(), 'image-bytes');
+      return { json: async () => ({ ok: true }) };
+    },
+  });
+  for (const name of ['downloadTelegramMedia', 'telegramPhotoUpload']) {
+    const start = source.indexOf(`async function ${name}(`);
+    vm.runInContext(source.slice(start, source.indexOf('\n}', start) + 2), context);
+  }
+  assert.equal((await context.telegramPhotoUpload(1, { media: 'https://example.test/report.png', caption: 'Report', parse_mode: 'HTML' })).ok, true);
 });
