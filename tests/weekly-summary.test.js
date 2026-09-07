@@ -31,7 +31,7 @@ test('overview exposes the unresolved difference and includes Jackpot 21', async
   const { ctx, calls } = harness();
   await ctx.sendOverview(1, data);
   const text = calls[0].body.text;
-  for (const value of ['186245.42', '124163.62', '490562.60', '-953624.77', '383899.70', '20276.67', '-318827.50', '-67294.26']) assert.ok(text.includes(value), value);
+  for (const value of ['186245.42', '124163.62', '490562.60', '-895967.50', '393528.29', '20276.67', '-318827.50', '-8.40']) assert.ok(text.includes(value), value);
   assert.doesNotMatch(text, /Корректировка|ИТОГО: 0\.00/);
 });
 test('jackpot and raw reconciliation agree on all three jackpot categories', async () => {
@@ -42,7 +42,7 @@ test('jackpot and raw reconciliation agree on all three jackpot categories', asy
   assert.ok(calls[0].body.text.includes('67285.86'));
   assert.ok(calls[1].body.text.includes('717265.50'));
   assert.ok(calls[1].body.text.includes('193416.90'));
-  assert.ok(calls[1].body.text.includes('-67294.29'));
+  assert.ok(calls[1].body.text.includes('-8.43'));
 });
 test('kickback breakdown includes every nonzero club once and agrees with overview', async () => {
   const { ctx, calls } = harness();
@@ -100,4 +100,22 @@ test('share command images exist and overlay output fits a Telegram message', as
     vm.runInContext(source.slice(start, source.indexOf('\n}', start) + 2), context);
   }
   assert.equal((await context.telegramPhotoUpload(1, { media: 'https://example.test/report.png', caption: 'Report', parse_mode: 'HTML' })).ok, true);
+});
+
+test('MTT payouts increase recipients exactly once while raw winnings stay unchanged', () => {
+  let credited = 0;
+  for (const payload of [data.clubReports, data.leagueReports]) {
+    for (const r of payload.reports) {
+      const m = r.metrics;
+      const payout = Number(m.jackpotMttPayout || 0);
+      assert.ok(Math.abs(m.balance - (m.winnings + m.commission)) < .011);
+      assert.ok(Math.abs(m.balanceFinal - (m.balance + Number(m.fraud || 0) + Number(m.overly || 0) + payout)) < .011);
+      assert.ok(Math.abs(m.total - (m.balanceFinal + Number(m.service || 0) + Number(m.salary || 0) + Number(m.promo || 0) + Number(m.jackpotRefund || 0))) < .011);
+      credited += payout;
+    }
+  }
+  assert.equal(Math.round(credited * 100), 6728586);
+  const dva = data.clubReports.reports.find(r => r.clubId === '758417');
+  assert.equal(dva.metrics.jackpotMttPayout, 34653.67);
+  assert.equal(dva.metrics.total, -725717.45);
 });

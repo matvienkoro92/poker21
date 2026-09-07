@@ -46,6 +46,7 @@ def main():
             ("Баланс (выигрыш + комиссия)", metrics["balance"]),
             ("Штрафы мошенников", metrics["fraud"]),
             ("Overly", metrics["overly"]),
+            *([("Выплата MTT-джекпота", metrics["jackpotMttPayout"])] if float(metrics.get("jackpotMttPayout", 0)) != 0 else []),
             ("Баланс итог", metrics["balanceFinal"]),
             ("Акция", metrics["promo"]),
             *([("ЗП", metrics["salary"])] if float(metrics.get("salary", 0)) != 0 else []),
@@ -53,10 +54,10 @@ def main():
         ]
         if float(metrics.get("jackpotRefund", 0)) > 0:
             rows.append(("Возврат джекпота", metrics["jackpotRefund"]))
-        row_step = 73 if len(rows) == 9 else 83
+        row_step = min(83, 650 // max(1, len(rows)))
         y = 225
         for index, (label, value) in enumerate(rows):
-            if index in (2, 5):
+            if label in ("Баланс (выигрыш + комиссия)", "Баланс итог"):
                 draw.rounded_rectangle((65, y - 10, 1135, y + 50), radius=12, fill="#123C32")
             draw.text((85, y), label, font=label_font, fill="#D7E3DF")
             value_text = f"+{money(value)}" if label == "Возврат джекпота" and float(value) > 0 else money(value)

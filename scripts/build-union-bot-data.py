@@ -440,7 +440,8 @@ def main():
         balance = round(winnings + commission, 2)
         fraud = 0
         overly = 0
-        balance_final = round(balance + fraud + overly, 2)
+        mtt_payout = round(row["mttPayout"] * exchange_rate, 2)
+        balance_final = round(balance + fraud + overly + mtt_payout, 2)
         promo = 0
         service_percent = LEAGUE_SERVICE_PERCENT.get(row["league"], 5)
         service = round(-commission * service_percent / 100, 2)
@@ -461,6 +462,7 @@ def main():
                 "fraud": fraud,
                 "overly": overly,
                 "balanceFinal": balance_final,
+                "jackpotMttPayout": mtt_payout,
                 "promo": promo,
                 "servicePercent": service_percent,
                 "service": service,
@@ -494,7 +496,9 @@ def main():
         service_percent = CLUB_SERVICE_PERCENT.get(club_name, 10)
         service = round(-commission * service_percent / 100, 2)
         salary = CLUB_SALARY.get(club_name, 0)
-        total = round(balance + salary + service, 2)
+        mtt_payout = round(source_metrics["jackpotMttPayout"], 2)
+        balance_final = round(balance + mtt_payout, 2)
+        total = round(balance_final + salary + service, 2)
         club_reports.append({
             "club": club_name,
             "clubId": club_id,
@@ -509,7 +513,8 @@ def main():
                 "balance": balance,
                 "fraud": 0,
                 "overly": 0,
-                "balanceFinal": balance,
+                "balanceFinal": balance_final,
+                "jackpotMttPayout": mtt_payout,
                 "promo": 0,
                 "salary": salary,
                 "servicePercent": service_percent,
