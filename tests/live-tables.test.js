@@ -38,7 +38,7 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     assert.equal(res.body.sent,true);
     assert.equal(res.body.liveTables,'tables');
     const buttons=calls.at(-1).reply_markup.inline_keyboard.flat();
-    assert.deepEqual(buttons.slice(0,2).map(b=>b.callback_data),['tables:tournaments','tables:cash']);
+    assert.deepEqual(buttons.slice(0,3).map(b=>b.callback_data),['tables:tournaments','tables:cash','tables:other']);
     assert.equal(calls.length,1);
   }
   async function click(data) {
@@ -52,19 +52,28 @@ test('tables command works in ordinary, main and public groups; excludes empty t
   const menu=await click('tables:now');
   assert.equal(menu.length,1);
   assert.equal(menu[0].message_id,7);
-  for(const category of ['cash','tournaments']) {
-    const pages=await click('tables:'+category);
+  for(const category of ['cash','tournaments','other']) {
+    const pages=[];
+    let action='tables:'+category;
+    while(action) {
+      const edits=await click(action);
+      assert.equal(edits.length,1,'one edit per click');
+      assert.equal(edits[0].message_id,7);
+      pages.push(edits[0]);
+      action=edits[0].reply_markup.inline_keyboard.flat().find(b=>b.text==='Далее ▶️')?.callback_data;
+      assert.ok(pages.length<50);
+    }
     const combined=pages.map(c=>c.text).join('\n');
     assert.doesNotMatch(combined,/EMPTY/);
-    assert.ok(pages.every(c=>!c.message_id && c.text.length<=4096));
-    assert.equal(pages.at(-1).reply_markup.inline_keyboard[0][0].callback_data,'tables:now');
+    assert.ok(pages.every(c=>c.message_id===7 && c.text.length<=4096));
+    assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
-      const tournament=['MTT','SNG','Thirteen'].includes(row.playType);
-      assert.equal(combined.includes(`<code>${row.deskId}</code>`),tournament===(category==='tournaments'),row.playType);
+      const expected=row.playType==='MTT' ? 'tournaments' : ['SNG','Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
+      assert.equal(combined.includes(`<code>${row.deskId}</code>`),expected===category,row.playType);
     }
     if(category==='cash') {
       assert.ok(pages.length>1);
-      for(const value of ['Холдем','Омаха','Двадцать одно','Китайский покер','Стол &lt;&amp;&gt;','Игроков: 2','PLO6','50/100','entryFees: 0','7158','184691','680649']) assert.ok(combined.includes(value),value);
+      for(const value of ['Холдем','Омаха','Стол &lt;&amp;&gt;','Игроков: 2','PLO6','50/100','entryFees: 0','7158','184691','680649']) assert.ok(combined.includes(value),value);
     }
   }
 });

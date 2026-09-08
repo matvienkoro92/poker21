@@ -1,0 +1,163 @@
+{
+  "source": "Poker21Plus-855712-20260824-20260830.xlsx",
+  "sheet": "Union Game Statistics",
+  "leagueId": "184691",
+  "games": [
+    {
+      "name": "A game for Three",
+      "types": [
+        "SNG-NLH"
+      ]
+    },
+    {
+      "name": "DV Rebuy",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "EnergetikTournament",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Free sat 2 ticke🏆М",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Heads Up",
+      "types": [
+        "SNG-NLH"
+      ]
+    },
+    {
+      "name": "Magic Chest",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Rebuy Evening",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Satellite 1 ticke10к",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Satellite 5 ticke💥",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Sat💸Big Boss💸",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Tournament PLO6",
+      "types": [
+        "MTT-PLO6"
+      ]
+    },
+    {
+      "name": "Tournament Rebuy",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Димооон😎🃏",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "МОК🎰",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "НОК🥊",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "ОК🎰",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Потяни 21",
+      "types": [
+        "MTT-TweneyOne"
+      ]
+    },
+    {
+      "name": "Пятница Прогрессив",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Тест 21",
+      "types": [
+        "MTT-TweneyOne"
+      ]
+    },
+    {
+      "name": "Турнир  Понедельника",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Турнир Вторника",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Турнир Месяца🏆",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "Франкл - Фишкапченый",
+      "types": [
+        "SNG-NLH"
+      ]
+    },
+    {
+      "name": "Фриролл",
+      "types": [
+        "MTT-Durak"
+      ]
+    },
+    {
+      "name": "Четверг МКО",
+      "types": [
+        "MTT-NLH"
+      ]
+    },
+    {
+      "name": "💥Big Boss 💥",
+      "types": [
+        "MTT-NLH"
+      ]
+    }
+  ]
+}
