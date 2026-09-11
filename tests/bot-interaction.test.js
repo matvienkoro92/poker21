@@ -37,6 +37,9 @@ test('exceptions produce user response with error id and acknowledge handled upd
   const sent = [];
   const res = response();
   await run(request('pulse:balance'), res, async () => { throw new Error('simulated failure'); }, async (method, body) => { sent.push({ method, body }); return { ok: true }; });
+  assert.equal(sent[0].method, "editMessageText");
+  assert.equal(sent[0].body.message_id, 9);
+  assert.ok(sent[0].body.reply_markup.inline_keyboard.flat().some(b => b.text === "⬅️ Назад"));
   assert.equal(res.code, 200);
   assert.ok(res.body.errorId);
   assert.match(sent[0].body.text, /Не удалось завершить запрос/);
