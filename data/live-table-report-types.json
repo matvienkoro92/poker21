@@ -13,18 +13,27 @@
       "name": "DV Rebuy",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "12:00"
       ]
     },
     {
       "name": "EnergetikTournament",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "22:00"
       ]
     },
     {
       "name": "Free sat 2 ticke🏆М",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "16:00"
       ]
     },
     {
@@ -37,102 +46,158 @@
       "name": "Magic Chest",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "16:00",
+        "23:00"
       ]
     },
     {
       "name": "Rebuy Evening",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "20:00"
       ]
     },
     {
       "name": "Satellite 1 ticke10к",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "17:00"
       ]
     },
     {
       "name": "Satellite 5 ticke💥",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "09:00",
+        "17:00"
       ]
     },
     {
       "name": "Sat💸Big Boss💸",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "13:00",
+        "15:00",
+        "15:01"
       ]
     },
     {
       "name": "Tournament PLO6",
       "types": [
         "MTT-PLO6"
+      ],
+      "startTimesMoscow": [
+        "20:00"
       ]
     },
     {
       "name": "Tournament Rebuy",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "14:00"
       ]
     },
     {
       "name": "Димооон😎🃏",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "20:00"
       ]
     },
     {
       "name": "МОК🎰",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "17:00"
       ]
     },
     {
       "name": "НОК🥊",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "19:00"
       ]
     },
     {
       "name": "ОК🎰",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "17:00",
+        "21:00"
       ]
     },
     {
       "name": "Потяни 21",
       "types": [
         "MTT-TweneyOne"
+      ],
+      "startTimesMoscow": [
+        "17:00"
       ]
     },
     {
       "name": "Пятница Прогрессив",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     },
     {
       "name": "Тест 21",
       "types": [
         "MTT-TweneyOne"
+      ],
+      "startTimesMoscow": [
+        "14:00"
       ]
     },
     {
       "name": "Турнир  Понедельника",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     },
     {
       "name": "Турнир Вторника",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     },
     {
       "name": "Турнир Месяца🏆",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     },
     {
@@ -145,18 +210,27 @@
       "name": "Фриролл",
       "types": [
         "MTT-Durak"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     },
     {
       "name": "Четверг МКО",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     },
     {
       "name": "💥Big Boss 💥",
       "types": [
         "MTT-NLH"
+      ],
+      "startTimesMoscow": [
+        "18:00"
       ]
     }
   ]

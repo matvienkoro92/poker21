@@ -1,0 +1,266 @@
+{
+  "templates": [
+    {
+      "name": "DV Rebuy",
+      "leagueId": "184691",
+      "playType": "NLH",
+      "source": {
+        "images": [
+          "IMG_8886.PNG",
+          "IMG_8887.PNG"
+        ],
+        "eventStartAsDisplayed": "2026-09-08 16:00:00",
+        "timezone": "Asia/Novosibirsk"
+      },
+      "maxSeats": 7,
+      "buyIn": 800,
+      "buyInBreakdownAsDisplayed": "800(680+80)",
+      "startingChips": 20000,
+      "structure": "Большой стек",
+      "lateRegistrationLevel": 13,
+      "earlyBird": {
+        "level": 1,
+        "bonusPercent": 50
+      },
+      "levelDurationsAsDisplayed": "10/10/8 min",
+      "breakAsDisplayed": "5 минут каждые 55 минут",
+      "jackpotFee": 40,
+      "totalLevels": null,
+      "levels": [
+        {
+          "level": 1,
+          "smallBlind": 50,
+          "bigBlind": 100,
+          "ante": 0
+        },
+        {
+          "level": 2,
+          "smallBlind": 100,
+          "bigBlind": 200,
+          "ante": 0
+        },
+        {
+          "level": 3,
+          "smallBlind": 150,
+          "bigBlind": 300,
+          "ante": 50
+        },
+        {
+          "level": 4,
+          "smallBlind": 200,
+          "bigBlind": 400,
+          "ante": 50
+        },
+        {
+          "level": 5,
+          "smallBlind": 300,
+          "bigBlind": 600,
+          "ante": 75
+        },
+        {
+          "level": 6,
+          "smallBlind": 400,
+          "bigBlind": 800,
+          "ante": 100
+        },
+        {
+          "level": 7,
+          "smallBlind": 500,
+          "bigBlind": 1000,
+          "ante": 150
+        },
+        {
+          "level": 8,
+          "smallBlind": 600,
+          "bigBlind": 1200,
+          "ante": 200
+        },
+        {
+          "level": 9,
+          "smallBlind": 800,
+          "bigBlind": 1600,
+          "ante": 200
+        },
+        {
+          "level": 10,
+          "smallBlind": 1000,
+          "bigBlind": 2000,
+          "ante": 300
+        },
+        {
+          "level": 11,
+          "smallBlind": 1500,
+          "bigBlind": 3000,
+          "ante": 400
+        },
+        {
+          "level": 12,
+          "smallBlind": 2000,
+          "bigBlind": 4000,
+          "ante": 500
+        },
+        {
+          "level": 13,
+          "smallBlind": 3000,
+          "bigBlind": 6000,
+          "ante": 800
+        }
+      ],
+      "schedule": {
+        "startMoscow": "12:00",
+        "daily": true,
+        "confirmedBy": "Union Game Statistics: DV Rebuy, 2026-08-24 through 2026-08-30; daily schedule at 12:00"
+      },
+      "timing": {
+        "minutesBeforeRegistration": 10,
+        "minutesAfterRegistration": 10,
+        "thirdPhaseMinutes": 8,
+        "thirdPhaseTrigger": "finalTable",
+        "registrationCloses": "endOfLevel",
+        "playMinutesBetweenBreaks": 55,
+        "breakMinutes": 5,
+        "breakAnchor": "scheduledStart"
+      }
+    },
+    {
+      "name": "МОК🎰",
+      "leagueId": "184691",
+      "playType": "NLH",
+      "source": {
+        "images": [
+          "IMG_8892.PNG",
+          "IMG_8893.PNG",
+          "IMG_8894.PNG"
+        ],
+        "eventStartAsDisplayed": "2026-09-08 21:00:00",
+        "timezone": "Asia/Novosibirsk"
+      },
+      "maxSeats": 7,
+      "buyIn": 300,
+      "buyInBreakdownAsDisplayed": "300(127.5+127.5+30)",
+      "startingChips": 25000,
+      "structure": "Большой стек",
+      "lateRegistrationLevel": 12,
+      "levelDurationsAsDisplayed": "10/8/8 min",
+      "jackpotFee": 15,
+      "addon": false,
+      "rebuy": {
+        "unlimited": true,
+        "options": [
+          {
+            "cost": 300,
+            "chips": 50000
+          },
+          {
+            "cost": 600,
+            "chips": 100000
+          },
+          {
+            "cost": 900,
+            "chips": 150000
+          },
+          {
+            "cost": 1200,
+            "chips": 200000
+          }
+        ]
+      },
+      "totalLevels": null,
+      "levels": [
+        {
+          "level": 1,
+          "smallBlind": 50,
+          "bigBlind": 100,
+          "ante": 0
+        },
+        {
+          "level": 2,
+          "smallBlind": 100,
+          "bigBlind": 200,
+          "ante": 0
+        },
+        {
+          "level": 3,
+          "smallBlind": 150,
+          "bigBlind": 300,
+          "ante": 50
+        },
+        {
+          "level": 4,
+          "smallBlind": 200,
+          "bigBlind": 400,
+          "ante": 50
+        },
+        {
+          "level": 5,
+          "smallBlind": 300,
+          "bigBlind": 600,
+          "ante": 75
+        },
+        {
+          "level": 6,
+          "smallBlind": 400,
+          "bigBlind": 800,
+          "ante": 100
+        },
+        {
+          "level": 7,
+          "smallBlind": 500,
+          "bigBlind": 1000,
+          "ante": 150
+        },
+        {
+          "level": 8,
+          "smallBlind": 600,
+          "bigBlind": 1200,
+          "ante": 200
+        },
+        {
+          "level": 9,
+          "smallBlind": 800,
+          "bigBlind": 1600,
+          "ante": 200
+        },
+        {
+          "level": 10,
+          "smallBlind": 1000,
+          "bigBlind": 2000,
+          "ante": 300
+        },
+        {
+          "level": 11,
+          "smallBlind": 1500,
+          "bigBlind": 3000,
+          "ante": 400
+        },
+        {
+          "level": 12,
+          "smallBlind": 2000,
+          "bigBlind": 4000,
+          "ante": 500
+        },
+        {
+          "level": 13,
+          "smallBlind": 3000,
+          "bigBlind": 6000,
+          "ante": 800
+        }
+      ],
+      "schedule": {
+        "startMoscow": "17:00",
+        "daily": true,
+        "confirmedBy": "IMG_8892.PNG: 21:00 Novosibirsk; report МОК 17:00 Moscow"
+      },
+      "timing": {
+        "minutesBeforeRegistration": 10,
+        "minutesAfterRegistration": 8,
+        "thirdPhaseMinutes": 8,
+        "thirdPhaseTrigger": "finalTable",
+        "registrationCloses": "endOfLevel",
+        "playMinutesBetweenBreaks": 55,
+        "breakMinutes": 5,
+        "breakAnchor": "scheduledStart"
+      }
+    }
+  ]
+}
