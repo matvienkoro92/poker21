@@ -24,9 +24,9 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     return req;
   };
   const tables = Array.from({length: 75}, (_, i) => ({deskId: String(100000+i), deskName: 'Стол <&> '+i, playerCount: 2, unionId:'7158', leagueId:'184691', groupId:'680649', playType:'PLO6', blindAnnotation:'50/100', entryFees:0}));
-  for (const playType of ['NLH', 'NLH 3-1', '6+', 'PLO4', 'PLO5', '21', 'TweneyOne', 'OFC', 'MTT', 'SNG', 'Thirteen']) tables.push({...tables[0],deskId:playType,playType});
+  for (const playType of ['NLH', 'NLH 3-1', '6+', 'PLO4', 'PLO5', '21', 'TweneyOne', 'OFC', 'MTT', 'SNG', 'Thirteen']) tables.push({...tables[0],deskId:playType,deskName:'Variant '+playType,playType});
   global.fetch = async (url, options) => {
-    if (String(url).endsWith('/api/pokerplus-tables')) return {ok:true,json:async()=>({ok:true,tables:[{...tables[0],deskId:'EMPTY',playerCount:0},...tables, {...tables[0],deskId:'OTHERLEAGUE',leagueId:'152595',unionId:'8382'}, {...tables[0],deskId:'NOSCOPE',leagueId:'0',unionId:'0'}, {...tables[0],deskId:'LEAGUE111',leagueId:'111',unionId:'0'}, {...tables[0],deskId:'UNIONONLY',leagueId:'0',unionId:'999'}]})};
+    if (String(url).endsWith('/api/pokerplus-tables')) return {ok:true,json:async()=>({ok:true,tables:[{...tables[0],deskId:'EMPTY',playerCount:0},...tables, {...tables[0],deskName:'OTHERLEAGUE',deskId:'OTHERLEAGUE',leagueId:'152595',unionId:'8382'}, {...tables[0],deskName:'NOSCOPE',deskId:'NOSCOPE',leagueId:'0',unionId:'0'}, {...tables[0],deskName:'LEAGUE111',deskId:'LEAGUE111',leagueId:'111',unionId:'0'}, {...tables[0],deskName:'UNIONONLY',deskId:'UNIONONLY',leagueId:'0',unionId:'999'}]})};
     assert.ok(String(url).startsWith('https://api.telegram.org/'));
     calls.push(JSON.parse(options.body));
     return {ok:true,json:async()=>({ok:true})};
@@ -64,8 +64,8 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     const page=await click(`tables:cash:${scope}:0`, -1004391487736);
     assert.equal(page.length,1);
     assert.equal(page[0].message_id,7);
-    assert.ok(page[0].text.includes(`<code>${id}</code>`));
-    assert.ok(!page[0].text.includes('<code>100000</code>'));
+    assert.ok(page[0].text.includes(`<b>${id}</b>`));
+    assert.ok(!page[0].text.includes('<b>Стол &lt;&amp;&gt; 0</b>'));
     assert.ok(page[0].reply_markup.inline_keyboard.flat().some(b=>b.callback_data===`tables:cash:${scope}:0`));
   }
   for (const chatId of [-998, -999, -1004472155269]) {
@@ -102,13 +102,14 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
       const expected=['MTT','SNG'].includes(row.playType) ? 'tournaments' : ['SNG','Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
-      assert.equal(combined.includes(`<code>${row.deskId}</code>`),((expected===category && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))) && category!=='tournaments',row.playType);
+      assert.equal(combined.includes(`<b>${row.deskName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</b>`),((expected===category && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))),row.playType);
     }
     if(category==='tournaments') assert.doesNotMatch(combined,/Столов с игроками|Занято мест|Один игрок|По видам игр/);
     else assert.match(combined,/Столов с игроками/);
+    assert.doesNotMatch(combined,/ID стола:|Игра:/);
     if(category==='cash') {
       assert.ok(pages.length>1);
-      for(const value of ['<b>ОМАХА</b>','<b>21</b>','<b>OFC</b>','Холдем','Омаха','Стол &lt;&amp;&gt;','Игроков: 2','PLO6','50/100']) assert.ok(combined.includes(value),value);
+      for(const value of ['<b>ОМАХА</b>','<b>21</b>','<b>OFC</b>','Холдем','Омаха','Стол &lt;&amp;&gt;','PLO · Игроков: 2 · Блайнды: 50/100']) assert.ok(combined.includes(value),value);
     }
   }
 });
