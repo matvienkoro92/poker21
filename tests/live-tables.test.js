@@ -102,13 +102,13 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
       const expected=row.playType==='MTT' ? 'tournaments' : ['SNG','Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
-      assert.equal(combined.includes(`<code>${row.deskId}</code>`),expected===category && category!=='tournaments',row.playType);
+      assert.equal(combined.includes(`<code>${row.deskId}</code>`),((expected===category && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))) && category!=='tournaments',row.playType);
     }
     if(category==='tournaments') assert.doesNotMatch(combined,/Столов с игроками|Занято мест|Один игрок|По видам игр/);
     else assert.match(combined,/Столов с игроками/);
     if(category==='cash') {
       assert.ok(pages.length>1);
-      for(const value of ['Холдем','Омаха','Стол &lt;&amp;&gt;','Игроков: 2','PLO6','50/100']) assert.ok(combined.includes(value),value);
+      for(const value of ['<b>ОМАХА</b>','<b>21</b>','<b>OFC</b>','Холдем','Омаха','Стол &lt;&amp;&gt;','Игроков: 2','PLO6','50/100']) assert.ok(combined.includes(value),value);
     }
   }
 });
