@@ -38,7 +38,7 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     assert.equal(res.body.sent,true);
     assert.equal(res.body.liveTables,'tables');
     const buttons=calls.at(-1).reply_markup.inline_keyboard.flat();
-    assert.deepEqual(buttons.slice(0,3).map(b=>b.callback_data),['tables:tournaments','tables:cash','tables:other']);
+    assert.deepEqual(buttons.slice(0,3).map(b=>b.callback_data),['tables:tournaments','tables:cash','pulse:menu']);
     assert.equal(calls.length,1);
   }
   async function click(data, chatId = -998) {
@@ -101,7 +101,7 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     assert.ok(pages.every(c=>c.message_id===7 && c.text.length<=4096));
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
-      const expected=row.playType==='MTT' ? 'tournaments' : ['SNG','Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
+      const expected=['MTT','SNG'].includes(row.playType) ? 'tournaments' : ['SNG','Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
       assert.equal(combined.includes(`<code>${row.deskId}</code>`),((expected===category && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))) && category!=='tournaments',row.playType);
     }
     if(category==='tournaments') assert.doesNotMatch(combined,/Столов с игроками|Занято мест|Один игрок|По видам игр/);

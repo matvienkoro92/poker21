@@ -11,9 +11,9 @@ test('report and schedule names take precedence over NLH/PLO variants',()=>{
  }
  assert.equal(classify(table('Tournament PLO6','PLO6')).category,'tournaments');
 });
-test('SNG is other, never MTT or cash, including report aliases',()=>{
- for(const name of ['Heads Up','A game for Three','500 SNG','СНГ 1000','MTT SNG']) assert.equal(classify(table(name)).category,'other',name);
- assert.equal(classify(table('unnamed','SNG-NLH')).category,'other');
+test('SNG belongs to tournaments, including report aliases',()=>{
+ for(const name of ['Heads Up','A game for Three','500 SNG','СНГ 1000','MTT SNG']) assert.equal(classify(table(name)).category,'tournaments',name);
+ assert.equal(classify(table('unnamed','SNG-NLH')).category,'tournaments');
  assert.equal(classify(table('unnamed','MTT-PLO6')).category,'tournaments');
 });
 test('only holdem/omaha cash variants enter cash; fees and large blinds do not imply MTT',()=>{
