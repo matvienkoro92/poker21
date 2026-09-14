@@ -7,6 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from openpyxl import load_workbook
+from leaderboard_rewards import extract_leaderboard_rewards
 
 
 # Начиная с выгрузки 10–16.08.2026 суммы суперюниона уже приведены
@@ -581,6 +582,9 @@ def main():
     }
     write_json(output_dir / "union-activity-summary.json", activity_data)
 
+    leaderboard_data = extract_leaderboard_rewards(workbook, start_date, end_date, source.name)
+    write_json(output_dir / "union-leaderboard-rewards.json", leaderboard_data)
+
     archive_path = output_dir / "union-periods.json"
     archive = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else {"periods": []}
     bundle = {
@@ -595,6 +599,7 @@ def main():
         "playerTops": player_tops_data,
         "leaguePlayerTops": league_player_tops_data,
         "activity": activity_data,
+        "leaderboardRewards": leaderboard_data,
     }
     periods = [row for row in archive.get("periods", []) if not (row.get("startDate") == start_date and row.get("endDate") == end_date)]
     periods.append(bundle)
