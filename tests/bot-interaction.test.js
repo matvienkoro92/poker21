@@ -33,21 +33,24 @@ test('analysis and dynamics return to combined analytics menu', async () => {
   }
 });
 
-test('exceptions produce user response with error id and acknowledge handled update', async () => {
+test('exceptions stay out of chat, retain error id in logs response and acknowledge callback', async () => {
   const sent = [];
   const res = response();
   await run(request('pulse:balance'), res, async () => { throw new Error('simulated failure'); }, async (method, body) => { sent.push({ method, body }); return { ok: true }; });
-  assert.equal(sent[0].method, "editMessageText");
-  assert.equal(sent[0].body.message_id, 9);
-  assert.ok(sent[0].body.reply_markup.inline_keyboard.flat().some(b => b.text === "⬅️ Назад"));
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].method, "answerCallbackQuery");
+  assert.deepEqual(sent[0].body, { callback_query_id: 'cb' });
   assert.equal(res.code, 200);
   assert.ok(res.body.errorId);
-  assert.match(sent[0].body.text, /Не удалось завершить запрос/);
-  assert.doesNotMatch(sent[0].body.text, /simulated failure/);
+  assert.equal(res.body.ok, false);
 });
 
 test('failed send is surfaced instead of silent success', async () => {
   const res = response();
-  await run({ body: { message: { chat: { id: 5 } } } }, res, async (_, result) => result.json({ ok: true, sent: false }), async () => ({ ok: true }));
+  let notifications = 0;
+  await run({ body: { message: { chat: { id: 5 } } } }, res, async (_, result) => result.json({ ok: true, sent: false }), async () => { notifications += 1; return { ok: true }; });
   assert.ok(res.body.errorId);
+  assert.equal(res.code, 200);
+  assert.equal(res.body.ok, false);
+  assert.equal(notifications, 0);
 });
