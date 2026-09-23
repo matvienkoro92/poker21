@@ -27,6 +27,9 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
   for (const playType of ['NLH', 'NLH 3-1', '6+', 'PLO4', 'PLO5', '21', 'TweneyOne', 'OFC', 'MTT', 'SNG', 'Thirteen']) tables.push({...tables[0],deskId:playType,deskName:'Variant '+playType,playType});
   tables.push({...tables[0],deskId:'ZERO_MTT',deskName:'ZERO_MTT',playType:'MTT NLH',playerCount:0,blindAnnotation:''});
   tables.push({...tables[0],deskId:'ZERO_SNG',deskName:'ZERO_SNG',playType:'SNG NLH',playerCount:0,blindAnnotation:''});
+  tables.push({...tables[0],deskId:'ZERO_MTT_UNION0',deskName:'ZERO_MTT_UNION0',playType:'MTT NLH',playerCount:0,unionId:'0',blindAnnotation:''});
+  tables.push({...tables[0],deskId:'TIMED_LATE',deskName:'Tournament PLO6',playType:'MTT PLO6',playerCount:0,blindAnnotation:''});
+  tables.push({...tables[0],deskId:'TIMED_EARLY',deskName:'DV Rebuy',playType:'MTT NLH',playerCount:0,blindAnnotation:''});
   global.fetch = async (url, options) => {
     if (String(url).endsWith('/api/pokerplus-tables')) return {ok:true,json:async()=>({ok:true,tables:[{...tables[0],deskId:'EMPTY',playerCount:0},...tables, {...tables[0],deskName:'OTHERLEAGUE',deskId:'OTHERLEAGUE',leagueId:'152595',unionId:'8382'}, {...tables[0],deskName:'NOSCOPE',deskId:'NOSCOPE',leagueId:'0',unionId:'0'}, {...tables[0],deskName:'LEAGUE111',deskId:'LEAGUE111',leagueId:'111',unionId:'0'}, {...tables[0],deskName:'UNIONONLY',deskId:'UNIONONLY',leagueId:'0',unionId:'999'}]})};
     assert.ok(String(url).startsWith('https://api.telegram.org/'));
@@ -99,7 +102,8 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
       assert.ok(pages.length<50);
     }
     const combined=pages.map(c=>c.text).join('\n');
-    assert.doesNotMatch(combined,/OTHERLEAGUE|NOSCOPE|LEAGUE111|UNIONONLY|EMPTY|entryFees|unionId|leagueId|groupId|7158|184691|680649/);
+    assert.doesNotMatch(combined,/OTHERLEAGUE|NOSCOPE|LEAGUE111|UNIONONLY|EMPTY|entryFees|unionId|leagueId|groupId|680649/);
+    if(category!=='tournaments') assert.doesNotMatch(combined,/7158|184691/);
     assert.ok(pages.every(c=>c.message_id===7 && c.text.length<=4096));
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
@@ -112,6 +116,12 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     if(category==='tournaments') {
       assert.match(combined,/<b>ZERO_MTT<\/b>\n👨 Игроков по API: 0 · статус запуска не указан\./);
       assert.doesNotMatch(combined,/<b>ZERO_SNG<\/b>/);
+      assert.ok(combined.indexOf('<b>МТТ</b>') < combined.indexOf('━━━━━━━━━━━━'));
+      assert.ok(combined.indexOf('━━━━━━━━━━━━') < combined.indexOf('<b>СНГ</b>'));
+      assert.ok(combined.indexOf('Анти-Рег · объединение 7158') < combined.indexOf('Анти-Рег · без ID объединения'));
+      assert.ok(combined.indexOf('DV Rebuy') < combined.indexOf('Tournament PLO6'));
+      assert.match(combined,/DV Rebuy<\/b> · ≈12:00 МСК/);
+      assert.doesNotMatch(combined,/\n\n\n/);
     }
     if(category==='cash') {
       assert.ok(pages.length>1);
