@@ -15,7 +15,7 @@ test("баннеры показывают доступные форматы вм
   for (let index = 1; index <= 5; index += 1) {
     const view = scheduleBannerView(index);
     assert.match(view.text, new RegExp(`Среда</b> · ${index} из 5`));
-    assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:view:today");
+    assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "pulse:menu");
     assert.match(view.text, /square\/wednesday/);
     const square = path.join(__dirname, `../assets/schedule/banners/square/wednesday/wednesday-${index}.png`);
     assert.ok(fs.existsSync(square));
@@ -48,4 +48,19 @@ test("открытие и перелистывание меняют исходн
   assert.deepEqual(calls.map((call) => call.name), ["editMessageText", "editMessageText"]);
   assert.deepEqual(calls.map((call) => call.body.message_id), [42, 42]);
   assert.match(calls[1].body.link_preview_options.url, /wednesday-2\.jpg/);
+});
+
+test("кнопка баннеров находится в главном меню, а не в расписании", async () => {
+  const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
+  const scheduleKeyboard = source.slice(source.indexOf("function scheduleViewKeyboard("), source.indexOf("function pulseScheduleKeyboard("));
+  const mainMenu = source.slice(source.indexOf("async function sendPublicPulseMenu("), source.indexOf("async function sendLiveTablesMenu("));
+  const calls = [];
+  const context = { telegram: async (name, body) => { calls.push({ name, body }); return { ok: true }; } };
+  vm.createContext(context);
+  vm.runInContext(scheduleKeyboard + mainMenu, context);
+  await context.sendPublicPulseMenu("-1001", null, 42);
+  const buttons = calls[0].body.reply_markup.inline_keyboard.flat();
+  assert.equal(buttons.find((button) => button.callback_data === "schedule:banners").text, "🖼 Банеры на сегодня");
+  assert.equal(buttons.filter((button) => button.callback_data === "schedule:banners").length, 1);
+  assert.equal(context.scheduleViewKeyboard("today").inline_keyboard.flat().some((button) => button.callback_data === "schedule:banners"), false);
 });
