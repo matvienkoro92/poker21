@@ -37,18 +37,38 @@ test("кнопка открывает новую фотографию, а стр
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const method = source.slice(source.indexOf("async function showScheduleBanners("), source.indexOf("async function sendTournamentSchedule("));
   const calls = [];
+  const scheduled = [];
+  const state = new Map();
   const context = {
     scheduleBannerView,
-    telegram: async (name, body) => { calls.push({ name, body }); return { ok: true }; },
+    telegram: async (name, body) => { calls.push({ name, body }); return { ok: true, result: { message_id: 43 } }; },
+    redisPipeline: async (commands) => commands.map(([command, key, value]) => {
+      if (command === "SET") state.set(key, value);
+      if (command === "DEL") state.delete(key);
+      return { result: command === "GET" ? state.get(key) : 1 };
+    }),
+    isRedisConfigured: () => true,
+    fetch: async (url, options) => { scheduled.push({ url, options }); return { ok: true }; },
+    process: { env: { QSTASH_TOKEN: "test-token" } },
+    WEBHOOK_SECRET: "test-secret",
+    APP_ORIGIN: "https://example.com",
+    require,
+    console,
   };
   vm.createContext(context);
   vm.runInContext(method, context);
   await context.showScheduleBanners("-1001", 42, 1, false);
+  const firstNonce = [...state.values()][0];
   await context.showScheduleBanners("-1001", 43, 2, true);
   assert.deepEqual(calls.map((call) => call.name), ["sendPhoto", "editMessageMedia"]);
   assert.equal(calls[0].body.message_id, undefined);
   assert.equal(calls[1].body.message_id, 43);
   assert.match(calls[1].body.media.media, /wednesday-2\.jpg/);
+  assert.equal(scheduled.length, 2);
+  assert.equal(scheduled[0].options.headers["Upstash-Delay"], "1m");
+  assert.equal(await context.closeIdleBanner({ chatId: "-1001", messageId: 43, nonce: firstNonce }), false);
+  assert.equal(await context.closeIdleBanner({ chatId: "-1001", messageId: 43, nonce: [...state.values()][0] }), true);
+  assert.equal(calls.at(-1).name, "deleteMessage");
 });
 
 test("кнопка баннеров находится в главном меню, а не в расписании", async () => {
