@@ -20,9 +20,10 @@ test("форматы выбираются кнопками, фотографии
       assert.equal(view.inlineKeyboard.at(-1)[0].text, "Закрыть");
       assert.equal(view.inlineKeyboard.at(-1)[0].style, "danger");
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data), ["schedule:banners:square:1", "schedule:banners:story:1"]);
-      assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/wednesday/wednesday-${index}\\.png`));
+      assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/wednesday/wednesday-${index}-info\\.jpg`));
       assert.doesNotMatch(view.text, /<a |github/i);
-      assert.ok(fs.existsSync(path.join(__dirname, `../assets/schedule/banners/${format}/wednesday/wednesday-${index}.png`)));
+      const image = path.join(__dirname, `../assets/schedule/banners/${format}/wednesday/wednesday-${index}-info.jpg`);
+      assert.ok(fs.statSync(image).size < 3_000_000);
     }
   }
   assert.equal(scheduleBannerView(1).inlineKeyboard[0][0].callback_data, "schedule:banners:square:2");
@@ -59,7 +60,7 @@ test("кнопка открывает новую фотографию, а стр
   assert.deepEqual(calls.map((call) => call.name), ["sendPhoto", "editMessageMedia"]);
   assert.equal(calls[0].body.message_id, undefined);
   assert.equal(calls[1].body.message_id, 43);
-  assert.match(calls[1].body.media.media, /story\/wednesday\/wednesday-2\.png/);
+  assert.match(calls[1].body.media.media, /story\/wednesday\/wednesday-2-info\.jpg/);
   assert.equal(scheduled.length, 2);
   assert.equal(scheduled[0].options.headers["Upstash-Delay"], "1m");
   assert.equal(await context.closeIdleBanner({ chatId: "-1001", messageId: 43, nonce: firstNonce }), false);
