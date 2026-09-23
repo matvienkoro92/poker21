@@ -10,12 +10,17 @@ async function render(format, number) {
   const target = path.join(root, format, "wednesday", `wednesday-${number}-info.jpg`);
   const { width, height } = await sharp(source).metadata();
   const square = format === "square";
-  const sizes = square ? [50, 43, 30] : [43, 37, 27];
-  const baselines = square ? [height - 191, height - 130, height - 77] : [height - 207, height - 151, height - 99];
-  const lines = ["Среда 18:00 мск", "Ребай 1000р", "Поздняя регистрация 12 уровней"];
+  const panelWidth = square ? 790 : 770;
+  const panelHeight = square ? 126 : 138;
+  const panelX = (width - panelWidth) / 2;
+  const panelY = height - panelHeight - (square ? 38 : 56);
+  const mainSize = square ? 35 : 37;
+  const detailSize = square ? 27 : 28;
   const text = Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <g text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" paint-order="stroke fill">
-      ${lines.map((line, index) => `<text x="${width / 2 + 2}" y="${baselines[index] + 3}" font-size="${sizes[index]}" fill="#0a172a" stroke="#0a172a" stroke-opacity="0.85" stroke-width="9" stroke-linejoin="round">${line}</text><text x="${width / 2}" y="${baselines[index]}" font-size="${sizes[index]}" fill="#fffaf0" stroke="#17263b" stroke-width="2" stroke-linejoin="round">${line}</text>`).join("\n      ")}
+    <rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" rx="24" fill="#10253b" fill-opacity="0.78" stroke="#f7dc9e" stroke-opacity="0.88" stroke-width="2"/>
+    <g text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#fff8e9">
+      <text x="${width / 2}" y="${panelY + 55}" font-size="${mainSize}" font-weight="700">Среда 18:00 мск  ·  Ребай 1000р</text>
+      <text x="${width / 2}" y="${panelY + 96}" font-size="${detailSize}" font-weight="500" fill="#f3dfa8">Поздняя регистрация 12 уровней</text>
     </g>
   </svg>`);
   await sharp(source)
