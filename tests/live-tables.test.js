@@ -4,7 +4,7 @@ process.env.TELEGRAM_BOT_TOKEN = 'test-token';
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = 'test-secret';
 const handler = require('../lib/api-handlers/telegram-report-webhook');
 
-test('tables command works in ordinary, main and public groups; excludes empty tables and sends all fields', async t => {
+test('tables command works in groups; includes empty MTT/SNG but excludes empty cash tables', async t => {
   const original = global.fetch;
   t.after(() => { global.fetch = original; });
   let calls = [];
@@ -25,6 +25,8 @@ test('tables command works in ordinary, main and public groups; excludes empty t
   };
   const tables = Array.from({length: 75}, (_, i) => ({deskId: String(100000+i), deskName: 'Стол <&> '+i, playerCount: 2, unionId:'7158', leagueId:'184691', groupId:'680649', playType:'PLO6', blindAnnotation:'50/100', entryFees:0}));
   for (const playType of ['NLH', 'NLH 3-1', '6+', 'PLO4', 'PLO5', '21', 'TweneyOne', 'OFC', 'MTT', 'SNG', 'Thirteen']) tables.push({...tables[0],deskId:playType,deskName:'Variant '+playType,playType});
+  tables.push({...tables[0],deskId:'ZERO_MTT',deskName:'ZERO_MTT',playType:'MTT NLH',playerCount:0,blindAnnotation:''});
+  tables.push({...tables[0],deskId:'ZERO_SNG',deskName:'ZERO_SNG',playType:'SNG NLH',playerCount:0,blindAnnotation:''});
   global.fetch = async (url, options) => {
     if (String(url).endsWith('/api/pokerplus-tables')) return {ok:true,json:async()=>({ok:true,tables:[{...tables[0],deskId:'EMPTY',playerCount:0},...tables, {...tables[0],deskName:'OTHERLEAGUE',deskId:'OTHERLEAGUE',leagueId:'152595',unionId:'8382'}, {...tables[0],deskName:'NOSCOPE',deskId:'NOSCOPE',leagueId:'0',unionId:'0'}, {...tables[0],deskName:'LEAGUE111',deskId:'LEAGUE111',leagueId:'111',unionId:'0'}, {...tables[0],deskName:'UNIONONLY',deskId:'UNIONONLY',leagueId:'0',unionId:'999'}]})};
     assert.ok(String(url).startsWith('https://api.telegram.org/'));
@@ -101,15 +103,19 @@ test('tables command works in ordinary, main and public groups; excludes empty t
     assert.ok(pages.every(c=>c.message_id===7 && c.text.length<=4096));
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
-      const expected=['MTT','SNG'].includes(row.playType) ? 'tournaments' : ['SNG','Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
+      const expected=/^(?:MTT|SNG)(?:\s|$)/.test(row.playType) ? 'tournaments' : ['Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
       assert.equal(combined.includes(`<b>${row.deskName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</b>`),((expected===category && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))),row.playType);
     }
     if(category==='tournaments' || category==='cash') assert.doesNotMatch(combined,/Столов с игроками|Занято мест|Один игрок|По видам игр/);
     else assert.match(combined,/Столов с игроками/);
     assert.doesNotMatch(combined,/ID стола:|Игра:/);
+    if(category==='tournaments') {
+      assert.match(combined,/<b>ZERO_MTT<\/b>\n👨 Игроков по API: 0 · статус запуска не указан\./);
+      assert.match(combined,/<b>ZERO_SNG<\/b>\n👨 Игроков по API: 0 · статус запуска не указан\./);
+    }
     if(category==='cash') {
       assert.ok(pages.length>1);
-      for(const value of ['<b>ОМАХА</b>','<b>21</b>','<b>OFC</b>','<b>ХОЛДЕМ</b>','1️⃣','Стол &lt;&amp;&gt;','PLO · Игроков: 2 · Блайнды: 50/100']) assert.ok(combined.includes(value),value);
+      for(const value of ['<b>ОМАХА PLO6</b>','<b>21</b>','<b>OFC</b>','<b>ХОЛДЕМ</b>','✅','Стол &lt;&amp;&gt;','PLO6 · Игроков: 2 · Блайнды: 50/100']) assert.ok(combined.includes(value),value);
     }
   }
 });
