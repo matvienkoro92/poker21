@@ -76,6 +76,8 @@ test("кнопка баннеров находится в главном мен�
   await context.sendPublicPulseMenu("-1001", null, 42);
   const buttons = calls[0].body.reply_markup.inline_keyboard.flat();
   assert.equal(buttons.find((button) => button.callback_data === "schedule:banners").text, "🖼 Банеры на сегодня");
+  assert.equal(buttons[0].callback_data, "schedule:banners");
+  assert.equal(buttons[0].style, "success");
   assert.equal(buttons.filter((button) => button.callback_data === "schedule:banners").length, 1);
   assert.equal(context.scheduleViewKeyboard("today").inline_keyboard.flat().some((button) => button.callback_data === "schedule:banners"), false);
 });
