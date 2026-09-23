@@ -83,3 +83,14 @@ test("кнопка баннеров находится в главном мен�
   assert.equal(buttons.filter((button) => button.callback_data === "schedule:banners").length, 1);
   assert.equal(context.scheduleViewKeyboard("today").inline_keyboard.flat().some((button) => button.callback_data === "schedule:banners"), false);
 });
+
+test("команда /банеры распознаётся в общем чате", () => {
+  const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
+  const command = source.slice(source.indexOf("function isBannersCommand("), source.indexOf("function scheduleViewMode("));
+  const context = {};
+  vm.createContext(context);
+  vm.runInContext(command, context);
+  assert.equal(context.isBannersCommand("/банеры"), true);
+  assert.equal(context.isBannersCommand("/баннеры@Poker21Bot"), true);
+  assert.equal(context.isBannersCommand("/банеры завтра"), false);
+});
