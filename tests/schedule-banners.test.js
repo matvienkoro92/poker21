@@ -11,26 +11,20 @@ process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = "test-secret";
 
 const { scheduleBannerView } = require("../lib/api-handlers/telegram-report-webhook");
 
-test("баннеры показывают доступные форматы вместе и листаются в том же сообщении", () => {
-  for (let index = 1; index <= 5; index += 1) {
-    const view = scheduleBannerView(index);
-    assert.match(view.text, new RegExp(`Среда</b> · ${index} из 5`));
-    assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:banners:close");
-    assert.match(view.text, /square\/wednesday/);
-    const square = path.join(__dirname, `../assets/schedule/banners/square/wednesday/wednesday-${index}.png`);
-    assert.ok(fs.existsSync(square));
-    if (index <= 4) {
-      assert.match(view.previewUrl, new RegExp(`combined/wednesday/wednesday-${index}\\.jpg`));
-      assert.match(view.text, /story\/wednesday/);
-      const combined = path.join(__dirname, `../assets/schedule/banners/combined/wednesday/wednesday-${index}.jpg`);
-      assert.ok(fs.statSync(combined).size < 3_000_000);
-    } else {
-      assert.match(view.previewUrl, /square\/wednesday\/wednesday-5\.png/);
-      assert.doesNotMatch(view.text, /story\/wednesday/);
+test("форматы выбираются кнопками, фотографии показываются отдельно без ссылок", () => {
+  for (const [format, count, label] of [["square", 5, "Квадрат"], ["story", 4, "Сторис"]]) {
+    for (let index = 1; index <= count; index += 1) {
+      const view = scheduleBannerView(index, format);
+      assert.match(view.text, new RegExp(`Среда</b> · ${index} из ${count} · ${label}$`));
+      assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:banners:close");
+      assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data), ["schedule:banners:square:1", "schedule:banners:story:1"]);
+      assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/wednesday/wednesday-${index}\\.png`));
+      assert.doesNotMatch(view.text, /<a |github/i);
+      assert.ok(fs.existsSync(path.join(__dirname, `../assets/schedule/banners/${format}/wednesday/wednesday-${index}.png`)));
     }
   }
-  assert.equal(scheduleBannerView(1).inlineKeyboard[0][0].callback_data, "schedule:banners:2");
-  assert.equal(scheduleBannerView(5).inlineKeyboard[0][0].callback_data, "schedule:banners:4");
+  assert.equal(scheduleBannerView(1).inlineKeyboard[0][0].callback_data, "schedule:banners:square:2");
+  assert.equal(scheduleBannerView(4, "story").inlineKeyboard[0][0].callback_data, "schedule:banners:story:3");
 });
 
 test("кнопка открывает новую фотографию, а стрелки меняют её", async () => {
@@ -59,11 +53,11 @@ test("кнопка открывает новую фотографию, а стр
   vm.runInContext(method, context);
   await context.showScheduleBanners("-1001", 42, 1, false);
   const firstNonce = [...state.values()][0];
-  await context.showScheduleBanners("-1001", 43, 2, true);
+  await context.showScheduleBanners("-1001", 43, 2, true, "story");
   assert.deepEqual(calls.map((call) => call.name), ["sendPhoto", "editMessageMedia"]);
   assert.equal(calls[0].body.message_id, undefined);
   assert.equal(calls[1].body.message_id, 43);
-  assert.match(calls[1].body.media.media, /wednesday-2\.jpg/);
+  assert.match(calls[1].body.media.media, /story\/wednesday\/wednesday-2\.png/);
   assert.equal(scheduled.length, 2);
   assert.equal(scheduled[0].options.headers["Upstash-Delay"], "1m");
   assert.equal(await context.closeIdleBanner({ chatId: "-1001", messageId: 43, nonce: firstNonce }), false);
