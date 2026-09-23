@@ -10,12 +10,12 @@ async function render(format, number) {
   const target = path.join(root, format, "wednesday", `wednesday-${number}-info.jpg`);
   const { width, height } = await sharp(source).metadata();
   const square = format === "square";
-  const sizes = square ? [37, 33, 23] : [31, 28, 20];
-  const baselines = square ? [height - 165, height - 119, height - 79] : [height - 185, height - 146, height - 109];
+  const sizes = square ? [50, 43, 30] : [43, 37, 27];
+  const baselines = square ? [height - 191, height - 130, height - 77] : [height - 207, height - 151, height - 99];
   const lines = ["Среда 18:00 мск", "Ребай 1000р", "Поздняя регистрация 12 уровней"];
   const text = Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <g text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" paint-order="stroke fill">
-      ${lines.map((line, index) => `<text x="${width / 2}" y="${baselines[index]}" font-size="${sizes[index]}" fill="#fffaf0" stroke="#13243b" stroke-opacity="0.8" stroke-width="3" stroke-linejoin="round">${line}</text>`).join("\n      ")}
+      ${lines.map((line, index) => `<text x="${width / 2 + 2}" y="${baselines[index] + 3}" font-size="${sizes[index]}" fill="#0a172a" stroke="#0a172a" stroke-opacity="0.85" stroke-width="9" stroke-linejoin="round">${line}</text><text x="${width / 2}" y="${baselines[index]}" font-size="${sizes[index]}" fill="#fffaf0" stroke="#17263b" stroke-width="2" stroke-linejoin="round">${line}</text>`).join("\n      ")}
     </g>
   </svg>`);
   await sharp(source)
