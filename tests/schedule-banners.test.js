@@ -17,6 +17,8 @@ test("форматы выбираются кнопками, фотографии
       const view = scheduleBannerView(index, format);
       assert.match(view.text, new RegExp(`Среда</b> · ${index} из ${count} · ${label}$`));
       assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:banners:close");
+      assert.equal(view.inlineKeyboard.at(-1)[0].text, "Закрыть");
+      assert.equal(view.inlineKeyboard.at(-1)[0].style, "danger");
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data), ["schedule:banners:square:1", "schedule:banners:story:1"]);
       assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/wednesday/wednesday-${index}\\.png`));
       assert.doesNotMatch(view.text, /<a |github/i);
