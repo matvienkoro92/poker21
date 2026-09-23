@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
+const vm = require("node:vm");
 
 process.env.TELEGRAM_BOT_TOKEN = "test-token";
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = "test-secret";
@@ -30,4 +31,21 @@ test("баннеры показывают доступные форматы вм
   }
   assert.equal(scheduleBannerView(1).inlineKeyboard[0][0].callback_data, "schedule:banners:2");
   assert.equal(scheduleBannerView(5).inlineKeyboard[0][0].callback_data, "schedule:banners:4");
+});
+
+test("открытие и перелистывание меняют исходное сообщение", async () => {
+  const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
+  const method = source.slice(source.indexOf("async function showScheduleBanners("), source.indexOf("async function sendTournamentSchedule("));
+  const calls = [];
+  const context = {
+    scheduleBannerView,
+    telegram: async (name, body) => { calls.push({ name, body }); return { ok: true }; },
+  };
+  vm.createContext(context);
+  vm.runInContext(method, context);
+  await context.showScheduleBanners("-1001", 42, 1, false);
+  await context.showScheduleBanners("-1001", 42, 2, false);
+  assert.deepEqual(calls.map((call) => call.name), ["editMessageText", "editMessageText"]);
+  assert.deepEqual(calls.map((call) => call.body.message_id), [42, 42]);
+  assert.match(calls[1].body.link_preview_options.url, /wednesday-2\.jpg/);
 });
