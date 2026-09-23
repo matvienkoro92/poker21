@@ -4,7 +4,7 @@ process.env.TELEGRAM_BOT_TOKEN = 'test-token';
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = 'test-secret';
 const handler = require('../lib/api-handlers/telegram-report-webhook');
 
-test('tables command works in groups; includes empty MTT/SNG but excludes empty cash tables', async t => {
+test('tables command works in groups; includes empty MTT but excludes empty SNG and cash tables', async t => {
   const original = global.fetch;
   t.after(() => { global.fetch = original; });
   let calls = [];
@@ -104,14 +104,14 @@ test('tables command works in groups; includes empty MTT/SNG but excludes empty 
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
       const expected=/^(?:MTT|SNG)(?:\s|$)/.test(row.playType) ? 'tournaments' : ['Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
-      assert.equal(combined.includes(`<b>${row.deskName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</b>`),((expected===category && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))),row.playType);
+      assert.equal(combined.includes(`<b>${row.deskName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</b>`),((expected===category && row.deskId!=='ZERO_SNG' && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))),row.playType);
     }
     if(category==='tournaments' || category==='cash') assert.doesNotMatch(combined,/Столов с игроками|Занято мест|Один игрок|По видам игр/);
     else assert.match(combined,/Столов с игроками/);
     assert.doesNotMatch(combined,/ID стола:|Игра:/);
     if(category==='tournaments') {
       assert.match(combined,/<b>ZERO_MTT<\/b>\n👨 Игроков по API: 0 · статус запуска не указан\./);
-      assert.match(combined,/<b>ZERO_SNG<\/b>\n👨 Игроков по API: 0 · статус запуска не указан\./);
+      assert.doesNotMatch(combined,/<b>ZERO_SNG<\/b>/);
     }
     if(category==='cash') {
       assert.ok(pages.length>1);
