@@ -15,7 +15,7 @@ test("баннеры показывают доступные форматы вм
   for (let index = 1; index <= 5; index += 1) {
     const view = scheduleBannerView(index);
     assert.match(view.text, new RegExp(`Среда</b> · ${index} из 5`));
-    assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "pulse:menu");
+    assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:banners:close");
     assert.match(view.text, /square\/wednesday/);
     const square = path.join(__dirname, `../assets/schedule/banners/square/wednesday/wednesday-${index}.png`);
     assert.ok(fs.existsSync(square));
@@ -33,7 +33,7 @@ test("баннеры показывают доступные форматы вм
   assert.equal(scheduleBannerView(5).inlineKeyboard[0][0].callback_data, "schedule:banners:4");
 });
 
-test("открытие и перелистывание меняют исходное сообщение", async () => {
+test("кнопка открывает новую фотографию, а стрелки меняют её", async () => {
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const method = source.slice(source.indexOf("async function showScheduleBanners("), source.indexOf("async function sendTournamentSchedule("));
   const calls = [];
@@ -44,10 +44,11 @@ test("открытие и перелистывание меняют исходн
   vm.createContext(context);
   vm.runInContext(method, context);
   await context.showScheduleBanners("-1001", 42, 1, false);
-  await context.showScheduleBanners("-1001", 42, 2, false);
-  assert.deepEqual(calls.map((call) => call.name), ["editMessageText", "editMessageText"]);
-  assert.deepEqual(calls.map((call) => call.body.message_id), [42, 42]);
-  assert.match(calls[1].body.link_preview_options.url, /wednesday-2\.jpg/);
+  await context.showScheduleBanners("-1001", 43, 2, true);
+  assert.deepEqual(calls.map((call) => call.name), ["sendPhoto", "editMessageMedia"]);
+  assert.equal(calls[0].body.message_id, undefined);
+  assert.equal(calls[1].body.message_id, 43);
+  assert.match(calls[1].body.media.media, /wednesday-2\.jpg/);
 });
 
 test("кнопка баннеров находится в главном меню, а не в расписании", async () => {
