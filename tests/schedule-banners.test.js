@@ -10,7 +10,19 @@ const sharp = require("sharp");
 process.env.TELEGRAM_BOT_TOKEN = "test-token";
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = "test-secret";
 
-const { scheduleBannerView } = require("../lib/api-handlers/telegram-report-webhook");
+const { scheduleBannerView, scheduleBannerCallbackSelection } = require("../lib/api-handlers/telegram-report-webhook");
+
+test("смена формата сохраняет день, включая кнопки старого сообщения", () => {
+  for (const [format, thursdayPage] of [["square", 6], ["story", 5]]) {
+    const callback = `schedule:banners:format:${format}:thu`.match(/^schedule:banners:format:(square|story):(wed|thu)$/);
+    assert.deepEqual(scheduleBannerCallbackSelection(null, callback), { format, page: thursdayPage, isPhoto: true });
+    const oldCallback = `schedule:banners:${format}:1`.match(/^schedule:banners(?::(square|story):([1-9]\d?))?$/);
+    const oldCaption = `🖼 Четверг · 6 из 11 · ${format === "square" ? "Сторис" : "Квадрат"}`;
+    assert.deepEqual(scheduleBannerCallbackSelection(oldCallback, null, oldCaption), { format, page: thursdayPage, isPhoto: true });
+    const dayCallback = `schedule:banners:${format}:1`.match(/^schedule:banners(?::(square|story):([1-9]\d?))?$/);
+    assert.equal(scheduleBannerCallbackSelection(dayCallback, null, `🖼 Четверг · 6 из 11 · ${format === "square" ? "Квадрат" : "Сторис"}`).page, "1");
+  }
+});
 
 test("форматы выбираются кнопками, фотографии показываются отдельно без ссылок", async () => {
   for (const [format, wednesdayCount, thursdayCount, label] of [["square", 5, 6, "Квадрат"], ["story", 4, 5, "Сторис"]]) {
@@ -25,7 +37,8 @@ test("форматы выбираются кнопками, фотографии
       assert.equal(view.inlineKeyboard.at(-1)[0].text, "Закрыть");
       assert.equal(view.inlineKeyboard.at(-1)[0].style, "danger");
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data),
-        [`schedule:banners:square:${day === "Четверг" ? 6 : 1}`, `schedule:banners:story:${day === "Четверг" ? 5 : 1}`]);
+        [`schedule:banners:format:square:${day === "Четверг" ? "thu" : "wed"}`,
+          `schedule:banners:format:story:${day === "Четверг" ? "thu" : "wed"}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.callback_data),
         [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✅ ")),
