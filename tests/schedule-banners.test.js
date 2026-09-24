@@ -10,7 +10,14 @@ const sharp = require("sharp");
 process.env.TELEGRAM_BOT_TOKEN = "test-token";
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = "test-secret";
 
-const { scheduleBannerView, scheduleBannerCallbackSelection } = require("../lib/api-handlers/telegram-report-webhook");
+const { scheduleBannerView, scheduleBannerCallbackSelection, isBannerChat } = require("../lib/api-handlers/telegram-report-webhook");
+
+test("баннеры доступны в группах клубов и союзов", () => {
+  assert.equal(isBannerChat({ type: "group", title: "Poker21 союз Ginger" }), true);
+  assert.equal(isBannerChat({ type: "supergroup", title: "Poker21 клуб Два Туза" }), true);
+  assert.equal(isBannerChat({ type: "supergroup", title: "poker21plus общий чат" }), true);
+  assert.equal(isBannerChat({ type: "private", title: "Личный чат" }), false);
+});
 
 test("смена формата сохраняет день, включая кнопки старого сообщения", () => {
   for (const [format, thursdayPage] of [["square", 6], ["story", 5]]) {
