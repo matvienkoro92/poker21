@@ -32,7 +32,14 @@ test("форматы выбираются кнопками, фотографии
       const day = index <= wednesdayCount ? "Среда" : "Четверг";
       const folder = index <= wednesdayCount ? "wednesday" : "thursday";
       const fileIndex = index <= wednesdayCount ? index : index - wednesdayCount;
-      assert.match(view.text, new RegExp(`${day}</b> · ${index} из ${count} · ${label}$`));
+      const dayPosition = index <= wednesdayCount ? index : index - wednesdayCount;
+      const dayCount = index <= wednesdayCount ? wednesdayCount : thursdayCount;
+      assert.match(view.text, new RegExp(`${day}</b> · ${dayPosition} из ${dayCount} · ${label}$`));
+      const navigation = view.inlineKeyboard.flat().filter((button) => /^(⬅️|Следующий)/.test(button.text));
+      assert.deepEqual(navigation.map((button) => button.callback_data), [
+        ...(dayPosition > 1 ? [`schedule:banners:${format}:${index - 1}`] : []),
+        ...(dayPosition < dayCount ? [`schedule:banners:${format}:${index + 1}`] : []),
+      ]);
       assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:banners:close");
       assert.equal(view.inlineKeyboard.at(-1)[0].text, "Закрыть");
       assert.equal(view.inlineKeyboard.at(-1)[0].style, "danger");
