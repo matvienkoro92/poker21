@@ -5,13 +5,14 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
+const sharp = require("sharp");
 
 process.env.TELEGRAM_BOT_TOKEN = "test-token";
 process.env.TELEGRAM_REPORT_WEBHOOK_SECRET = "test-secret";
 
 const { scheduleBannerView } = require("../lib/api-handlers/telegram-report-webhook");
 
-test("форматы выбираются кнопками, фотографии показываются отдельно без ссылок", () => {
+test("форматы выбираются кнопками, фотографии показываются отдельно без ссылок", async () => {
   for (const [format, wednesdayCount, thursdayCount, label] of [["square", 5, 6, "Квадрат"], ["story", 4, 5, "Сторис"]]) {
     const count = wednesdayCount + thursdayCount;
     for (let index = 1; index <= count; index += 1) {
@@ -23,17 +24,21 @@ test("форматы выбираются кнопками, фотографии
       assert.equal(view.inlineKeyboard.at(-1)[0].callback_data, "schedule:banners:close");
       assert.equal(view.inlineKeyboard.at(-1)[0].text, "Закрыть");
       assert.equal(view.inlineKeyboard.at(-1)[0].style, "danger");
-      assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data), ["schedule:banners:square:1", "schedule:banners:story:1"]);
+      assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data),
+        [`schedule:banners:square:${day === "Четверг" ? 6 : 1}`, `schedule:banners:story:${day === "Четверг" ? 5 : 1}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.callback_data),
         [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`]);
-      assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✓ ")),
+      assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✅ ")),
         [day === "Среда", day === "Четверг"]);
-      assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.text.startsWith("✓ ")),
+      assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.text.startsWith("✅ ")),
         [format === "square", format === "story"]);
       assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info\\.jpg`));
       assert.doesNotMatch(view.text, /<a |github/i);
       const image = path.join(__dirname, `../assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info.jpg`);
       assert.ok(fs.statSync(image).size < 700_000);
+      const metadata = await sharp(image).metadata();
+      if (format === "square") assert.equal(metadata.width, metadata.height, image);
+      else assert.ok(metadata.height / metadata.width > 1.5, image);
     }
   }
   assert.equal(scheduleBannerView(1).inlineKeyboard[0][0].callback_data, "schedule:banners:square:2");
