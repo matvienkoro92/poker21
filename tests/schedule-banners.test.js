@@ -26,6 +26,10 @@ test("форматы выбираются кнопками, фотографии
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.callback_data), ["schedule:banners:square:1", "schedule:banners:story:1"]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.callback_data),
         [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`]);
+      assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✓ ")),
+        [day === "Среда", day === "Четверг"]);
+      assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.text.startsWith("✓ ")),
+        [format === "square", format === "story"]);
       assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info\\.jpg`));
       assert.doesNotMatch(view.text, /<a |github/i);
       const image = path.join(__dirname, `../assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info.jpg`);
