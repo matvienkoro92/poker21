@@ -54,9 +54,9 @@ test("форматы выбираются кнопками, фотографии
         [`schedule:banners:format:square:${day === "Четверг" ? "thu" : "wed"}`,
           `schedule:banners:format:story:${day === "Четверг" ? "thu" : "wed"}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.callback_data),
-        [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`, `schedule:banners:${format}:${count + 1}`]);
+        [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`, `schedule:banners:${format}:${count + 1}`, `schedule:banners:${format}:${format === "square" ? 20 : 16}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✅ ")),
-        [day === "Среда", day === "Четверг", false]);
+        [day === "Среда", day === "Четверг", false, false]);
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.text.startsWith("✅ ")),
         [format === "square", format === "story"]);
       assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info\\.jpg`));
@@ -144,7 +144,7 @@ test("суббота: файлы каждого формата, свой счё�
     for (let i = 0; i < count; i++) {
       const view = scheduleBannerView(start + i, format);
       assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из ${count}`));
-      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true]);
+      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true, false]);
       for (const button of view.inlineKeyboard.at(-2)) {
         const match = button.callback_data.match(/^schedule:banners:format:(square|story|landscape):(wed|thu|sat)$/);
         assert.ok(match);
@@ -169,5 +169,38 @@ test("старые горизонтальные кнопки открывают 
     const view = scheduleBannerView(selection.page, selection.format);
     assert.match(view.previewUrl, new RegExp(`square/saturday/saturday-${i + 5}-info`));
     assert.equal(view.inlineKeyboard.at(-2).length, 2);
+  }
+});
+
+
+test("лидерборд: свои баннеры, навигация и переключение форматов", async () => {
+  const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
+  const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
+  const formatRegex = new RegExp(callbackPattern.slice(1, -1));
+  for (const [format, start, count] of [["square", 20, 3], ["story", 16, 1]]) {
+    const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Лидерборд");
+    assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
+    for (let i = 0; i < count; i++) {
+      const view = scheduleBannerView(start + i, format);
+      assert.match(view.text, new RegExp(`Лидерборд</b> · ${i + 1} из ${count}`));
+      assert.equal(view.inlineKeyboard.flat().find(b => b.text === "✅ Лидерборд").callback_data, entry.callback_data);
+      const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
+      assert.deepEqual(navigation.map(b => b.callback_data), [
+        ...(i > 0 ? [`schedule:banners:${format}:${start + i - 1}`] : []),
+        ...(i + 1 < count ? [`schedule:banners:${format}:${start + i + 1}`] : []),
+      ]);
+      for (const button of view.inlineKeyboard.at(-2)) {
+        const match = button.callback_data.match(formatRegex);
+        assert.ok(match);
+        const selection = scheduleBannerCallbackSelection(null, match);
+        assert.match(scheduleBannerView(selection.page, selection.format).text, /Лидерборд<\/b> · 1 из/);
+      }
+      const file = path.join(__dirname, `../assets/schedule/banners/${format}/leaderboard/leaderboard-${i + 1}.png`);
+      assert.ok(fs.statSync(file).size < 10_000_000);
+      const metadata = await sharp(file).metadata();
+      if (format === "square") assert.equal(metadata.width, metadata.height);
+      else assert.ok(metadata.height / metadata.width > 1.5);
+      assert.match(view.previewUrl, new RegExp(`${format}/leaderboard/leaderboard-${i + 1}\\.png`));
+    }
   }
 });
