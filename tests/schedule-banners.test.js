@@ -139,24 +139,25 @@ test("команда /банеры распознаётся в общем чат
 });
 
 
-test("суббота: пять файлов каждого формата, свой счётчик и сохранение дня", async () => {
-  for (const [format, start] of [["square", 12], ["story", 10]]) {
-    for (let i = 0; i < 5; i++) {
+test("суббота: файлы каждого формата, свой счётчик и сохранение дня", async () => {
+  for (const [format, start, count] of [["square", 12, 5], ["story", 10, 6], ["landscape", 1, 3]]) {
+    for (let i = 0; i < count; i++) {
       const view = scheduleBannerView(start + i, format);
-      assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из 5`));
-      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true]);
+      assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из ${count}`));
+      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), format === "landscape" ? [true] : [false, false, true]);
       for (const button of view.inlineKeyboard.at(-2)) {
-        const match = button.callback_data.match(/^schedule:banners:format:(square|story):(wed|thu|sat)$/);
+        const match = button.callback_data.match(/^schedule:banners:format:(square|story|landscape):(wed|thu|sat)$/);
         assert.ok(match);
         const selection = scheduleBannerCallbackSelection(null, match);
-        assert.match(scheduleBannerView(selection.page, selection.format).text, /Суббота<\/b> · 1 из 5/);
+        assert.match(scheduleBannerView(selection.page, selection.format).text, new RegExp(`Суббота</b> · 1 из ${{square: 5, story: 6, landscape: 3}[selection.format]}`));
       }
       const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
-      assert.equal(navigation.length, i === 0 || i === 4 ? 1 : 2);
+      assert.equal(navigation.length, i === 0 || i === count - 1 ? 1 : 2);
       const image = path.join(__dirname, `../assets/schedule/banners/${format}/saturday/saturday-${i + 1}-info.jpg`);
       const metadata = await sharp(image).metadata();
       if (format === "square") assert.equal(metadata.width, metadata.height);
-      else assert.ok(metadata.height / metadata.width > 1.5);
+      else if (format === "story") assert.ok(metadata.height / metadata.width > 1.5);
+      else assert.ok(metadata.width > metadata.height);
       assert.ok(fs.statSync(image).size < 700_000);
     }
   }
