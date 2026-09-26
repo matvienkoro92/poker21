@@ -140,16 +140,16 @@ test("команда /банеры распознаётся в общем чат
 
 
 test("суббота: файлы каждого формата, свой счётчик и сохранение дня", async () => {
-  for (const [format, start, count] of [["square", 12, 5], ["story", 10, 6], ["landscape", 1, 3]]) {
+  for (const [format, start, count] of [["square", 12, 8], ["story", 10, 6]]) {
     for (let i = 0; i < count; i++) {
       const view = scheduleBannerView(start + i, format);
       assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из ${count}`));
-      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), format === "landscape" ? [true] : [false, false, true]);
+      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true]);
       for (const button of view.inlineKeyboard.at(-2)) {
         const match = button.callback_data.match(/^schedule:banners:format:(square|story|landscape):(wed|thu|sat)$/);
         assert.ok(match);
         const selection = scheduleBannerCallbackSelection(null, match);
-        assert.match(scheduleBannerView(selection.page, selection.format).text, new RegExp(`Суббота</b> · 1 из ${{square: 5, story: 6, landscape: 3}[selection.format]}`));
+        assert.match(scheduleBannerView(selection.page, selection.format).text, new RegExp(`Суббота</b> · 1 из ${{square: 8, story: 6}[selection.format]}`));
       }
       const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
       assert.equal(navigation.length, i === 0 || i === count - 1 ? 1 : 2);
@@ -160,5 +160,14 @@ test("суббота: файлы каждого формата, свой счё�
       else assert.ok(metadata.width > metadata.height);
       assert.ok(fs.statSync(image).size < 700_000);
     }
+  }
+});
+
+test("старые горизонтальные кнопки открывают квадратные версии", () => {
+  for (let i = 1; i <= 3; i++) {
+    const selection = scheduleBannerCallbackSelection(["", "landscape", String(i)], null);
+    const view = scheduleBannerView(selection.page, selection.format);
+    assert.match(view.previewUrl, new RegExp(`square/saturday/saturday-${i + 5}-info`));
+    assert.equal(view.inlineKeyboard.at(-2).length, 2);
   }
 });
