@@ -54,9 +54,9 @@ test("форматы выбираются кнопками, фотографии
         [`schedule:banners:format:square:${day === "Четверг" ? "thu" : "wed"}`,
           `schedule:banners:format:story:${day === "Четверг" ? "thu" : "wed"}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.callback_data),
-        [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`]);
+        [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`, `schedule:banners:${format}:${count + 1}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✅ ")),
-        [day === "Среда", day === "Четверг"]);
+        [day === "Среда", day === "Четверг", false]);
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.text.startsWith("✅ ")),
         [format === "square", format === "story"]);
       assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info\\.jpg`));
@@ -136,4 +136,28 @@ test("команда /банеры распознаётся в общем чат
   assert.equal(context.isBannersCommand("/банеры"), true);
   assert.equal(context.isBannersCommand("/баннеры@Poker21Bot"), true);
   assert.equal(context.isBannersCommand("/банеры завтра"), false);
+});
+
+
+test("суббота: пять файлов каждого формата, свой счётчик и сохранение дня", async () => {
+  for (const [format, start] of [["square", 12], ["story", 10]]) {
+    for (let i = 0; i < 5; i++) {
+      const view = scheduleBannerView(start + i, format);
+      assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из 5`));
+      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true]);
+      for (const button of view.inlineKeyboard.at(-2)) {
+        const match = button.callback_data.match(/^schedule:banners:format:(square|story):(wed|thu|sat)$/);
+        assert.ok(match);
+        const selection = scheduleBannerCallbackSelection(null, match);
+        assert.match(scheduleBannerView(selection.page, selection.format).text, /Суббота<\/b> · 1 из 5/);
+      }
+      const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
+      assert.equal(navigation.length, i === 0 || i === 4 ? 1 : 2);
+      const image = path.join(__dirname, `../assets/schedule/banners/${format}/saturday/saturday-${i + 1}-info.jpg`);
+      const metadata = await sharp(image).metadata();
+      if (format === "square") assert.equal(metadata.width, metadata.height);
+      else assert.ok(metadata.height / metadata.width > 1.5);
+      assert.ok(fs.statSync(image).size < 700_000);
+    }
+  }
 });
