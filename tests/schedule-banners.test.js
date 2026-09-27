@@ -54,9 +54,9 @@ test("форматы выбираются кнопками, фотографии
         [`schedule:banners:format:square:${day === "Четверг" ? "thu" : "wed"}`,
           `schedule:banners:format:story:${day === "Четверг" ? "thu" : "wed"}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.callback_data),
-        [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`, `schedule:banners:${format}:${count + 1}`, `schedule:banners:${format}:${format === "square" ? 20 : 16}`]);
+        [`schedule:banners:${format}:1`, `schedule:banners:${format}:${wednesdayCount + 1}`, `schedule:banners:${format}:${count + 1}`]);
       assert.deepEqual(view.inlineKeyboard.at(-3).map((button) => button.text.startsWith("✅ ")),
-        [day === "Среда", day === "Четверг", false, false]);
+        [day === "Среда", day === "Четверг", false]);
       assert.deepEqual(view.inlineKeyboard.at(-2).map((button) => button.text.startsWith("✅ ")),
         [format === "square", format === "story"]);
       assert.match(view.previewUrl, new RegExp(`^https://poker21-app\\.vercel\\.app/assets/schedule/banners/${format}/${folder}/${folder}-${fileIndex}-info\\.jpg`));
@@ -144,7 +144,7 @@ test("суббота: файлы каждого формата, свой счё�
     for (let i = 0; i < count; i++) {
       const view = scheduleBannerView(start + i, format);
       assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из ${count}`));
-      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true, false]);
+      assert.deepEqual(view.inlineKeyboard.at(-3).map(b => b.text.startsWith("✅ ")), [false, false, true]);
       for (const button of view.inlineKeyboard.at(-2)) {
         const match = button.callback_data.match(/^schedule:banners:format:(square|story|landscape):(wed|thu|sat)$/);
         assert.ok(match);
