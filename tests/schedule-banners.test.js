@@ -209,7 +209,7 @@ test("турнир месяца: свои баннеры, навигация и 
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start, count] of [["square", 24, 16], ["story", 18, 10]]) {
+  for (const [format, start, count] of [["square", 24, 13], ["story", 18, 10]]) {
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Турнир месяца за 3000");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
     for (let i = 0; i < count; i++) {
@@ -227,12 +227,13 @@ test("турнир месяца: свои баннеры, навигация и 
         const selection = scheduleBannerCallbackSelection(null, match);
         assert.match(scheduleBannerView(selection.page, selection.format).text, /Турнир месяца за 3000<\/b> · 1 из/);
       }
-      const file = path.join(__dirname, `../assets/schedule/banners/${format}/month3000/month3000-${i + 1}.png`);
+      const fileIndex = format === "square" ? [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16][i] : i + 1;
+      const file = path.join(__dirname, `../assets/schedule/banners/${format}/month3000/month3000-${fileIndex}.png`);
       assert.ok(fs.statSync(file).size < 10_000_000);
       const metadata = await sharp(file).metadata();
       if (format === "square") assert.equal(metadata.width, metadata.height);
       else assert.ok(metadata.height / metadata.width > 1.5);
-      assert.match(view.previewUrl, new RegExp(`${format}/month3000/month3000-${i + 1}\\.png`));
+      assert.match(view.previewUrl, new RegExp(`${format}/month3000/month3000-${fileIndex}\\.png`));
     }
   }
 });
