@@ -204,3 +204,35 @@ test("лидерборд: свои баннеры, навигация и пер�
     }
   }
 });
+
+test("турнир месяца: свои баннеры, навигация и переключение форматов", async () => {
+  const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
+  const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
+  const formatRegex = new RegExp(callbackPattern.slice(1, -1));
+  for (const [format, start, count] of [["square", 24, 6], ["story", 18, 5]]) {
+    const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Турнир месяца за 3000");
+    assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
+    for (let i = 0; i < count; i++) {
+      const view = scheduleBannerView(start + i, format);
+      assert.match(view.text, new RegExp(`Турнир месяца за 3000</b> · ${i + 1} из ${count}`));
+      assert.equal(view.inlineKeyboard.flat().find(b => b.text === "✅ Турнир месяца за 3000").callback_data, entry.callback_data);
+      const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
+      assert.deepEqual(navigation.map(b => b.callback_data), [
+        ...(i > 0 ? [`schedule:banners:${format}:${start + i - 1}`] : []),
+        ...(i + 1 < count ? [`schedule:banners:${format}:${start + i + 1}`] : []),
+      ]);
+      for (const button of view.inlineKeyboard.at(-2)) {
+        const match = button.callback_data.match(formatRegex);
+        assert.ok(match);
+        const selection = scheduleBannerCallbackSelection(null, match);
+        assert.match(scheduleBannerView(selection.page, selection.format).text, /Турнир месяца за 3000<\/b> · 1 из/);
+      }
+      const file = path.join(__dirname, `../assets/schedule/banners/${format}/month3000/month3000-${i + 1}.png`);
+      assert.ok(fs.statSync(file).size < 10_000_000);
+      const metadata = await sharp(file).metadata();
+      if (format === "square") assert.equal(metadata.width, metadata.height);
+      else assert.ok(metadata.height / metadata.width > 1.5);
+      assert.match(view.previewUrl, new RegExp(`${format}/month3000/month3000-${i + 1}\\.png`));
+    }
+  }
+});
