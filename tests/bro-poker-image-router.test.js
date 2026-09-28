@@ -5,14 +5,11 @@ const test = require("node:test");
 const { countBroPokerReports, destinationName, flushBroPokerBatch, isBroPokerSource, isMonday,
   listBroPokerClubs, normalizeName, parseAmount, photoFromReply, routeBroPokerImage } = require("../lib/bro-poker-image-router");
 
-test("показывает проведённые клубы BRO.POKER и общий баланс без новых операций", async () => {
+test("показывает только проведённые операции клубов BRO.POKER", async () => {
   const chatId = "-1001";
   const batchId = "a".repeat(20);
   const values = new Map([
     [`poker21:bro-poker-batch:${batchId}:status`, "done"],
-    [`poker21:telegram-report:chat-balance:${chatId}`, "6436808"],
-    ["poker21:telegram-report:club-chat:-203", JSON.stringify({ type: "club", club: "Коллаб" })],
-    ["poker21:telegram-report:chat-balance:-203", "-1781597"],
   ]);
   for (const [messageId, club, totalCents] of [
     [3812, "Kings KO", -364266], [3813, "Два Туза X", 4070718],
@@ -27,10 +24,10 @@ test("показывает проведённые клубы BRO.POKER и общ
     throw new Error(`Unexpected ${op}`);
   });
   const result = await listBroPokerClubs({ chatId, redisPipeline: pipeline });
-  assert.match(result, /Коллаб — отчёты 🔴 -4\s?662,75 ₽ · баланс 🔴 -17\s?815,97 ₽/);
-  assert.match(result, /Два Туза X — отчёты 🟢 \+40\s?707,18 ₽/);
-  assert.match(result, /Итого по скриншотам: 🔴 -37\s?915,82 ₽/);
-  assert.match(result, /Текущий баланс BRO\.POKER: 🟢 64\s?368,08 ₽/);
+  assert.match(result, /Коллаб — 🔴 -4\s?662,75 ₽/);
+  assert.match(result, /Два Туза X — 🟢 \+40\s?707,18 ₽/);
+  assert.match(result, /Итого операций: 🔴 -37\s?915,82 ₽/);
+  assert.doesNotMatch(result, /баланс/i);
 });
 
 test("достаёт фото из ответа на старое сообщение без повторной загрузки", async () => {
