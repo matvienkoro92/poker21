@@ -3,7 +3,33 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const { countBroPokerReports, destinationName, flushBroPokerBatch, isBroPokerSource, isMonday,
-  normalizeName, parseAmount, photoFromReply, routeBroPokerImage } = require("../lib/bro-poker-image-router");
+  listBroPokerClubs, normalizeName, parseAmount, photoFromReply, routeBroPokerImage } = require("../lib/bro-poker-image-router");
+
+test("показывает проведённые клубы BRO.POKER и общий баланс без новых операций", async () => {
+  const chatId = "-1001";
+  const batchId = "a".repeat(20);
+  const values = new Map([
+    [`poker21:bro-poker-batch:${batchId}:status`, "done"],
+    [`poker21:telegram-report:chat-balance:${chatId}`, "6436808"],
+  ]);
+  for (const [messageId, club, totalCents] of [
+    [3812, "Kings KO", -364266], [3813, "Два Туза X", 4070718],
+    [3814, "JOKER", -1495524], [3815, "Nuts_and_Bluff", -155150],
+    [3816, "Collab club", -466275], [3817, "BluffCatcher", -471660],
+    [3818, "PC Arena", -4909425],
+  ]) values.set(`poker21:bro-poker-report:${chatId}:${messageId}`,
+    JSON.stringify({ sourceChatId: chatId, batchId, club, totalCents, period: "27.07.2026-02.08.2026" }));
+  const pipeline = async (commands) => commands.map(([op, key, , pattern]) => {
+    if (op === "SCAN") return { result: ["0", [...values.keys()].filter((entry) => entry.startsWith(pattern.slice(0, -1)))] };
+    if (op === "GET") return { result: values.get(key) || null };
+    throw new Error(`Unexpected ${op}`);
+  });
+  const result = await listBroPokerClubs({ chatId, redisPipeline: pipeline });
+  assert.match(result, /Коллаб — 🔴 -4\s?662,75 ₽/);
+  assert.match(result, /Два Туза X — 🟢 \+40\s?707,18 ₽/);
+  assert.match(result, /Итого по скриншотам: 🔴 -37\s?915,82 ₽/);
+  assert.match(result, /Текущий баланс BRO\.POKER: 🟢 64\s?368,08 ₽/);
+});
 
 test("достаёт фото из ответа на старое сообщение без повторной загрузки", async () => {
   const calls = [];
