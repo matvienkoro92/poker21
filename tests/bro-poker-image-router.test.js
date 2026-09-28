@@ -3,7 +3,31 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const { destinationName, flushBroPokerBatch, isBroPokerSource, isMonday,
-  normalizeName, parseAmount, routeBroPokerImage } = require("../lib/bro-poker-image-router");
+  normalizeName, parseAmount, photoFromReply, routeBroPokerImage } = require("../lib/bro-poker-image-router");
+
+test("достаёт фото из ответа на старое сообщение без повторной загрузки", async () => {
+  const calls = [];
+  const telegram = async (method, body) => {
+    calls.push({ method, body });
+    if (method === "forwardMessage") return { ok: true, result: { message_id: 900, photo: [{ file_id: "old-photo" }] } };
+    return { ok: true };
+  };
+  const message = { chat: { id: -1001 }, from: { id: 42 }, reply_to_message: { message_id: 77 } };
+  const original = await photoFromReply(message, telegram);
+  assert.equal(original.message_id, 77);
+  assert.equal(original.photo[0].file_id, "old-photo");
+  assert.deepEqual(calls, [
+    { method: "forwardMessage", body: { chat_id: "42", from_chat_id: "-1001", message_id: 77, disable_notification: true } },
+    { method: "deleteMessage", body: { chat_id: "42", message_id: 900 } },
+  ]);
+});
+
+test("использует фото из ответа напрямую, когда Telegram его передал", async () => {
+  const original = await photoFromReply({ chat: { id: -1001 },
+    reply_to_message: { message_id: 77, photo: [{ file_id: "photo" }] } }, () => { throw new Error("unexpected API call"); });
+  assert.equal(original.photo[0].file_id, "photo");
+  assert.equal(original.message_id, 77);
+});
 
 test("распознаёт исходную группу BRO.POKER по привязке и названию", () => {
   assert.equal(isBroPokerSource({ title: "Любое имя" }, { type: "union", leagueId: "538879" }), true);
