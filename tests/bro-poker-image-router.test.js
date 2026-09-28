@@ -123,6 +123,12 @@ test("не действует до ручного расчёта, затем к�
   assert.equal(balances.get("poker21:telegram-report:chat-balance:-2001"), -2771700);
   assert.equal(balances.get("poker21:telegram-report:chat-balance:-2002"), -2771700);
   assert.equal(balances.has("poker21:telegram-report:chat-balance:-3001"), false);
+  const sourceNotice = telegramCalls.find((call) => call.method === "sendMessage" && call.body.chat_id === "-1001"
+    && call.body.text.includes("Предыдущий баланс"));
+  assert.equal(sourceNotice.body.parse_mode, "HTML");
+  assert.match(sourceNotice.body.text, /<b>Предыдущий баланс: ⚪ 0,00 ₽<\/b>/);
+  assert.match(sourceNotice.body.text, /🟢 \+8\s?768,00 ₽ — отчёт BRO\.POKER/);
+  assert.match(sourceNotice.body.text, /<b>🟢 8\s?768,00 ₽ — текущий баланс<\/b>/);
 
   const duplicate = await routeBroPokerImage({
     message, updateId: 55, sourceBinding: source, telegram, redisPipeline: pipeline,
