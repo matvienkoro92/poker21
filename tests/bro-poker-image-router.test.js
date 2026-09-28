@@ -226,7 +226,10 @@ test("исправляет знак проведённого пакета оди
     if (op === "GET") return { result: values.get(key) || null };
     if (op === "SMEMBERS") return { result: [] };
     if (op === "ZRANGE") return { result: expected.map((row) => String(row[0])) };
-    if (op === "LRANGE") return { result: values.get(key) || [] };
+    if (op === "LRANGE") {
+      assert.deepEqual(command.slice(2), ["0", "199"]);
+      return { result: values.get(key) || [] };
+    }
     if (op === "SET") { values.set(key, command[2]); return { result: "OK" }; }
     if (op === "EVAL") {
       const dedupeKey = command[3];
