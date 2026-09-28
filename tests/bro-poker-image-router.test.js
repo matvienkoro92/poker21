@@ -150,7 +150,7 @@ test("восстанавливает семь зависших фото и пр�
   const values = new Map();
   const sorted = new Map();
   for (let id = 3812; id <= 3818; id += 1) values.set(`poker21:bro-poker-report:${chatId}:${id}`, "1");
-  for (const [index, club] of ["Кингс ко", "JOKER", "Nuts_and_Bluff", "Collab club", "Пент", "PC Arena"].entries()) {
+  for (const [index, club] of ["Кингс ко", "Пент", "PC Arena"].entries()) {
     values.set(`poker21:telegram-report:club-chat:-20${index}`,
       JSON.stringify({ type: "club", club }));
   }
@@ -187,5 +187,6 @@ test("восстанавливает семь зависших фото и пр�
   assert.equal(sent.filter((call) => call.method === "sendMessage").length, 1);
   assert.match(sent[0].body.text, /Итого: -37\s?915,82 ₽/);
   assert.match(sent[0].body.text, /Два Туза X: 40\s?707,18 ₽/);
+  assert.match(sent[0].body.text, /Без отдельной группы для рассылки: JOKER, Nuts_and_Bluff, Collab club/);
   assert.equal(sent[0].body.reply_markup.inline_keyboard[0][0].text, "✅ Разрешить");
 });
