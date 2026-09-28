@@ -54,3 +54,16 @@ test('failed send is surfaced instead of silent success', async () => {
   assert.equal(res.body.ok, false);
   assert.equal(notifications, 0);
 });
+
+test('failed /посчитать reports an error in the source chat', async () => {
+  const sent = [];
+  const res = response();
+  await run({ body: { update_id: 9, message: { chat: { id: -1001 }, text: '/посчитать' } } }, res,
+    async () => { throw new Error('storage unavailable'); },
+    async (method, body) => { sent.push({ method, body }); return { ok: true }; });
+  assert.equal(res.body.ok, false);
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].method, 'sendMessage');
+  assert.equal(sent[0].body.chat_id, -1001);
+  assert.match(sent[0].body.text, /Код ошибки:/);
+});

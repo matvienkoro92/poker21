@@ -33,6 +33,7 @@ test("распознаёт исходную группу BRO.POKER по прив
   assert.equal(isBroPokerSource({ title: "Любое имя" }, { type: "union", leagueId: "538879" }), true);
   assert.equal(isBroPokerSource({ title: "Бро покер" }, null), true);
   assert.equal(isBroPokerSource({ title: "BRO.POKER" }, null), true);
+  assert.equal(isBroPokerSource({ title: "Poker21 Bro poker" }, null), true);
   assert.equal(isBroPokerSource({ title: "Другой союз" }, null), false);
   assert.equal(normalizeName("PC-Arena"), "pc arena");
   assert.equal(destinationName("BluffCatcher"), "Пент");
