@@ -210,6 +210,8 @@ test("исправляет знак проведённого пакета оди
     [`poker21:telegram-report:chat-balance:${chatId}`, String(-1146356)],
     ["poker21:telegram-report:chat-balance:-2001", "10000"],
   ]);
+  values.set("poker21:telegram-report:club-chat:-203",
+    JSON.stringify({ type: "club", club: "Коллаб" }));
   const expected = [
     [3812, "Kings KO", -364266], [3813, "Два Туза X", 4070718],
     [3814, "JOKER", -1495524], [3815, "Nuts_and_Bluff", -155150],
@@ -224,6 +226,7 @@ test("исправляет знак проведённого пакета оди
     if (op === "GET") return { result: values.get(key) || null };
     if (op === "SMEMBERS") return { result: [] };
     if (op === "ZRANGE") return { result: expected.map((row) => String(row[0])) };
+    if (op === "LRANGE") return { result: values.get(key) || [] };
     if (op === "SET") { values.set(key, command[2]); return { result: "OK" }; }
     if (op === "EVAL") {
       const dedupeKey = command[3];
@@ -246,8 +249,18 @@ test("исправляет знак проведённого пакета оди
   assert.equal(values.get("poker21:telegram-report:chat-balance:-2001"), "10000");
   assert.equal(sent.filter((call) => call.method === "sendMessage").length, 1);
   assert.match(sent[0].body.text, /64\s?368,08 ₽/);
+  values.set(`poker21:bro-poker-report:balance-notice:${chatId}:3816:-203`, "321");
+  values.set("poker21:telegram-report:chat-balance-history:-203",
+    [JSON.stringify({ rub: { action: "adjust", cents: -466275 }, cents: -1781597,
+      comment: `Скриншот ${chatId}:3816` })]);
   const second = await countBroPokerReports(args);
   assert.equal(second.results[0].duplicate, true);
+  assert.equal(second.results[0].clubNoticesUpdated, 1);
+  const edit = sent.find((call) => call.method === "editMessageText" && call.body.chat_id === "-203");
+  assert.equal(edit.body.message_id, 321);
+  assert.match(edit.body.text, /<b>Предыдущий баланс: 🔴 -13\s?153,22 ₽<\/b>/);
+  assert.match(edit.body.text, /🔴 -4\s?662,75 ₽ — отчёт Collab club/);
+  assert.match(edit.body.text, /<b>🔴 -17\s?815,97 ₽ — текущий баланс<\/b>/);
   assert.equal(values.get(`poker21:telegram-report:chat-balance:${chatId}`), "6436808");
   assert.equal(sent.filter((call) => call.method === "sendMessage").length, 1);
 });
