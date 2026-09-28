@@ -2,7 +2,7 @@
 
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { destinationName, flushBroPokerBatch, isBroPokerSource, isMonday,
+const { countBroPokerReports, destinationName, flushBroPokerBatch, isBroPokerSource, isMonday,
   normalizeName, parseAmount, photoFromReply, routeBroPokerImage } = require("../lib/bro-poker-image-router");
 
 test("достаёт фото из ответа на старое сообщение без повторной загрузки", async () => {
@@ -143,4 +143,49 @@ test("не обрабатывает картинки из других груп�
     sourceBinding: null,
   });
   assert.deepEqual(result, { handled: false });
+});
+
+test("восстанавливает семь зависших фото и просит подтверждение перед балансами", async () => {
+  const chatId = "-1001";
+  const values = new Map();
+  const sorted = new Map();
+  for (let id = 3812; id <= 3818; id += 1) values.set(`poker21:bro-poker-report:${chatId}:${id}`, "1");
+  for (const [index, club] of ["Кингс ко", "JOKER", "Nuts_and_Bluff", "Collab club", "Пент", "PC Arena"].entries()) {
+    values.set(`poker21:telegram-report:club-chat:-20${index}`,
+      JSON.stringify({ type: "club", club }));
+  }
+  const pipeline = async (commands) => commands.map((command) => {
+    const [op, key] = command;
+    if (op === "SCAN") {
+      const pattern = command[3];
+      const prefix = pattern.slice(0, -1);
+      return { result: ["0", [...values.keys()].filter((value) => value.startsWith(prefix))] };
+    }
+    if (op === "GET") return { result: values.get(key) || null };
+    if (op === "SET" && command.includes("NX") && values.has(key)) return { result: null };
+    if (op === "SET") { values.set(key, command[2]); return { result: "OK" }; }
+    if (op === "DEL") { values.delete(key); return { result: 1 }; }
+    if (op === "ZADD") { sorted.set(key, [...new Set([...(sorted.get(key) || []), command[3]])]); return { result: 1 }; }
+    if (op === "ZRANGE") return { result: sorted.get(key) || [] };
+    if (op === "EVAL") {
+      const activeKey = command[3];
+      const current = values.get(activeKey);
+      const id = current || command[5];
+      values.set(activeKey, id);
+      return { result: id };
+    }
+    return { result: 1 };
+  });
+  const sent = [];
+  const telegram = async (method, body) => { sent.push({ method, body }); return { ok: true, result: { message_id: 999 } }; };
+  const counted = await countBroPokerReports({ chatId, sourceTitle: "Poker21 Bro poker",
+    sourceBinding: { type: "union", leagueId: "538879", league: "BRO.POKER" }, telegram, redisPipeline: pipeline,
+    now: new Date("2026-09-28T10:00:00Z") });
+  assert.equal(counted.results?.[0]?.pending, true);
+  assert.equal(counted.results?.[0]?.count, 7);
+  assert.equal(sent.filter((call) => call.method === "copyMessage").length, 0);
+  assert.equal(sent.filter((call) => call.method === "sendMessage").length, 1);
+  assert.match(sent[0].body.text, /Итого: -37\s?915,82 ₽/);
+  assert.match(sent[0].body.text, /Два Туза X: 40\s?707,18 ₽/);
+  assert.equal(sent[0].body.reply_markup.inline_keyboard[0][0].text, "✅ Разрешить");
 });
