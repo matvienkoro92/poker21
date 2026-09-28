@@ -11,6 +11,8 @@ test("показывает проведённые клубы BRO.POKER и общ
   const values = new Map([
     [`poker21:bro-poker-batch:${batchId}:status`, "done"],
     [`poker21:telegram-report:chat-balance:${chatId}`, "6436808"],
+    ["poker21:telegram-report:club-chat:-203", JSON.stringify({ type: "club", club: "Коллаб" })],
+    ["poker21:telegram-report:chat-balance:-203", "-1781597"],
   ]);
   for (const [messageId, club, totalCents] of [
     [3812, "Kings KO", -364266], [3813, "Два Туза X", 4070718],
@@ -25,8 +27,8 @@ test("показывает проведённые клубы BRO.POKER и общ
     throw new Error(`Unexpected ${op}`);
   });
   const result = await listBroPokerClubs({ chatId, redisPipeline: pipeline });
-  assert.match(result, /Коллаб — 🔴 -4\s?662,75 ₽/);
-  assert.match(result, /Два Туза X — 🟢 \+40\s?707,18 ₽/);
+  assert.match(result, /Коллаб — отчёты 🔴 -4\s?662,75 ₽ · баланс 🔴 -17\s?815,97 ₽/);
+  assert.match(result, /Два Туза X — отчёты 🟢 \+40\s?707,18 ₽/);
   assert.match(result, /Итого по скриншотам: 🔴 -37\s?915,82 ₽/);
   assert.match(result, /Текущий баланс BRO\.POKER: 🟢 64\s?368,08 ₽/);
 });
