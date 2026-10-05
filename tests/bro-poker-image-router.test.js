@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const { countBroPokerReports, destinationName, flushBroPokerBatch, isBroPokerSource, isMonday,
-  listBroPokerClubs, normalizeName, parseAmount, photoFromReply, routeBroPokerImage } = require("../lib/bro-poker-image-router");
+  listBroPokerClubs, normalizeName, parseAmount, photoFromReply, recoverBroPokerPhoto, routeBroPokerImage } = require("../lib/bro-poker-image-router");
 
 test("показывает только проведённые операции клубов BRO.POKER", async () => {
   const chatId = "-1001";
@@ -93,6 +93,16 @@ test("не действует до ручного расчёта, затем к�
       values.set(command[1], command[2]); return { result: "OK" };
     }
     if (command[0] === "SET") { values.set(command[1], command[2]); return { result: "OK" }; }
+    if (command[0] === "EVAL" && command[1].includes("claim-bro-photo")) {
+      const [key, lease, input] = command.slice(3, 6);
+      if ((values.has(key) && values.get(key) !== "1") || values.has(lease)) return { result: 0 };
+      values.set(key, "1"); values.set(lease, "1"); values.set(input, command[6]);
+      return { result: 1 };
+    }
+    if (command[0] === "EVAL" && command[1].includes("return redis.call('DEL', KEYS[2])")) {
+      if (values.get(command[3]) === "1") values.delete(command[3]);
+      values.delete(command[4]); return { result: 1 };
+    }
     if (command[0] === "EVAL") {
       if (command[1].includes("redis.call('GET', KEYS[1]) ~= ARGV[1]")) {
         if (values.get(command[3]) !== command[6]) return { result: 0 };
@@ -201,6 +211,16 @@ test("восстанавливает семь зависших фото и пр�
     if (op === "DEL") { values.delete(key); return { result: 1 }; }
     if (op === "ZADD") { sorted.set(key, [...new Set([...(sorted.get(key) || []), command[3]])]); return { result: 1 }; }
     if (op === "ZRANGE") return { result: sorted.get(key) || [] };
+    if (op === "EVAL" && command[1].includes("claim-bro-photo")) {
+      const [key, lease, input] = command.slice(3, 6);
+      if ((values.has(key) && values.get(key) !== "1") || values.has(lease)) return { result: 0 };
+      values.set(key, "1"); values.set(lease, "1"); values.set(input, command[6]);
+      return { result: 1 };
+    }
+    if (op === "EVAL" && command[1].includes("return redis.call('DEL', KEYS[2])")) {
+      if (values.get(command[3]) === "1") values.delete(command[3]);
+      values.delete(command[4]); return { result: 1 };
+    }
     if (op === "EVAL") {
       const activeKey = command[3];
       const current = values.get(activeKey);
@@ -256,6 +276,16 @@ test("исправляет знак проведённого пакета оди
       return { result: values.get(key) || [] };
     }
     if (op === "SET") { values.set(key, command[2]); return { result: "OK" }; }
+    if (op === "EVAL" && command[1].includes("claim-bro-photo")) {
+      const [key, lease, input] = command.slice(3, 6);
+      if ((values.has(key) && values.get(key) !== "1") || values.has(lease)) return { result: 0 };
+      values.set(key, "1"); values.set(lease, "1"); values.set(input, command[6]);
+      return { result: 1 };
+    }
+    if (op === "EVAL" && command[1].includes("return redis.call('DEL', KEYS[2])")) {
+      if (values.get(command[3]) === "1") values.delete(command[3]);
+      values.delete(command[4]); return { result: 1 };
+    }
     if (op === "EVAL") {
       const dedupeKey = command[3];
       const balanceKey = command[4];
@@ -291,4 +321,58 @@ test("исправляет знак проведённого пакета оди
   assert.match(edit.body.text, /<b>🔴 -17\s?815,97 ₽ — текущий баланс<\/b>/);
   assert.equal(values.get(`poker21:telegram-report:chat-balance:${chatId}`), "6436808");
   assert.equal(sent.filter((call) => call.method === "sendMessage").length, 1);
+});
+
+test("повторяет старый OCR claim, снимает unreadable и сохраняет исходное фото", async () => {
+  const values = new Map([["poker21:bro-poker-report:-1001:4193", "1"]]);
+  const unreadable = new Set(["4193"]);
+  const pipeline = async commands => commands.map(c => {
+    const [op,key] = c;
+    if (op === "EVAL" && c[1].includes("claim-bro-photo")) {
+      const [report,lease,input] = c.slice(3,6);
+      if ((values.has(report) && values.get(report) !== "1") || values.has(lease)) return {result:0};
+      values.set(report,"1"); values.set(lease,"1"); values.set(input,c[6]); return {result:1};
+    }
+    if (op === "EVAL") {
+      if(values.get(c[3]) === "1") values.delete(c[3]);
+      values.delete(c[4]); return {result:1};
+    }
+    if (op === "SCAN") return {result:["0",[]]};
+    if (op === "GET") return {result:values.get(key)||null};
+    if (op === "SET") {values.set(key,c[2]);return {result:"OK"};}
+    if (op === "DEL") {values.delete(key);return {result:1};}
+    if (op === "SREM") {unreadable.delete(c[2]);return {result:1};}
+    if (op === "SADD") {unreadable.add(c[2]);return {result:1};}
+    return {result:1};
+  });
+  const options={message:{chat:{id:-1001,title:"BRO.POKER"},message_id:4193,photo:[{file_id:"original"}]},
+    sourceBinding:{type:"union",leagueId:"538879"}, redisConfigured:true,redisPipeline:pipeline,
+    telegram:async()=>{throw Error("No messages or balances during recognition");},
+    chooseBatchId:async()=>"b".repeat(20)};
+  const processing="poker21:bro-poker-report:processing:-1001:4193";
+  values.set(processing,"1");
+  const active=await routeBroPokerImage({...options,recognizeClub:async()=>{throw Error("Must not start concurrent OCR");}});
+  assert.equal(active.duplicate,true);values.delete(processing);
+  const timedOut=await routeBroPokerImage({...options,ocrTimeoutMs:5,recognizeClub:async({signal})=>
+    new Promise((resolve,reject)=>signal.addEventListener("abort",()=>reject(Error("aborted")),{once:true}))});
+  assert.equal(timedOut.reason,"error");assert.equal(values.has(processing),false);
+  assert.equal(values.has("poker21:bro-poker-report:-1001:4193"),false);
+  assert.equal(unreadable.has("4193"),true);
+  const result=await routeBroPokerImage({...options,recognizeClub:async()=>({club:"PC Arena",period:"28.09.2026-04.10.2026",totalCents:12345})});
+  assert.equal(result.staged,true);assert.equal(unreadable.has("4193"),false);
+  assert.equal(JSON.parse(values.get("poker21:bro-poker-batch:input:-1001:4193")).photo[0].file_id,"original");
+  const duplicate=await routeBroPokerImage({...options,recognizeClub:async()=>{throw Error("Must not repeat staged OCR");}});
+  assert.equal(duplicate.duplicate,true);
+});
+
+test("восстановление фото запрещено за пределами исходной группы и без проверенных данных", async () => {
+  const calls=[];
+  const telegram=async (...args)=>{calls.push(args);throw Error("Unexpected Telegram call");};
+  await assert.rejects(recoverBroPokerPhoto({chatId:"-1",messageId:4193,telegram,
+    redisPipeline:async()=>[{result:JSON.stringify({type:"club",club:"PC Arena"})}]}),/restricted/);
+  await assert.rejects(recoverBroPokerPhoto({chatId:"-1",messageId:4193,telegram,reviewed:{club:"PC Arena",totalCents:1,period:"bad"},
+    redisPipeline:async cmds=>cmds.map(([op,key])=>({result:key.includes("club-chat")?
+      JSON.stringify({type:"union",leagueId:"538879"}):JSON.stringify({chat:{id:"-1"},message_id:4193,photo:[{file_id:"saved"}]})}))}),/Invalid reviewed/);
+  await assert.rejects(recoverBroPokerPhoto({chatId:"-1",messageId:0,telegram}),/Invalid message/);
+  assert.equal(calls.length,0);
 });
