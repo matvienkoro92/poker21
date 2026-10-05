@@ -274,6 +274,7 @@ def main():
     jackpot_leagues_by_id = {}
     league_players = defaultdict(dict)
     league_clubs = defaultdict(dict)
+    league_club_rates = {}
     super_league_total_row = None
     for row in super_league_sheet.iter_rows(min_row=5, values_only=True):
         league_label = str(row[super_league_name_index] or "").strip()
@@ -314,6 +315,11 @@ def main():
                     "playerIds": set(), "activePlayerIds": set(), "playerRows": {},
                 })
                 club["rake"] += float(row[5] or 0) * exchange_rate
+                native_fee = float(row[super_league_headers.index("FeeTotal")] or 0)
+                super_fee = float(row[super_league_total_fee_index] or 0) * exchange_rate
+                club_rate = super_fee / native_fee if native_fee else league_club_rates.get(league_id, exchange_rate)
+                league_club_rates[league_id] = club_rate
+                club["rakeRub"] = club.get("rakeRub", 0.0) + float(row[5] or 0) * club_rate
                 club["winLose"] += float(row[4] or 0) * exchange_rate
                 club["playerIds"].add(player_id)
                 club_player = club["playerRows"].setdefault(player_id, {
@@ -385,7 +391,7 @@ def main():
             "clubs": sorted([
                 {
                     "clubId": row["clubId"], "club": row["club"],
-                    "rake": round(row["rake"], 2), "winLose": round(row["winLose"], 2),
+                    "rake": round(row["rake"], 2), "rakeRub": round(row["rakeRub"], 2), "winLose": round(row["winLose"], 2),
                     "players": len(row["playerIds"]), "activePlayers": len(row["activePlayerIds"]),
                     "playerRows": sorted([{
                         "playerId": player["playerId"], "nick": player["nick"],
