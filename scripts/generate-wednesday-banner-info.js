@@ -10,22 +10,27 @@ async function render(format, number) {
   const target = path.join(root, format, "wednesday", `wednesday-${number}-info.jpg`);
   const { width, height } = await sharp(source).metadata();
   const square = format === "square";
-  const panelWidth = square ? 790 : 770;
-  const panelHeight = square ? 126 : 138;
+  const scale = width / (square ? 1254 : 941);
+  const panelWidth = (square ? 790 : 770) * scale;
+  const panelHeight = (square ? 126 : 138) * scale;
   const panelX = (width - panelWidth) / 2;
-  const panelY = height - panelHeight - (square ? 38 : 56);
-  const mainSize = square ? 35 : 37;
-  const detailSize = square ? 27 : 28;
+  const panelY = height - panelHeight - (square ? 38 : 56) * scale;
+  const mainSize = (square ? 35 : 37) * scale;
+  const detailSize = (square ? 27 : 28) * scale;
   const text = Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" rx="24" fill="#10253b" fill-opacity="0.78" stroke="#f7dc9e" stroke-opacity="0.88" stroke-width="2"/>
     <g text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#fff8e9">
-      <text x="${width / 2}" y="${panelY + 55}" font-size="${mainSize}" font-weight="700">Среда 18:00 мск  ·  Ребай 1000р</text>
-      <text x="${width / 2}" y="${panelY + 96}" font-size="${detailSize}" font-weight="500" fill="#f3dfa8">Поздняя регистрация 12 уровней</text>
+      <text x="${width / 2}" y="${panelY + 55 * scale}" font-size="${mainSize}" font-weight="700">Среда 18:00 мск  ·  Ребай 1000р</text>
+      <text x="${width / 2}" y="${panelY + 96 * scale}" font-size="${detailSize}" font-weight="500" fill="#f3dfa8">Поздняя регистрация 12 уровней</text>
     </g>
   </svg>`);
-  await sharp(source)
+  const master = await sharp(source)
     .composite([{ input: text, left: 0, top: 0 }])
-    .jpeg({ quality: 93, mozjpeg: true })
+    .png()
+    .toBuffer();
+  await sharp(master).toFile(target.replace(/\.jpg$/, "-master.png"));
+  await sharp(master)
+    .jpeg({ quality: 100, chromaSubsampling: "4:4:4" })
     .toFile(target);
 }
 

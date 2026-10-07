@@ -67,7 +67,7 @@ test("среда: новый баннер первый в каждом форм�
       const filename = i === 0 ? "wednesday-kosar-1.jpg" : i <= (format === "square" ? 5 : 4) ? `wednesday-${i}-info.jpg` : `wednesday-magic-${i - (format === "square" ? 5 : 4)}.jpg`;
       assert.match(view.previewUrl, new RegExp(`${format}/wednesday/${filename.replace(".", "\\.")}`));
       const image = path.join(__dirname, `../assets/schedule/banners/${format}/wednesday/${filename}`);
-      assert.ok(fs.statSync(image).size < 700_000);
+      assert.ok(fs.statSync(image).size < 10_000_000);
       const metadata = await sharp(image).metadata();
       if (format === "square") assert.equal(metadata.width, metadata.height);
       else assert.ok(metadata.height / metadata.width > 1.5);
