@@ -40,7 +40,7 @@ test("вторник: по пять баннеров в обоих формат�
 });
 
 test("смена формата сохраняет день, включая кнопки старого сообщения", () => {
-  for (const [format, thursdayPage] of [["square", 12], ["story", 11]]) {
+  for (const [format, thursdayPage] of [["square", 17], ["story", 16]]) {
     const callback = `schedule:banners:format:${format}:thu`.match(/^schedule:banners:format:(square|story):(wed|thu)$/);
     assert.deepEqual(scheduleBannerCallbackSelection(null, callback), { format, page: thursdayPage, isPhoto: true });
     const oldCallback = `schedule:banners:${format}:1`.match(/^schedule:banners(?::(square|story):([1-9]\d?))?$/);
@@ -52,7 +52,7 @@ test("смена формата сохраняет день, включая кн
 });
 
 test("среда: новый баннер первый в каждом формате, остальные сохранены", async () => {
-  for (const [format, oldCount, label] of [["square", 5, "Квадрат"], ["story", 4, "Сторис"]]) {
+  for (const [format, oldCount, label] of [["square", 10, "Квадрат"], ["story", 9, "Сторис"]]) {
     const first = scheduleBannerView(6, format);
     assert.match(first.text, new RegExp(`Среда</b> · 1 из ${oldCount + 1} · ${label}$`));
     assert.match(first.previewUrl, new RegExp(`${format}/wednesday/wednesday-kosar-1\\.jpg`));
@@ -63,7 +63,7 @@ test("среда: новый баннер первый в каждом форм�
     for (let i = 0; i <= oldCount; i++) {
       const view = scheduleBannerView(6 + i, format);
       assert.match(view.text, new RegExp(`Среда</b> · ${i + 1} из ${oldCount + 1} · ${label}$`));
-      const filename = i === 0 ? "wednesday-kosar-1.jpg" : `wednesday-${i}-info.jpg`;
+      const filename = i === 0 ? "wednesday-kosar-1.jpg" : i <= (format === "square" ? 5 : 4) ? `wednesday-${i}-info.jpg` : `wednesday-magic-${i - (format === "square" ? 5 : 4)}.jpg`;
       assert.match(view.previewUrl, new RegExp(`${format}/wednesday/${filename.replace(".", "\\.")}`));
       const image = path.join(__dirname, `../assets/schedule/banners/${format}/wednesday/${filename}`);
       assert.ok(fs.statSync(image).size < 700_000);
@@ -142,7 +142,7 @@ test("команда /банеры распознаётся в общем чат
 
 
 test("суббота: файлы каждого формата, свой счётчик и сохранение дня", async () => {
-  for (const [format, start, count] of [["square", 18, 8], ["story", 16, 6]]) {
+  for (const [format, start, count] of [["square", 23, 8], ["story", 21, 6]]) {
     for (let i = 0; i < count; i++) {
       const view = scheduleBannerView(start + i, format);
       assert.match(view.text, new RegExp(`Суббота</b> · ${i + 1} из ${count}`));
@@ -179,7 +179,7 @@ test("воскресенье: пять баннеров и переключен�
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start] of [["square", 26], ["story", 22]]) {
+  for (const [format, start] of [["square", 31], ["story", 27]]) {
     for (let i = 1; i <= 5; i++) {
       const view = scheduleBannerView(start + i - 1, format);
       assert.match(view.text, new RegExp(`Воскресенье</b> · ${i} из 5`));
@@ -206,7 +206,7 @@ test("лидерборд: свои баннеры, навигация и пер�
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start, count] of [["square", 31, 4], ["story", 27, 2]]) {
+  for (const [format, start, count] of [["square", 36, 4], ["story", 32, 2]]) {
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Лидерборд");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
     for (let i = 0; i < count; i++) {
@@ -238,7 +238,7 @@ test("турнир месяца: свои баннеры, навигация и 
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start, count] of [["square", 35, 13], ["story", 29, 10]]) {
+  for (const [format, start, count] of [["square", 40, 13], ["story", 34, 10]]) {
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Турнир месяца за 3000");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
     for (let i = 0; i < count; i++) {
