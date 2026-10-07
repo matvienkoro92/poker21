@@ -298,3 +298,21 @@ test("начальное открытие выбирает сегодняшни�
   assert.equal(selection.page, scheduleBannerTodayPage());
   assert.equal(selection.isPhoto, false);
 });
+
+test("вся подборка отправляется альбомами выбранного дня и формата", async () => {
+  const { sendScheduleBannerDay } = require("../lib/api-handlers/telegram-report-webhook");
+  for (const [format, expected] of [["square", [10, 1]], ["story", [10]]]) {
+    const calls = [];
+    const send = async (method, body) => { calls.push({ method, body }); return { ok: true }; };
+    assert.equal(await sendScheduleBannerDay("-1001", format, "wed", send), true);
+    assert.deepEqual(calls.map(c => c.body.media?.length || 1), expected);
+    const urls = calls.flatMap(c => c.body.media ? c.body.media.map(m => m.media) : [c.body.photo]);
+    assert.equal(new Set(urls).size, expected.reduce((a, b) => a + b, 0));
+    assert.ok(urls.every(url => url.includes(`/${format}/wednesday/`)));
+    const view = scheduleBannerView(format === "square" ? 11 : 10, format);
+    assert.ok(view.inlineKeyboard.flat().some(b => b.callback_data === `schedule:banners:all:${format}:wed`));
+  }
+  let attempts = 0;
+  assert.equal(await sendScheduleBannerDay("-1001", "square", "wed", async () => { attempts++; return { ok: false }; }), false);
+  assert.equal(attempts, 1);
+});
