@@ -23,7 +23,7 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     };
     return req;
   };
-  const tables = Array.from({length: 75}, (_, i) => ({deskId: String(100000+i), deskName: 'Стол <&> '+i, playerCount: 2, unionId:'7158', leagueId:'184691', groupId:'680649', playType:'PLO6', blindAnnotation:'50/100', entryFees:0,pos:{pos1:990919,pos2:'9007199254740993',pos3:0}}));
+  const tables = Array.from({length: 75}, (_, i) => ({deskId: String(100000+i), deskName: 'Стол <&> '+i, playerCount: 2, unionId:'7158', leagueId:'184691', groupId:'680649', playType:'PLO6', blindAnnotation:'50/100', entryFees:0,pos:{pos1:113729,pos2:'9007199254740993',pos3:0}}));
   for (const playType of ['NLH', 'NLH 3-1', '6+', 'PLO4', 'PLO5', '21', 'TweneyOne', 'OFC', 'MTT', 'SNG', 'Thirteen']) tables.push({...tables[0],deskId:playType,deskName:'Variant '+playType,playType});
   tables.push({...tables[0],deskId:'ZERO_MTT',deskName:'ZERO_MTT',playType:'MTT NLH',playerCount:0,blindAnnotation:''});
   tables.push({...tables[0],deskId:'ZERO_SNG',deskName:'ZERO_SNG',playType:'SNG NLH',playerCount:0,blindAnnotation:''});
@@ -55,7 +55,7 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     return calls.filter(c=>c.text);
   }
   const seatedPage = await click('tables:cash:l184691:0', -1004391487736);
-  assert.match(seatedPage[0].text, /ID игроков · место: 1: <code>990919<\/code> · 2: <code>9007199254740993<\/code>/);
+  assert.match(seatedPage[0].text, /Игроки · место \/ ID \/ ник:\n1\. <code>113729<\/code> — Аспирин\n2\. <code>9007199254740993<\/code> — ник неизвестен/);
   assert.doesNotMatch(seatedPage[0].text, /3: <code>0<\/code>/);
   const menu=await click('tables:now');
   assert.equal(menu.length,1);
