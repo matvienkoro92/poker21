@@ -43,7 +43,7 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     assert.equal(res.body.sent,true);
     assert.equal(res.body.liveTables,'tables');
     const buttons=calls.at(-1).reply_markup.inline_keyboard.flat();
-    assert.deepEqual(buttons.slice(0,4).map(b=>b.callback_data),['tables:tournaments','tables:cash','club:sub:menu','pulse:menu']);
+    assert.deepEqual(buttons.slice(0,3).map(b=>b.callback_data),['tables:tournaments','tables:cash','pulse:menu']);
     assert.equal(calls.length,1);
   }
   async function click(data, chatId = -998) {
