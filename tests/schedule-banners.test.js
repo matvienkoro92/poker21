@@ -107,7 +107,7 @@ test("кнопка открывает новую фотографию, а стр
   assert.equal(calls[1].body.message_id, 43);
   assert.match(calls[1].body.media.media, /story\/tuesday\/tuesday-2\.jpg/);
   assert.equal(scheduled.length, 2);
-  assert.equal(scheduled[0].options.headers["Upstash-Delay"], "1m");
+  assert.equal(scheduled[0].options.headers["Upstash-Delay"], "2m");
   assert.equal(await context.closeIdleBanner({ chatId: "-1001", messageId: 43, nonce: firstNonce }), false);
   assert.equal(await context.closeIdleBanner({ chatId: "-1001", messageId: 43, nonce: [...state.values()][0] }), true);
   assert.equal(calls.at(-1).name, "deleteMessage");

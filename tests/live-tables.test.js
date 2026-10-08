@@ -43,7 +43,7 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     assert.equal(res.body.sent,true);
     assert.equal(res.body.liveTables,'tables');
     const buttons=calls.at(-1).reply_markup.inline_keyboard.flat();
-    assert.deepEqual(buttons.slice(0,3).map(b=>b.callback_data),['tables:tournaments','tables:cash','pulse:menu']);
+    assert.deepEqual(buttons.slice(0,4).map(b=>b.callback_data),['tables:tournaments','tables:cash','club:sub:menu','pulse:menu']);
     assert.equal(calls.length,1);
   }
   async function click(data, chatId = -998) {
@@ -55,6 +55,8 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     return calls.filter(c=>c.text);
   }
   const seatedPage = await click('tables:cash:l184691:0', -1004391487736);
+  assert.match(seatedPage[0].text, /50\/100р<\/b>\n<b>PLO6 · Игроков: 2<\/b>/);
+  assert.doesNotMatch(seatedPage[0].text, /Блайнды/);
   assert.match(seatedPage[0].text, /Игроки · место \/ ID \/ ник:\n1\. <code>113729<\/code> — Аспирин\n2\. <code>9007199254740993<\/code> — ник неизвестен/);
   assert.doesNotMatch(seatedPage[0].text, /3: <code>0<\/code>/);
   const menu=await click('tables:now');
@@ -72,8 +74,8 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     const page=await click(`tables:cash:${scope}:0`, -1004391487736);
     assert.equal(page.length,1);
     assert.equal(page[0].message_id,7);
-    assert.ok(page[0].text.includes(`<b>${id}</b>`));
-    assert.ok(!page[0].text.includes('<b>Стол &lt;&amp;&gt; 0</b>'));
+    assert.ok(page[0].text.includes(`<b>${id} 50/100р</b>`));
+    assert.ok(!page[0].text.includes('<b>Стол &lt;&amp;&gt; 0 50/100р</b>'));
     assert.ok(page[0].reply_markup.inline_keyboard.flat().some(b=>b.callback_data===`tables:cash:${scope}:0`));
   }
   for (const chatId of [-998, -999, -1004472155269]) {
@@ -111,7 +113,7 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     assert.equal(pages.at(-1).reply_markup.inline_keyboard.at(-1)[0].callback_data,'tables:now');
     for(const row of tables) {
       const expected=/^(?:MTT|SNG)(?:\s|$)/.test(row.playType) ? 'tournaments' : ['Thirteen','21','TweneyOne','OFC'].includes(row.playType) ? 'other' : 'cash';
-      assert.equal(combined.includes(`<b>${row.deskName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</b>`),((expected===category && row.deskId!=='ZERO_SNG' && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))),row.playType);
+      assert.equal(combined.includes(`<b>${row.deskName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}${expected !== 'tournaments' && row.blindAnnotation ? ' ' + row.blindAnnotation + 'р' : ''}</b>`),((expected===category && row.deskId!=='ZERO_SNG' && !(category==='other' && ['21','TweneyOne','OFC'].includes(row.playType))) || (category==='cash' && ['21','TweneyOne','OFC'].includes(row.playType))),row.playType);
     }
     if(category==='tournaments' || category==='cash') assert.doesNotMatch(combined,/Столов с игроками|Занято мест|Один игрок|По видам игр/);
     else assert.match(combined,/Столов с игроками/);
@@ -128,7 +130,7 @@ test('tables command works in groups; includes empty MTT but excludes empty SNG 
     }
     if(category==='cash') {
       assert.ok(pages.length>1);
-      for(const value of ['<b>ОМАХА PLO6</b>','<b>21</b>','<b>OFC</b>','<b>ХОЛДЕМ</b>','✅','Стол &lt;&amp;&gt;','PLO6 · Игроков: 2 · Блайнды: 50/100']) assert.ok(combined.includes(value),value);
+      for(const value of ['<b>ОМАХА PLO6</b>','<b>21</b>','<b>OFC</b>','<b>ХОЛДЕМ</b>','✅','Стол &lt;&amp;&gt;','PLO6 · Игроков: 2</b>']) assert.ok(combined.includes(value),value);
     }
   }
 });
