@@ -4,9 +4,10 @@ const assert = require('node:assert/strict');
 const {create,parseLimit,matches} = require('../lib/table-subscriptions');
 const base = {deskId:'1',deskName:'Классика',leagueId:'184691',unionId:'7158',groupId:'680649',playType:'PLO6',blindAnnotation:'5/10',playerCount:2,pos:{pos1:123,pos2:456}};
 function fixture() {
-  const db = new Map(), sets = new Map(), calls = [];
+  const db = new Map(), sets = new Map(), calls = [], commandsLog = [];
   let tables = [], fail = false, deliveryFail = false;
   const redis = {isConfigured:()=>true,pipeline:async commands=>commands.map(([cmd,key,...args])=>{
+    commandsLog.push([cmd,key,...args]);
     let result = null;
     if (cmd === 'GET') result = db.get(key)||null;
     else if (cmd === 'SET') { if (!(args.includes('NX') && db.has(key))) {db.set(key,args[0]); result='OK';} }
@@ -21,7 +22,7 @@ function fixture() {
   const service = create({redis,namespace:'test',getTables:async()=>{if(fail)throw Error('upstream');return structuredClone(tables);},getNames:async()=>new Map([['123','Ник <&>']]),send:async(method,body)=>{calls.push({method,body});if(deliveryFail && method==='sendMessage')return {ok:false,error_code:500};return {ok:true,result:{username:'TestBot'}};}});
   const callback = (action,user=42,type='private') => service.handle({callback_query:{id:'cb',data:'club:sub:'+action,from:{id:user},message:{message_id:1,chat:{id:type==='private'?user:-1,type}}}});
   const message = (text,user=42) => service.handle({message:{text,from:{id:user},chat:{id:user,type:'private'}}});
-  return {service,callback,message,calls,db,setTables:v=>tables=v,setFailure:v=>fail=v,setDeliveryFailure:v=>deliveryFail=v};
+  return {service,callback,message,calls,db,commandsLog,setTables:v=>tables=v,setFailure:v=>fail=v,setDeliveryFailure:v=>deliveryFail=v};
 }
 test('game and limits distinguish exact, minimum, malformed values and private scopes',()=>{
   assert.deepEqual(parseLimit('5/10р'),{small:5,big:10});
@@ -96,6 +97,27 @@ test('notification endpoint rejects an incorrect cron secret',async t=>{
   t.after(()=>{if(old===undefined)delete process.env.CRON_SECRET;else process.env.CRON_SECRET=old;});
   const handler=require('../lib/api-handlers/cron-table-subscriptions');
   const res={setHeader(){},status(code){this.code=code;return this;},json(body){this.body=body;}};
-  await handler({method:'GET',headers:{authorization:'Bearer wrong'}},res);
+  await handler({method:'POST',headers:{authorization:'Bearer wrong'}},res);
   assert.equal(res.code,403);
+});
+
+
+test('unchanged seating and reordered API rows cause no subscription writes; new seating writes once',async()=>{
+  const f=fixture();const second={...base,deskId:'2'};
+  f.setTables([base,second]);await f.callback('add:PLO6:any');f.commandsLog.length=0;
+  f.setTables([second,base]);await f.service.poll();await f.service.poll();
+  const userWrites=()=>f.commandsLog.filter(([cmd,key])=>cmd==='SET'&&key==='poker21:table-subscriptions:test:user:42');
+  assert.equal(userWrites().length,0);
+  assert.equal(f.commandsLog.filter(([cmd])=>cmd==='SADD'||cmd==='SREM').length,0);
+  f.setTables([base,second,{...base,deskId:'3'}]);await f.service.poll();
+  assert.equal(userWrites().length,1);
+  f.setTables([base,second]);await f.service.poll();assert.equal(userWrites().length,2);
+  await f.service.poll();assert.equal(userWrites().length,2);
+});
+
+test('shared snapshot avoids fetching tables and confirms whether the user batch is complete',async()=>{
+  const f=fixture();await f.callback('add:PLO6:any');f.setFailure(true);
+  const result=await f.service.poll([base]);assert.equal(result.complete,true);assert.equal(result.sent,1);
+  const marker=f.commandsLog.find(([cmd,key])=>cmd==='SET'&&key.includes(':delivery:'));
+  assert.equal(marker.at(-1),'86400');
 });
