@@ -262,7 +262,7 @@ test("турнир месяца: свои баннеры, навигация и 
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start, count] of [["square", 49, 19], ["story", 42, 15]]) {
+  for (const [format, start, count] of [["square", 49, 5], ["story", 42, 5]]) {
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Главный турнир за 5к");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
     for (let i = 0; i < count; i++) {
@@ -271,7 +271,7 @@ test("турнир месяца: свои баннеры, навигация и 
       assert.ok(view.inlineKeyboard.flat().some(b => b.text === "✅ Главный турнир за 5к"));
       const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
       assert.deepEqual(navigation.map(b => b.callback_data), [
-        ...(i > 0 ? [`schedule:banners:${format}:${start + i - 1}`] : []),
+        ...(i > 0 ? [`schedule:banners:${format}:${start + i - 1}`] : [`schedule:banners:${format}:${start + count - 1}`]),
         ...(i + 1 < count ? [`schedule:banners:${format}:${start + i + 1}`] : []),
       ]);
       for (const button of view.inlineKeyboard.at(-2)) {
@@ -280,8 +280,7 @@ test("турнир месяца: свои баннеры, навигация и 
         const selection = scheduleBannerCallbackSelection(null, match);
         assert.match(scheduleBannerView(selection.page, selection.format).text, /Главный турнир за 5к<\/b> · 1 из/);
       }
-      const fileIndex = format === "square" ? [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16][i] : i + 1;
-      const filename = format === "square" && i >= 13 ? `main-tournament-${i - 12}.${i === 18 ? "jpeg" : "png"}` : format === "story" && i >= 10 ? `main-tournament-${i - 9}.png` : `month3000-${fileIndex}.png`;
+      const filename = `main-tournament-${i + 1}.png`;
       const file = path.join(__dirname, `../assets/schedule/banners/${format}/month3000/${filename}`);
       assert.ok(fs.statSync(file).size < 10_000_000);
       const metadata = await sharp(file).metadata();
