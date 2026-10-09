@@ -5,7 +5,11 @@ const commands=[
  ['online','Игроки онлайн'],['games','Рейк по видам игр'],['unions','Отчёты союзов'],
  ['clubs','Отчёты клубов'],['calculations','Расчёты'],['jackpot','Джекпот'],
  ['overlays','Оверлеи турниров'],['chinese','Китайские союзы'],['share','Распределение доли'],
- ['diamonds','Продажа алмазов'],['commands','Все команды и справка'],
+ ['diamonds','Продажа алмазов'],['schedule','Расписание турниров'],
+ ['banners','Банеры турниров'],['reports','Отчёты клуба или союза'],
+ ['activity','Активность клуба'],['club_players','Игроки клуба'],
+ ['club_race','Гонка клубов'],['club_analysis','Разбор клуба'],
+ ['commands','Все команды и справка'],
 ].map(([command,description])=>({command,description}));
 async function main(){
  const env=process.argv.find(x=>x.startsWith('--env='))?.slice(6);

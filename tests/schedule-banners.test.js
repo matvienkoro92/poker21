@@ -138,6 +138,7 @@ test("команда /банеры распознаётся в общем чат
   vm.runInContext(command, context);
   assert.equal(context.isBannersCommand("/банеры"), true);
   assert.equal(context.isBannersCommand("/баннеры@Poker21Bot"), true);
+  assert.equal(context.isBannersCommand("/banners@Poker21Bot"), true);
   assert.equal(context.isBannersCommand("/банеры завтра"), false);
 });
 
