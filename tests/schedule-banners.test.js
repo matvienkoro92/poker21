@@ -149,6 +149,7 @@ test("пятница: по четыре баннера в обоих форма�
       assert.match(view.text, new RegExp(`Пятница</b> · ${i} из 4 · ${label}$`));
       assert.match(view.previewUrl, new RegExp(`${format}/friday/friday-${i}\\.jpg`));
       assert.equal(view.inlineKeyboard.flat().find(button => button.text === "✅ ПТ").callback_data, `schedule:banners:${format}:${start}`);
+      if (i < 4) assert.equal(view.inlineKeyboard.flat().find(button => button.text === "Следующий ➡️").style, "success");
       assert.deepEqual(view.inlineKeyboard.at(-2).map(button => button.callback_data), ["schedule:banners:format:square:fri", "schedule:banners:format:story:fri"]);
       const file = path.join(__dirname, `../assets/schedule/banners/${format}/friday/friday-${i}.jpg`);
       assert.ok(fs.statSync(file).size < 700_000);
