@@ -62,6 +62,7 @@ CLUB_SERVICE_PERCENT = {
     "РИВЕР КЛУБ": 20,
     "T O T": 8,
     "Храм": 10,
+    "Чехов": 15,
 }
 
 CLUB_SALARY = {
