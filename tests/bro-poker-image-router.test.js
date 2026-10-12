@@ -376,3 +376,15 @@ test("восстановление фото запрещено за предел
   await assert.rejects(recoverBroPokerPhoto({chatId:"-1",messageId:0,telegram}),/Invalid message/);
   assert.equal(calls.length,0);
 });
+
+
+test("снимает старую блокировку с подтверждённого не-отчёта", async () => {
+  let cleared = false;
+  const redisPipeline = async commands => commands.map(c => {
+    if (c[0] === "SCAN") return {result:["0",[]]};
+    if (c[0] === "SREM") { assert.equal(c[1], "poker21:bro-poker-report:unreadable:-1001"); assert.equal(c[2], "4330"); cleared = true; }
+    return {result:1};
+  });
+  const result = await routeBroPokerImage({message:{chat:{id:-1001,title:"BRO.POKER"},message_id:4330,photo:[{file_id:"game"}]},redisConfigured:true,redisPipeline,telegram:async()=>{throw Error("Must not send");},recognizeClub:async()=>({notReport:true})});
+  assert.equal(result.reason, "not-a-report"); assert.equal(cleared, true);
+});
