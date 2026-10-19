@@ -388,3 +388,39 @@ test("снимает старую блокировку с подтверждён
   const result = await routeBroPokerImage({message:{chat:{id:-1001,title:"BRO.POKER"},message_id:4330,photo:[{file_id:"game"}]},redisConfigured:true,redisPipeline,telegram:async()=>{throw Error("Must not send");},recognizeClub:async()=>({notReport:true})});
   assert.equal(result.reason, "not-a-report"); assert.equal(cleared, true);
 });
+
+test("банковские квитанции не считаются таблицей X-Poker", () => {
+  const {hasReportTableGrid}=require('../lib/bro-poker-image-router');
+  assert.equal(hasReportTableGrid([[0,116],[123,123],[126,143],[182,192],[1215,1215],[1217,1217],[1219,1225],[1228,1229],[1232,1279]]),false);
+  assert.equal(hasReportTableGrid([[51,52],[89,90],[127,128],[164,166],[202,204],[240,242]]),true);
+});
+
+test("посчитать повторяет до трёх сохранённых фото, удаляет квитанции и чередует ошибки", async () => {
+  const unreadable=new Set(['5','4','3','2','1']), times=new Map([['1',100]]), recognized=[];
+  const redisPipeline=async commands=>commands.map(c=>{
+    const [op,key]=c;
+    if(op==='SCAN')return {result:['0',[]]};
+    if(op==='SMEMBERS')return {result:[...unreadable]};
+    if(op==='HMGET')return {result:c.slice(2).map(id=>times.get(id)||null)};
+    if(op==='HSET'){times.set(c[2],Number(c[3]));return {result:1};}
+    if(op==='GET'&&key.includes('input:'))return {result:JSON.stringify({chat:{id:-1001,title:'BRO.POKER'},message_id:Number(key.split(':').at(-1)),photo:[{file_id:key.split(':').at(-1)}]})};
+    if(op==='SREM'){unreadable.delete(c[2]);return {result:1};}
+    if(op==='GET')return {result:null};
+    return {result:1};
+  });
+  const notices=[];
+  const result=await countBroPokerReports({chatId:'-1001',redisPipeline,botToken:'test',telegram:async(m,b)=>{notices.push({m,b});return {ok:true};},recognizeClub:async({fileId})=>{recognized.push(fileId);return {notReport:true};}});
+  assert.deepEqual(recognized,['2','3','4']);
+  assert.equal(unreadable.size,2);
+  assert.equal(result.blocked,true);
+  assert.equal(notices.length,1);
+  assert.match(notices[0].b.text,/повторно проверяет/);
+  assert.ok(notices.every(n=>n.m==='sendMessage'));
+});
+
+test("восстановленный отчёт получает обязательное подтверждение до рассылки", async () => {
+  const calls=[];
+  const result=await routeBroPokerImage({message:{chat:{id:-1001,title:'BRO.POKER'},message_id:4988,photo:[{file_id:'saved'}]},redisConfigured:true,redisPipeline:async commands=>{calls.push(...commands);return commands.map(c=>({result:c[0]==='SCAN'?['0',[]]:c[0]==='SET'?'OK':1}));},chooseBatchId:async()=>'batch-restored',telegram:async()=>{throw Error('Must not send');},recognizeClub:async()=>({club:'Два Туза X',period:'12.10.2026-18.10.2026',totalCents:12345}),manualReview:true});
+  assert.equal(result.staged,true);
+  assert.ok(calls.some(c=>c[0]==='SET'&&c[1]==='poker21:bro-poker-batch:batch-restored:manual-review'&&c[2]==='1'));
+});
