@@ -345,15 +345,16 @@ test("вся подборка отправляется альбомами выб
   assert.equal(attempts, 1);
 });
 
-test("хайхенд джекпот: кнопка, три баннера, смена формата и альбом", async () => {
+test("хайхенд джекпот: кнопка, баннеры, смена формата и альбом", async () => {
   const { sendScheduleBannerDay } = require("../lib/api-handlers/telegram-report-webhook");
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   for (const [format, start] of [["square", 60], ["story", 55]]) {
+    const count = format === "square" ? 3 : 4;
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Хайхенд джекпот");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= count; i++) {
       const view = scheduleBannerView(start + i - 1, format);
-      assert.match(view.text, new RegExp(`Хайхенд джекпот</b> · ${i} из 3`));
+      assert.match(view.text, new RegExp(`Хайхенд джекпот</b> · ${i} из ${count}`));
       assert.ok(view.previewUrl.includes(`/${format}/highhand/highhand-${i}.png`));
       assert.ok(view.inlineKeyboard.flat().some(b => b.text === "✅ Хайхенд джекпот"));
       const file = path.join(__dirname, `../assets/schedule/banners/${format}/highhand/highhand-${i}.png`);
@@ -373,7 +374,7 @@ test("хайхенд джекпот: кнопка, три баннера, сме
     assert.equal(await sendScheduleBannerDay("-1001", format, "highhand", async (method, body) => { calls.push({ method, body }); return { ok: true }; }), true);
     assert.equal(calls.length, 1);
     assert.equal(calls[0].method, "sendMediaGroup");
-    assert.equal(calls[0].body.media.length, 3);
+    assert.equal(calls[0].body.media.length, count);
     assert.ok(calls[0].body.media.every(m => m.media.includes(`/${format}/highhand/`)));
   }
 });
