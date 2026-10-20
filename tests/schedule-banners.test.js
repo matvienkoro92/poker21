@@ -350,7 +350,7 @@ test("хайхенд джекпот: кнопка, баннеры, смена ф
   const { sendScheduleBannerDay } = require("../lib/api-handlers/telegram-report-webhook");
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   for (const [format, start] of [["square", 56], ["story", 51]]) {
-    const count = format === "square" ? 3 : 4;
+    const count = 5;
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Хайхенд джекпот");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
     for (let i = 1; i <= count; i++) {
