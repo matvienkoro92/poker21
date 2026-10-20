@@ -344,3 +344,36 @@ test("вся подборка отправляется альбомами выб
   assert.equal(await sendScheduleBannerDay("-1001", "square", "wed", async () => { attempts++; return { ok: false }; }), false);
   assert.equal(attempts, 1);
 });
+
+test("хайхенд джекпот: кнопка, три баннера, смена формата и альбом", async () => {
+  const { sendScheduleBannerDay } = require("../lib/api-handlers/telegram-report-webhook");
+  const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
+  for (const [format, start] of [["square", 60], ["story", 55]]) {
+    const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Хайхенд джекпот");
+    assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
+    for (let i = 1; i <= 3; i++) {
+      const view = scheduleBannerView(start + i - 1, format);
+      assert.match(view.text, new RegExp(`Хайхенд джекпот</b> · ${i} из 3`));
+      assert.ok(view.previewUrl.includes(`/${format}/highhand/highhand-${i}.png`));
+      assert.ok(view.inlineKeyboard.flat().some(b => b.text === "✅ Хайхенд джекпот"));
+      const file = path.join(__dirname, `../assets/schedule/banners/${format}/highhand/highhand-${i}.png`);
+      const metadata = await sharp(file).metadata();
+      assert.ok(fs.statSync(file).size < 10_000_000);
+      if (format === "square") assert.equal(metadata.width, metadata.height);
+      else assert.ok(metadata.height / metadata.width > 1.5);
+    }
+    for (const kind of ["Format", "All"]) {
+      const pattern = source.match(new RegExp(`const scheduleBanners${kind}Callback = .*?\\.match\\((/.*?/)\\)`))[1];
+      const regex = new RegExp(pattern.slice(1, -1));
+      const match = `schedule:banners:${kind.toLowerCase()}:${format}:highhand`.match(regex);
+      assert.ok(match);
+      if (kind === "Format") assert.deepEqual(scheduleBannerCallbackSelection(null, match), { format, page: start, isPhoto: true });
+    }
+    const calls = [];
+    assert.equal(await sendScheduleBannerDay("-1001", format, "highhand", async (method, body) => { calls.push({ method, body }); return { ok: true }; }), true);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].method, "sendMediaGroup");
+    assert.equal(calls[0].body.media.length, 3);
+    assert.ok(calls[0].body.media.every(m => m.media.includes(`/${format}/highhand/`)));
+  }
+});
