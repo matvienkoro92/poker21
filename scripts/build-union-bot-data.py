@@ -8,6 +8,7 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 from leaderboard_rewards import extract_leaderboard_rewards
+from report_rebate import report_rebate
 
 
 # Начиная с выгрузки 10–16.08.2026 суммы суперюниона уже приведены
@@ -459,7 +460,8 @@ def main():
         refund_percent = LEAGUE_JACKPOT_REFUNDS.get(row["league"], 0)
         # Откат союзу считается со всего его джекпот-сбора: кеш + Jackpot 21 + MTT.
         jackpot_refund = int((row["fee"] + row["mttFee"]) * exchange_rate * refund_percent / 100)
-        total = round(balance_final + promo + service + jackpot_refund, 2)
+        rebate = report_rebate(balance, start_date)
+        total = round(balance_final + promo + service + jackpot_refund + rebate.get("rebate", 0), 2)
         league_reports.append({
             "league": row["league"],
             "leagueId": row["leagueId"],
@@ -475,6 +477,7 @@ def main():
                 "balanceFinal": balance_final,
                 "jackpotMttPayout": mtt_payout,
                 "promo": promo,
+                **rebate,
                 "servicePercent": service_percent,
                 "service": service,
                 "jackpotRefundPercent": refund_percent,
@@ -509,7 +512,8 @@ def main():
         salary = CLUB_SALARY.get(club_name, 0)
         mtt_payout = round(source_metrics["jackpotMttPayout"], 2) if separate_mtt_payout else 0
         balance_final = round(balance + mtt_payout, 2)
-        total = round(balance_final + salary + service, 2)
+        rebate = report_rebate(balance, start_date)
+        total = round(balance_final + salary + service + rebate.get("rebate", 0), 2)
         club_reports.append({
             "club": club_name,
             "clubId": club_id,
@@ -528,6 +532,7 @@ def main():
                 "jackpotMttPayout": mtt_payout,
                 "promo": 0,
                 "salary": salary,
+                **rebate,
                 "servicePercent": service_percent,
                 "service": service,
                 "jackpotRefundPercent": 0,

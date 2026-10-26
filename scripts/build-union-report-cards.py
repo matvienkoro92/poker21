@@ -52,6 +52,8 @@ def main():
             *([("ЗП", metrics["salary"])] if float(metrics.get("salary", 0)) != 0 else []),
             (f"Обслуживание {metrics['servicePercent']}%", metrics["service"]),
         ]
+        if "rebate" in metrics:
+            rows.append(("Рибейт 10% (выигрыш + рейк)", metrics["rebate"]))
         if float(metrics.get("jackpotRefund", 0)) > 0:
             rows.append(("Возврат джекпота", metrics["jackpotRefund"]))
         row_step = min(83, 650 // max(1, len(rows)))
@@ -60,7 +62,7 @@ def main():
             if label in ("Баланс (выигрыш + комиссия)", "Баланс итог"):
                 draw.rounded_rectangle((65, y - 10, 1135, y + 50), radius=12, fill="#123C32")
             draw.text((85, y), label, font=label_font, fill="#D7E3DF")
-            value_text = f"+{money(value)}" if label == "Возврат джекпота" and float(value) > 0 else money(value)
+            value_text = f"+{money(value)}" if label in ("Возврат джекпота", "Рибейт 10% (выигрыш + рейк)") and float(value) > 0 else money(value)
             value_box = draw.textbbox((0, 0), value_text, font=value_font)
             color = "#6EE7B7" if float(value) >= 0 else "#FB7185"
             draw.text((1115 - (value_box[2] - value_box[0]), y), value_text, font=value_font, fill=color)
