@@ -395,8 +395,8 @@ test("банковские квитанции не считаются табли
   assert.equal(hasReportTableGrid([[51,52],[89,90],[127,128],[164,166],[202,204],[240,242]]),true);
 });
 
-test("посчитать повторяет до трёх сохранённых фото, удаляет квитанции и чередует ошибки", async () => {
-  const unreadable=new Set(['5','4','3','2','1']), times=new Map([['1',100]]), recognized=[];
+test("посчитать повторяет шесть фото параллельно, удаляет квитанции и оставляет ошибки", async () => {
+  const unreadable=new Set(['7','6','5','4','3','2','1']), times=new Map([['1',100]]), recognized=[];
   const redisPipeline=async commands=>commands.map(c=>{
     const [op,key]=c;
     if(op==='SCAN')return {result:['0',[]]};
@@ -409,12 +409,13 @@ test("посчитать повторяет до трёх сохранённых
     return {result:1};
   });
   const notices=[];
-  const result=await countBroPokerReports({chatId:'-1001',redisPipeline,botToken:'test',telegram:async(m,b)=>{notices.push({m,b});return {ok:true};},recognizeClub:async({fileId})=>{recognized.push(fileId);return {notReport:true};}});
-  assert.deepEqual(recognized,['2','3','4']);
+  const result=await countBroPokerReports({chatId:'-1001',redisPipeline,botToken:'test',telegram:async(m,b)=>{notices.push({m,b});return {ok:true};},recognizeClub:async({fileId})=>{recognized.push(fileId);return fileId === '4' ? null : {notReport:true};}});
+  assert.deepEqual(recognized,['2','3','4','5','6','7']);
   assert.equal(unreadable.size,2);
   assert.equal(result.blocked,true);
   assert.equal(notices.length,1);
-  assert.match(notices[0].b.text,/повторно проверяет/);
+  assert.match(notices[0].b.text,/Автоматическая повторная проверка выполнена/);
+  assert.deepEqual([...unreadable].sort(), ['1','4']);
   assert.ok(notices.every(n=>n.m==='sendMessage'));
 });
 
@@ -423,4 +424,47 @@ test("восстановленный отчёт получает обязате�
   const result=await routeBroPokerImage({message:{chat:{id:-1001,title:'BRO.POKER'},message_id:4988,photo:[{file_id:'saved'}]},redisConfigured:true,redisPipeline:async commands=>{calls.push(...commands);return commands.map(c=>({result:c[0]==='SCAN'?['0',[]]:c[0]==='SET'?'OK':1}));},chooseBatchId:async()=>'batch-restored',telegram:async()=>{throw Error('Must not send');},recognizeClub:async()=>({club:'Два Туза X',period:'12.10.2026-18.10.2026',totalCents:12345}),manualReview:true});
   assert.equal(result.staged,true);
   assert.ok(calls.some(c=>c[0]==='SET'&&c[1]==='poker21:bro-poker-batch:batch-restored:manual-review'&&c[2]==='1'));
+});
+
+test("старые восстановленные отчёты не отключают OCR новых фото при повторном расчёте", async () => {
+  const chatId = '-1001', batchId = 'a'.repeat(20);
+  const historical = [
+    [3812, 'Kings KO', -364266], [3813, 'Два Туза X', 4070718],
+    [3814, 'JOKER', -1495524], [3815, 'Nuts_and_Bluff', -155150],
+    [3816, 'Collab club', -466275], [3817, 'BluffCatcher', -471660],
+    [3818, 'PC Arena', -4909425],
+  ];
+  const values = new Map(historical.map(([messageId, club, totalCents]) => [
+    `poker21:bro-poker-report:${chatId}:${messageId}`,
+    JSON.stringify({club, totalCents, period:'27.07.2026-02.08.2026', batchId, status:'staged'}),
+  ]));
+  const unreadable = new Set(['5299','5300','5301','5302','5303','5304']);
+  const recognized = [], sent = [];
+  const redisPipeline = async commands => commands.map(command => {
+    const [op,key] = command;
+    if(op === 'SCAN') return {result:['0', [...values.keys()].filter(k=>k.startsWith(command[3].slice(0,-1)))]};
+    if(op === 'SMEMBERS') return {result:[...unreadable]};
+    if(op === 'HMGET') return {result:command.slice(2).map(()=>null)};
+    if(op === 'GET' && key.includes('input:')) {
+      const id = key.split(':').at(-1);
+      return {result:JSON.stringify({chat:{id:chatId,title:'Poker21 Bro poker'},message_id:Number(id),photo:[{file_id:id}]})};
+    }
+    if(op === 'GET') return {result:values.get(key)||null};
+    if(op === 'SREM') {unreadable.delete(command[2]);return {result:1};}
+    if(op === 'SET') {values.set(key,command[2]);return {result:'OK'};}
+    return {result:1};
+  });
+  const result = await countBroPokerReports({chatId, sourceTitle:'Poker21 Bro poker',
+    botToken:'test-preserved-token', redisPipeline,
+    telegram:async(method,body)=>{sent.push({method,body});return {ok:true};},
+    recognizeClub:async({fileId,botToken})=>{
+      assert.equal(botToken,'test-preserved-token');
+      recognized.push(fileId);
+      return {notReport:true};
+    },
+  });
+  assert.deepEqual(recognized.sort(), ['5299','5300','5301','5302','5303','5304']);
+  assert.equal(unreadable.size,0);
+  assert.equal(result.empty,true);
+  assert.deepEqual(sent,[]);
 });
