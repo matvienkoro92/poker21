@@ -207,7 +207,7 @@ test("лидерборд: свои баннеры, навигация и пер�
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start, count] of [["square", 49, 4], ["story", 44, 2]]) {
+  for (const [format, start, count] of [["square", 48, 4], ["story", 43, 2]]) {
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Лидерборд");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
     for (let i = 0; i < count; i++) {
@@ -239,7 +239,7 @@ test("воскресенье: главный турнир за 5к в обоих
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
   const callbackPattern = source.match(/const scheduleBannersFormatCallback = .*?\.match\((\/.*?\/)\)/)[1];
   const formatRegex = new RegExp(callbackPattern.slice(1, -1));
-  for (const [format, start, count] of [["square", 44, 5], ["story", 39, 5]]) {
+  for (const [format, start, count] of [["square", 44, 4], ["story", 39, 4]]) {
     const keyboard = scheduleBannerView(1, format).inlineKeyboard;
     const entry = keyboard.find(row => row[0].text === "✅ ПН").at(-1);
     assert.equal(entry.text, "ВСКР");
@@ -261,7 +261,7 @@ test("воскресенье: главный турнир за 5к в обоих
         const selection = scheduleBannerCallbackSelection(null, match);
         assert.match(scheduleBannerView(selection.page, selection.format).text, /Главный турнир за 5к<\/b> · 1 из/);
       }
-      const filename = `main-tournament-${i + 1}.png`;
+      const filename = ["main-tournament-4.png", "main-tournament-5.png", "sunday-magic-hunter.jpg", "sunday-magic-coin.jpg"][i];
       const file = path.join(__dirname, `../assets/schedule/banners/${format}/month3000/${filename}`);
       assert.ok(fs.statSync(file).size < 10_000_000);
       const metadata = await sharp(file).metadata();
@@ -325,7 +325,7 @@ test("вся подборка отправляется альбомами выб
 test("хайхенд джекпот: кнопка, баннеры, смена формата и альбом", async () => {
   const { sendScheduleBannerDay } = require("../lib/api-handlers/telegram-report-webhook");
   const source = fs.readFileSync(require.resolve("../lib/api-handlers/telegram-report-webhook"), "utf8");
-  for (const [format, start] of [["square", 53], ["story", 46]]) {
+  for (const [format, start] of [["square", 52], ["story", 45]]) {
     const count = 5;
     const entry = scheduleBannerView(1, format).inlineKeyboard.flat().find(b => b.text === "Хайхенд джекпот");
     assert.equal(entry.callback_data, `schedule:banners:${format}:${start}`);
