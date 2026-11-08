@@ -167,7 +167,7 @@ test("пятница: по четыре баннера в обоих форма�
   assert.ok("schedule:banners:format:story:fri".match(formatRegex));
 });
 
-test("суббота: файлы каждого формата, свой счётчик и сохранение дня", async () => {
+test("суббота: баннеры Fast Track в обоих форматах", async () => {
   for (const [format, start, count] of [["square", 34, 8], ["story", 32, 7]]) {
     for (let i = 0; i < count; i++) {
       const view = scheduleBannerView(start + i, format);
@@ -181,8 +181,7 @@ test("суббота: файлы каждого формата, свой счё�
       }
       const navigation = view.inlineKeyboard.flat().filter(b => /^(⬅️|Следующий)/.test(b.text));
       assert.equal(navigation.length, i === 0 || i === count - 1 ? 1 : 2);
-      const oldCount = format === "square" ? 5 : 4;
-      const filename = i < oldCount ? `saturday-magic-${i + 1}.jpg` : `saturday-frogs-${i - oldCount + 1}.jpg`;
+      const filename = `saturday-fast-track-${i + 1}.jpg`;
       assert.match(view.previewUrl, new RegExp(`${format}/saturday/${filename.replace(".", "\\.")}`));
       const image = path.join(__dirname, `../assets/schedule/banners/${format}/saturday/${filename}`);
       const metadata = await sharp(image).metadata();
@@ -198,7 +197,7 @@ test("старые горизонтальные кнопки открывают 
   for (let i = 1; i <= 3; i++) {
     const selection = scheduleBannerCallbackSelection(["", "landscape", String(i)], null);
     const view = scheduleBannerView(selection.page, selection.format);
-    assert.match(view.previewUrl, new RegExp(`square/saturday/saturday-magic-${i}`));
+    assert.match(view.previewUrl, new RegExp(`square/saturday/saturday-fast-track-${i}`));
     assert.equal(view.inlineKeyboard.at(-3).length, 2);
   }
 });
