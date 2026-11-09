@@ -480,3 +480,61 @@ test("читает итог Nuts_and_Bluff, когда знак рубля сн�
   });
   assert.deepEqual(result, { club: "nuts and bluff", totalCents: 5819300, period: "27.07.2026-02.08.2026" });
 });
+
+function duplicateBatchFixture() {
+  const id = 'd'.repeat(20), base = `poker21:bro-poker-batch:${id}`;
+  const target = {chatId:'-20',binding:{type:'club',club:'Кингс ко'}};
+  const report = messageId => ({messageId,sourceChatId:'-10',batchId:id,club:'Kings KO',period:'27.07.2026-02.08.2026',totalCents:-70560400,targets:[target]});
+  const store = new Map([[`${base}:last`,'1'],[`${base}:source`,'-10'],[`${base}:status`,'pending'],[`${base}:manual-review`,'1'],
+    ['poker21:telegram-report:club-chat:-20',JSON.stringify(target.binding)],
+    ...[1,2].map(n=>[`poker21:bro-poker-report:-10:${n}`,JSON.stringify(report(n))])]);
+  let ids=['1','2'];const calls=[];const balances=[];
+  const redisPipeline=async commands=>commands.map(c=>{
+    const [op,key,value]=c;
+    if(op==='GET')return {result:store.get(key)||null};
+    if(op==='SET'){store.set(key,value);return {result:'OK'};}
+    if(op==='DEL'){store.delete(key);return {result:1};}
+    if(op==='ZRANGE')return {result:ids};
+    if(op==='ZREM'){ids=ids.filter(id=>!c.slice(2).includes(id));return {result:1};}
+    if(op==='SCAN')return {result:['0',['poker21:telegram-report:club-chat:-20']]};
+    if(op==='EVAL'&&c[1].includes("redis.call('GET', KEYS[1]) ~= ARGV[1]")){store.set(c[4],'processing');return {result:1};}
+    if(op==='EVAL'){if(store.has(c[3]))return {result:[0,0]};store.set(c[3],'1');balances.push({key:c[4],cents:Number(c[7])});return {result:[1,Number(c[7])]};}
+    throw Error('Unexpected '+op);
+  });
+  const telegram=async(method,body)=>{calls.push({method,body});return {ok:true,result:{message_id:99}};};
+  return {id,base,store,calls,balances,redisPipeline,telegram};
+}
+
+test('duplicate club report refreshes approval, sends newest once, and retry cannot double-charge',async()=>{
+  const f=duplicateBatchFixture();
+  assert.equal((await flushBroPokerBatch({...f,approved:true})).pending,true);
+  assert.equal(f.balances.length,0);
+  assert.match(f.calls[0].body.text,/Восстановлено 1 отчётов/);
+  assert.equal((f.calls[0].body.text.match(/Kings KO:/g)||[]).length,1);
+  const done=await flushBroPokerBatch({...f,approved:true});
+  assert.equal(done.count,1);assert.equal(done.totalCents,-70560400);
+  assert.deepEqual(f.calls.filter(c=>c.method==='copyMessage').map(c=>c.body.message_id),[2]);
+  assert.equal(f.balances.length,2);
+  assert.equal((await flushBroPokerBatch({...f,approved:true})).duplicate,true);
+  assert.equal(f.balances.length,2);
+});
+
+test('missing original message falls back to saved photo before recording a balance',async()=>{
+  const f=duplicateBatchFixture();
+  await flushBroPokerBatch({...f,approved:true});
+  f.store.set('poker21:bro-poker-batch:input:-10:2',JSON.stringify({photo:[{file_id:'saved-photo'}]}));
+  const telegram=async(method,body)=>method==='copyMessage'?{ok:false,description:'Bad Request: message to copy not found'}:f.telegram(method,body);
+  assert.equal((await flushBroPokerBatch({...f,telegram,approved:true})).routed,true);
+  assert.deepEqual(f.calls.find(c=>c.method==='sendPhoto').body,{chat_id:'-20',photo:'saved-photo'});
+  assert.equal(f.balances.length,2);
+});
+
+test('conflicting totals and partially delivered duplicates block without writes',async()=>{
+  for(const partial of [false,true]){
+    const f=duplicateBatchFixture();
+    if(partial)f.store.set('poker21:bro-poker-report:balance:-10:1:-20','1');
+    else {const key='poker21:bro-poker-report:-10:2';const report=JSON.parse(f.store.get(key));report.totalCents++;f.store.set(key,JSON.stringify(report));}
+    assert.equal((await flushBroPokerBatch({...f,approved:true})).blocked,true);
+    assert.equal(f.calls.length,0);assert.equal(f.balances.length,0);
+  }
+});
