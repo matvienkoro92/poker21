@@ -468,3 +468,15 @@ test("старые восстановленные отчёты не отключ
   assert.equal(result.empty,true);
   assert.deepEqual(sent,[]);
 });
+
+
+test("читает итог Nuts_and_Bluff, когда знак рубля снижает уверенность OCR", async () => {
+  const bytes = require("node:fs").readFileSync(require("node:path").join(__dirname, "fixtures/bro-nuts-and-bluff-6047.jpg"));
+  const { recognizeClub } = require("../lib/bro-poker-image-router");
+  const result = await recognizeClub({
+    fileId: "local-fixture", clubNames: ["nuts and bluff"], botToken: "local",
+    telegram: async () => ({ ok: true, result: { file_path: "local" } }),
+    fetchImpl: async () => ({ ok: true, arrayBuffer: async () => bytes }),
+  });
+  assert.deepEqual(result, { club: "nuts and bluff", totalCents: 5819300, period: "27.07.2026-02.08.2026" });
+});
