@@ -130,3 +130,20 @@ test('next report does not credit MTT payouts again when already included in win
   assert.ok(calls[0].body.text.includes('-8.43'));
   assert.doesNotMatch(calls[0].body.text, /вне Win\/lose/);
 });
+
+ test('share base includes every current union and the approved new union rates', () => {
+  const { ctx } = harness();
+  const jackpot = require('../data/union-jackpot-summary.json');
+  const result = ctx.calculateChineseRake({ jackpot, directory: { clubs: [] } });
+  for (const league of jackpot.leagues) {
+    if (Number(league.feeTotal) === 0) continue;
+    assert.ok(result.rows.some(row => row.id === String(league.leagueId)), `Missing union ${league.leagueId}`);
+  }
+  const fixture = ctx.calculateChineseRake({ jackpot: { leagues: [
+    { leagueId: '360281', feeTotal: 32507.42, exchangeRate: 1 },
+    { leagueId: '544305', feeTotal: 2429.03, exchangeRate: 1 },
+  ] }, directory: { clubs: [] } });
+  assert.equal(fixture.rows.find(row => row.id === '360281').amount, 3250.74);
+  assert.equal(fixture.rows.find(row => row.id === '544305').amount, 121.45);
+  assert.equal(fixture.total, 3372.19);
+});

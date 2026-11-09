@@ -22,6 +22,8 @@ RULES = [
     ("league", "287920", "BRAZIL", 5), ("league", "685702", "BG Union", 8),
     ("league", "538879", "Bro Poker", 5), ("league", "993268", "Poker 2025", 10),
     ("league", "596499", "AF UNION", 5),
+    ("league", "360281", "Family Oushan", 10), ("league", "544305", "POKER21 PHILIPPINES", 5),
+
 ]
 
 SPLITS = [("Андрюха", 2), ("Роман", 2), ("Макс", 3), ("Серёга", 3.25),
