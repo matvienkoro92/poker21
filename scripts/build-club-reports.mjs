@@ -13,6 +13,18 @@ const { SpreadsheetFile, Workbook } = await import(pathToFileURL(artifactToolMod
 const [jsonPath, outputDir] = process.argv.slice(2);
 if (!jsonPath || !outputDir) throw new Error("Usage: build-club-reports.mjs INPUT.json OUTPUT_DIR");
 const payload = JSON.parse(await fs.readFile(jsonPath, "utf8"));
+const column = (name) => {
+  const index = payload.headers.indexOf(name);
+  if (index < 0) throw new Error("Missing column " + name);
+  return index;
+};
+const cashIndex = column("Ring Game Total");
+const mttIndex = column("MTT Total");
+const sngIndex = column("SNG Total");
+const insuranceIndex = payload.headers.indexOf("Total", sngIndex + 1);
+const jackpotFeeIndex = column("Total Fee");
+const jackpotPayoutIndex = column("Total Payout");
+const handsIndex = payload.headers.indexOf("Total", jackpotPayoutIndex + 1);
 await fs.mkdir(outputDir, { recursive: true });
 
 const safeName = (value) => String(value).replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, " ").trim();
@@ -57,14 +69,14 @@ for (const club of payload.clubs) {
   summary.getRange("A15:B17").values = [
     ["Активность", "Количество"],
     ["Игроков в таблице", club.rows.length],
-    ["Раздач", club.rows.reduce((sum, row) => sum + Number(row[61] || 0), 0)],
+    ["Раздач", club.rows.reduce((sum, row) => sum + Number(row[handsIndex] || 0), 0)],
   ];
   summary.getRange("A15:B15").format = { fill: "#2563EB", font: { color: "#FFFFFF", bold: true } };
   summary.getRange("B16:B17").format.numberFormat = "#,##0";
   summary.getRange("A:B").format.columnWidth = 24;
 
   const compactHeaders = ["Player ID", "NickName", "Agent Name", "Agent ID", "Выигрыш", "Cash", "MTT", "SNG", "Весь рейк", "Страховка", "Сбор джекпота", "Выплата джекпота", "Раздачи"];
-  const compactRows = club.rows.map((row) => [row[2], row[4], row[6], row[7], row[9], row[30], row[44], row[49], null, row[53], row[59], row[60], row[61]]);
+  const compactRows = club.rows.map((row) => [row[2], row[4], row[6], row[7], row[9], row[cashIndex], row[mttIndex], row[sngIndex], null, row[insuranceIndex], row[jackpotFeeIndex], row[jackpotPayoutIndex], row[handsIndex]]);
   players.getRangeByIndexes(0, 0, 1, compactHeaders.length).values = [compactHeaders];
   if (compactRows.length) {
     players.getRangeByIndexes(1, 0, compactRows.length, compactHeaders.length).values = compactRows;

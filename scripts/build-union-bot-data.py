@@ -141,6 +141,22 @@ def main():
 
     members = workbook["Union Member Statistics"]
     member_headers = [cell.value for cell in next(members.iter_rows(min_row=5, max_row=5))]
+    groups = []
+    group = ""
+    for cell in next(members.iter_rows(min_row=4, max_row=4)):
+        if cell.value:
+            group = str(cell.value).strip()
+        groups.append(group)
+    columns = {(group, str(header).strip()): index for index, (group, header) in enumerate(zip(groups, member_headers))}
+    cash_index = columns[("Fee", "Ring Game Total")]
+    mtt_index = columns[("Fee", "MTT Total")]
+    sng_index = columns[("Fee", "SNG Total")]
+    insurance_index = columns[("Insurance", "Total")]
+    jackpot_fee_index = columns[("Jack Pot", "Total Fee")]
+    jackpot_payout_index = columns[("Jack Pot", "Total Payout")]
+    hands_index = columns[("Hands", "Total")]
+    winnings_indices = [i for i, g in enumerate(groups) if g == "Winnings" and str(member_headers[i]).strip() != "Total"]
+    rake_indices = [i for i, g in enumerate(groups) if g == "Fee" and i not in (cash_index, mtt_index, sng_index)]
     players = {}
     club_players = defaultdict(dict)
     member_club_ids = set()
@@ -167,19 +183,19 @@ def main():
         if agent_name or agent_id:
             player["agents"].add(f"{agent_name} ({agent_id})" if agent_name and agent_id else agent_name or agent_id)
         player["winnings"] += float(row[9] or 0)
-        player["cashRake"] += float(row[30] or 0)
-        player["mttRake"] += float(row[44] or 0)
-        player["sngRake"] += float(row[49] or 0)
-        player["insurance"] += float(row[53] or 0)
-        player["jackpotFee"] += float(row[59] or 0)
-        player["jackpotPayout"] += float(row[60] or 0)
-        player["hands"] += float(row[61] or 0)
-        member_hands[club_id] += float(row[61] or 0)
-        if any(float(row[index] or 0) != 0 for index in [9, 30, 44, 49, 53, 59, 60, 61]):
+        player["cashRake"] += float(row[cash_index] or 0)
+        player["mttRake"] += float(row[mtt_index] or 0)
+        player["sngRake"] += float(row[sng_index] or 0)
+        player["insurance"] += float(row[insurance_index] or 0)
+        player["jackpotFee"] += float(row[jackpot_fee_index] or 0)
+        player["jackpotPayout"] += float(row[jackpot_payout_index] or 0)
+        player["hands"] += float(row[hands_index] or 0)
+        member_hands[club_id] += float(row[hands_index] or 0)
+        if any(float(row[index] or 0) != 0 for index in [9, cash_index, mtt_index, sng_index, insurance_index, jackpot_fee_index, jackpot_payout_index, hands_index]):
             active_ids[club_id].add(player_id)
-        for index in range(10, 30):
+        for index in winnings_indices:
             add_value(player["winGames"], str(member_headers[index]), row[index])
-        for index in list(range(31, 44)) + list(range(45, 49)) + list(range(50, 53)):
+        for index in rake_indices:
             add_value(player["rakeGames"], str(member_headers[index]), row[index])
         club_player = club_players[club_id].setdefault(player_id, {
             "id": player_id, "nick": nick, "winnings": 0.0, "rake": 0.0,
@@ -188,14 +204,14 @@ def main():
         })
         club_player["nick"] = nick
         club_player["winnings"] += float(row[9] or 0)
-        club_player["cashRake"] += float(row[30] or 0)
-        club_player["mttRake"] += float(row[44] or 0)
-        club_player["sngRake"] += float(row[49] or 0)
-        club_player["insurance"] += float(row[53] or 0)
+        club_player["cashRake"] += float(row[cash_index] or 0)
+        club_player["mttRake"] += float(row[mtt_index] or 0)
+        club_player["sngRake"] += float(row[sng_index] or 0)
+        club_player["insurance"] += float(row[insurance_index] or 0)
         club_player["rake"] = club_player["cashRake"] + club_player["mttRake"] + club_player["sngRake"]
-        for index in range(10, 30):
+        for index in winnings_indices:
             add_value(club_player["winGames"], str(member_headers[index]), row[index])
-        for index in list(range(31, 44)) + list(range(45, 49)) + list(range(50, 53)):
+        for index in rake_indices:
             add_value(club_player["rakeGames"], str(member_headers[index]), row[index])
 
     for club_id, club in club_metrics.items():
