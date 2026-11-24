@@ -20,6 +20,46 @@
     const res=await fetch('./api/club-team',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:JSON.stringify(body)});
     const value=await res.json();if(!res.ok)throw Error(value.error||'Не удалось загрузить кабинет.');return value;
   }
+  function showDashboard(d) {
+    const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
+    function section(title, parent=box) {
+      const el=document.createElement('details');el.append(node('summary',title));parent.append(el);return el;
+    }
+    box.append(node('h3',d.name+' · ID '+d.clubId));
+    const finance=section('Баланс и последние операции');
+    finance.open=true;
+    if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
+    else if(!d.accounts.length)finance.append(node('p','У клуба нет привязанной группы с балансом.'));
+    d.accounts.forEach((account,index)=>{
+      if(d.accounts.length>1)finance.append(node('h4','Счёт '+(index+1)));
+      const money = (rub,usd) => [rub==null?null:fmt(rub/100)+' ₽',usd==null?null:fmt(usd/100)+' $'].filter(Boolean).join(' · ') || 'Пока не задан';
+      finance.append(node('p','Текущий баланс · '+money(account.rub,account.usd)),node('p','Баланс реквизитов · '+money(account.paymentRub,account.paymentUsd)));
+      const ops=section('Последние операции',finance);
+      for(const text of account.operations)ops.append(node('p',text));
+      if(!account.operations.length)ops.append(node('p','Операций пока нет.'));
+    });
+    const pulse=section('Пульс клуба');
+    pulse.append(node('p',d.period.join(' — ')));
+    for(const [label,value] of Object.entries(d.metrics))pulse.append(node('p',label+' · '+fmt(value)));
+    const players=section('Игроки · по рейку',pulse);
+    for(const p of d.players)players.append(node('p',p.nick+' · '+p.id+' · рейк '+fmt(p.rake)+' ₽ · результат '+fmt(p.winnings)+' ₽'));
+    if(d.activityPeriod)pulse.append(node('p','Активность за неделю по '+d.activityPeriod));
+    if(d.conclusion)pulse.append(node('p',d.conclusion));
+    for(const [label,rows] of Object.entries(d.groups)){
+      const group=section(label+' · '+rows.length,pulse);
+      for(const p of rows)group.append(node('p',p.nick+' · '+p.id+' · '+p.detail+(p.action?' · '+p.action:'')));
+    }
+    const reports=section('Отчёты клуба · '+d.reports.length);
+    if(!d.reports.length)reports.append(node('p','Сохранённых отчётов пока нет.'));
+    for(const r of d.reports){
+      const row=node('article',r.start+' — '+r.end);
+      for(const [label,url] of [['Отчёт',r.image],['Excel',r.excel]]){
+        if(!url || !url.startsWith('/assets/reports/'))continue;
+        const a=node('a',label+' ↗');a.href=url;a.target='_blank';a.rel='noopener';row.append(' · ',a);
+      }
+      reports.append(row);
+    }
+  }
   async function render(key){
     box.replaceChildren();
     const clubs=data.memberships;
@@ -30,6 +70,10 @@
       choice.lastChild.onchange=e=>{active=e.target.value;work({action:'status'});};box.append(choice);
       const c=clubs.find(c=>c.clubId===active);
       box.append(node('p',c.role==='owner'?'Вы владелец клуба':'Вы сотрудник клуба'));
+      if(c.role==='owner'){
+        try { showDashboard(await api({action:'dashboard',clubId:active})); }
+        catch {box.append(node('p','Сводка клуба временно недоступна.'));}
+      }
       form('Разместить реквизиты','place',[field('amount','Сумма, ₽'),field('details','Реквизиты получателя')],'Разместить',{clubId:active});
       box.append(node('h3','Заявки клуба'));
       const {items}=await api({action:'list',clubId:active});
