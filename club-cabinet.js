@@ -68,9 +68,14 @@
   renderSchedule();
   byId('desk-day').onchange = byId('desk-format').onchange = () => data && renderGallery();
   byId('desk-retry').onclick = load;
-  desk.querySelector('[data-desk-open]').onclick = () => {
-    byId('desk-schedule').open = true;
-    byId('desk-schedule').scrollIntoView({block:'start'});
+  desk.querySelector('[data-desk-open]').onclick = event => {
+    const banners = byId(event.currentTarget.dataset.deskOpen);
+    if (data) {
+      byId('desk-day').value = data.day;
+      renderGallery();
+    }
+    banners.open = true;
+    banners.scrollIntoView({block:'start'});
   };
   load();
 })();
