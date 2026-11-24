@@ -23,7 +23,7 @@
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./club-cabinet.css?v=5" />
+    <link rel="stylesheet" href="./club-cabinet.css?v=6" />
     <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -156,16 +156,16 @@
         <section class="card__content">
           <!-- Главная -->
           <div class="view view--active" data-view="home">
-            <main class="club-desk">
-              <header class="desk-brand"><img src="./assets/logo-two-aces.png" alt="Poker21 Plus"><div><small>POKER21</small><h1>Кабинет клуба</h1></div></header>
-              <details id="desk-team"><summary class="desk-transfer"><span><small>Баланс, отчёты и команда</small><strong>Кабинет по ключу</strong></span><b aria-hidden="true">↗</b></summary><section></section><p role="status"></p></details>
+            <div class="club-desk">
+              <header class="desk-brand"><img src="./assets/logo-two-aces.png" alt="Poker21 Plus"><div><small>POKER21 PLUS</small><h1>Кабинет клуба</h1></div></header>
+              <details id="desk-team"><summary class="desk-transfer"><span><strong>Кабинет по ключу</strong><small>Баланс, отчёты и команда</small></span><b aria-hidden="true">↗</b></summary><section></section><p role="status"></p></details>
               <section class="desk-evening"><div><small>Турнир вечера</small><h2 id="desk-event">Расписание турнира</h2><p id="desk-details"></p><button type="button" data-desk-open="desk-schedule">Расписание ↗</button></div><img id="desk-art" alt="" hidden></section>
-              <details id="desk-schedule"><summary>Расписание турниров</summary><div class="desk-body"><label>Период <select id="desk-period"><option value="today">Сегодня, МСК</option><option value="all">Всё расписание</option></select></label><div id="desk-rows"></div></div></details>
-              <details id="desk-banners"><summary>Баннеры к турниру</summary><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label><label>Формат <select id="desk-format"><option value="square">Квадрат</option><option value="story">Сторис</option></select></label></div><div id="desk-gallery"></div></div></details>
+              <details id="desk-schedule"><summary><i class="desk-icon calendar" aria-hidden="true"></i>Расписание турниров</summary><div class="desk-body"><label>Период <select id="desk-period"><option value="today">Сегодня, МСК</option><option value="all">Всё расписание</option></select></label><div id="desk-rows"></div></div></details>
+              <details id="desk-banners"><summary><i class="desk-icon posters" aria-hidden="true"></i>Баннеры к турниру</summary><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label><label>Формат <select id="desk-format"><option value="square">Квадрат</option><option value="story">Сторис</option></select></label></div><div id="desk-gallery"></div></div></details>
               <dialog id="desk-preview" aria-label="Просмотр афиши"><button type="button" aria-label="Закрыть просмотр" autofocus>×</button><img alt=""></dialog>
               <p id="desk-status" role="status">Загружаем расписание…</p><button type="button" id="desk-retry" hidden>Повторить загрузку</button>
               <div class="desk-links"><a class="desk-vpn" href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener" aria-label="Открыть VPN Poker21 в Telegram"><span class="desk-vpn__shield" aria-hidden="true">21</span><strong>VPN Poker21</strong><span aria-hidden="true">↗</span></a></div>
-            </main>
+            </div>
             <footer class="card__footer card__footer--home" id="homeFooter">
               <p class="footer-note">
                 Poker21. Играйте ответственно. 18+
@@ -1168,7 +1168,7 @@
             </div>
           </div>
 
-+          <!-- Переводы -->
+          <!-- Переводы -->
           <div class="view" data-view="transfers" id="transfersView">
             <section class="transfers-page" aria-labelledby="transfersTitle">
               <header class="transfers-page__header">
