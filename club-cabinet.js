@@ -2,25 +2,6 @@
   const byId = id => document.getElementById(id);
   const desk = document.querySelector('.club-desk');
   if (!desk) return;
-  const themeButton = byId('desk-theme');
-  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
-  let preference;
-  try { preference = localStorage.getItem('poker21-cabinet-theme'); } catch {}
-  function applyTheme() {
-    const dark = preference === 'dark' || (preference !== 'light' && systemTheme.matches);
-    document.documentElement.dataset.cabinetTheme = dark ? 'dark' : 'light';
-    themeButton.setAttribute('aria-pressed', String(dark));
-    themeButton.textContent = dark ? '☀' : '☾';
-    themeButton.title = dark ? 'Включить светлую тему' : 'Включить тёмную тему';
-  }
-  themeButton.onclick = () => {
-    preference = document.documentElement.dataset.cabinetTheme === 'dark' ? 'light' : 'dark';
-    try { localStorage.setItem('poker21-cabinet-theme', preference); } catch {}
-    applyTheme();
-  };
-  if (systemTheme.addEventListener) systemTheme.addEventListener('change', applyTheme);
-  else systemTheme.addListener(applyTheme);
-  applyTheme();
   const catalog = window.poker21BannerCatalog;
   const preview = byId('desk-preview');
   const fullImage = preview.querySelector('img');
