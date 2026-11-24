@@ -2,6 +2,24 @@
   const byId = id => document.getElementById(id);
   const desk = document.querySelector('.club-desk');
   if (!desk) return;
+  const themeButton = byId('desk-theme');
+  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+  let preference;
+  try { preference = localStorage.getItem('poker21-cabinet-theme'); } catch {}
+  function applyTheme() {
+    const dark = preference === 'dark' || (preference !== 'light' && systemTheme.matches);
+    document.documentElement.dataset.cabinetTheme = dark ? 'dark' : 'light';
+    themeButton.setAttribute('aria-pressed', String(dark));
+    themeButton.textContent = dark ? '☀' : '☾';
+    themeButton.title = dark ? 'Включить светлую тему' : 'Включить тёмную тему';
+  }
+  themeButton.onclick = () => {
+    preference = document.documentElement.dataset.cabinetTheme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('poker21-cabinet-theme', preference); } catch {}
+    applyTheme();
+  };
+  systemTheme.addEventListener('change', applyTheme);
+  applyTheme();
   let data;
   const preview = byId('desk-preview');
   const fullImage = preview.querySelector('img');
@@ -53,7 +71,12 @@
       const lines = evening?.text.split('\n') || [];
       const main = lines.find(line => /18[:.]00/.test(line));
       byId('desk-event').textContent = main?.replace(/^.*?18[:.]00\s*(?:МСК)?\s*[·—-]?\s*/i, '') || 'Турнир вечера';
-      byId('desk-details').textContent = main ? ['18:00 МСК', ...lines.slice(lines.indexOf(main) + 1)].join(' · ') : 'На сегодня вечерний турнир не указан.';
+      const facts = main ? ['18:00 МСК', ...lines.slice(lines.indexOf(main) + 1).flatMap(line => line.split(' · '))] : ['На сегодня вечерний турнир не указан.'];
+      byId('desk-details').replaceChildren(...facts.map(text => {
+        const span = document.createElement('span');
+        span.textContent = text.replace(/ (₽|МСК)/g, '\u00a0$1');
+        return span;
+      }));
       const art = data.banners.square[data.day]?.[0];
       if (art && main) { byId('desk-art').src = './assets/schedule/banners/' + art; byId('desk-art').hidden = false; }
 

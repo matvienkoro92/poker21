@@ -23,7 +23,7 @@
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./club-cabinet.css?v=6" />
+    <link rel="stylesheet" href="./club-cabinet.css?v=7" />
     <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -157,8 +157,8 @@
           <!-- Главная -->
           <div class="view view--active" data-view="home">
             <div class="club-desk">
-              <header class="desk-brand"><img src="./assets/logo-two-aces.png" alt="Poker21 Plus"><div><small>POKER21 PLUS</small><h1>Кабинет клуба</h1></div></header>
-              <details id="desk-team"><summary class="desk-transfer"><span><strong>Кабинет по ключу</strong><small>Баланс, отчёты и команда</small></span><b aria-hidden="true">↗</b></summary><section></section><p role="status"></p></details>
+              <header class="desk-brand"><span class="desk-monogram" aria-hidden="true">P</span><h1>Poker21</h1><button id="desk-theme" type="button" aria-label="Тёмная тема" aria-pressed="false">☾</button></header>
+              <details id="desk-team"><summary class="desk-transfer"><svg class="desk-key" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M18 18a8 8 0 1 0-4-5L3 24v5h5v-3h4v-4h3z"/><circle cx="22" cy="10" r="1.7"/></svg><span><strong>Кабинет по ключу</strong><small>Баланс, отчёты и команда</small></span><b aria-hidden="true">↗</b></summary><section></section><p role="status"></p></details>
               <section class="desk-evening"><div><small>Турнир вечера</small><h2 id="desk-event">Расписание турнира</h2><p id="desk-details"></p><button type="button" data-desk-open="desk-banners" aria-controls="desk-banners">Баннеры ↓</button></div><img id="desk-art" alt="" hidden></section>
               <details id="desk-schedule"><summary><i class="desk-icon calendar" aria-hidden="true"></i>Расписание турниров</summary><div class="desk-body"><label>Период <select id="desk-period"><option value="today">Сегодня, МСК</option><option value="all">Всё расписание</option></select></label><div id="desk-rows"></div></div></details>
               <details id="desk-banners"><summary><i class="desk-icon posters" aria-hidden="true"></i>Баннеры к турниру</summary><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label><label>Формат <select id="desk-format"><option value="square">Квадрат</option><option value="story">Сторис</option></select></label></div><div id="desk-gallery"></div></div></details>
@@ -3132,7 +3132,7 @@
     <script src="./poker-tasks-data.js"></script>
     <script src="./app.js?v=34"></script>
     <script src="./app-transfers.js?v=1"></script>
-    <script src="./club-cabinet.js?v=4"></script>
+    <script src="./club-cabinet.js?v=5"></script>
     <script src="./club-team.js?v=3"></script>
   </body>
 </html>
