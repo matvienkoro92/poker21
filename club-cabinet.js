@@ -8,7 +8,8 @@
   preview.querySelector('button').onclick = () => preview.close();
   preview.onclick = event => { if (event.target === preview) preview.close(); };
 
-  function thumbnail(src, alt, miniature = src) {
+  let currentView = 0;
+  function thumbnail(src, alt, miniature, large = src) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'desk-thumbnail';
@@ -16,12 +17,22 @@
     if (miniature !== src) image.addEventListener('error', () => { image.src = src; }, {once:true});
     image.src = miniature;
     image.alt = alt;
-    image.loading = 'lazy';
+
     button.append(image);
     button.onclick = () => {
-      fullImage.src = src;
+      const view = ++currentView;
+      fullImage.src = image.currentSrc || miniature;
       fullImage.alt = alt;
       preview.showModal();
+      const detail = new Image();
+      detail.onload = () => {
+        if (preview.open && currentView === view) fullImage.src = detail.src;
+      };
+      if (large !== src) detail.onerror = () => {
+        detail.onerror = null;
+        if (preview.open && currentView === view) detail.src = src;
+      };
+      detail.src = large;
     };
     return button;
   }
@@ -37,7 +48,7 @@
     const label = byId('desk-day').selectedOptions[0].text;
     const files = catalog.banners[format][day] || [];
     byId('desk-gallery').replaceChildren(...files.map((file, index) =>
-      thumbnail('./assets/schedule/banners/' + file, label + ' · баннер ' + (index + 1), './assets/banner-previews/' + file + '.webp')
+      thumbnail('./assets/schedule/banners/' + file, label + ' · баннер ' + (index + 1), './assets/banner-previews/' + file + '.webp', './assets/banner-previews/' + file + '.webp.view.webp')
     ));
   }
   function renderEvening(text, art) {

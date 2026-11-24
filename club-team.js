@@ -20,12 +20,12 @@
     const res=await fetch('./api/club-team',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:JSON.stringify(body)});
     const value=await res.json();if(!res.ok)throw Error(value.error||'Не удалось загрузить кабинет.');return value;
   }
-  function showDashboard(d) {
+  function showDashboard(d, parent) {
     const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
-    function section(title, parent=box) {
-      const el=document.createElement('details');el.append(node('summary',title));parent.append(el);return el;
+    function section(title, container=parent) {
+      const el=document.createElement('details');el.append(node('summary',title));container.append(el);return el;
     }
-    box.append(node('h3',d.name+' · ID '+d.clubId));
+    parent.append(node('h3',d.name+' · ID '+d.clubId));
     const finance=section('Баланс и последние операции');
     finance.open=true;
     if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
@@ -108,9 +108,14 @@
       choice.lastChild.onchange=e=>{active=e.target.value;work({action:'status'});};box.append(choice);
       const c=clubs.find(c=>c.clubId===active);
       box.append(node('p',c.role==='owner'?'Вы владелец клуба':'Вы сотрудник клуба'));
+      const dashboard=node('div','');
       if(c.role==='owner'){
-        try { showDashboard(await api({action:'dashboard',clubId:active})); }
-        catch {box.append(node('p','Сводка клуба временно недоступна.'));}
+        dashboard.textContent='Загружаем сводку клуба…';
+        box.append(dashboard);
+        api({action:'dashboard',clubId:active}).then(result=>{
+          dashboard.replaceChildren();
+          showDashboard(result,dashboard);
+        }).catch(()=>{dashboard.textContent='Сводка клуба временно недоступна.';});
       }
       form('Разместить реквизиты','place',[field('amount','Сумма, ₽'),field('details','Реквизиты получателя')],'Разместить',{clubId:active});
       box.append(node('h3','Заявки клуба'));
@@ -135,6 +140,7 @@
   }
   async function work(body){
     if(busy)return;busy=true;box.inert=true;
+    status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
     try{
       const result=await api(body);
       data=result.memberships?result:await api({action:'status'});
@@ -143,5 +149,7 @@
     }catch(e){status.textContent=e.message;box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;}
   }
-  panel.addEventListener('toggle',()=>{if(panel.open)work({action:'status'});});
+  function openPanel(){if(panel.open)work({action:'status'});}
+  panel.addEventListener('toggle',openPanel);
+  openPanel();
 })();

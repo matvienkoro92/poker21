@@ -12,6 +12,7 @@ const publicDir = path.join(root, 'public');
 
 const toCopy = [
   'index.html',
+  'linked-sections.html',
   'styles.css',
   'styles-transfers.css',
   'app.js',

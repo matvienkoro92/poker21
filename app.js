@@ -13661,8 +13661,8 @@ function initChat() {
     var assetBase = assetPath.replace(/\/?$/, "/") + "assets/";
     dialogsView.querySelectorAll(".chat-dialog-item img.chat-dialog-item__avatar[src]").forEach(function (img) {
       var s = img.getAttribute("src") || "";
-      if (s.indexOf("dep-manager") !== -1) img.src = assetBase + (s.indexOf("vika") !== -1 ? "dep-manager-vika.png" : "dep-manager.png");
-      else if (s.indexOf("logo-two-aces") !== -1) img.src = assetBase + "logo-two-aces.png";
+      if (s.indexOf("dep-manager") !== -1) img.src = assetBase + (s.indexOf("vika") !== -1 ? "dep-manager-vika.webp" : "dep-manager.webp");
+      else if (s.indexOf("logo-two-aces") !== -1) img.src = assetBase + "logo-two-aces.webp";
     });
   }
 

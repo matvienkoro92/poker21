@@ -8,8 +8,11 @@ module.exports = async function buildBannerPreviews(root, output) {
   for (const file of new Set(files)) {
     const dest = path.join(output,'assets/banner-previews',file+'.webp');
     await fs.mkdir(path.dirname(dest),{recursive:true});
-    await sharp(path.join(root,'assets/schedule/banners',file))
-      .rotate().resize({width:300,withoutEnlargement:true}).webp({quality:66}).toFile(dest);
+    const source = path.join(root,'assets/schedule/banners',file);
+    await sharp(source).rotate().resize({width:960, withoutEnlargement:true})
+      .webp({quality:78}).toFile(dest + '.view.webp');
+    await sharp(source)
+      .rotate().resize({width:240,withoutEnlargement:true}).webp({quality:62}).toFile(dest);
   }
   for (const file of ['schedule-overview-v2-3.jpg', 'schedule-overview-v2-2.jpg']) {
     await sharp(path.join(root, 'assets/schedule', file))
