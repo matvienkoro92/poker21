@@ -3,39 +3,42 @@
   const desk = document.querySelector('.club-desk');
   if (!desk) return;
   let data;
+  const preview = byId('desk-preview');
+  const fullImage = preview.querySelector('img');
+  preview.querySelector('button').onclick = () => preview.close();
+  preview.onclick = event => { if (event.target === preview) preview.close(); };
+
+  function thumbnail(src, alt) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'desk-thumbnail';
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = alt;
+    image.loading = 'lazy';
+    button.append(image);
+    button.onclick = () => {
+      fullImage.src = src;
+      fullImage.alt = alt;
+      preview.showModal();
+    };
+    return button;
+  }
   function renderSchedule() {
     const all = byId('desk-period').value === 'all';
     const files = all ? ['schedule-overview-v2-3.jpg', 'schedule-overview-v2-2.jpg'] : ['schedule-2026-09-13.jpg'];
-    byId('desk-rows').replaceChildren(...files.map((file, index) => {
-      const link = document.createElement('a');
-      link.href = './assets/schedule/' + file;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      const image = document.createElement('img');
-      image.src = link.href;
-      image.loading = 'lazy';
-      image.alt = all ? 'Общее расписание · афиша ' + (index + 1) : 'Афиша из расписания на сегодня';
-      link.append(image);
-      return link;
-    }));
+    byId('desk-rows').replaceChildren(...files.map((file, index) =>
+      thumbnail('./assets/schedule/' + file, all ? 'Общее расписание · афиша ' + (index + 1) : 'Афиша из расписания на сегодня')
+    ));
   }
   function renderGallery() {
     const day = byId('desk-day').value;
     const format = byId('desk-format').value;
     const label = byId('desk-day').selectedOptions[0].text;
     const files = data.banners[format][day] || [];
-    byId('desk-gallery').replaceChildren(...files.map((file, index) => {
-      const link = document.createElement('a');
-      link.href = './assets/schedule/banners/' + file;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      const image = document.createElement('img');
-      image.alt = label + ' · баннер ' + (index + 1);
-      image.loading = 'lazy';
-      image.src = link.href;
-      link.append(image);
-      return link;
-    }));
+    byId('desk-gallery').replaceChildren(...files.map((file, index) =>
+      thumbnail('./assets/schedule/banners/' + file, label + ' · баннер ' + (index + 1))
+    ));
   }
   async function load() {
     byId('desk-retry').hidden = true;
