@@ -159,8 +159,8 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 }
 #app.app--view-home > .card {flex-shrink:0}
 
-#app:has(.view--active[data-view=download]) {height:var(--tg-viewport-height,100dvh);min-height:0;box-sizing:border-box;padding-bottom:0;overflow:hidden;background:var(--desk-paper)}
-#app:has(.view--active[data-view=download])>.card {flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;background:var(--desk-paper)}
+#app:has(.view--active:is([data-view=download],[data-view=banners],[data-view=club-schedule])) {height:var(--tg-viewport-height,100dvh);min-height:0;box-sizing:border-box;padding-bottom:0;overflow:hidden;background:var(--desk-paper)}
+#app:has(.view--active:is([data-view=download],[data-view=banners],[data-view=club-schedule]))>.card {flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;background:var(--desk-paper)}
 .view--active[data-view=download] .install-panel.download-page--active {display:grid;gap:16px;box-sizing:border-box;width:min(100%,720px);margin:0 auto;padding:16px 12px;color:var(--desk-text)}
 .install-cover {position:relative;isolation:isolate;overflow:hidden;border-radius:20px;background:#171010}
 .install-cover img {display:block;width:100%;height:auto}
@@ -172,7 +172,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .install-platforms strong {font:680 17px/1.4 system-ui,sans-serif}
 .install-platforms b {color:var(--desk-secondary);font-size:21px}
 
-#app:has(.view--active[data-view=download]) > .bottom-nav {
+#app:has(.view--active:is([data-view=download],[data-view=banners],[data-view=club-schedule])) > .bottom-nav {
   position:relative;
   flex:none;
   width:100%;
