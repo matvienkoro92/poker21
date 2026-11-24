@@ -12,7 +12,7 @@
 .club-desk button,.club-desk select {font:inherit;color:var(--ink);background:#27312b;border:1px solid #707569;border-radius:8px;padding:9px;min-height:42px}
 .club-desk details {border-top:1px solid var(--rule);padding:4px 0}.club-desk summary {cursor:pointer;padding:10px 0;font-size:1.14rem;font-weight:650}
 .desk-body {padding:8px 0}.desk-body label {display:grid;gap:4px;font-size:.8rem;color:var(--muted)}.desk-filters {flex-wrap:wrap}
-#desk-rows p {white-space:pre-line;padding:10px 0;margin:0;border-bottom:1px solid var(--rule)}.desk-body>a {display:inline-block;padding:12px 0;color:#ead3a0}
+#desk-rows {display:grid;gap:12px;margin-top:12px}#desk-rows img {display:block;width:100%;height:auto;border-radius:8px}.desk-body>a {display:inline-block;padding:12px 0;color:#ead3a0}
 #desk-gallery {display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-top:12px}#desk-gallery img {width:100%;display:block;border-radius:6px}
 .desk-links {flex-wrap:wrap;justify-content:space-between;border-top:1px solid var(--rule);padding-top:14px;font-size:.85rem}.club-desk [hidden],#desk-status:empty {display:none}
 

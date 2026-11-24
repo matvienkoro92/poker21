@@ -3,15 +3,21 @@
   const desk = document.querySelector('.club-desk');
   if (!desk) return;
   let data;
-  function element(tag, text) {
-    const node = document.createElement(tag);
-    node.textContent = text;
-    return node;
-  }
   function renderSchedule() {
-    const rows = data.rows.filter(row => byId('desk-period').value === 'all' || row.today);
-    byId('desk-rows').replaceChildren(...rows.map(row => element('p', row.text)));
-    if (!rows.length) byId('desk-rows').textContent = 'На этот период турниры не указаны.';
+    const all = byId('desk-period').value === 'all';
+    const files = all ? ['schedule-overview-v2-3.jpg', 'schedule-overview-v2-2.jpg'] : ['schedule-2026-09-13.jpg'];
+    byId('desk-rows').replaceChildren(...files.map((file, index) => {
+      const link = document.createElement('a');
+      link.href = './assets/schedule/' + file;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      const image = document.createElement('img');
+      image.src = link.href;
+      image.loading = 'lazy';
+      image.alt = all ? 'Общее расписание · афиша ' + (index + 1) : 'Афиша из расписания на сегодня';
+      link.append(image);
+      return link;
+    }));
   }
   function renderGallery() {
     const day = byId('desk-day').value;
@@ -47,7 +53,7 @@
       byId('desk-details').textContent = main ? ['18:00 МСК', ...lines.slice(lines.indexOf(main) + 1)].join(' · ') : 'На сегодня вечерний турнир не указан.';
       const art = data.banners.square[data.day]?.[0];
       if (art && main) { byId('desk-art').src = './assets/schedule/banners/' + art; byId('desk-art').hidden = false; }
-      renderSchedule();
+
       renderGallery();
       byId('desk-status').textContent = '';
     } catch {
@@ -55,7 +61,8 @@
       byId('desk-retry').hidden = false;
     }
   }
-  byId('desk-period').onchange = () => data && renderSchedule();
+  byId('desk-period').onchange = renderSchedule;
+  renderSchedule();
   byId('desk-day').onchange = byId('desk-format').onchange = () => data && renderGallery();
   byId('desk-retry').onclick = load;
   desk.querySelector('[data-desk-open]').onclick = () => {
