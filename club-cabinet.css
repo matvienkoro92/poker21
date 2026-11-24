@@ -22,3 +22,15 @@
 #desk-team h3 {margin:0;color:var(--ink)}
 #desk-team article p {white-space:pre-wrap;overflow-wrap:anywhere}
 .club-desk #desk-team>summary {padding:14px 18px}
+
+.club-desk .desk-vpn {
+  display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:3px 14px 3px 6px;
+  border:1px solid #677d70;border-radius:28px;background:#24342c;color:#e8f1e5;
+}
+.desk-vpn__shield {
+  display:grid;place-items:center;width:33px;height:36px;padding-bottom:3px;
+  clip-path:polygon(50% 0,94% 16%,90% 62%,76% 81%,50% 100%,24% 81%,10% 62%,6% 16%);
+  background:linear-gradient(130deg,#f4e6b6,#c2d8ba 55%,#80ad96);
+  color:#243a2c;font:bold 14px/1 Georgia,serif;
+}
+.desk-vpn:focus-visible {outline:2px solid #ead3a0;outline-offset:3px}
