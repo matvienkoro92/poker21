@@ -6,7 +6,12 @@
     const wrap=node('label',label),el=document.createElement(choices?'select':name==='details'?'textarea':'input');
     el.name=name;el.required=true;
     if(choices)for(const c of choices)el.add(new Option(c.name+' · '+c.clubId,c.clubId));
-    if(name==='target'){el.inputMode='numeric';el.pattern='[1-9][0-9]{0,15}';}
+    if(name==='target'){
+      el.placeholder='@Roman1_matvienko';
+      el.autocapitalize='none';
+      el.spellcheck=false;
+      wrap.append(node('small','Введите логин Telegram с @ или без него. Отправьте ключ получателю в личном чате.'));
+    }
     if(name==='amount'){el.type='number';el.min=1;el.step=1;}
     if(name==='details')el.maxLength=500;
     wrap.append(el);return wrap;
@@ -128,15 +133,17 @@
         box.append(row);
       }
       if(c.role==='owner'){
-        form('Команда','staff',[field('target','Telegram ID сотрудника')],'Создать приглашение',{clubId:active});
+        form('Команда','staff',[field('target','Логин Telegram сотрудника')],'Создать приглашение',{clubId:active});
         for(const id of [...new Set([...c.staff,...c.pending])]){
           const row=node('p',id+' · '+(c.staff.includes(id)?'подключён':'ожидает')+' ');
           row.append(button('Отозвать',()=>work({action:'revoke',clubId:active,target:id})));box.append(row);
         }
       }
     }
-    if(data.directory)form('Выдать ключ владельцу','owner',[field('clubId','Клуб',data.directory),field('target','Telegram ID владельца')],'Создать ключ');
+    if(data.directory)form('Выдать ключ владельцу','owner',[field('clubId','Клуб',data.directory),field('target','Логин Telegram владельца')],'Создать ключ');
     form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать');
+    const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    if(ownId)box.append(node('p','Ваш Telegram ID · '+ownId));
   }
   async function work(body){
     if(busy)return;busy=true;box.inert=true;
