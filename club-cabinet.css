@@ -238,3 +238,21 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .club-issuer :is(input,select,button) {width:100%;box-sizing:border-box;min-height:42px;border-radius:9px;background:#202f25;color:#eef6ef;border:1px solid #48604e;padding:8px}
 .club-issuer form button,.club-issuer .issued-invite button {background:#bfecc4;color:#132119}
 .club-issuer p:empty {display:none}
+
+.desk-brand .cabinet-close,.install-cover .cabinet-close {
+  display:grid;place-items:center;flex:none;width:44px;height:44px;min-height:44px;
+  border:1px solid #56685d;border-radius:50%;padding:0;background:#18231d;color:#f2fff4;
+  font:400 28px/1 system-ui;cursor:pointer;
+}
+.desk-brand .cabinet-close {order:1;margin-left:auto}
+.desk-brand:has(.club-header-balance strong) .cabinet-close {margin-left:0}
+.install-cover .cabinet-close {position:absolute;right:10px;top:10px;z-index:2}
+
+.club-desk #desk-team.club-connected > summary,.club-desk .club-header-balance[hidden],
+.club-desk #club-finance[hidden],#desk-team label[hidden] {display:none}
+.club-desk #desk-team.club-connected {background:none;border:0}
+.club-desk button.club-header-balance {padding:5px 9px;border:1px solid #405848;border-radius:10px;min-width:0;max-width:45%;cursor:pointer}
+.club-header-balance small {overflow-wrap:anywhere}
+#club-finance {padding:14px;background:#17211c;border:1px solid #394b41;border-radius:14px}
+#club-finance .club-metrics {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#club-finance .club-metrics div {display:grid;gap:4px}
