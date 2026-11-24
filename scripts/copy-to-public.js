@@ -16,6 +16,7 @@ const toCopy = [
   'styles-transfers.css',
   'app.js',
   'club-cabinet.js',
+  'club-banner-catalog.js',
   'club-team.js',
   'club-cabinet.css',
   'app-transfers.js',
@@ -61,3 +62,6 @@ for (const dir of dirsToCopy) {
 }
 
 console.log('Build output is in public/');
+
+// Serve small gallery images while retaining the originals for fullscreen viewing.
+require('./build-banner-previews')(root, publicDir).catch(error => { console.error(error); process.exitCode = 1; });

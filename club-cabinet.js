@@ -21,18 +21,19 @@
   if (systemTheme.addEventListener) systemTheme.addEventListener('change', applyTheme);
   else systemTheme.addListener(applyTheme);
   applyTheme();
-  let data;
+  const catalog = window.poker21BannerCatalog;
   const preview = byId('desk-preview');
   const fullImage = preview.querySelector('img');
   preview.querySelector('button').onclick = () => preview.close();
   preview.onclick = event => { if (event.target === preview) preview.close(); };
 
-  function thumbnail(src, alt) {
+  function thumbnail(src, alt, miniature = src) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'desk-thumbnail';
     const image = document.createElement('img');
-    image.src = src;
+    if (miniature !== src) image.addEventListener('error', () => { image.src = src; }, {once:true});
+    image.src = miniature;
     image.alt = alt;
     image.loading = 'lazy';
     button.append(image);
@@ -53,13 +54,13 @@
     const day = byId('desk-day').value;
     const format = byId('desk-format').value;
     const label = byId('desk-day').selectedOptions[0].text;
-    const files = data.banners[format][day] || [];
+    const files = catalog.banners[format][day] || [];
     byId('desk-gallery').replaceChildren(...files.map((file, index) =>
-      thumbnail('./assets/schedule/banners/' + file, label + ' · баннер ' + (index + 1))
+      thumbnail('./assets/schedule/banners/' + file, label + ' · баннер ' + (index + 1), './assets/banner-previews/' + file + '.webp')
     ));
   }
   function renderEvening(text, art) {
-    const lines = text.split('\n') || [];
+    const lines = (text || '').split('\n');
     const main = lines.find(line => /18[:.]00/.test(line));
     byId('desk-event').textContent = main?.replace(/^.*?18[:.]00\s*(?:МСК)?\s*[·—-]?\s*/i, '') || 'Турнир вечера';
     const facts = main ? ['18:00 МСК', ...lines.slice(lines.indexOf(main) + 1).flatMap(line => line.split(' · '))] : ['На сегодня вечерний турнир не указан.'];
@@ -111,28 +112,25 @@
     try {
       const response = await fetch('./api/club-cabinet');
       if (!response.ok) throw Error();
-      data = await response.json();
-      const options = data.days.map(([key, label]) => new Option(label, key));
-      byId('desk-day').replaceChildren(...options);
-      byId('desk-day').value = data.day;
+      const data = await response.json();
       const evening = data.rows.find(row => row.category === 'day' && row.today && /18[:.]00/.test(row.text));
       renderEvening(evening?.text, data.banners.square[data.day]?.[0]);
-      renderGallery();
       byId('desk-status').textContent = '';
     } catch {
-      byId('desk-status').textContent = 'Не удалось загрузить расписание и баннеры.';
+      byId('desk-status').textContent = 'Не удалось обновить расписание.';
       byId('desk-retry').hidden = false;
     }
   }
+  byId('desk-day').replaceChildren(...catalog.days.map(([key,label]) => new Option(label,key)));
+  byId('desk-day').value = day;
+  renderGallery();
   renderSchedule();
-  byId('desk-day').onchange = byId('desk-format').onchange = () => data && renderGallery();
+  byId('desk-day').onchange = byId('desk-format').onchange = renderGallery;
   byId('desk-retry').onclick = load;
   desk.querySelector('[data-desk-open]').onclick = event => {
     const banners = byId(event.currentTarget.dataset.deskOpen);
-    if (data) {
-      byId('desk-day').value = data.day;
-      renderGallery();
-    }
+    byId('desk-day').value = day;
+    renderGallery();
     banners.scrollIntoView({block:'start'});
   };
   load();
