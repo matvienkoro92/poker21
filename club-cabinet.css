@@ -194,3 +194,36 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
   box-shadow:inset 0 -3px #94ef97;
 }
 .bottom-nav svg.bottom-nav__icon {display:block;width:23px;height:23px;flex:none}
+
+#desk-team form[data-action=owner], #desk-team .issued-invite {
+  display:grid; gap:14px; margin:10px 0 18px; padding:clamp(14px,4vw,22px);
+  border:1px solid #38463f; border-radius:18px; background:#18211d;
+}
+#desk-team .issued-invite {background:linear-gradient(135deg,#1d3629,#17241d);border-color:#4a7658}
+#desk-team .issued-invite p {margin:0;color:#d5e7da}
+#desk-team .issued-invite small {color:#b9cabe;line-height:1.45}
+#desk-team form[data-action=owner] label {font-size:14px;color:#c3d2c8;gap:6px}
+#desk-team form[data-action=owner] :is(input,select),#desk-team .issued-invite input {
+  min-height:44px;width:100%;border:1px solid #526359;border-radius:10px;background:#101813;color:#eff7f1;font-size:16px;
+}
+#desk-team .issued-invite input {font-family:ui-monospace,monospace}
+#desk-team form[data-action=owner] button,#desk-team .issued-invite button {
+  min-height:44px;background:#c0edc5;color:#102519;border:0;border-radius:11px;font-weight:700;
+}
+
+#desk-team .club-role {justify-self:start;padding:3px 9px;border-radius:18px;background:#284536;color:#c1eccc;font-size:12px}
+#desk-team details.club-fold {margin:10px 0;padding:0 14px;border:1px solid #394b41;border-radius:15px;background:#17211c}
+#desk-team details.club-fold[open] {padding-bottom:12px}
+#desk-team details.club-fold > summary {
+  display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;
+  list-style:none;cursor:pointer;color:#edf6ee;font-weight:650;
+}
+#desk-team .club-fold > summary::-webkit-details-marker {display:none}
+#desk-team .club-fold > summary::after {content:"";width:8px;height:8px;border:solid #a2d3b0;border-width:0 2px 2px 0;transform:rotate(45deg);flex:none}
+#desk-team .club-fold[open] > summary::after {transform:rotate(225deg)}
+#desk-team .club-metrics {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px}
+#desk-team .club-metrics > div {display:grid;align-content:start;gap:5px;padding:12px;border-radius:12px;background:#23382c}
+#desk-team .club-metrics small {color:#bad0c0}
+#desk-team .club-metrics strong {font-size:clamp(18px,4vw,24px);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#desk-team .club-fold form button,#desk-team .club-fold article button {background:#c0edc5;color:#142b1e;border:0;border-radius:10px;min-height:44px;font-weight:700}
+#desk-team .club-fold a {display:inline-block;padding:8px 12px;border:1px solid #4a6554;border-radius:9px;color:#ccf3d7;text-decoration:none}

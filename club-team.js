@@ -7,17 +7,16 @@
     el.name=name;el.required=true;
     if(choices)for(const c of choices)el.add(new Option(c.name+' · '+c.clubId,c.clubId));
     if(name==='target'){
-      el.placeholder='@Roman1_matvienko';
+      el.placeholder='@username';
       el.autocapitalize='none';
       el.spellcheck=false;
-      wrap.append(node('small','Введите логин Telegram с @ или без него. Отправьте ключ получателю в личном чате.'));
     }
     if(name==='amount'){el.type='number';el.min=1;el.step=1;}
     if(name==='details')el.maxLength=500;
     wrap.append(el);return wrap;
   }
-  function form(title,action,fields,submit,extra={}){
-    const f=document.createElement('form');f.append(node('h3',title),...fields,node('button',submit));box.append(f);
+  function form(title,action,fields,submit,extra={},container=box){
+    const f=document.createElement('form');f.dataset.action=action;f.append(node('h3',title),...fields,node('button',submit));container.append(f);
     f.onsubmit=e=>{e.preventDefault();work({action,...extra,...Object.fromEntries(new FormData(f))});};
   }
   function button(label,fn){const b=node('button',label);b.type='button';b.onclick=fn;return b;}
@@ -25,27 +24,41 @@
     const res=await fetch('./api/club-team',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:JSON.stringify(body)});
     const value=await res.json();if(!res.ok)throw Error(value.error||'Не удалось загрузить кабинет.');return value;
   }
+  function section(title,container){
+    const el=document.createElement('details');
+    el.className='club-fold';
+    el.append(node('summary',title));
+    container.append(el);
+    return el;
+  }
+  function metric(label,value){
+    const tile=node('div','');
+    tile.append(node('small',label),node('strong',value));
+    return tile;
+  }
   function showDashboard(d, parent) {
     const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
-    function section(title, container=parent) {
-      const el=document.createElement('details');el.append(node('summary',title));container.append(el);return el;
-    }
-    parent.append(node('h3',d.name+' · ID '+d.clubId));
-    const finance=section('Баланс и последние операции');
+    const finance=section('Баланс клуба',parent);
     finance.open=true;
     if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
     else if(!d.accounts.length)finance.append(node('p','У клуба нет привязанной группы с балансом.'));
     d.accounts.forEach((account,index)=>{
       if(d.accounts.length>1)finance.append(node('h4','Счёт '+(index+1)));
       const money = (rub,usd) => [rub==null?null:fmt(rub/100)+' ₽',usd==null?null:fmt(usd/100)+' $'].filter(Boolean).join(' · ') || 'Пока не задан';
-      finance.append(node('p','Текущий баланс · '+money(account.rub,account.usd)),node('p','Баланс реквизитов · '+money(account.paymentRub,account.paymentUsd)));
+      const balances=node('div','');
+      balances.className='club-metrics';
+      balances.append(metric('Текущий баланс',money(account.rub,account.usd)),
+        metric('Баланс реквизитов',money(account.paymentRub,account.paymentUsd)));
+      finance.append(balances);
       const ops=section('Последние операции',finance);
       for(const text of account.operations)ops.append(node('p',text));
       if(!account.operations.length)ops.append(node('p','Операций пока нет.'));
     });
-    const pulse=section('Пульс клуба');
+    const pulse=section('Пульс клуба',parent);
     pulse.append(node('p',d.period.join(' — ')));
-    for(const [label,value] of Object.entries(d.metrics))pulse.append(node('p',label+' · '+fmt(value)));
+    const metrics=node('div','');metrics.className='club-metrics';
+    for(const [label,value] of Object.entries(d.metrics))metrics.append(metric(label,fmt(value)));
+    pulse.append(metrics);
     const players=section('Игроки · '+d.players.length,pulse);
     if(d.players.length) {
       const search=node('input','');
@@ -92,7 +105,7 @@
       const group=section(label+' · '+rows.length,pulse);
       for(const p of rows)group.append(node('p',p.nick+' · '+p.id+' · '+p.detail+(p.action?' · '+p.action:'')));
     }
-    const reports=section('Отчёты клуба · '+d.reports.length);
+    const reports=section('Отчёты клуба · '+d.reports.length,parent);
     if(!d.reports.length)reports.append(node('p','Сохранённых отчётов пока нет.'));
     for(const r of d.reports){
       const row=node('article',r.start+' — '+r.end);
@@ -103,16 +116,40 @@
       reports.append(row);
     }
   }
-  async function render(key){
+  async function render(key, request){
     box.replaceChildren();
     const clubs=data.memberships;
     if(!clubs.some(c=>c.clubId===active))active=clubs[0]?.clubId||'';
-    if(key){const wrap=field('issued','Ключ на 24 часа. Передайте его лично получателю.');const el=wrap.lastChild;el.value=key;el.readOnly=true;el.onclick=()=>el.select();box.append(wrap);}
+    if(key){
+      const club=[...(data.directory||[]),...clubs].find(c=>c.clubId===request.clubId);
+      const card=node('article','');
+      card.className='issued-invite';
+      const target=String(request.target).trim().replace(/^@/,'');
+      const recipient=/^\d+$/.test(target)?target:'@'+target;
+      const keyField=node('input','');
+      keyField.value=key;
+      keyField.readOnly=true;
+      keyField.setAttribute('aria-label','Одноразовый ключ');
+      keyField.onclick=()=>keyField.select();
+      const copy=button('Скопировать ключ',async()=>{
+        try{
+          await navigator.clipboard.writeText(key);
+          copy.textContent='Ключ скопирован';
+        }catch{
+          keyField.focus();
+          keyField.select();
+          copy.textContent='Скопируйте выделенный ключ';
+        }
+      });
+      card.append(node('h3','Приглашение готово'),node('p',(club?.name||request.clubId)+' · '+recipient),
+        keyField,copy,node('small','Отправьте ключ получателю в личном чате. Он действует 24 часа.'));
+      box.append(card);
+    }
     if(clubs.length){
       const choice=field('active','Кабинет клуба',clubs);choice.lastChild.value=active;
       choice.lastChild.onchange=e=>{active=e.target.value;work({action:'status'});};box.append(choice);
       const c=clubs.find(c=>c.clubId===active);
-      box.append(node('p',c.role==='owner'?'Вы владелец клуба':'Вы сотрудник клуба'));
+      const role=node('small',c.role==='owner'?'Владелец клуба':'Сотрудник клуба');role.className='club-role';choice.append(role);
       const dashboard=node('div','');
       if(c.role==='owner'){
         dashboard.textContent='Загружаем сводку клуба…';
@@ -122,21 +159,24 @@
           showDashboard(result,dashboard);
         }).catch(()=>{dashboard.textContent='Сводка клуба временно недоступна.';});
       }
-      form('Разместить реквизиты','place',[field('amount','Сумма, ₽'),field('details','Реквизиты получателя')],'Разместить',{clubId:active});
-      box.append(node('h3','Заявки клуба'));
+      const requisites=section('Реквизиты',box);
+      form('Разместить реквизиты','place',[field('amount','Сумма, ₽'),field('details','Реквизиты получателя')],'Разместить',{clubId:active},requisites);
+
       const {items}=await api({action:'list',clubId:active});
-      if(!items.length)box.append(node('p','Пока нет заявок.'));
+      const requests=section('Заявки клуба · '+items.length,box);
+      if(!items.length)requests.append(node('p','Пока нет заявок.'));
       for(const x of items){
         const row=node('article',x.amount.toLocaleString('ru-RU')+' ₽');
         if(x.mine||x.taker)row.append(node('p',x.details),node('small',x.taker?'Взята':'Ваша заявка'));
         else row.append(button('Взять реквизиты',()=>work({action:'take',item:x.id,clubId:active})));
-        box.append(row);
+        requests.append(row);
       }
       if(c.role==='owner'){
-        form('Команда','staff',[field('target','Логин Telegram сотрудника')],'Создать приглашение',{clubId:active});
+        const team=section('Команда · '+c.staff.length,box);
+        form('Пригласить сотрудника','staff',[field('target','Логин Telegram сотрудника')],'Создать приглашение',{clubId:active},team);
         for(const id of [...new Set([...c.staff,...c.pending])]){
           const row=node('p',id+' · '+(c.staff.includes(id)?'подключён':'ожидает')+' ');
-          row.append(button('Отозвать',()=>work({action:'revoke',clubId:active,target:id})));box.append(row);
+          row.append(button('Отозвать',()=>work({action:'revoke',clubId:active,target:id})));team.append(row);
         }
       }
     }
@@ -151,8 +191,8 @@
     try{
       const result=await api(body);
       data=result.memberships?result:await api({action:'status'});
-      await render(result.key);
-      status.textContent=body.action==='status'?'':'Готово.';
+      await render(result.key,body);
+      status.textContent=body.action==='status'||result.key?'':'Готово.';
     }catch(e){status.textContent=e.message;box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;}
   }
