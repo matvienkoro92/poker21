@@ -18,7 +18,8 @@
     try { localStorage.setItem('poker21-cabinet-theme', preference); } catch {}
     applyTheme();
   };
-  systemTheme.addEventListener('change', applyTheme);
+  if (systemTheme.addEventListener) systemTheme.addEventListener('change', applyTheme);
+  else systemTheme.addListener(applyTheme);
   applyTheme();
   let data;
   const preview = byId('desk-preview');
@@ -58,6 +59,54 @@
       thumbnail('./assets/schedule/banners/' + file, label + ' · баннер ' + (index + 1))
     ));
   }
+  function renderEvening(text, art) {
+    const lines = text.split('\n') || [];
+    const main = lines.find(line => /18[:.]00/.test(line));
+    byId('desk-event').textContent = main?.replace(/^.*?18[:.]00\s*(?:МСК)?\s*[·—-]?\s*/i, '') || 'Турнир вечера';
+    const facts = main ? ['18:00 МСК', ...lines.slice(lines.indexOf(main) + 1).flatMap(line => line.split(' · '))] : ['На сегодня вечерний турнир не указан.'];
+    byId('desk-details').replaceChildren(...facts.map(text => {
+      const span = document.createElement('span');
+      span.textContent = text.replace(/ (₽|МСК)/g, '\u00a0$1');
+      return span;
+    }));
+
+    byId('desk-art').hidden = !art || !main;
+    if (art && main) { byId('desk-art').src = './assets/schedule/banners/' + art; byId('desk-art').hidden = false; }
+    byId('desk-event').classList.toggle('desk-long-title', byId('desk-event').textContent.length > 12);
+  }
+  // First paint uses the bot's weekly programme; the live response takes precedence.
+  const programme = {
+  "mon": [
+    "Понедельник\n18:00 МСК · MKO\nБай-ин: 500 ₽ · Гарантия: 170 000 ₽",
+    "square/monday/monday-1.jpg"
+  ],
+  "tue": [
+    "Вторник\n18:00 МСК · Rebuy\nБай-ин: 300 ₽ · Гарантия: 150 000 ₽",
+    "square/tuesday/tuesday-1.jpg"
+  ],
+  "wed": [
+    "Среда\n18:00 МСК · MKO\nБай-ин: 1 000 ₽ · Гарантия: 170 000 ₽",
+    "square/wednesday/wednesday-kosar-1.jpg"
+  ],
+  "thu": [
+    "Четверг\n18:00 МСК · MKO\nБай-ин: 300 ₽ · Гарантия: 100 000 ₽",
+    "square/thursday/thursday-1-info.jpg"
+  ],
+  "fri": [
+    "Пятница\n18:00 МСК · PKO\nБай-ин: 500 ₽ · Гарантия: 150 000 ₽",
+    "square/friday/friday-knockout-ram.jpg"
+  ],
+  "sat": [
+    "Суббота\n18:00 МСК · PKO\nБай-ин: 5 000 ₽ · Гарантия: 250 000 ₽",
+    "square/saturday/saturday-fast-track-1.jpg"
+  ],
+  "sun": [
+    "Воскресенье\n18:00 МСК · PKO\nБай-ин: 2 000 ₽ · Гарантия: 300 000 ₽",
+    "square/month3000/main-tournament-4.png"
+  ]
+};
+  const day = new Intl.DateTimeFormat('en-US', {weekday:'short',timeZone:'Europe/Moscow'}).format(new Date()).toLowerCase();
+  renderEvening(...programme[day]);
   async function load() {
     byId('desk-retry').hidden = true;
     try {
@@ -68,18 +117,7 @@
       byId('desk-day').replaceChildren(...options);
       byId('desk-day').value = data.day;
       const evening = data.rows.find(row => row.category === 'day' && row.today && /18[:.]00/.test(row.text));
-      const lines = evening?.text.split('\n') || [];
-      const main = lines.find(line => /18[:.]00/.test(line));
-      byId('desk-event').textContent = main?.replace(/^.*?18[:.]00\s*(?:МСК)?\s*[·—-]?\s*/i, '') || 'Турнир вечера';
-      const facts = main ? ['18:00 МСК', ...lines.slice(lines.indexOf(main) + 1).flatMap(line => line.split(' · '))] : ['На сегодня вечерний турнир не указан.'];
-      byId('desk-details').replaceChildren(...facts.map(text => {
-        const span = document.createElement('span');
-        span.textContent = text.replace(/ (₽|МСК)/g, '\u00a0$1');
-        return span;
-      }));
-      const art = data.banners.square[data.day]?.[0];
-      if (art && main) { byId('desk-art').src = './assets/schedule/banners/' + art; byId('desk-art').hidden = false; }
-
+      renderEvening(evening?.text, data.banners.square[data.day]?.[0]);
       renderGallery();
       byId('desk-status').textContent = '';
     } catch {
