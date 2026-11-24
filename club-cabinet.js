@@ -44,10 +44,9 @@
     return button;
   }
   function renderSchedule() {
-    const all = byId('desk-period').value === 'all';
-    const files = all ? ['schedule-overview-v2-3.jpg', 'schedule-overview-v2-2.jpg'] : ['schedule-2026-09-13.jpg'];
+    const files = ['schedule-overview-v2-3.jpg', 'schedule-overview-v2-2.jpg'];
     byId('desk-rows').replaceChildren(...files.map((file, index) =>
-      thumbnail('./assets/schedule/' + file, all ? 'Общее расписание · афиша ' + (index + 1) : 'Афиша из расписания на сегодня')
+      thumbnail('./assets/schedule/' + file, 'Расписание турниров · афиша ' + (index + 1))
     ));
   }
   function renderGallery() {
@@ -125,7 +124,6 @@
       byId('desk-retry').hidden = false;
     }
   }
-  byId('desk-period').onchange = renderSchedule;
   renderSchedule();
   byId('desk-day').onchange = byId('desk-format').onchange = () => data && renderGallery();
   byId('desk-retry').onclick = load;

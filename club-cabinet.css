@@ -151,5 +151,5 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 
 .desk-collection {min-width:0;background:var(--desk-panel);border:1px solid var(--desk-line);border-radius:17px}
 .desk-collection h2 {display:flex;align-items:center;gap:12px;margin:0;padding:15px 16px;color:var(--ink);font:700 clamp(16px,4.2vw,22px)/1.2 system-ui,sans-serif}
-#desk-rows,#desk-gallery {grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+#desk-rows {grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
 .desk-collection .desk-thumbnail {min-width:0}
