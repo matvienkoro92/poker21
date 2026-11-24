@@ -114,8 +114,6 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .desk-evening img {border-radius:12px;transform:rotate(2.5deg)}
 .club-desk>details>summary {font-size:clamp(16px,4.25vw,23px);min-height:60px}
 .club-desk>details>summary::after {border-color:var(--desk-secondary)}
-:root:not([data-cabinet-theme=dark]) #desk-schedule {border-radius:17px 17px 0 0;border-bottom:0}
-:root:not([data-cabinet-theme=dark]) #desk-banners {margin-top:calc(-1 * clamp(12px,3.7vw,23px));border-radius:0 0 17px 17px}
 .club-desk .desk-vpn {border-radius:16px;padding:6px 14px;gap:12px;background:var(--desk-panel);color:var(--ink);border-color:var(--desk-line)}
 .desk-vpn strong {padding-left:12px;border-left:1px solid var(--desk-line)}
 #desk-team>section:not(:empty),#desk-team>[role=status]:not(:empty),#desk-team details,.club-desk select,#desk-team input,#desk-team textarea,#desk-team button {background:var(--desk-panel);color:var(--ink);border-color:var(--rule)}
@@ -150,3 +148,8 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
   .club-desk {width:100vw;max-width:none;margin-inline:calc((100% - 100vw)/2);padding-inline:2.2vw}
   .desk-evening #desk-details {font-size:clamp(12px,3.45vw,18px)}
 }
+
+.desk-collection {min-width:0;background:var(--desk-panel);border:1px solid var(--desk-line);border-radius:17px}
+.desk-collection h2 {display:flex;align-items:center;gap:12px;margin:0;padding:15px 16px;color:var(--ink);font:700 clamp(16px,4.2vw,22px)/1.2 system-ui,sans-serif}
+#desk-rows,#desk-gallery {grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.desk-collection .desk-thumbnail {min-width:0}

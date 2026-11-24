@@ -135,7 +135,6 @@
       byId('desk-day').value = data.day;
       renderGallery();
     }
-    banners.open = true;
     banners.scrollIntoView({block:'start'});
   };
   load();
