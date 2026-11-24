@@ -52,7 +52,7 @@
   }
   function renderGallery() {
     const day = byId('desk-day').value;
-    const format = byId('desk-format').value;
+    const format = byId('desk-format').querySelector('[aria-pressed=true]').dataset.format;
     const label = byId('desk-day').selectedOptions[0].text;
     const files = catalog.banners[format][day] || [];
     byId('desk-gallery').replaceChildren(...files.map((file, index) =>
@@ -125,7 +125,15 @@
   byId('desk-day').value = day;
   renderGallery();
   renderSchedule();
-  byId('desk-day').onchange = byId('desk-format').onchange = renderGallery;
+  byId('desk-day').onchange = renderGallery;
+  const formats = byId('desk-format').querySelectorAll('button');
+  formats.forEach(button => {
+    button.onclick = () => {
+      if (button.getAttribute('aria-pressed') === 'true') return;
+      formats.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+      renderGallery();
+    };
+  });
   byId('desk-retry').onclick = load;
   desk.querySelector('[data-desk-open]').onclick = event => {
     const banners = byId(event.currentTarget.dataset.deskOpen);

@@ -23,7 +23,7 @@
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./club-cabinet.css?v=10" />
+    <link rel="stylesheet" href="./club-cabinet.css?v=11" />
     <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -161,13 +161,17 @@
               <details id="desk-team"><summary class="desk-transfer"><svg class="desk-key" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M18 18a8 8 0 1 0-4-5L3 24v5h5v-3h4v-4h3z"/><circle cx="22" cy="10" r="1.7"/></svg><span><strong>Кабинет по ключу</strong><small>Баланс, отчёты и команда</small></span><b aria-hidden="true">↗</b></summary><section></section><p role="status"></p></details>
               <section class="desk-evening"><div><small>Турнир вечера</small><h2 id="desk-event"></h2><p id="desk-details"></p><button type="button" data-desk-open="desk-banners" aria-controls="desk-banners">Баннеры ↓</button></div><img id="desk-art" alt="" hidden></section>
               <section class="desk-collection" id="desk-schedule"><h2><i class="desk-icon calendar" aria-hidden="true"></i>Расписание турниров</h2><div class="desk-body"><div id="desk-rows"></div></div></section>
-              <section class="desk-collection" id="desk-banners"><h2><i class="desk-icon posters" aria-hidden="true"></i>Баннеры к турниру</h2><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label><label>Формат <select id="desk-format"><option value="square">Квадрат</option><option value="story">Сторис</option></select></label></div><div id="desk-gallery"></div></div></section>
+              <section class="desk-collection" id="desk-banners"><h2><i class="desk-icon posters" aria-hidden="true"></i>Баннеры к турниру</h2><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label></div><div id="desk-gallery"></div>
+                <div id="desk-format" role="group" aria-label="Формат баннеров">
+                  <button type="button" data-format="square" aria-pressed="true" aria-controls="desk-gallery">Квадрат</button>
+                  <button type="button" data-format="story" aria-pressed="false" aria-controls="desk-gallery">Сторис</button>
+                </div></div></section>
               <dialog id="desk-preview" aria-label="Просмотр афиши"><button type="button" aria-label="Закрыть просмотр" autofocus>×</button><img alt=""></dialog>
               <p id="desk-status" role="status">Загружаем расписание…</p><button type="button" id="desk-retry" hidden>Повторить загрузку</button>
               <div class="desk-links"><a class="desk-vpn" href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener" aria-label="Открыть VPN Poker21 в Telegram"><span class="desk-vpn__shield" aria-hidden="true">21</span><strong>VPN Poker21</strong><span aria-hidden="true">↗</span></a></div>
             </div>
             <script src="./club-banner-catalog.js?v=1"></script>
-            <script src="./club-cabinet.js?v=9"></script>
+            <script src="./club-cabinet.js?v=10"></script>
             <footer class="card__footer card__footer--home" id="homeFooter">
               <p class="footer-note">
                 Poker21. Играйте ответственно. 18+
