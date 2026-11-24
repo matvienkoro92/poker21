@@ -47,7 +47,7 @@
   function renderSchedule() {
     const files = ['schedule-overview-v2-3.jpg', 'schedule-overview-v2-2.jpg'];
     byId('desk-rows').replaceChildren(...files.map((file, index) =>
-      thumbnail('./assets/schedule/' + file, 'Расписание турниров · афиша ' + (index + 1))
+      thumbnail('./assets/schedule/' + file, 'Расписание турниров · афиша ' + (index + 1), './assets/banner-previews/' + file + '.webp')
     ));
   }
   function renderGallery() {
@@ -71,7 +71,18 @@
     }));
 
     byId('desk-art').hidden = !art || !main;
-    if (art && main) { byId('desk-art').src = './assets/schedule/banners/' + art; byId('desk-art').hidden = false; }
+    if (art && main) {
+      const image = byId('desk-art');
+      const miniature = './assets/banner-previews/' + art + '.webp';
+      if (image.getAttribute('src') !== miniature) {
+        image.onerror = () => {
+          image.onerror = null;
+          image.src = './assets/schedule/banners/' + art;
+        };
+        image.fetchPriority = 'high';
+        image.src = miniature;
+      }
+    }
     byId('desk-event').classList.toggle('desk-long-title', byId('desk-event').textContent.length > 12);
   }
   // First paint uses the bot's weekly programme; the live response takes precedence.
