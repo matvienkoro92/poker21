@@ -26,11 +26,14 @@ async function main(){
   const data=await r.json();if(!data.ok)throw Error('Telegram menu update failed');return data.result;
  }
  const me=await call('getMe');
- if(me.username==='Poker_dvatuza_bot')throw Error('Expected Poker21 report bot');
+ if(String(me.username).toLowerCase()!=='poker21app_bot')throw Error('Expected Poker21 report bot');
  const menu=await call('getChatMenuButton');
+ const menu_button={type:'web_app',text:'Открыть кабинет',web_app:menu.type==='web_app'?menu.web_app:{url:'https://poker21-app.vercel.app'}};
+ await call('setChatMenuButton',{menu_button});
+ const savedMenu=await call('getChatMenuButton');
+ if(savedMenu.text!==menu_button.text||savedMenu.web_app?.url!==menu_button.web_app.url)throw Error('Menu button verification failed');
+ if(process.argv.includes('--button-only')){console.log(savedMenu.text);return;}
  for(const language_code of ['','ru','en']) await call('setMyCommands',{commands,language_code});
- if(menu.type==='web_app')await call('setChatMenuButton',{menu_button:{...menu,text:'Присоединиться'}});
- else await call('setChatMenuButton',{menu_button:{type:'commands'}});
  const saved=await call('getMyCommands');if(JSON.stringify(saved)!==JSON.stringify(commands))throw Error('Verification failed');
  console.log('Bot menu updated and commands verified');
 }
