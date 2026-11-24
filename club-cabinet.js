@@ -1,6 +1,6 @@
 (() => {
   const byId = id => document.getElementById(id);
-  const desk = document.querySelector('.club-desk');
+  const desk = document.querySelector('.view[data-view="home"] .club-desk');
   if (!desk) return;
   const catalog = window.poker21BannerCatalog;
   const preview = byId('desk-preview');

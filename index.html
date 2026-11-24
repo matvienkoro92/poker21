@@ -13,15 +13,17 @@
     />
     <meta name="theme-color" content="#0b100e">
     <link rel="stylesheet" href="./styles.css?v=21">
-    <link rel="stylesheet" href="./club-cabinet.css?v=20">
+    <link rel="stylesheet" href="./club-cabinet.css?v=23">
   </head>
   <body data-view="home">
     <div id="app" class="app app--view-home">
       <main class="card">
         <section class="card__content">
+          <div class="club-desk cabinet-topbar">
+            <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div><button type="button" class="cabinet-close" aria-label="Закрыть мини-приложение Poker21" title="Закрыть" onclick="window.Telegram.WebApp.close()">×</button></header>
+          </div>
           <div class="view view--active" data-view="home">
             <div class="club-desk">
-              <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><h1>Poker21</h1><button type="button" class="cabinet-close" aria-label="Закрыть мини-приложение Poker21" title="Закрыть" onclick="window.Telegram.WebApp.close()">×</button></header>
               <details id="desk-team"><summary class="desk-transfer"><svg class="desk-key" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M18 18a8 8 0 1 0-4-5L3 24v5h5v-3h4v-4h3z"/><circle cx="22" cy="10" r="1.7"/></svg><span><strong>Кабинет по ключу</strong><small>Баланс, реквизиты и отчёты</small></span><b aria-hidden="true">↗</b></summary><section></section><p role="status">Загружаем кабинет…</p></details>
               <section class="desk-evening"><div><small>Турнир вечера</small><h2 id="desk-event"></h2><p id="desk-details"></p><button type="button" data-desk-open="desk-banners" aria-controls="desk-banners">Баннеры →</button></div><img id="desk-art" alt="" hidden></section>
 
@@ -40,7 +42,7 @@
                 webApp?.expand();
               }
             </script>
-            <script src="./club-team.js?v=11"></script>
+            <script src="./club-team.js?v=15"></script>
             <script src="./club-banner-catalog.js?v=1"></script>
           </div>
           <div class="view" data-view="club-schedule"><div class="club-desk">
@@ -55,7 +57,7 @@
           </div></div>
           <div class="view" data-view="download">
             <div class="download-page download-page--active install-panel" data-download-page="poker21">
-              <header class="install-cover"><button type="button" class="cabinet-close" aria-label="Закрыть мини-приложение Poker21" title="Закрыть" onclick="window.Telegram.WebApp.close()">×</button><img loading="lazy" decoding="async" src="./assets/poker21-download-red-gold.webp?v=3" width="900" height="600" alt=""><h1>Скачать<br>Poker21 Plus</h1></header>
+              <header class="install-cover"><img loading="lazy" decoding="async" src="./assets/poker21-download-red-gold.webp?v=3" width="900" height="600" alt=""><h1>Скачать<br>Poker21 Plus</h1></header>
               <div class="install-platforms" aria-label="Выбор платформы">
                 <a href="https://apps.apple.com/us/app/poker21-plus/id1593810487" target="_blank" rel="noopener noreferrer"><span><small>iPhone и iPad</small><strong>Скачать в App Store</strong></span><b aria-hidden="true">↗</b></a>
                 <a href="https://www.poker21.plus/" target="_blank" rel="noopener noreferrer"><span><small>Android</small><strong>Перейти на сайт Poker21</strong></span><b aria-hidden="true">↗</b></a>
@@ -87,7 +89,7 @@
       </nav>
     </div>
               <dialog id="desk-preview" aria-label="Просмотр афиши"><button type="button" aria-label="Закрыть просмотр" autofocus>×</button><img alt=""></dialog>
-    <script src="./club-cabinet.js?v=14"></script>
+    <script src="./club-cabinet.js?v=15"></script>
     <script>
       const app = document.getElementById('app');
       const tabs = app.querySelectorAll('.bottom-nav [data-view-target]');

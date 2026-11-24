@@ -2,6 +2,7 @@
   const panel=document.getElementById('desk-team'), box=panel.querySelector('section'), status=panel.querySelector('[role=status]');
   let active='', data, busy=false;
   const node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
+  const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
   document.querySelector('.desk-brand').append(headerBalance);
   const finance=node('section','');
@@ -153,6 +154,7 @@
   }
   async function render(key, request){
     box.replaceChildren();
+    clubName.textContent='';
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
     if(data.directory)issuerControls(data.directory,request.clubId);
@@ -195,7 +197,8 @@
       const role=node('small',c.role==='owner'?'Владелец клуба':'Сотрудник клуба');role.className='club-role';choice.append(role);
       const dashboard=node('div','');
       const requested=active;
-      headerBalance.append(node('small',c.name),node('strong','…'));
+      clubName.textContent=c.name;
+      headerBalance.append(node('strong','…'));
       headerBalance.setAttribute('aria-label','Баланс клуба '+c.name);
       box.append(dashboard);
       api({action:c.role==='owner'?'dashboard':'balances',clubId:requested}).then(result=>{
@@ -209,25 +212,20 @@
         headerBalance.lastChild.textContent='Недоступен';
         finance.textContent='Баланс временно недоступен.';
       });
-      const people=section('Администраторы · '+c.members.length,box);
-      for(const m of c.members)people.append(node('p',m.label+' · '+(m.role==='owner'?'Владелец':'Менеджер')));
       const requisites=section('Реквизиты',box);
-      requisites.open=true;
       dashboard.before(requisites);
       if(clubs.length===1)choice.hidden=true;
       form('Разместить реквизиты','place',[field('amount','Сумма, ₽'),field('details','Реквизиты получателя')],'Разместить',{clubId:active},requisites);
 
       const {items,stats}=await api({action:'list',clubId:active});
-      const requests=section('Заявки клуба · '+items.length,requisites);
       const summary=node('div','');summary.className='club-metrics';
       for(const [key,label] of [['open','Свободные'],['taken','Взятые']])summary.append(metric(label+' · '+stats[key].count,stats[key].amount.toLocaleString('ru-RU')+' ₽'));
       requisites.querySelector('summary').after(summary);
-      if(!items.length)requests.append(node('p','Пока нет заявок.'));
       for(const x of items){
         const row=node('article',x.amount.toLocaleString('ru-RU')+' ₽');
         if(x.mine||x.taker)row.append(node('p',x.details),node('small',x.taker?'Взята':'Ваша заявка'));
         else row.append(button('Взять реквизиты',()=>work({action:'take',item:x.id,clubId:active})));
-        requests.append(row);
+        requisites.append(row);
       }
     }
     if(clubs.length)return;

@@ -108,8 +108,8 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .desk-evening img {border-radius:12px;transform:rotate(2.5deg)}
 .club-desk>details>summary {font-size:clamp(16px,4.25vw,23px);min-height:60px}
 .club-desk>details>summary::after {border-color:var(--desk-secondary)}
-.club-desk .desk-vpn {border-radius:16px;padding:6px 14px;gap:12px;background:var(--desk-panel);color:var(--ink);border-color:var(--desk-line)}
-.desk-vpn strong {padding-left:12px;border-left:1px solid var(--desk-line)}
+.club-desk .desk-vpn {width:100%;border-radius:16px;padding:6px 14px;gap:12px;background:var(--desk-panel);color:var(--ink);border-color:var(--desk-line)}
+.desk-vpn strong {flex:1;padding-left:12px;border-left:1px solid var(--desk-line)}
 #desk-team>section:not(:empty),#desk-team>[role=status]:not(:empty),#desk-team details,.club-desk select,#desk-team input,#desk-team textarea,#desk-team button {background:var(--desk-panel);color:var(--ink);border-color:var(--rule)}
 [data-cabinet-theme=dark] .desk-evening {grid-template-columns:minmax(0,1.16fr) minmax(0,1fr)}
 [data-cabinet-theme=dark] .desk-evening img {grid-area:1/1;transform:rotate(1deg)}
@@ -229,7 +229,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #desk-team .club-fold a {display:inline-block;padding:8px 12px;border:1px solid #4a6554;border-radius:9px;color:#ccf3d7;text-decoration:none}
 
 .club-header-balance {margin-left:auto;text-align:right;display:grid;gap:2px}
-.club-header-balance small {font-size:11px;color:#b8d0bf;letter-spacing:0}
+.desk-brand .desk-brand-club {display:block;font-size:11px;color:#b8d0bf;letter-spacing:0}
 .club-header-balance strong {font-size:clamp(15px,4vw,23px);color:#c0edc5}
 .club-desk .club-issuer[hidden] {display:none}
 .club-desk .club-issuer {background:#16291d;padding:12px 16px;border-radius:15px;border:1px solid #45644d}
@@ -251,8 +251,10 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .club-desk #desk-team.club-connected > summary,.club-desk .club-header-balance[hidden],
 .club-desk #club-finance[hidden],#desk-team label[hidden] {display:none}
 .club-desk #desk-team.club-connected {background:none;border:0}
-.club-desk button.club-header-balance {padding:5px 9px;border:1px solid #405848;border-radius:10px;min-width:0;max-width:45%;cursor:pointer}
-.club-header-balance small {overflow-wrap:anywhere}
+.club-desk button.club-header-balance {background:var(--desk-panel);padding:5px 9px;border:1px solid #405848;border-radius:10px;min-width:0;max-width:45%;cursor:pointer}
+.desk-brand-title {min-width:0;text-align:left;overflow-wrap:anywhere}
 #club-finance {padding:14px;background:#17211c;border:1px solid #394b41;border-radius:14px}
 #club-finance .club-metrics {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 #club-finance .club-metrics div {display:grid;gap:4px}
+
+.club-desk.cabinet-topbar {box-sizing:border-box;margin:0 auto;padding-bottom:0;background:var(--desk-paper)}
