@@ -168,3 +168,16 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
   overscroll-behavior-y:contain;
 }
 #app.app--view-home > .card {flex-shrink:0}
+
+#app:has(.view--active[data-view=download]) {height:var(--tg-viewport-height,100dvh);min-height:0;overflow-y:auto;background:var(--desk-paper)}
+#app:has(.view--active[data-view=download])>.card {flex-shrink:0;background:var(--desk-paper)}
+.view--active[data-view=download] .install-panel.download-page--active {display:grid;gap:16px;box-sizing:border-box;width:min(100%,720px);margin:0 auto;padding:16px 12px 96px;color:var(--desk-text)}
+.install-cover {position:relative;isolation:isolate;overflow:hidden;border-radius:20px;background:#171010}
+.install-cover img {display:block;width:100%;height:auto}
+.install-cover h1 {position:absolute;left:5%;top:50%;transform:translateY(-50%);margin:0;color:#fff4df;font:750 clamp(23px,6vw,45px)/1.08 system-ui,sans-serif;letter-spacing:-.04em;text-align:left}
+.install-platforms {display:grid;gap:10px}
+.install-platforms a {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border:1px solid var(--desk-line);border-radius:15px;background:var(--desk-panel);color:var(--desk-text);text-decoration:none;text-align:left}
+.install-platforms small,.install-platforms strong {display:block}
+.install-platforms small {color:var(--desk-secondary);font-size:12px}
+.install-platforms strong {font:680 17px/1.4 system-ui,sans-serif}
+.install-platforms b {color:var(--desk-secondary);font-size:21px}

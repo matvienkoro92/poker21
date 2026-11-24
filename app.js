@@ -2463,6 +2463,7 @@ function setView(viewName) {
   }
   var appEl = document.getElementById("app");
   if (appEl) appEl.classList.toggle("app--view-home", viewName === "home");
+  if (appEl && viewName === "download") appEl.scrollTop = 0;
 }
 function updateChatNavDot() {
   var raw = (window.chatGeneralUnreadCount || 0) + (window.chatPersonalUnreadCount || 0);
