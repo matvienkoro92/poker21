@@ -23,6 +23,7 @@
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
+    <link rel="stylesheet" href="./club-cabinet.css?v=1" />
     <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -155,50 +156,15 @@
         <section class="card__content">
           <!-- Главная -->
           <div class="view view--active" data-view="home">
-            <div class="home-top-menu" aria-label="Poker21">
-              <img src="./assets/logo-two-aces.png" alt="" class="home-top-menu__logo" />
-              <span class="home-top-menu__title">Poker21</span>
-            </div>
-            <a href="#" class="home-transfer-featured" data-view-target="transfers" aria-label="Разместить или взять реквизиты">
-              <span class="home-transfer-featured__icon" aria-hidden="true">💸</span>
-              <span class="home-transfer-featured__text">Разместить / взять реквизиты</span>
-              <span class="home-transfer-featured__arrow" aria-hidden="true">›</span>
-            </a>
-            <h2 class="home-quick-actions-title">Для ваших игроков</h2>
-            <nav class="home-quick-actions" aria-label="Быстрые разделы">
-              <a href="#" class="home-quick-action home-quick-action--schedule" data-view-target="schedule">
-                <span class="home-quick-action__suit" aria-hidden="true">♦</span><span class="home-quick-action__icon" aria-hidden="true">🗓️</span><span class="home-quick-action__label">Полное расписание турниров</span>
-              </a>
-              <a href="#" class="home-quick-action home-quick-action--learn" data-view-target="learn-play-hub">
-                <span class="home-quick-action__suit" aria-hidden="true">♥</span><span class="home-quick-action__icon" aria-hidden="true">📚</span><span class="home-quick-action__label">Уроки по покеру</span>
-              </a>
-              <a href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener noreferrer" class="home-quick-action home-quick-action--vpn">
-                <span class="home-quick-action__suit" aria-hidden="true">♣</span><span class="home-quick-action__icon" aria-hidden="true">🛡️</span><span class="home-quick-action__label">VPN от Poker21<br>за 100 ₽/мес</span>
-              </a>
-            </nav>
-            <section class="home-evening-tournaments" aria-labelledby="homeEveningTournamentsTitle">
-              <h2 class="home-evening-tournaments__title" id="homeEveningTournamentsTitle"><span>Турниры вечера в 18 МСК</span></h2>
-              <div class="home-evening-tournaments__layout">
-                <div class="home-evening-tournaments__week" aria-label="Турниры на неделю">
-                  <a href="#" class="home-evening-tournament" data-evening-day="1" data-view-target="schedule"><b>ПН</b><span><strong>Приз 170 000 ₽</strong><small>Magic MKO · 500 ₽ · 18:00 МСК</small></span></a>
-                  <a href="#" class="home-evening-tournament" data-evening-day="2" data-view-target="schedule"><b>ВТ</b><span><strong>Приз 150 000 ₽</strong><small>Турнир Тракториста · 300 ₽ · 18:00 МСК</small></span></a>
-                  <a href="#" class="home-evening-tournament" data-evening-day="3" data-view-target="schedule"><b>СР</b><span><strong>Приз 300 000 ₽</strong><small>Нокаут · 5 000 ₽ · 18:00 МСК</small></span></a>
-                  <a href="#" class="home-evening-tournament" data-evening-day="4" data-view-target="schedule"><b>ЧТ</b><span><strong>Приз 100 000 ₽</strong><small>Мистери · 300 ₽ · 18:00 МСК</small></span></a>
-                  <a href="#" class="home-evening-tournament" data-evening-day="5" data-view-target="schedule"><b>ПТ</b><span><strong>Приз 170 000 ₽</strong><small>Нокаут Прогрессив · 500 ₽ · 18:00 МСК</small></span></a>
-                  <a href="#" class="home-evening-tournament" data-evening-day="6" data-view-target="schedule"><b>СБ</b><span><strong>5 билетов по 10 000 ₽</strong><small>Субботний турнир · 350 ₽ · 18:00 МСК</small></span></a>
-                  <a href="#" class="home-evening-tournament" data-evening-day="0" data-view-target="schedule"><b>ВС</b><span><strong>Приз 300 000 ₽</strong><small>PKO Нокаут Прогрессив · 2 000 ₽ · 18:00 МСК</small></span></a>
-                </div>
-                <a href="#" class="home-evening-tournaments__poster" data-view-target="schedule" aria-label="Открыть расписание турниров">
-                  <img id="tournamentDayTrophyImg" alt="Афиша турнира вечера" class="tournament-day-block__trophy-img tournament-day-block__trophy-img--hidden" />
-                  <span class="home-evening-tournaments__poster-data" hidden>
-                    <strong id="tournamentDayName">—</strong>
-                    <small><span id="tournamentDayBuyin">—</span> · приз <span id="tournamentDayGuarantee">—</span></small>
-                    <em><span id="tournamentDayTimerLabel"></span><span id="tournamentDayTimer">—</span></em>
-                  </span>
-                </a>
-              </div>
-            </section>
-
+            <main class="club-desk">
+              <header class="desk-brand"><img src="./assets/logo-two-aces.png" alt="Poker21 Plus"><div><small>POKER21</small><h1>Кабинет клуба</h1></div></header>
+              <details id="desk-team"><summary class="desk-transfer"><span><small>Реквизиты и команда</small><strong>Кабинет по ключу</strong></span><b aria-hidden="true">↗</b></summary><section></section><p role="status"></p></details>
+              <section class="desk-evening"><div><small>Турнир вечера</small><h2 id="desk-event">Расписание турнира</h2><p id="desk-details"></p><button type="button" data-desk-open="desk-schedule">Расписание ↗</button></div><img id="desk-art" alt="" hidden></section>
+              <details id="desk-schedule"><summary>Расписание турниров</summary><div class="desk-body"><label>Период <select id="desk-period"><option value="today">Сегодня, МСК</option><option value="all">Всё расписание</option></select></label><div id="desk-rows"></div><a href="./assets/schedule/schedule-overview-v2-3.jpg" target="_blank" rel="noopener">Открыть афишу расписания ↗</a></div></details>
+              <details id="desk-banners"><summary>Баннеры для клуба</summary><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label><label>Формат <select id="desk-format"><option value="square">Квадрат</option><option value="story">Сторис</option></select></label></div><div id="desk-gallery"></div></div></details>
+              <p id="desk-status" role="status">Загружаем расписание…</p><button type="button" id="desk-retry" hidden>Повторить загрузку</button>
+              <nav class="desk-links"><a href="#" data-view-target="learn-play-hub">Уроки покера ↗</a><a href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener">VPN Poker21 ↗</a></nav>
+            </main>
             <footer class="card__footer card__footer--home" id="homeFooter">
               <p class="footer-note">
                 Poker21. Играйте ответственно. 18+
@@ -3165,5 +3131,7 @@
     <script src="./poker-tasks-data.js"></script>
     <script src="./app.js?v=34"></script>
     <script src="./app-transfers.js?v=1"></script>
+    <script src="./club-cabinet.js?v=1"></script>
+    <script src="./club-team.js?v=1"></script>
   </body>
 </html>

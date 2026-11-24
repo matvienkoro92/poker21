@@ -1,0 +1,24 @@
+.club-desk { --ink:#f4eee0; --muted:#bdb5a4; --rule:#464941; display:grid; gap:14px; background:#171c19; color:var(--ink); font:500 16px/1.45 system-ui,sans-serif; padding:clamp(14px,4vw,32px); border-radius:20px; text-align:left; }
+.club-desk * {box-sizing:border-box}
+.club-desk a {color:inherit;text-decoration:none}
+.club-desk small {display:block;color:var(--muted);font-size:.8rem;font-weight:600}
+.desk-brand,.desk-transfer,.desk-links,.desk-filters {display:flex;align-items:center;gap:14px}
+.desk-brand img {width:58px;height:58px;object-fit:contain}
+.desk-brand h1,.desk-evening h2 {font:700 clamp(24px,6vw,38px)/1.08 Georgia,serif;margin:4px 0 0;color:var(--ink)}
+.club-desk .desk-transfer {justify-content:space-between;border-radius:12px;padding:16px 18px;background:#ead3a0;color:#22291f}
+.desk-transfer small {color:#504838}.desk-transfer strong {font-size:1.17rem}.desk-transfer b {font-size:1.45rem}
+.desk-evening {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,40%);align-items:center;background:#27372e;padding:16px;gap:10px;border-radius:14px}
+.desk-evening img {width:100%;border-radius:8px}.desk-evening p {font-size:.86rem;line-height:1.5;color:#e0d9ca}
+.club-desk button,.club-desk select {font:inherit;color:var(--ink);background:#27312b;border:1px solid #707569;border-radius:8px;padding:9px;min-height:42px}
+.club-desk details {border-top:1px solid var(--rule);padding:4px 0}.club-desk summary {cursor:pointer;padding:10px 0;font-size:1.14rem;font-weight:650}
+.desk-body {padding:8px 0}.desk-body label {display:grid;gap:4px;font-size:.8rem;color:var(--muted)}.desk-filters {flex-wrap:wrap}
+#desk-rows p {white-space:pre-line;padding:10px 0;margin:0;border-bottom:1px solid var(--rule)}.desk-body>a {display:inline-block;padding:12px 0;color:#ead3a0}
+#desk-gallery {display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-top:12px}#desk-gallery img {width:100%;display:block;border-radius:6px}
+.desk-links {flex-wrap:wrap;justify-content:space-between;border-top:1px solid var(--rule);padding-top:14px;font-size:.85rem}.club-desk [hidden],#desk-status:empty {display:none}
+
+#desk-team form,#desk-team label {display:grid;gap:8px}
+#desk-team form,#desk-team article {padding:12px 0;border-top:1px solid var(--rule)}
+#desk-team input,#desk-team select,#desk-team textarea {box-sizing:border-box;width:100%;min-width:0;padding:10px;border-radius:6px;font:inherit}
+#desk-team h3 {margin:0;color:var(--ink)}
+#desk-team article p {white-space:pre-wrap;overflow-wrap:anywhere}
+.club-desk #desk-team>summary {padding:14px 18px}
