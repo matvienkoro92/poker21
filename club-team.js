@@ -2,6 +2,32 @@
   const panel=document.getElementById('desk-team'), box=panel.querySelector('section'), status=panel.querySelector('[role=status]');
   let active='', data, busy=false;
   const node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
+  const headerBalance=node('div','');headerBalance.className='club-header-balance';
+  document.querySelector('.desk-brand').append(headerBalance);
+  const issuer=section('Создать ключ',panel.parentElement);
+  issuer.classList.add('club-issuer');issuer.hidden=true;panel.before(issuer);
+  const issuerBody=node('div','');issuer.append(issuerBody);
+  const issuerStatus=node('p','');issuerStatus.setAttribute('role','status');issuer.append(issuerStatus);
+  const money=(rub,usd)=>[rub==null?null:(rub/100).toLocaleString('ru-RU')+' ₽',usd==null?null:(usd/100).toLocaleString('ru-RU')+' $'].filter(Boolean).join(' · ')||'—';
+  function issuerControls(directory,selected){
+    issuerBody.replaceChildren();
+    const club=field('clubId','Клуб',directory),select=club.lastChild;
+    select.value=selected||directory[0]?.clubId;
+    const roles=[{name:'Менеджер',clubId:'staff'},{name:'Владелец',clubId:'owner'}];
+    const kind=field('kind','Роль',roles);
+    for(const opt of kind.lastChild.options)opt.textContent=roles.find(r=>r.clubId===opt.value).name;
+    form('Доступ к клубу','issue',[club,kind,field('target','Логин в Telegram')],'Создать ключ',{},issuerBody);
+    const roster=node('div','');issuerBody.append(roster);
+    function draw(){
+      const members=directory.find(c=>c.clubId===select.value)?.members||[];
+      roster.replaceChildren(node('h4','Привязанные администраторы · '+members.length));
+      for(const m of members){
+        const row=node('p',m.label+' · '+(m.role==='owner'?'Владелец':'Менеджер')+' ');
+        row.append(button('Отозвать доступ',()=>work({action:'revoke',clubId:select.value,target:m.id})));roster.append(row);
+      }
+    }
+    select.onchange=draw;draw();
+  }
   function field(name,label,choices){
     const wrap=node('label',label),el=document.createElement(choices?'select':name==='details'?'textarea':'input');
     el.name=name;el.required=true;
@@ -17,7 +43,7 @@
   }
   function form(title,action,fields,submit,extra={},container=box){
     const f=document.createElement('form');f.dataset.action=action;f.append(node('h3',title),...fields,node('button',submit));container.append(f);
-    f.onsubmit=e=>{e.preventDefault();work({action,...extra,...Object.fromEntries(new FormData(f))});};
+    f.onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f));work({action:action==='issue'?values.kind:action,...extra,...values});};
   }
   function button(label,fn){const b=node('button',label);b.type='button';b.onclick=fn;return b;}
   async function api(body){
@@ -39,7 +65,7 @@
   function showDashboard(d, parent) {
     const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
     const finance=section('Баланс клуба',parent);
-    finance.open=true;
+    finance.open=false;
     if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
     else if(!d.accounts.length)finance.append(node('p','У клуба нет привязанной группы с балансом.'));
     d.accounts.forEach((account,index)=>{
@@ -118,6 +144,9 @@
   }
   async function render(key, request){
     box.replaceChildren();
+    headerBalance.replaceChildren();
+    issuer.hidden=!data.directory;
+    if(data.directory)issuerControls(data.directory,request.clubId);
     const clubs=data.memberships;
     if(!clubs.some(c=>c.clubId===active))active=clubs[0]?.clubId||'';
     if(key){
@@ -143,7 +172,7 @@
       });
       card.append(node('h3','Приглашение готово'),node('p',(club?.name||request.clubId)+' · '+recipient),
         keyField,copy,node('small','Отправьте ключ получателю в личном чате. Он действует 24 часа.'));
-      box.append(card);
+      issuerBody.prepend(card);issuer.open=true;
     }
     if(clubs.length){
       const choice=field('active','Кабинет клуба',clubs);choice.lastChild.value=active;
@@ -151,19 +180,27 @@
       const c=clubs.find(c=>c.clubId===active);
       const role=node('small',c.role==='owner'?'Владелец клуба':'Сотрудник клуба');role.className='club-role';choice.append(role);
       const dashboard=node('div','');
-      if(c.role==='owner'){
-        dashboard.textContent='Загружаем сводку клуба…';
-        box.append(dashboard);
-        api({action:'dashboard',clubId:active}).then(result=>{
-          dashboard.replaceChildren();
-          showDashboard(result,dashboard);
-        }).catch(()=>{dashboard.textContent='Сводка клуба временно недоступна.';});
-      }
+      const requested=active;
+      headerBalance.append(node('small','Баланс клуба'),node('strong','…'));
+      box.append(dashboard);
+      api({action:c.role==='owner'?'dashboard':'balances',clubId:requested}).then(result=>{
+        if(!dashboard.isConnected || active!==requested)return;
+        const accounts=result.accounts||[];
+        const total=k=>accounts.some(a=>a[k]!=null)?accounts.reduce((n,a)=>n+(a[k]||0),0):null;
+        headerBalance.lastChild.textContent=result.balanceError?'Недоступен':money(total('rub'),total('usd'));
+        if(c.role==='owner')showDashboard(result,dashboard);
+        else dashboard.append(metric('Баланс реквизитов',money(total('paymentRub'),total('paymentUsd'))));
+      }).catch(()=>{if(dashboard.isConnected && active===requested)headerBalance.lastChild.textContent='Недоступен';});
+      const people=section('Администраторы · '+c.members.length,box);
+      for(const m of c.members)people.append(node('p',m.label+' · '+(m.role==='owner'?'Владелец':'Менеджер')));
       const requisites=section('Реквизиты',box);
       form('Разместить реквизиты','place',[field('amount','Сумма, ₽'),field('details','Реквизиты получателя')],'Разместить',{clubId:active},requisites);
 
-      const {items}=await api({action:'list',clubId:active});
+      const {items,stats}=await api({action:'list',clubId:active});
       const requests=section('Заявки клуба · '+items.length,box);
+      const summary=node('div','');summary.className='club-metrics';
+      for(const [key,label] of [['open','Свободные'],['taken','Взятые']])summary.append(metric(label+' · '+stats[key].count,stats[key].amount.toLocaleString('ru-RU')+' ₽'));
+      requisites.after(summary);
       if(!items.length)requests.append(node('p','Пока нет заявок.'));
       for(const x of items){
         const row=node('article',x.amount.toLocaleString('ru-RU')+' ₽');
@@ -171,32 +208,27 @@
         else row.append(button('Взять реквизиты',()=>work({action:'take',item:x.id,clubId:active})));
         requests.append(row);
       }
-      if(c.role==='owner'){
-        const team=section('Команда · '+c.staff.length,box);
-        form('Пригласить сотрудника','staff',[field('target','Логин Telegram сотрудника')],'Создать приглашение',{clubId:active},team);
-        for(const id of [...new Set([...c.staff,...c.pending])]){
-          const row=node('p',id+' · '+(c.staff.includes(id)?'подключён':'ожидает')+' ');
-          row.append(button('Отозвать',()=>work({action:'revoke',clubId:active,target:id})));team.append(row);
-        }
-      }
     }
-    if(data.directory)form('Выдать ключ владельцу','owner',[field('clubId','Клуб',data.directory),field('target','Логин Telegram владельца')],'Создать ключ');
-    form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать');
+    const entry=clubs.length?section('Активировать другой ключ',box):box;
+    form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать',{},entry);
     const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if(ownId)box.append(node('p','Ваш Telegram ID · '+ownId));
+    if(ownId)entry.append(node('p','Ваш Telegram ID · '+ownId));
   }
   async function work(body){
     if(busy)return;busy=true;box.inert=true;
     status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
+    const issuing=['owner','staff','revoke'].includes(body.action);
+    if(issuing){issuerBody.inert=true;issuerStatus.textContent='Выполняем…';}
     try{
       const result=await api(body);
       data=result.memberships?result:await api({action:'status'});
       await render(result.key,body);
       status.textContent=body.action==='status'||result.key?'':'Готово.';
-    }catch(e){status.textContent=e.message;box.append(button('Обновить',()=>work({action:'status'})));}
-    finally{busy=false;box.inert=false;}
+      if(issuing)issuerStatus.textContent=body.action==='revoke'?'Доступ отозван.':'';
+    }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;box.append(button('Обновить',()=>work({action:'status'})));}
+    finally{busy=false;box.inert=false;issuerBody.inert=false;}
   }
-  function openPanel(){if(panel.open)work({action:'status'});}
+  function openPanel(){if(panel.open && !data)work({action:'status'});}
   panel.addEventListener('toggle',openPanel);
-  openPanel();
+  if(window.Telegram?.WebApp?.initData || panel.open)work({action:'status'});
 })();
