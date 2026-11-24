@@ -41,8 +41,46 @@
     const pulse=section('Пульс клуба');
     pulse.append(node('p',d.period.join(' — ')));
     for(const [label,value] of Object.entries(d.metrics))pulse.append(node('p',label+' · '+fmt(value)));
-    const players=section('Игроки · по рейку',pulse);
-    for(const p of d.players)players.append(node('p',p.nick+' · '+p.id+' · рейк '+fmt(p.rake)+' ₽ · результат '+fmt(p.winnings)+' ₽'));
+    const players=section('Игроки · '+d.players.length,pulse);
+    if(d.players.length) {
+      const search=node('input','');
+      search.type='search';
+      search.placeholder='Ник или ID игрока';
+      search.setAttribute('aria-label','Поиск по нику или ID игрока');
+      const order=document.createElement('select');
+      order.setAttribute('aria-label','Сортировка игроков');
+      for(const [value,label] of [['rake','По рейку'],['plus','По результату: от большего'],['minus','По результату: от меньшего']]){
+        order.add(new Option(label,value));
+      }
+      const list=node('div',''),count=node('small','');
+      count.setAttribute('role','status');
+      const pageSize=15;
+      let page=0;
+      const prev=button('Назад',()=>{page--;draw();});
+      const next=button('Далее',()=>{page++;draw();});
+      const paging=node('div','');
+      paging.className='desk-player-pages';
+      paging.append(prev,next);
+      players.append(search,order,count,list,paging);
+      function draw() {
+        const query=search.value.trim().toLocaleLowerCase('ru');
+        const rows=d.players.filter(p=>String(p.nick||'').toLocaleLowerCase('ru').includes(query)||String(p.id).includes(query));
+        if(order.value!=='rake') rows.sort((a,b)=>order.value==='plus'?b.winnings-a.winnings:a.winnings-b.winnings);
+        page=Math.max(0,Math.min(page,Math.ceil(rows.length/pageSize)-1));
+        const start=page*pageSize;
+        count.textContent=rows.length ? (start+1)+'–'+Math.min(start+pageSize,rows.length)+' из '+rows.length : 'Игроков по этому запросу нет';
+        list.replaceChildren(...rows.slice(start,start+pageSize).map(p=>{
+          const row=node('article','');
+          row.append(node('strong',p.nick+' · '+p.id),node('p','Рейк '+fmt(p.rake)+' ₽ · результат '+fmt(p.winnings)+' ₽'));
+          return row;
+        }));
+        paging.hidden=rows.length<=pageSize;
+        prev.disabled=page===0;
+        next.disabled=start+pageSize>=rows.length;
+      }
+      search.oninput=order.onchange=()=>{page=0;draw();};
+      draw();
+    } else players.append(node('p','В отчёте за этот период нет игроков.'));
     if(d.activityPeriod)pulse.append(node('p','Активность за неделю по '+d.activityPeriod));
     if(d.conclusion)pulse.append(node('p',d.conclusion));
     for(const [label,rows] of Object.entries(d.groups)){
