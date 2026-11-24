@@ -157,3 +157,14 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #desk-format {display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:14px;padding:4px;border:1px solid var(--desk-line);border-radius:14px;background:var(--desk-paper)}
 #desk-format button {border:0;background:transparent;color:var(--desk-secondary)}
 #desk-format button[aria-pressed=true] {background:var(--desk-active);color:var(--desk-text);font-weight:700}
+
+/* Use the same scroll container for the gallery shortcut, touch and wheel. */
+#app.app--view-home {
+  height:100vh;
+  height:var(--tg-viewport-height,100dvh);
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior-y:contain;
+}
+#app.app--view-home > .card {flex-shrink:0}
