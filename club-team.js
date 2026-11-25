@@ -529,7 +529,7 @@
       actions.setAttribute('role','group');actions.setAttribute('aria-label','Реквизиты');
       const registryKey=JSON.stringify([active,chatId]);
       const list=node('div','');list.hidden=expandedRegistry!==registryKey;list.id='club-requisite-list';
-      const take=button('Взять реквизит',()=>{
+      const take=button('Реквизиты',()=>{
         list.hidden=!list.hidden;
         expandedRegistry=list.hidden?'':registryKey;
         take.setAttribute('aria-expanded',String(!list.hidden));
@@ -545,15 +545,24 @@
         list.replaceChildren();
         const stats={open:{count:0,amount:0},taken:{count:0,amount:0}};
         for(const item of items){const bucket=stats[item.taker?'taken':'open'];bucket.count++;bucket.amount+=item.amount;}
-        const summary=node('div','');summary.className='club-metrics';
-        for(const [key,label] of [['open','Свободные'],['taken','Взятые']])summary.append(metric(label+' · '+stats[key].count,stats[key].amount.toLocaleString('ru-RU')+' ₽'));
+        const summary=node('div','');summary.className='requisite-totals';
+        for(const [key,label] of [['open','Свободные'],['taken','Взятые']]){
+          const total=metric(label,stats[key].amount.toLocaleString('ru-RU')+' ₽');
+          total.firstChild.append(node('b',String(stats[key].count)));summary.append(total);
+        }
         list.append(summary);
+        if(!items.length&&!registry.withdrawalError)list.append(node('p','Заявок пока нет.'));
         if(registry.withdrawalError)list.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
         for(const x of items){
           const row=node('article','');row.className='requisite-preview';
-          row.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
-          if(x.number)row.append(node('span',x.number));
-          if(x.bank)row.append(node('small',x.bank));
+          const head=node('header','');head.className='offer-head';
+          head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
+          if(x.bank)head.append(node('small',x.bank));
+          row.append(head);
+          if(x.number){
+            const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
+            phone.className='offer-number';row.append(phone);
+          }
           if(x.mine||x.taker){
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
@@ -563,7 +572,10 @@
               row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
                 button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:active})));
             }
-          }else row.append(button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId})));
+          }else{
+            const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
+            claim.className='offer-claim';row.append(claim);
+          }
           list.append(row);
         }
       }

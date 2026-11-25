@@ -370,3 +370,25 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .owner-hub .club-op > summary > strong {margin-left:auto;text-align:right;font-variant-numeric:tabular-nums}
 .owner-hub .club-op > summary::after {margin-left:2px;flex:none}
 .owner-hub .club-op p {font-size:13px;margin:4px 0 8px;color:#c7d9cb}
+
+#desk-team .requisite-actions {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0}
+#desk-team .requisite-actions button {width:auto;min-height:42px;border-radius:12px}
+#desk-team .requisite-actions button:first-child {background:transparent;color:inherit;padding:4px 2px;border:0;font-size:18px;display:flex;gap:10px;align-items:center}
+.requisite-actions [aria-expanded]::after {content:"";width:6px;height:6px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.requisite-actions [aria-expanded=true]::after {transform:rotate(225deg)}
+#desk-team .requisite-actions button:last-child {background:#253c30;color:#ddf1df;border:1px solid #476950;padding:6px 12px}
+.requisite-actions button:last-child::before {content:"+";margin-right:5px}
+#club-requisite-list:not([hidden]) {display:grid;gap:10px;margin-top:8px}
+.requisite-totals {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:14px;background:#17281f;color:#f2f7ee;padding:12px 4px;border:1px solid #344b3b}
+.requisite-totals > div {display:grid;gap:4px;padding:0 12px}
+.requisite-totals > div + div {border-left:1px solid #3c5343}
+.requisite-totals small {display:flex;align-items:center;gap:6px;font-size:12px;color:#c6d7c9}
+.requisite-totals b {background:#344d3c;border-radius:8px;padding:1px 6px;font-size:11px}
+.requisite-totals strong {font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#desk-team #club-requisite-list .requisite-preview {display:grid;gap:9px;padding:15px;border:1px solid #42654f;border-radius:16px;background:linear-gradient(125deg,#223c2e,#192c22 75%);color:#edf6ef}
+#desk-team .offer-head {position:static;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0;background:none;border:0}
+#desk-team .offer-head strong {font-size:24px;line-height:1.15;letter-spacing:-.035em}
+#desk-team .offer-head small {color:#c6dac9;font-size:13px;text-align:right}
+#desk-team .offer-number {color:#c6d7cb;font-size:15px;font-variant-numeric:tabular-nums}
+#desk-team .requisite-preview .offer-claim {display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:8px 14px;border:0;border-radius:10px;background:#c3edb8;color:#163421;font-weight:700}
+.offer-claim::after {content:"→";font-size:18px}
