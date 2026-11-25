@@ -22,16 +22,27 @@
   const issuerStatus=node('p','');issuerStatus.setAttribute('role','status');issuer.append(issuerStatus);
   const currentBalance=(rub,usd)=>((rub ?? 0)/100).toLocaleString('ru-RU')+' ₽ · '+((usd ?? 0)/100).toLocaleString('ru-RU')+' $';
   const clubList=section('Список клубов',issuer.parentElement);
-  issuer.after(clubList);clubList.classList.add('club-issuer');clubList.hidden=true;
+  issuer.after(clubList);clubList.classList.add('club-issuer','owner-hub');clubList.hidden=true;
   const contents=node('div','');clubList.append(contents);
   function money(value,currency){
     return (value/100).toLocaleString('ru-RU',{minimumFractionDigits:2})+(currency==='USD'?' $':' ₽');
   }
+  function amountLine(parent,title,value){
+    const line=node('div','');line.className='week-line';line.append(node('span',title),node('strong',value));parent.append(line);
+  }
   function weeklyPanel(parent){
     const panel=section('Статистика за неделю',parent);
-    const label=node('label','Дата внутри недели (МСК) '),date=node('input',''),report=node('div','');
-    date.type='date';date.value=new Date(Date.now()+10800000).toISOString().slice(0,10);
-    label.append(date);panel.append(label,report);
+    panel.classList.add('week-panel');
+    const nav=node('div',''),label=node('label',''),range=node('strong',''),date=node('input',''),report=node('div','');
+    nav.className='week-nav';report.className='week-report';
+    const format=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+    const period=w=>format.formatRange(new Date(w.from),new Date(w.to));
+    date.type='date';date.setAttribute('aria-label','Выбрать неделю по московскому времени');
+    date.value=new Date(Date.now()+10800000).toISOString().slice(0,10);
+    function shift(days){date.stepUp(days);load();}
+    const prev=button('‹',()=>shift(-7)),next=button('›',()=>shift(7));
+    prev.setAttribute('aria-label','Предыдущая неделя');next.setAttribute('aria-label','Следующая неделя');
+    label.append(range,date);nav.append(prev,label,next);panel.append(nav,report);
     let version=0;
     async function load(){
       if(!panel.open||!date.value)return;
@@ -40,25 +51,46 @@
         const {weeks}=await api({action:'issued-weeks',date:date.value});
         if(stamp!==version)return;
         report.replaceChildren();
+        const [current,previous]=weeks;
+        range.textContent=period(current);
+        if(!current.rows.length&&!previous.rows.length){
+          const empty=node('div','');empty.className='week-empty';
+          empty.append(node('strong','Операций пока нет'),node('small','За выбранную и предыдущую недели нет подтверждённых сделок.'));
+          report.append(empty);return;
+        }
         for(const week of weeks){
-          report.append(node('h4',week.from+' — '+week.to),node('p','Подтверждённых операций: '+week.rows.length));
+          const card=node('article','');card.className='week-card';report.append(card);
+          card.append(node('small',week===current?'Выбранная неделя':'Предыдущая неделя'),node('h4',period(week)));
+          amountLine(card,'Подтверждено операций',String(week.rows.length));
           for(const [currency,t] of Object.entries(week.totals)){
-            report.append(node('p','Дебет '+money(t.debit,currency)+' · Кредит '+money(t.credit,currency)),
-              node('p','Комиссия '+money(t.fee,currency)+' · Разница '+money(t.debit-t.credit-t.fee,currency)),
-              node('strong',t.unknown||t.mismatch?'Расхождений: '+t.mismatch+' · Недостаточно данных: '+t.unknown:'Дебет равен кредиту с комиссией'));
+            amountLine(card,'Списано',money(t.debit,currency));
+            amountLine(card,'Зачислено',money(t.credit,currency));
+            amountLine(card,'Комиссия',money(t.fee,currency));
+            const warning=t.unknown||t.mismatch;
+            const check=node('p',warning?'Требуют проверки: '+(t.unknown+t.mismatch)+' · разница '+money(t.debit-t.credit-t.fee,currency):'✓ Сверено · списано = зачислено + комиссия');
+            check.className=warning?'week-check warn':'week-check';card.append(check);
           }
           if(week.rows.length){
-            const operations=section('Операции за неделю',report);
+            const operations=section('Посмотреть операции',card);
             for(const r of week.rows){
-              const time=new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'});
-              operations.append(node('p',time+' · '+r.owner+' → '+r.payer+' · '+money(r.amount,r.currency)+' · '+(r.diff==null?'Недостаточно данных для сверки':'Дебет '+money(r.debit,r.currency)+' · кредит '+money(r.credit,r.currency)+' · комиссия '+money(r.fee,r.currency)+(r.diff?' · расхождение '+money(r.diff,r.currency):''))));
+              const entry=node('article','');entry.className='deal-entry';
+              entry.append(node('small',new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК'),node('strong',r.owner+' → '+r.payer));
+              amountLine(entry,'Сумма',money(r.amount,r.currency));
+              if(r.diff==null)entry.append(node('small','Недостаточно данных для сверки'));
+              else{
+                amountLine(entry,'Дебет / кредит',money(r.debit,r.currency)+' / '+money(r.credit,r.currency));
+                amountLine(entry,'Комиссия',money(r.fee,r.currency));
+                if(r.diff)amountLine(entry,'Расхождение',money(r.diff,r.currency));
+              }
+              operations.append(entry);
             }
           }
         }
-        report.append(node('h4','Изменение к предыдущей неделе'),node('p','Операции: '+(weeks[0].rows.length-weeks[1].rows.length)));
+        const comparison=section('Изменение к предыдущей неделе',report);
+        amountLine(comparison,'Операции',String(current.rows.length-previous.rows.length));
         for(const c of new Set(weeks.flatMap(w=>Object.keys(w.totals)))){
-          const diff=k=>(weeks[0].totals[c]?.[k]||0)-(weeks[1].totals[c]?.[k]||0);
-          report.append(node('p','Дебет '+money(diff('debit'),c)+' · кредит '+money(diff('credit'),c)+' · комиссия '+money(diff('fee'),c)));
+          for(const [k,title] of [['debit','Списано'],['credit','Зачислено'],['fee','Комиссия']])
+            amountLine(comparison,title,money((current.totals[c]?.[k]||0)-(previous.totals[c]?.[k]||0),c));
         }
       }catch(e){if(stamp===version)report.textContent=e.message;}
     }
@@ -72,7 +104,11 @@
       contents.replaceChildren();
       if(!result.clubs.length)contents.append(node('p','Ключи пока не выдавались.'));
       for(const c of result.clubs){
-        const row=section(c.name+' · '+c.clubId,contents);
+        const row=section('',contents);row.classList.add('owner-club');
+        const emblem=node('span',c.name.split(/\s+/).slice(0,2).map(word=>word[0]).join('').toUpperCase());
+        emblem.className='club-emblem';emblem.setAttribute('aria-hidden','true');
+        const identity=node('span','');identity.append(node('strong',c.name),node('small','ID '+c.clubId));
+        row.firstChild.append(emblem,identity);
         const balances=node('div','');
         if(c.members.length)row.append(node('p','Подключены: '+c.members.join(', ')));
         if(c.invites.length)row.append(node('p','Ключ выдан: '+c.invites.join(', ')));
@@ -86,7 +122,7 @@
             if(d.balanceError||!d.accounts.length)balances.append(node('p',d.balanceError?'Баланс временно недоступен.':'Нет привязанного счёта.'));
             d.accounts.forEach((a,i)=>{
               if(d.accounts.length>1)balances.append(node('h4','Счёт '+(i+1)));
-              balances.append(node('p','Основной баланс '+currentBalance(a.rub,a.usd)),node('p','Баланс реквизитов '+currentBalance(a.paymentRub,a.paymentUsd)),node('strong','Последние операции'));
+              amountLine(balances,'Основной баланс',currentBalance(a.rub,a.usd));amountLine(balances,'Реквизиты',currentBalance(a.paymentRub,a.paymentUsd));balances.append(node('h4','Последние операции'));
               if(!a.operations?.length)balances.append(node('p',a.historyError?'История временно недоступна.':'Операций пока нет.'));
               for(const line of a.operations||[])balances.append(node('p',line));
             });

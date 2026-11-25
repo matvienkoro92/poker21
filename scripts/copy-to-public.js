@@ -18,6 +18,7 @@ const toCopy = [
   'app.js',
   'club-cabinet.js',
   'club-banner-catalog.js',
+  'club-deposit-parser.js',
   'club-team.js',
   'club-cabinet.css',
   'app-transfers.js',
