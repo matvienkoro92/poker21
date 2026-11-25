@@ -567,6 +567,32 @@
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
             row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
+            if(x.mine&&!x.taker)row.append(button('Снять заявку',()=>{
+              if(window.confirm('Снять заявку на '+x.amount.toLocaleString('ru-RU')+' ₽?'))work({action:'remove',item:x.id,clubId:requested,chatId});
+            }));
+            if(x.canSendReceipt){
+              row.append(button('Отправить чек и отметить оплату',()=>payWithReceipt(x.id,requested,chatId)),
+                button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:requested,chatId})));
+            }
+            if(x.hasReceipt)row.append(button('Посмотреть чек',async()=>{
+              try{
+                const result=await api({action:'receipt',item:x.id,clubId:requested,chatId});
+                const dialog=node('dialog','');dialog.className='placement-editor';
+                const file=result.receipt;
+                if(file.startsWith('data:image/')){
+                  const image=node('img','');image.src=file;image.alt='Чек оплаты';image.style.maxWidth='100%';dialog.append(image);
+                }else{
+                  const link=node('a','Скачать чек PDF');link.href=file;link.download='receipt.pdf';dialog.append(link);
+                }
+                dialog.append(button('Закрыть',()=>dialog.close()));dialog.onclose=()=>dialog.remove();
+                document.body.append(dialog);dialog.showModal();
+              }catch(e){status.textContent=e.message;}
+            }));
+            if(x.canDecide){
+              row.append(button('Подтвердить поступление',()=>{
+                if(window.confirm('Подтвердить получение '+x.amount.toLocaleString('ru-RU')+' ₽?'))work({action:'confirm',item:x.id,clubId:requested,chatId});
+              }),button('Не поступило',()=>work({action:'reject',item:x.id,clubId:requested,chatId})));
+            }
             if(x.canMarkPaid){
               if(x.id.startsWith('withdrawal:'))row.append(button('Отправить чек и отметить оплату',()=>payWithReceipt(x.id,requested)));
               row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
@@ -605,7 +631,7 @@
     const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if(ownId)entry.append(node('p','Ваш Telegram ID · '+ownId));
   }
-  function payWithReceipt(item,clubId){
+  function payWithReceipt(item,clubId,chatId){
     const picker=document.createElement('input');
     picker.type='file';
     picker.accept='image/jpeg,image/png,application/pdf';
@@ -615,7 +641,7 @@
       if(file.size>2097152){status.textContent='Выберите чек до 2 МБ.';return;}
       const reader=new FileReader();
       reader.onerror=()=>{status.textContent='Не удалось прочитать чек.';};
-      reader.onload=()=>work({action:'paid',item,clubId,receipt:reader.result});
+      reader.onload=()=>work({action:'paid',item,clubId,chatId,receipt:reader.result});
       reader.readAsDataURL(file);
     };
     picker.click();
