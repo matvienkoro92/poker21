@@ -73,10 +73,10 @@
 #desk-preview img {width:100%;height:100%;min-height:0;object-fit:contain;pointer-events:none}
 #desk-preview button {position:absolute;top:max(12px,env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;padding:0;background:#171c19;color:white;font-size:26px;cursor:pointer}
 
-#desk-team input[type=search] {margin:8px 0}
-#desk-team .desk-player-pages {display:flex;gap:8px;margin:8px 0}
-#desk-team .desk-player-pages[hidden] {display:none}
-#desk-team .desk-player-pages button:disabled {opacity:.45}
+:is(#desk-team,.club-dashboard) input[type=search] {margin:8px 0}
+:is(#desk-team,.club-dashboard) .desk-player-pages {display:flex;gap:8px;margin:8px 0}
+:is(#desk-team,.club-dashboard) .desk-player-pages[hidden] {display:none}
+:is(#desk-team,.club-dashboard) .desk-player-pages button:disabled {opacity:.45}
 
 html.app-view-home,body:has(#app.app--view-home) {background:#f2f4f0}
 #app.app--view-home #homeFooter {border-color:#d5dfd8}
@@ -212,21 +212,21 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 }
 
 #desk-team .club-role {justify-self:start;padding:3px 9px;border-radius:18px;background:#284536;color:#c1eccc;font-size:12px}
-#desk-team details.club-fold {margin:10px 0;padding:0 14px;border:1px solid #394b41;border-radius:15px;background:#17211c}
-#desk-team details.club-fold[open] {padding-bottom:12px}
-#desk-team details.club-fold > summary {
+:is(#desk-team,.club-dashboard) details.club-fold {margin:10px 0;padding:0 14px;border:1px solid #394b41;border-radius:15px;background:#17211c}
+:is(#desk-team,.club-dashboard) details.club-fold[open] {padding-bottom:12px}
+:is(#desk-team,.club-dashboard) details.club-fold > summary {
   display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;
   list-style:none;cursor:pointer;color:#edf6ee;font-weight:650;
 }
-#desk-team .club-fold > summary::-webkit-details-marker {display:none}
-#desk-team .club-fold > summary::after {content:"";width:8px;height:8px;border:solid #a2d3b0;border-width:0 2px 2px 0;transform:rotate(45deg);flex:none}
-#desk-team .club-fold[open] > summary::after {transform:rotate(225deg)}
-#desk-team .club-metrics {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px}
-#desk-team .club-metrics > div {display:grid;align-content:start;gap:5px;padding:12px;border-radius:12px;background:#23382c}
-#desk-team .club-metrics small {color:#bad0c0}
-#desk-team .club-metrics strong {font-size:clamp(18px,4vw,24px);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#desk-team .club-fold form button,#desk-team .club-fold article button {background:#c0edc5;color:#142b1e;border:0;border-radius:10px;min-height:44px;font-weight:700}
-#desk-team .club-fold a {display:inline-block;padding:8px 12px;border:1px solid #4a6554;border-radius:9px;color:#ccf3d7;text-decoration:none}
+:is(#desk-team,.club-dashboard) .club-fold > summary::-webkit-details-marker {display:none}
+:is(#desk-team,.club-dashboard) .club-fold > summary::after {content:"";width:8px;height:8px;border:solid #a2d3b0;border-width:0 2px 2px 0;transform:rotate(45deg);flex:none}
+:is(#desk-team,.club-dashboard) .club-fold[open] > summary::after {transform:rotate(225deg)}
+:is(#desk-team,.club-dashboard) .club-metrics {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px}
+:is(#desk-team,.club-dashboard) .club-metrics > div {display:grid;align-content:start;gap:5px;padding:12px;border-radius:12px;background:#23382c}
+:is(#desk-team,.club-dashboard) .club-metrics small {color:#bad0c0}
+:is(#desk-team,.club-dashboard) .club-metrics strong {font-size:clamp(18px,4vw,24px);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+:is(#desk-team,.club-dashboard) .club-fold form button,:is(#desk-team,.club-dashboard) .club-fold article button {background:#c0edc5;color:#142b1e;border:0;border-radius:10px;min-height:44px;font-weight:700}
+:is(#desk-team,.club-dashboard) .club-fold a {display:inline-block;padding:8px 12px;border:1px solid #4a6554;border-radius:9px;color:#ccf3d7;text-decoration:none}
 
 .club-header-balance {margin-left:auto;text-align:right;display:grid;gap:2px}
 .desk-brand .desk-brand-club {display:block;font-size:11px;color:#b8d0bf;letter-spacing:0}
@@ -258,3 +258,14 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #club-finance .club-metrics div {display:grid;gap:4px}
 
 .club-desk.cabinet-topbar {box-sizing:border-box;margin:0 auto;padding-bottom:0;background:var(--desk-paper)}
+
+.club-dashboard {display:grid;gap:12px}
+.club-dashboard:empty {display:none}
+.club-dashboard > details.club-fold {margin:0}
+
+.placement-editor {box-sizing:border-box;width:min(94vw,460px);max-height:86dvh;overflow:auto;padding:18px;color:var(--ink);background:var(--desk-panel);border:1px solid var(--rule);border-radius:16px}
+.placement-editor::backdrop {background:rgb(0 0 0 / .65)}
+.placement-editor input,.placement-editor textarea {width:100%;min-width:0}
+
+.requisite-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#desk-team .requisite-actions button {min-height:48px;font-weight:700}
