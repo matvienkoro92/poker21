@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru" data-cabinet-theme="dark" data-theme="dark" class="app-view-home" data-build="v4">
   <head>
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/poker21-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/poker21-icon-180.png" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -22,9 +25,8 @@
     <meta name="twitter:description" content="Горячие новости покерного клуба «Poker21». Откройте в Telegram." />
     <meta name="twitter:image" content="https://poker-app-ebon.vercel.app/assets/gazette-gidrograff-kriak.png" />
     <link rel="preload" as="script" href="./assets/vendor/telegram-web-app.js?v=1" />
-    <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./club-cabinet.css?v=35" />
+    <link rel="stylesheet" href="./club-cabinet.css?v=36" />
     <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -173,6 +175,7 @@
               <div class="desk-links"><a class="desk-vpn" href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener" aria-label="Открыть ВПН за 100 рублей в Telegram"><span class="desk-vpn__shield" aria-hidden="true">21</span><strong>ВПН за 100 рублей</strong><span aria-hidden="true">↗</span></a></div>
             </div>
             <script src="./assets/vendor/telegram-web-app.js?v=1"></script>
+            <script src="./assets/poker21-fullscreen.js?v=2"></script>
             <script>window.Telegram?.WebApp?.ready()</script>
             <script src="./club-deposit-parser.js?v=2"></script>
             <script src="./club-team.js?v=32"></script>

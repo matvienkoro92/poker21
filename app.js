@@ -2052,37 +2052,7 @@ if (tg) {
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
   var isLight = document.documentElement.getAttribute("data-theme") === "light";
   if (tg.setBackgroundColor) tg.setBackgroundColor(isLight ? "#ffedd5" : "#0f172a");
-  // В Mini App всегда открываем в полный экран.
-  // Повторные вызовы expand() с задержкой и при событиях помогают развернуть на части устройств.
-  function tryExpand() {
-    if (tg.expand) tg.expand();
-  }
-  setTimeout(tryExpand, 100);
-  setTimeout(tryExpand, 400);
-  setTimeout(tryExpand, 800);
-  setTimeout(tryExpand, 1500);
-  if (tg.onEvent && typeof tg.onEvent === "function") {
-    tg.onEvent("viewportChanged", function (e) {
-      if (e && e.isStateStable) tryExpand();
-    });
-  }
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") tryExpand();
-  });
-  window.addEventListener("pageshow", function (e) {
-    if (e.persisted) tryExpand();
-  });
-  document.addEventListener("click", function expandOnFirstClick() {
-    tryExpand();
-    trySyncChatInitAfterTgReady();
-    document.removeEventListener("click", expandOnFirstClick);
-  }, { once: true, capture: true });
-  document.addEventListener("touchstart", function expandOnFirstTouch() {
-    tryExpand();
-    trySyncChatInitAfterTgReady();
-    document.removeEventListener("touchstart", expandOnFirstTouch);
-  }, { once: true, passive: true, capture: true });
-  // requestFullscreen() не вызываем: после него на части устройств (iOS) перестают работать клики по кнопкам
+  document.addEventListener("click", trySyncChatInitAfterTgReady, { once: true, capture: true });
   // Адаптация под тему Telegram
   const themeParams = tg.themeParams || {};
   if (themeParams.bg_color) {

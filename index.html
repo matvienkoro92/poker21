@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru" data-cabinet-theme="dark" data-theme="dark" class="app-view-home" data-build="v4">
   <head>
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/poker21-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/poker21-icon-180.png" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -13,7 +16,7 @@
     />
     <meta name="theme-color" content="#0b100e">
     <link rel="stylesheet" href="./styles.css?v=21">
-    <link rel="stylesheet" href="./club-cabinet.css?v=43">
+    <link rel="stylesheet" href="./club-cabinet.css?v=44">
   </head>
   <body data-view="home">
     <div id="app" class="app app--view-home">
@@ -31,6 +34,7 @@
               <div class="desk-links"><a class="desk-vpn" href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener" aria-label="Открыть ВПН за 100 рублей в Telegram"><span class="desk-vpn__shield" aria-hidden="true">21</span><strong>ВПН за 100 рублей</strong><span aria-hidden="true">↗</span></a></div>
             </div>
             <script src="./assets/vendor/telegram-web-app.js?v=1"></script>
+            <script src="./assets/poker21-fullscreen.js?v=2"></script>
             <script>
               const webApp = window.Telegram?.WebApp;
               const launch = webApp?.initDataUnsafe?.start_param || '';
