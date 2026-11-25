@@ -146,10 +146,17 @@
     if(!owner)return;
     const pulse=section('Пульс клуба',parent);
     pulse.append(node('p',d.period.join(' — ')));
-    const metrics=node('div','');metrics.className='club-metrics';
-    for(const [label,value] of Object.entries(d.metrics))metrics.append(metric(label,fmt(value)));
-    pulse.append(metrics);
-    const players=section('Игроки · '+d.players.length,pulse);
+    const counts=d.activePlayers;
+    const active=section('Активные игроки · '+fmt(counts.total),pulse);
+    const countsGrid=node('div','');countsGrid.className='club-metrics';
+    countsGrid.append(metric('С рейком',fmt(counts.withRake)),metric('Без рейка',fmt(counts.withoutRake)));
+    active.append(countsGrid);
+    const rake=section('Рейк · '+fmt(d.rake.total)+' ₽',pulse);
+    const rakeGrid=node('div','');rakeGrid.className='club-metrics';
+    for(const [label,value] of [['Кеш',d.rake.cash],['МТТ',d.rake.mtt],['СНГ',d.rake.sng]])
+      rakeGrid.append(metric(label,fmt(value)+' ₽'));
+    rake.append(rakeGrid);
+    const players=section('Все игроки клуба · '+d.players.length,pulse);
     if(d.players.length) {
       const search=node('input','');
       search.type='search';
@@ -169,7 +176,11 @@
       const paging=node('div','');
       paging.className='desk-player-pages';
       paging.append(prev,next);
-      players.append(search,order,count,list,paging);
+      const directory=node('div','');directory.className='player-directory';
+      const controls=node('div','');controls.className='player-directory-controls';
+      controls.append(search,order);
+      directory.append(controls,count,list,paging);players.append(directory);
+      const currency=new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB'});
       function draw() {
         const query=search.value.trim().toLocaleLowerCase('ru');
         const rows=d.players.filter(p=>String(p.nick||'').toLocaleLowerCase('ru').includes(query)||String(p.id).includes(query));
@@ -179,7 +190,15 @@
         count.textContent=rows.length ? (start+1)+'–'+Math.min(start+pageSize,rows.length)+' из '+rows.length : 'Игроков по этому запросу нет';
         list.replaceChildren(...rows.slice(start,start+pageSize).map(p=>{
           const row=node('article','');
-          row.append(node('strong',p.nick+' · '+p.id),node('p','Рейк '+fmt(p.rake)+' ₽ · результат '+fmt(p.winnings)+' ₽'));
+          row.className='player-directory-row';
+          const head=node('header','');head.append(node('strong',p.nick),node('small','ID '+p.id));
+          const amounts=node('dl','');
+          for(const [label,value] of [['Рейк',p.rake],['Результат',p.winnings]]){
+            const cell=node('div',''),amount=node('dd',(label==='Результат'&&value>0?'+':'')+currency.format(value));
+            if(label==='Результат')amount.className=value>0?'is-positive':value<0?'is-negative':'';
+            cell.append(node('dt',label),amount);amounts.append(cell);
+          }
+          row.append(head,amounts);
           return row;
         }));
         paging.hidden=rows.length<=pageSize;

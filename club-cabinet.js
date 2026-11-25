@@ -65,11 +65,11 @@
     byId('desk-art').hidden = !art || !main;
     if (art && main) {
       const image = byId('desk-art');
-      const miniature = './assets/banner-previews/' + art + '.webp';
+      const miniature = art.startsWith('./assets/') ? art : './assets/banner-previews/' + art + '.webp';
       if (image.getAttribute('src') !== miniature) {
         image.onerror = () => {
           image.onerror = null;
-          image.src = './assets/schedule/banners/' + art;
+          if (!art.startsWith('./assets/')) image.src = './assets/schedule/banners/' + art;
         };
         image.fetchPriority = 'high';
         image.src = miniature;
@@ -88,8 +88,8 @@
     "square/tuesday/tuesday-1.jpg"
   ],
   "wed": [
-    "Среда\n18:00 МСК · MKO\nБай-ин: 1 000 ₽ · Гарантия: 170 000 ₽",
-    "square/wednesday/wednesday-kosar-1.jpg"
+    "Среда\n18:00 МСК · Боевой касарь\nФормат: ПКО · Бай-ин: 1 000 ₽ · Гарантия: 250 000 ₽",
+    "./assets/logo-two-aces.webp"
   ],
   "thu": [
     "Четверг\n18:00 МСК · MKO\nБай-ин: 300 ₽ · Гарантия: 100 000 ₽",
@@ -117,7 +117,9 @@
       if (!response.ok) throw Error();
       const data = await response.json();
       const evening = data.rows.find(row => row.category === 'day' && row.today && /18[:.]00/.test(row.text));
-      renderEvening(evening?.text, data.banners.square[data.day]?.[0]);
+      const legacyWednesday = data.day === 'wed' && /18[:.]00[^\n]*(?:MKO|МКО|Боевой касарь)/i.test(evening?.text || '');
+      if (legacyWednesday) renderEvening(...programme.wed);
+      else renderEvening(evening?.text, data.banners.square[data.day]?.[0]);
       byId('desk-status').textContent = '';
     } catch {
       byId('desk-status').textContent = 'Не удалось обновить расписание.';

@@ -76,7 +76,8 @@
 :is(#desk-team,.club-dashboard) input[type=search] {margin:8px 0}
 :is(#desk-team,.club-dashboard) .desk-player-pages {display:flex;gap:8px;margin:8px 0}
 :is(#desk-team,.club-dashboard) .desk-player-pages[hidden] {display:none}
-:is(#desk-team,.club-dashboard) .desk-player-pages button:disabled {opacity:.45}
+:is(#desk-team,.club-dashboard) .desk-player-pages button {background:#c0edc5;color:#142b1e;border:1px solid #8bb497;font-weight:700}
+:is(#desk-team,.club-dashboard) .desk-player-pages button:disabled {opacity:1;background:var(--desk-panel);color:var(--desk-secondary);border-color:var(--desk-line);cursor:default}
 
 html.app-view-home,body:has(#app.app--view-home) {background:#f2f4f0}
 #app.app--view-home #homeFooter {border-color:#d5dfd8}
@@ -269,3 +270,20 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 
 .requisite-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 #desk-team .requisite-actions button {min-height:48px;font-weight:700}
+
+.player-directory {display:grid;gap:10px;text-align:left;min-width:0;container-type:inline-size}
+.player-directory-controls {display:grid;gap:6px}
+.club-dashboard .player-directory-controls :is(input[type=search],select) {box-sizing:border-box;width:100%;min-width:0;margin:0;padding:9px 12px;background:var(--desk-paper);border:1px solid var(--rule);color:var(--ink);border-radius:9px;font:inherit}
+.player-directory-row {padding:12px 0;border-top:1px solid var(--rule)}
+.player-directory-row header {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:3px 12px}
+.player-directory-row header strong {overflow-wrap:anywhere}
+.player-directory-row header small,.player-directory-row dt {font-size:12px;color:var(--desk-secondary)}
+.player-directory-row dl {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:7px 0 0}
+.player-directory-row dl div {background:var(--desk-paper);padding:6px 9px;border-radius:8px}
+.player-directory-row dd {margin:2px 0 0;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.player-directory-row .is-positive {color:#27703f}
+.player-directory-row .is-negative {color:#a83d32}
+[data-cabinet-theme=dark] .player-directory-row .is-positive {color:#a5ddac}
+[data-cabinet-theme=dark] .player-directory-row .is-negative {color:#f1b3a6}
+.player-directory .desk-player-pages button {flex:1}
+@container (min-width:450px) {.player-directory-controls {grid-template-columns:1fr 1fr}}
