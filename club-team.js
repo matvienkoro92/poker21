@@ -352,6 +352,7 @@
       const summary=node('div','');summary.className='club-metrics';
       for(const [key,label] of [['open','Свободные'],['taken','Взятые']])summary.append(metric(label+' · '+stats[key].count,stats[key].amount.toLocaleString('ru-RU')+' ₽'));
       list.append(summary);
+      if(registry.withdrawalError)list.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
       for(const x of items){
         const row=node('article','');row.className='requisite-preview';
         row.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
@@ -361,6 +362,10 @@
           const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
           if(extra)row.append(node('span',extra));
           row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
+          if(x.canMarkPaid){
+            row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
+              button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:active})));
+          }
         }else row.append(button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId})));
         list.append(row);
       }
