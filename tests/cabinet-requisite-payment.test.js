@@ -7,6 +7,8 @@ test('cabinet settles a claim with a receipt, retry or cancellation using the au
   let item={id:'test',status:'claimed',owner:{id:'a',chatId:'a'},payer:{id:'b',chatId:'b'},amountCents:100000};
   let notice,file,settlements=0;const reminders=[];
   const ctx={
+    unionDirectory:{clubs:['a','b','c'].map(id=>({id,name:id}))},
+    cabinetAccountIds:async ids=>new Map([[ids[0],new Set(ids)]]),
     paymentDetailsKey:id=>id,originalPayment:{get:()=>JSON.stringify(item)},formatPaymentAmount:()=>'1000 ₽',
     notifyPaymentAdmin:async party=>{reminders.push(party.id);return true;},
     telegram:async(method,data)=>{reminders.push(data.chat_id);return {ok:true};},
