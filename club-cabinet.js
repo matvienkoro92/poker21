@@ -128,11 +128,11 @@
   }
   byId('desk-day').replaceChildren(...catalog.days.map(([key,label]) => new Option(label,key)));
   byId('desk-day').value = day;
-  const bannerTab=document.querySelector('nav [data-view-target=banners]');
-  if(bannerTab){
+  const scheduleTab=document.querySelector('nav [data-view-target=club-schedule]');
+  if(scheduleTab){
     byId('app').addEventListener('cabinet-view',({detail})=>{
       if(detail==='club-schedule' && !byId('desk-rows').childElementCount)renderSchedule();
-      if(detail==='banners' && !byId('desk-gallery').childElementCount)renderGallery();
+      if(detail==='club-schedule' && !byId('desk-gallery').childElementCount)renderGallery();
     });
   }else{
     renderGallery();
@@ -151,9 +151,9 @@
   desk.querySelector('[data-desk-open]').onclick = event => {
     const banners = byId(event.currentTarget.dataset.deskOpen);
     byId('desk-day').value = day;
-    if(bannerTab)bannerTab.click();
+    if(scheduleTab)scheduleTab.click();
     renderGallery();
-    if(!bannerTab)banners.scrollIntoView({block:'start'});
+    banners.scrollIntoView({block:'start'});
   };
   load();
 })();

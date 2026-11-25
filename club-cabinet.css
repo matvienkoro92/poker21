@@ -160,8 +160,9 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 }
 #app.app--view-home > .card {flex-shrink:0}
 
-#app:has(.view--active:is([data-view=download],[data-view=banners],[data-view=club-schedule])) {height:var(--tg-viewport-height,100dvh);min-height:0;box-sizing:border-box;padding-bottom:0;overflow:hidden;background:var(--desk-paper)}
-#app:has(.view--active:is([data-view=download],[data-view=banners],[data-view=club-schedule]))>.card {flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;background:var(--desk-paper)}
+#app:has(.view--active:is([data-view=download],[data-view=players-rake],[data-view=club-schedule])) {padding-top:env(safe-area-inset-top,0px);height:var(--tg-viewport-height,100dvh);min-height:0;box-sizing:border-box;padding-bottom:0;overflow:hidden;background:var(--desk-paper)}
+#app:has(.view--active:is([data-view=download],[data-view=players-rake],[data-view=club-schedule]))>.card::before {display:none}
+#app:has(.view--active:is([data-view=download],[data-view=players-rake],[data-view=club-schedule]))>.card {border:0;box-shadow:none;padding-top:0;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;background:var(--desk-paper)}
 .view--active[data-view=download] .install-panel.download-page--active {display:grid;gap:16px;box-sizing:border-box;width:min(100%,720px);margin:0 auto;padding:16px 12px;color:var(--desk-text)}
 .install-cover {position:relative;isolation:isolate;overflow:hidden;border-radius:20px;background:#171010}
 .install-cover img {display:block;width:100%;height:auto}
@@ -173,7 +174,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .install-platforms strong {font:680 17px/1.4 system-ui,sans-serif}
 .install-platforms b {color:var(--desk-secondary);font-size:21px}
 
-#app:has(.view--active:is([data-view=download],[data-view=banners],[data-view=club-schedule])) > .bottom-nav {
+#app:has(.view--active:is([data-view=download],[data-view=players-rake],[data-view=club-schedule])) > .bottom-nav {
   position:relative;
   flex:none;
   width:100%;
@@ -213,7 +214,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 }
 
 #desk-team .club-role {justify-self:start;padding:3px 9px;border-radius:18px;background:#284536;color:#c1eccc;font-size:12px}
-:is(#desk-team,.club-dashboard) details.club-fold {margin:10px 0;padding:0 14px;border:1px solid #394b41;border-radius:15px;background:#17211c}
+:is(#desk-team,.club-dashboard) details.club-fold {padding:0 14px;border:1px solid #394b41;border-radius:15px;background:#17211c}
 :is(#desk-team,.club-dashboard) details.club-fold[open] {padding-bottom:12px}
 :is(#desk-team,.club-dashboard) details.club-fold > summary {
   display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;
@@ -231,7 +232,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 
 .club-header-balance {margin-left:auto;text-align:right;display:grid;gap:2px}
 .desk-brand .desk-brand-club {display:block;font-size:11px;color:#b8d0bf;letter-spacing:0}
-.club-header-balance strong {font-size:clamp(15px,4vw,23px);color:#c0edc5}
+.club-header-balance strong {font-variant-numeric:tabular-nums;font-size:clamp(15px,4vw,23px);color:#c0edc5}
 .club-desk .club-issuer[hidden] {display:none}
 .club-desk .club-issuer {background:#16291d;padding:12px 16px;border-radius:15px;border:1px solid #45644d}
 .club-issuer summary {cursor:pointer;font-weight:700}
@@ -240,19 +241,17 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .club-issuer form button,.club-issuer .issued-invite button {background:#bfecc4;color:#132119}
 .club-issuer p:empty {display:none}
 
-.desk-brand .cabinet-close,.install-cover .cabinet-close {
+.install-cover .cabinet-close {
   display:grid;place-items:center;flex:none;width:44px;height:44px;min-height:44px;
   border:1px solid #56685d;border-radius:50%;padding:0;background:#18231d;color:#f2fff4;
   font:400 28px/1 system-ui;cursor:pointer;
 }
-.desk-brand .cabinet-close {order:1;margin-left:auto}
-.desk-brand:has(.club-header-balance strong) .cabinet-close {margin-left:0}
 .install-cover .cabinet-close {position:absolute;right:10px;top:10px;z-index:2}
 
 .club-desk #desk-team.club-connected > summary,.club-desk .club-header-balance[hidden],
 .club-desk #club-finance[hidden],#desk-team label[hidden] {display:none}
 .club-desk #desk-team.club-connected {background:none;border:0}
-.club-desk button.club-header-balance {background:var(--desk-panel);padding:5px 9px;border:1px solid #405848;border-radius:10px;min-width:0;max-width:45%;cursor:pointer}
+.club-desk button.club-header-balance {background:transparent;padding:5px 0 5px 8px;border:0;align-content:center;min-height:44px;min-width:0;max-width:50%;cursor:pointer}
 .desk-brand-title {min-width:0;text-align:left;overflow-wrap:anywhere}
 #club-finance {padding:14px;background:#17211c;border:1px solid #394b41;border-radius:14px}
 #club-finance .club-metrics {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -260,8 +259,9 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 
 .club-desk.cabinet-topbar {box-sizing:border-box;margin:0 auto;padding-bottom:0;background:var(--desk-paper)}
 
-.club-dashboard {display:grid;gap:12px}
+.club-dashboard {display:grid;gap:6px}
 .club-dashboard:empty {display:none}
+:where(#desk-team,.club-dashboard) details.club-fold {margin:10px 0}
 .club-dashboard > details.club-fold {margin:0}
 
 .placement-editor {box-sizing:border-box;width:min(94vw,460px);max-height:86dvh;overflow:auto;padding:18px;color:var(--ink);background:var(--desk-panel);border:1px solid var(--rule);border-radius:16px}
@@ -287,3 +287,32 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 [data-cabinet-theme=dark] .player-directory-row .is-negative {color:#f1b3a6}
 .player-directory .desk-player-pages button {flex:1}
 @container (min-width:450px) {.player-directory-controls {grid-template-columns:1fr 1fr}}
+
+:root:not([data-cabinet-theme=dark]) .club-header-balance strong {color:#275934}
+
+#players-rake-content:has(.club-dashboard:not(:empty)) .dashboard-placeholder {display:none}
+#app .bottom-nav [data-view-target="players-rake"] .bottom-nav__label {white-space:normal;line-height:1.1}
+
+#desk-team .requisite-preview {display:grid;gap:3px;padding:10px 0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#desk-team .requisite-preview button {margin-top:4px;justify-self:start}
+
+.week-pulse {display:grid;gap:14px;min-width:0}
+.week-pulse h2,.week-pulse h3,.pulse-legend,.pulse-legend dd {margin:0}
+.week-pulse h2 {font-size:24px;letter-spacing:-.035em}
+.week-pulse h3 {font-size:16px}
+.pulse-revenue,.pulse-activity {padding:16px;border-radius:16px;border:1px solid var(--desk-line);background:var(--desk-panel);min-width:0}
+.pulse-revenue {background:linear-gradient(120deg,var(--desk-entry),var(--desk-panel))}
+.pulse-revenue>strong,.pulse-activity>strong {display:block;margin:3px 0 10px;font-size:clamp(25px,7vw,38px);line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.035em}
+.pulse-bar {display:flex;height:8px;overflow:hidden;background:var(--desk-line);border-radius:8px}
+.pulse-bar span {flex-basis:0}
+.pulse-legend {display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:13px}
+.pulse-legend dt::before {content:'';display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:50%;background:var(--category-color)}
+.pulse-legend dd {font-weight:700}
+.pulse-insight {padding:8px 12px;border-inline-start:3px solid var(--desk-edge);font-size:14px}
+.pulse-categories {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px;align-items:start}
+.club-dashboard .week-pulse .pulse-categories>details {margin:0;padding-inline:10px;min-width:0;background:var(--desk-panel);color:var(--desk-text)}
+.club-dashboard .week-pulse .pulse-categories>details>summary {min-height:52px;font-size:14px;gap:6px;line-height:1.2}
+.pulse-categories summary b {margin-left:auto;font-variant-numeric:tabular-nums}
+.pulse-categories>details[open] {grid-column:1/-1}
+.pulse-player {display:grid;grid-template-columns:1fr auto;gap:4px;padding:9px 0;border-top:1px solid var(--desk-line);overflow-wrap:anywhere}
+.pulse-player p {grid-column:1/-1;margin:0;font-size:14px}

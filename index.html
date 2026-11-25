@@ -13,14 +13,14 @@
     />
     <meta name="theme-color" content="#0b100e">
     <link rel="stylesheet" href="./styles.css?v=21">
-    <link rel="stylesheet" href="./club-cabinet.css?v=28">
+    <link rel="stylesheet" href="./club-cabinet.css?v=34">
   </head>
   <body data-view="home">
     <div id="app" class="app app--view-home">
       <main class="card">
         <section class="card__content">
           <div class="club-desk cabinet-topbar">
-            <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div><button type="button" class="cabinet-close" aria-label="Закрыть мини-приложение Poker21" title="Закрыть" onclick="window.Telegram.WebApp.close()">×</button></header>
+            <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div></header>
           </div>
           <div class="view view--active" data-view="home">
             <div class="club-desk">
@@ -43,19 +43,18 @@
               }
             </script>
             <script src="./club-deposit-parser.js?v=1"></script>
-            <script src="./club-team.js?v=23"></script>
+            <script src="./club-team.js?v=27"></script>
             <script src="./club-banner-catalog.js?v=1"></script>
           </div>
           <div class="view" data-view="club-schedule"><div class="club-desk">
               <section class="desk-collection" id="desk-schedule"><h2><i class="desk-icon calendar" aria-hidden="true"></i>Расписание турниров</h2><div class="desk-body"><div id="desk-rows"></div></div></section>
-          </div></div>
-          <div class="view" data-view="banners"><div class="club-desk">
               <section class="desk-collection" id="desk-banners"><h2><i class="desk-icon posters" aria-hidden="true"></i>Баннеры к турниру</h2><div class="desk-body"><div class="desk-filters"><label>Подборка <select id="desk-day"></select></label></div><div id="desk-gallery"></div>
                 <div id="desk-format" role="group" aria-label="Формат баннеров">
                   <button type="button" data-format="square" aria-pressed="true" aria-controls="desk-gallery">Квадрат</button>
                   <button type="button" data-format="story" aria-pressed="false" aria-controls="desk-gallery">Сторис</button>
                 </div></div></section>
           </div></div>
+          <div class="view" data-view="players-rake"><div class="club-desk" id="players-rake-content"><p class="dashboard-placeholder">Статистика и отчёты доступны владельцу клуба после входа в кабинет.</p></div></div>
           <div class="view" data-view="download">
             <div class="download-page download-page--active install-panel" data-download-page="poker21">
               <header class="install-cover"><img loading="lazy" decoding="async" src="./assets/poker21-download-red-gold.webp?v=3" width="900" height="600" alt=""><h1>Скачать<br>Poker21 Plus</h1></header>
@@ -79,9 +78,9 @@
           <svg class="bottom-nav__icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v15H4z M8 3v4m8-4v4M4 10h16"/></svg>
           <span class="bottom-nav__label">Расписание</span>
         </button>
-        <button type="button" class="bottom-nav__item" data-view-target="banners">
-          <svg class="bottom-nav__icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 5h15v13H3z M7 21h14V9 M4 16l4-5 4 4 2-2 3 3"/></svg>
-          <span class="bottom-nav__label">Баннеры</span>
+        <button type="button" class="bottom-nav__item" data-view-target="players-rake">
+          <svg class="bottom-nav__icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 20h18 M6 16v-4 M12 16V5 M18 16V9"/></svg>
+          <span class="bottom-nav__label">Игроки и рейк</span>
         </button>
         <button type="button" class="bottom-nav__item" data-view-target="download">
           <svg class="bottom-nav__icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3v11m-4-4 4 4 4-4M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></svg>
@@ -90,7 +89,7 @@
       </nav>
     </div>
               <dialog id="desk-preview" aria-label="Просмотр афиши"><button type="button" aria-label="Закрыть просмотр" autofocus>×</button><img alt=""></dialog>
-    <script src="./club-cabinet.js?v=16"></script>
+    <script src="./club-cabinet.js?v=17"></script>
     <script>
       const app = document.getElementById('app');
       const tabs = app.querySelectorAll('.bottom-nav [data-view-target]');

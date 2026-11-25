@@ -28,7 +28,7 @@ async function main(){
  const me=await call('getMe');
  if(String(me.username).toLowerCase()!=='poker21app_bot')throw Error('Expected Poker21 report bot');
  const menu=await call('getChatMenuButton');
- const menu_button={type:'web_app',text:'Открыть кабинет',web_app:menu.type==='web_app'?menu.web_app:{url:'https://poker21-app.vercel.app'}};
+ const menu_button={type:'web_app',text:'Открыть ЛК',web_app:menu.type==='web_app'?menu.web_app:{url:'https://poker21-app.vercel.app'}};
  await call('setChatMenuButton',{menu_button});
  const savedMenu=await call('getChatMenuButton');
  if(savedMenu.text!==menu_button.text||savedMenu.web_app?.url!==menu_button.web_app.url)throw Error('Menu button verification failed');

@@ -24,7 +24,7 @@
     <link rel="preload" as="script" href="./assets/vendor/telegram-web-app.js?v=1" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./club-cabinet.css?v=28" />
+    <link rel="stylesheet" href="./club-cabinet.css?v=34" />
     <link rel="stylesheet" href="./styles-transfers.css?v=1" />
     <!-- Главная: скролл как в остальных разделах — прокручивается вся страница -->
     <style id="home-layout-critical">
@@ -159,7 +159,7 @@
           <!-- Главная -->
           <div class="view view--active" data-view="home">
             <div class="club-desk">
-              <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div><button type="button" class="cabinet-close" aria-label="Закрыть мини-приложение Poker21" title="Закрыть" onclick="window.Telegram.WebApp.close()">×</button></header>
+              <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div></header>
               <details id="desk-team"><summary class="desk-transfer"><svg class="desk-key" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M18 18a8 8 0 1 0-4-5L3 24v5h5v-3h4v-4h3z"/><circle cx="22" cy="10" r="1.7"/></svg><span><strong>Кабинет по ключу</strong><small>Баланс, реквизиты и отчёты</small></span><b aria-hidden="true">↗</b></summary><section></section><p role="status">Загружаем кабинет…</p></details>
               <section class="desk-evening"><div><small>Турнир вечера</small><h2 id="desk-event"></h2><p id="desk-details"></p><button type="button" data-desk-open="desk-banners" aria-controls="desk-banners">Баннеры ↓</button></div><img id="desk-art" alt="" hidden></section>
               <section class="desk-collection" id="desk-schedule"><h2><i class="desk-icon calendar" aria-hidden="true"></i>Расписание турниров</h2><div class="desk-body"><div id="desk-rows"></div></div></section>
@@ -175,9 +175,9 @@
             <script src="./assets/vendor/telegram-web-app.js?v=1"></script>
             <script>window.Telegram?.WebApp?.ready()</script>
             <script src="./club-deposit-parser.js?v=1"></script>
-            <script src="./club-team.js?v=23"></script>
+            <script src="./club-team.js?v=27"></script>
             <script src="./club-banner-catalog.js?v=1"></script>
-            <script src="./club-cabinet.js?v=16"></script>
+            <script src="./club-cabinet.js?v=17"></script>
             <footer class="card__footer card__footer--home" id="homeFooter">
               <p class="footer-note">
                 Poker21. Играйте ответственно. 18+

@@ -596,6 +596,7 @@ def main():
             "rakePerPlayer": round(rake / active_players, 2) if active_players else 0,
         })
     activity_data = {
+        "activeIdsByClub": {cid: sorted(active_ids[cid]) for cid in member_club_ids},
         **base,
         "activeClubs": sum(1 for row in activity_rows if row["activePlayers"] or row["rake"] or row["games"] or row["hands"]),
         "activePlayers": sum(row["activePlayers"] for row in activity_rows),
