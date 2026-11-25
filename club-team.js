@@ -788,6 +788,27 @@
       tickVisibleBookings=tickBookings;
     }
     if(clubs.length)return;
+    const guest=section('Свободные реквизиты',box);guest.open=true;
+    const hint=node('p','Смотреть реквизиты можно без ключа. Чтобы взять заявку, запросите ключ в Telegram у ');
+    const contact=node('a','@Roman1787443');contact.href='https://t.me/Roman1787443';contact.target='_blank';contact.rel='noopener';hint.append(contact);guest.append(hint);
+    const list=node('div','');guest.append(list);
+    async function loadOffers(){
+      list.textContent='Загружаем реквизиты…';
+      try{
+        const result=await api({action:'open-requisites'});
+        list.replaceChildren();
+        for(const item of result.items){
+          const row=node('article','');row.className='requisite-preview';
+          const head=node('header','');head.className='offer-head';
+          head.append(node('strong',item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽')),node('small',item.bank||''));
+          row.append(head,node('span',item.number||''));list.append(row);
+        }
+        if(result.withdrawalError)list.append(node('p','Выводы из Депозитов временно недоступны.'));
+        else if(!result.items.length)list.append(node('p','Свободных заявок пока нет.'));
+      }catch{list.textContent='Не удалось загрузить реквизиты.';}
+      list.append(button('Обновить',loadOffers,'secondary'));
+    }
+    await loadOffers();
     const entry=node('div','');entry.className='club-invite-entry';box.append(entry);
     const inviteKey=field('key','Одноразовый ключ');
     inviteKey.lastChild.placeholder='Вставьте ключ приглашения';
@@ -916,7 +937,7 @@
     const issuing=['owner','staff','revoke'].includes(body.action);
     if(issuing){issuerBody.inert=true;issuerStatus.textContent='Выполняем…';}
     try{
-      const result=await api(body);
+      const result=body.action==='status'&&!window.Telegram?.WebApp?.initData?{memberships:[]}:await api(body);
       if(registryAction){
         await refreshVisibleList?.(true,body.action==='confirm');
         showNotice(body.action==='confirm'?'Сделка проведена':body.action==='recheck'?'Запрошена повторная проверка с прежним чеком.':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
