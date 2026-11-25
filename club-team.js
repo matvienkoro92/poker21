@@ -663,8 +663,8 @@
             const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
             claim.className='offer-claim';row.append(claim);
           }
-          if(registry.canDeleteRequisites&&!x.taker)row.append(button('Удалить реквизиты',()=>{
-            confirmDeal('Удалить реквизиты на '+x.amount.toLocaleString('ru-RU')+' ₽ из списка Poker21?','Удалить','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
+          if(registry.canDeleteRequisites)row.append(button('Удалить реквизиты',()=>{
+            confirmDeal('Удалить реквизиты на '+x.amount.toLocaleString('ru-RU')+' ₽ из списка Poker21?'+(x.taker?' Заявка уже в работе. Удаление не подтверждает оплату.':''),'Удалить','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
           },'danger'));
           if(x.peer){
             const contact=button('Связаться с клубом',()=>openDealDialog(x,requested,chatId),'secondary');
