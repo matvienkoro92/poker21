@@ -2,6 +2,8 @@
   const panel=document.getElementById('desk-team'), box=panel.querySelector('section'), status=panel.querySelector('[role=status]');
   const selectedGroups=new Map();
   let active='', data, busy=false;
+  let refreshVisibleList;
+  let expandedRegistry = '';
   const node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
@@ -257,6 +259,7 @@
     }
   }
   async function render(key, request){
+    refreshVisibleList = null;
     box.replaceChildren();
     document.querySelector('.club-dashboard')?.remove();
     clubName.textContent='';
@@ -330,7 +333,7 @@
       const requisites=node('div','');box.append(requisites);
       if(clubs.length===1)choice.hidden=true;
       const registry=await api({action:'list',clubId:active,chatId:selectedGroups.get(active)});
-      const {items,groups,chatId}=registry;
+      const {groups,chatId}=registry;
       if(groups.length>1){
         const selector=field('group','Группа клуба',groups.map(g=>({clubId:g.id,name:g.name.split(' · ')[0]})));
         const select=selector.lastChild;
@@ -340,35 +343,64 @@
       }
       const actions=node('div','');actions.className='requisite-actions';
       actions.setAttribute('role','group');actions.setAttribute('aria-label','Реквизиты');
-      const list=node('div','');list.hidden=true;list.id='club-requisite-list';
-      const take=button('Взять реквизит',()=>{list.hidden=!list.hidden;take.setAttribute('aria-expanded',String(!list.hidden));});
-      take.setAttribute('aria-expanded','false');take.setAttribute('aria-controls',list.id);
+      const registryKey=JSON.stringify([active,chatId]);
+      const list=node('div','');list.hidden=expandedRegistry!==registryKey;list.id='club-requisite-list';
+      const take=button('Взять реквизит',()=>{
+        list.hidden=!list.hidden;
+        expandedRegistry=list.hidden?'':registryKey;
+        take.setAttribute('aria-expanded',String(!list.hidden));
+        if(!list.hidden)refresh();
+      });
+      take.setAttribute('aria-expanded',String(!list.hidden));take.setAttribute('aria-controls',list.id);
       const place=button('Разместить',null);place.disabled=!chatId;place.setAttribute('aria-haspopup','dialog');
       actions.append(take,place);requisites.append(actions,list);
       if(chatId)placementEditor(requisites,place,active,chatId,registry.availability);
       else if(!groups.length)requisites.append(node('p','Для размещения реквизитов привяжите группу клуба в боте.'));
-      const stats={open:{count:0,amount:0},taken:{count:0,amount:0}};
-      for(const item of items){const bucket=stats[item.taker?'taken':'open'];bucket.count++;bucket.amount+=item.amount;}
-      const summary=node('div','');summary.className='club-metrics';
-      for(const [key,label] of [['open','Свободные'],['taken','Взятые']])summary.append(metric(label+' · '+stats[key].count,stats[key].amount.toLocaleString('ru-RU')+' ₽'));
-      list.append(summary);
-      if(registry.withdrawalError)list.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
-      for(const x of items){
-        const row=node('article','');row.className='requisite-preview';
-        row.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
-        if(x.number)row.append(node('span',x.number));
-        if(x.bank)row.append(node('small',x.bank));
-        if(x.mine||x.taker){
-          const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
-          if(extra)row.append(node('span',extra));
-          row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
-          if(x.canMarkPaid){
-            row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
-              button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:active})));
-          }
-        }else row.append(button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId})));
-        list.append(row);
+      function drawItems(registry){
+        const items=registry.items;
+        list.replaceChildren();
+        const stats={open:{count:0,amount:0},taken:{count:0,amount:0}};
+        for(const item of items){const bucket=stats[item.taker?'taken':'open'];bucket.count++;bucket.amount+=item.amount;}
+        const summary=node('div','');summary.className='club-metrics';
+        for(const [key,label] of [['open','Свободные'],['taken','Взятые']])summary.append(metric(label+' · '+stats[key].count,stats[key].amount.toLocaleString('ru-RU')+' ₽'));
+        list.append(summary);
+        if(registry.withdrawalError)list.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
+        for(const x of items){
+          const row=node('article','');row.className='requisite-preview';
+          row.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
+          if(x.number)row.append(node('span',x.number));
+          if(x.bank)row.append(node('small',x.bank));
+          if(x.mine||x.taker){
+            const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
+            if(extra)row.append(node('span',extra));
+            row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
+            if(x.canMarkPaid){
+              row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
+                button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:active})));
+            }
+          }else row.append(button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId})));
+          list.append(row);
+        }
       }
+      let loading=false;
+      async function refresh(){
+        if(loading || busy || document.hidden || !list.getClientRects().length)return;
+        loading=true;
+        try{
+          const latest=await api({action:'list',clubId:requested,chatId});
+          if(list.isConnected)drawItems(latest);
+        }catch{
+          if(list.isConnected){
+            list.querySelector('.requisite-refresh-error')?.remove();
+            const error=node('p','Не удалось обновить список реквизитов.');
+            error.className='requisite-refresh-error';
+            error.append(button('Обновить',refresh));
+            list.prepend(error);
+          }
+        }finally{loading=false;}
+      }
+      drawItems(registry);
+      refreshVisibleList=refresh;
     }
     if(clubs.length)return;
     const entry=box;
@@ -391,6 +423,11 @@
     finally{busy=false;box.inert=false;issuerBody.inert=false;}
   }
   function openPanel(){if(panel.open && !data)work({action:'status'});}
-  panel.addEventListener('toggle',openPanel);
+  const refreshList=()=>refreshVisibleList?.();
+  window.setInterval(refreshList,15000);
+  window.addEventListener('focus',refreshList);
+  document.addEventListener('visibilitychange',refreshList);
+  document.getElementById('app').addEventListener('cabinet-view',()=>requestAnimationFrame(refreshList));
+  panel.addEventListener('toggle',()=>{openPanel();refreshList();});
   if(window.Telegram?.WebApp?.initData || panel.open)work({action:'status'});
 })();

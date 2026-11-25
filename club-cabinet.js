@@ -89,7 +89,7 @@
   ],
   "wed": [
     "Среда\n18:00 МСК · Боевой касарь\nФормат: ПКО · Бай-ин: 1 000 ₽ · Гарантия: 250 000 ₽",
-    "./assets/logo-two-aces.webp"
+    './assets/schedule/banners/' + catalog.banners.square.wed[0]
   ],
   "thu": [
     "Четверг\n18:00 МСК · MKO\nБай-ин: 300 ₽ · Гарантия: 100 000 ₽",
