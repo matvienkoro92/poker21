@@ -182,17 +182,17 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #app > .bottom-nav {
   padding:6px 8px max(6px,env(safe-area-inset-bottom,0px));
   gap:3px;
-  border:1px solid #454448;
+  border:1px solid #37483f;
   border-bottom:0;
   border-radius:20px 20px 0 0;
-  background:linear-gradient(175deg,#28292d,#1c1d20 75%);
+  background:linear-gradient(165deg,#233029,#131c18 75%);
   box-shadow:0 -4px 18px #0003;
 }
 #app > .bottom-nav .bottom-nav__item {
   min-height:48px;
   padding:4px 2px;
   gap:4px;
-  color:#c8c8cb;
+  color:#c1cec6;
   background:transparent;
   border:1px solid transparent;
   border-radius:13px;
@@ -203,11 +203,24 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 }
 #app > .bottom-nav .bottom-nav__item--active {
   color:#ffe2a7;
-  border-color:#756247;
-  background:linear-gradient(150deg,#483e31,#332f2a);
+  border-color:transparent;
+  background:transparent;
 }
 #app > .bottom-nav .bottom-nav__item:focus-visible {outline:2px solid #ffe2a7;outline-offset:1px}
 .bottom-nav svg.bottom-nav__icon {display:block;width:23px;height:23px;flex:none}
+
+#app > .bottom-nav .bottom-nav__icon {
+  box-sizing:content-box;
+  width:21px;
+  height:21px;
+  padding:3px 12px;
+  border-radius:20px;
+}
+#app > .bottom-nav .bottom-nav__item--active .bottom-nav__icon {
+  color:#322914;
+  background:linear-gradient(115deg,#ffe6ae,#e2b86f);
+  box-shadow:inset 0 1px #fff6,0 2px 6px #0003;
+}
 
 #desk-team form[data-action=owner], #desk-team .issued-invite {
   display:grid; gap:14px; margin:10px 0 18px; padding:clamp(14px,4vw,22px);
