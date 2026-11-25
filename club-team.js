@@ -30,6 +30,33 @@
   function amountLine(parent,title,value){
     const line=node('div','');line.className='week-line';line.append(node('span',title),node('strong',value));parent.append(line);
   }
+  function renderClubHistory(parent,account){
+    const rows=account.operationRows;
+    if(!rows){for(const text of account.operations||[])parent.append(node('p',text));return;}
+    const grouped=[],used=new Set();
+    for(const row of rows){
+      if(used.has(row))continue;
+      const transfer=['Перенос из баланса реквизитов','Перенос в основной баланс'].includes(row.comment);
+      const pair=transfer&&row.id&&rows.find(r=>r!==row&&!used.has(r)&&r.id===row.id&&r.label!==row.label&&r.rub?.cents===-row.rub?.cents);
+      if(pair)used.add(pair);
+      const main=pair&&pair.label==='Баланс'?pair:row;
+      const changes=[[main.rub,'₽'],[main.usd,'$']].filter(([v])=>v);
+      const title=pair?'Перенос в баланс':changes.some(([v])=>v.action==='set')?'Установка баланса':row.label==='Реквизиты'?'Реквизиты':'Основной баланс';
+      const line=section('',parent);line.classList.add('club-op');
+      const name=node('span',title);
+      const date=new Date(row.at);
+      if(Number.isFinite(date.getTime()))name.append(node('small',date.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'})+' МСК'));
+      const amounts=changes.map(([v,unit])=>(v.action==='adjust'&&v.cents>0?'+':'')+(v.cents/100).toLocaleString('ru-RU')+' '+unit);
+      line.firstChild.append(name,node('strong',amounts.join(' · ')||'—'));
+      for(const text of [row.actor,row.comment,row.commission])if(text)line.append(node('p',text));
+      if(!row.actor&&!row.comment&&!row.commission)line.append(node('p',row.label));
+      grouped.push(line);
+    }
+    if(grouped.length>3){
+      const more=section('Ещё операции · '+(grouped.length-3),parent);
+      more.append(...grouped.slice(3));
+    }
+  }
   function weeklyPanel(parent){
     const panel=section('Статистика за неделю',parent);
     panel.classList.add('week-panel');
@@ -108,11 +135,31 @@
         const emblem=node('span',c.name.split(/\s+/).slice(0,2).map(word=>word[0]).join('').toUpperCase());
         emblem.className='club-emblem';emblem.setAttribute('aria-hidden','true');
         const identity=node('span','');identity.append(node('strong',c.name),node('small','ID '+c.clubId));
-        row.firstChild.append(emblem,identity);
+        const total=node('span','');total.className='owner-club-total';
+        total.append(node('small','Основной баланс'),node('strong',result.balanceError?'Недоступен':c.balance?currentBalance(c.balance.rub,c.balance.usd):'Нет счёта'));
+        row.firstChild.append(emblem,identity,total);
         const balances=node('div','');
         if(c.members.length)row.append(node('p','Подключены: '+c.members.join(', ')));
         if(c.invites.length)row.append(node('p','Ключ выдан: '+c.invites.join(', ')));
-        row.append(balances);
+        const creditForm=node('form',''),creditField=field('credit','Кредитный лимит клуба, ₽'),creditInput=creditField.lastChild;
+        const feedback=node('small','');feedback.setAttribute('role','status');
+        creditInput.value=c.creditCents==null?'':c.creditCents/100;
+        if(c.creditCents==null)feedback.textContent='Сейчас действуют лимиты групп. Укажите общий лимит клуба.';
+        creditForm.append(creditField,node('button','Сохранить лимит'),feedback);
+        creditForm.onsubmit=async event=>{
+          event.preventDefault();creditForm.inert=true;
+          try{
+            const updated=await api({action:'edit-credit',clubId:c.clubId,credit:creditInput.value,previous:c.creditCents});
+            c.creditCents=updated.creditCents;
+            const entry=data.directory?.find(entry=>entry.clubId===c.clubId);
+            if(entry)entry.creditCents=c.creditCents;
+            const issue=issuerBody.querySelector('form[data-action=issue]');
+            if(issue?.elements.clubId.value===c.clubId)issue.elements.credit.value=c.creditCents/100;
+            feedback.textContent='Лимит сохранён.';
+          }catch(e){feedback.textContent=e.message;}
+          finally{creditForm.inert=false;}
+        };
+        row.append(creditForm,balances);
         row.ontoggle=async()=>{
           if(!row.open)return;
           balances.textContent='Загрузка…';
@@ -124,7 +171,7 @@
               if(d.accounts.length>1)balances.append(node('h4','Счёт '+(i+1)));
               amountLine(balances,'Основной баланс',currentBalance(a.rub,a.usd));amountLine(balances,'Реквизиты',currentBalance(a.paymentRub,a.paymentUsd));balances.append(node('h4','Последние операции'));
               if(!a.operations?.length)balances.append(node('p',a.historyError?'История временно недоступна.':'Операций пока нет.'));
-              for(const line of a.operations||[])balances.append(node('p',line));
+              renderClubHistory(balances,a);
             });
           }catch(e){balances.textContent=e.message;}
         };
@@ -139,10 +186,13 @@
     const roles=[{name:'Менеджер',clubId:'staff'},{name:'Владелец',clubId:'owner'}];
     const kind=field('kind','Роль',roles);
     for(const opt of kind.lastChild.options)opt.textContent=roles.find(r=>r.clubId===opt.value).name;
-    form('','issue',[club,kind,field('target','Логин в Telegram')],'Создать ключ',{},issuerBody);
+    const creditField=field('credit','Кредитный лимит клуба, ₽');
+    form('','issue',[club,kind,field('target','Логин в Telegram'),creditField],'Создать ключ',{},issuerBody);
     const roster=node('div','');issuerBody.append(roster);
     function draw(){
-      const members=directory.find(c=>c.clubId===select.value)?.members||[];
+      const entry=directory.find(c=>c.clubId===select.value);
+      creditField.lastChild.value=entry?.creditCents==null?'':entry.creditCents/100;
+      const members=entry?.members||[];
       roster.replaceChildren(node('h4','Привязанные администраторы · '+members.length));
       for(const m of members){
         const row=node('p',m.label+' · '+(m.role==='owner'?'Владелец':'Менеджер')+' ');
@@ -160,6 +210,7 @@
       el.autocapitalize='none';
       el.spellcheck=false;
     }
+    if(name==='credit'){el.type='number';el.min='0';el.step='0.01';el.placeholder='0,00';el.inputMode='decimal';}
     if(name==='amount'){el.type='number';el.min=1;el.step=1;}
     if(name==='details')el.maxLength=500;
     wrap.append(el);return wrap;
@@ -174,9 +225,10 @@
     const limits=node('div','');
     limits.className='club-metrics';
     for(const [label,value] of [
-      ['Доступно к размещению',room.available],['Одна заявка сейчас',room.perRequest],
-      ['Баланс реквизитов',room.balance],['Кредитный лимит клуба',room.limit],
-      ['Занято активными заявками',room.reserved]
+      ['Кредитный лимит',room.limit],
+      ['Доступно к размещению',room.available],
+      ['Ваш баланс по реквизитам',room.balance],
+      ['Занято заявками',room.reserved]
     ])limits.append(metric(label,rubles(value)));
 
 
@@ -565,6 +617,7 @@
       const result=await api(body);
       data=result.memberships?result:await api({action:'status'});
       await render(result.key,body);
+      if(issuing&&clubList.open)await clubList.ontoggle();
       status.textContent=body.action==='status'||result.key?'':'Готово.';
       if(issuing)issuerStatus.textContent=body.action==='revoke'?'Доступ отозван.':'';
     }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;box.append(button('Обновить',()=>work({action:'status'})));}
