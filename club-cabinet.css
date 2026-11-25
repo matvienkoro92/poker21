@@ -422,3 +422,19 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 
 .club-desk .club-header-balance small {font-size:11px;line-height:1.1;opacity:.8}
 .club-desk .club-header-balance strong {font-size:clamp(14px,3.5vw,18px);line-height:1.15}
+
+.placement-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.placement-heading h3 {margin-block:8px}
+#desk-team .placement-editor .placement-heading button {display:grid;place-items:center;flex:none;width:44px;height:44px;margin:0;padding:0;border-radius:50%;font-size:24px;line-height:1}
+
+.club-unread-count {display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding-inline:.25em;margin-inline-start:.45em;border-radius:999px;background:#c3edb8;color:#163421;font-size:.8em;font-variant-numeric:tabular-nums}
+
+#desk-team .club-invite-entry {padding:16px;border:1px solid var(--rule);border-radius:16px;background:linear-gradient(145deg,#20392c,#17241d);color:#eff5ef}
+#desk-team .club-invite-entry form {padding:0;border:0;gap:12px}
+.club-invite-entry h3 {margin:0;font-size:1.2rem}
+#desk-team .club-invite-entry label {gap:5px;color:#c3d4c7;font-size:.875rem}
+#desk-team .club-invite-entry input {min-height:44px;background:#15231b;color:#eff5ef;border:1px solid #526c5b;border-radius:10px;padding-inline:12px}
+#desk-team .club-invite-entry input:focus-visible {outline:2px solid #bce9b8;outline-offset:2px}
+#desk-team .club-invite-entry button {min-height:44px;border:0;border-radius:10px;background:#c2ebbc;color:#183420;font-weight:700}
+.club-invite-entry small {display:flex;justify-content:space-between;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid #385040;color:#bdcec2}
+.club-invite-entry small strong {font-variant-numeric:tabular-nums}

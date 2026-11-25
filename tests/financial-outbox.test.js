@@ -73,3 +73,19 @@ test('network failure remains queued, never becomes delivered', async () => {
   assert.equal(f.values.has(PREFIX + id + ':delivered'), false);
   assert.ok(f.values.has(PREFIX + id));
 });
+
+test('club message goes to the peer admin and its Telegram reply maps to the reservation', async () => {
+  const f = fixture();
+  const route = {item:'deal-a', clubId:'club-b', chatId:'-200', peer:'-100', session:'booking-a'};
+  f.values.set(PREFIX+'test',JSON.stringify({kind:'club-dialog',route,item:route.item,
+    message:{club:'Альфа',author:'@ivan',text:'Уточните сумму'}}));
+  f.values.set('poker21:club-cabinet:access:v1',JSON.stringify({clubs:{'club-b':{owner:'123'}}}));
+  const sent=[];
+  await drain({redis:f.redis,now:()=>100,send:async body=>{
+    sent.push(body);return {ok:true,result:{message_id:42}};
+  }});
+  assert.deepEqual(sent.map(x=>x.chat_id),['123']);
+  assert.match(sent[0].text,/Альфа · @ivan/);
+  assert.equal(sent[0].reply_markup.force_reply,true);
+  assert.deepEqual(JSON.parse(f.values.get('poker21:dialog-reply:123:42')),route);
+});

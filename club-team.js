@@ -1,5 +1,11 @@
 (() => {
   const panel=document.getElementById('desk-team'), box=panel.querySelector('section'), status=panel.querySelector('[role=status]');
+  let noticeTimer;
+  function showNotice(text){
+    clearTimeout(noticeTimer);
+    status.textContent=text;
+    noticeTimer=setTimeout(()=>{if(status.textContent===text)status.textContent='';},5000);
+  }
   const selectedGroups=new Map();
   let active='', data, busy=false;
   let refreshVisibleList, tickVisibleBookings,refreshBalances;
@@ -141,7 +147,7 @@
         if(c.balance&&c.balance.paymentRub!=null)total.append(node('small','Реквизиты'),node('strong',currentBalance(c.balance.paymentRub,c.balance.paymentUsd)));
         row.firstChild.append(emblem,identity,total);
         const balances=node('div','');
-        if(c.members.length)row.append(node('p','Подключены: '+c.members.join(', ')));
+        row.append(node('p',c.members.length?'Подключены: '+c.members.join(', '):'Сейчас никто не привязан'));
         if(c.invites.length)row.append(node('p','Ключ выдан: '+c.invites.join(', ')));
         const creditForm=node('form',''),creditField=field('credit','Кредитный лимит клуба, ₽'),creditInput=creditField.lastChild;
         const feedback=node('small','');feedback.setAttribute('role','status');
@@ -252,7 +258,11 @@
     const close=button('Закрыть',()=>dialog.close());
     const heading=node('h3','Разместить реквизиты');
     heading.id='placement-title';dialog.setAttribute('aria-labelledby',heading.id);
-    dialog.append(heading,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Сумма заявки — от 1 000 до 10 000 ₽.'),close);
+    const header=node('div','');header.className='placement-heading';
+    const dismiss=button('×',close.onclick);
+    dismiss.setAttribute('aria-label','Закрыть');
+    header.append(heading,dismiss);
+    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Сумма заявки — от 1 000 до 10 000 ₽.'),close);
     container.append(dialog);
     trigger.onclick=()=>{requestId=crypto.randomUUID();start();dialog.showModal();};
     const raw=field('details','Сообщение с реквизитами');
@@ -278,7 +288,7 @@
       const error=node('p',(parsed.warnings||[]).filter(w=>!/игрок|рум|USDT/i.test(w)).join(' '));
       error.setAttribute('role','status');
       const submit=node('button','Разместить');
-      editor.append(error,button('Назад',start),submit);
+      editor.append(error,submit,button('Назад',start));
       const validate=()=>{
         const {amount,phone,bank,recipient}=editor.elements;
         const parser=window.pokerDepositParser;
@@ -582,7 +592,10 @@
         }
       }
       let lastContents;
+      let previousBookings=new Set();
       function drawItems(registry){
+        if(registry.confirmedIds?.some(id=>previousBookings.has(id)))showNotice('Сделка проведена');
+        previousBookings=new Set(registry.items.filter(x=>x.taker).map(x=>x.id));
         clockOffset=registry.serverNow?registry.serverNow-Date.now():0;
         const items=registry.items;
         const signature=JSON.stringify([items,registry.withdrawalError]);
@@ -649,7 +662,15 @@
             const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
             claim.className='offer-claim';row.append(claim);
           }
-          if(x.peer)row.append(button('Связаться с клубом',()=>openDealDialog(x,requested,chatId),'secondary'));
+          if(x.peer){
+            const contact=button('Связаться с клубом',()=>openDealDialog(x,requested,chatId),'secondary');
+            if(x.unread>0){
+              const badge=node('span',String(x.unread));badge.className='club-unread-count';
+              contact.setAttribute('aria-label','Связаться с клубом. Непрочитанных сообщений: '+x.unread);
+              contact.append(badge);
+            }
+            row.append(contact);
+          }
           next.append(row);
         }
         list.replaceChildren(next);
@@ -689,10 +710,16 @@
       tickVisibleBookings=tickBookings;
     }
     if(clubs.length)return;
-    const entry=box;
-    form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать',{},entry);
+    const entry=node('div','');entry.className='club-invite-entry';box.append(entry);
+    const inviteKey=field('key','Одноразовый ключ');
+    inviteKey.lastChild.placeholder='Вставьте ключ приглашения';
+    inviteKey.lastChild.spellcheck=false;inviteKey.lastChild.autocapitalize='none';
+    form('Вход по приглашению','activate',[inviteKey],'Активировать ключ',{},entry);
     const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if(ownId)entry.append(node('p','Ваш Telegram ID · '+ownId));
+    if(ownId){
+      const account=node('small','Ваш Telegram ID');
+      account.append(node('strong',String(ownId)));entry.append(account);
+    }
   }
   function openDealDialog(item,clubId,chatId){
     const dialog=node('dialog','');dialog.className='placement-editor';
@@ -728,14 +755,14 @@
     dialog.append(node('h3',item.peer),history,input,send,status,button('Закрыть',()=>dialog.close(),'secondary'));
     document.body.append(dialog);dialog.showModal();
     const read=()=>refresh({action:'dialog'}).catch(error=>{status.textContent=error.message;});
-    read();const timer=setInterval(()=>{if(!send.disabled)read();},5000);
-    dialog.onclose=()=>{clearInterval(timer);dialog.remove();};
+    read();const timer=setInterval(()=>{if(!send.disabled&&!document.hidden&&dialog.open)read();},5000);
+    dialog.onclose=()=>{clearInterval(timer);dialog.remove();refreshList();};
   }
   async function showReceipt(item,clubId,chatId){
     const dialog=node('dialog','');dialog.className='placement-editor receipt-view';
     dialog.setAttribute('aria-label','Чек оплаты');
     const content=node('div','Загружаем чек…'),actions=node('div','');
-    dialog.append(content,actions,button('Закрыть',()=>dialog.close(),'secondary'));
+    dialog.append(button('← Назад к заявке',()=>dialog.close(),'secondary'),actions,content);
     let url;
     dialog.onclose=()=>{if(url)URL.revokeObjectURL(url);dialog.remove();};
     document.body.append(dialog);dialog.showModal();
@@ -753,7 +780,29 @@
         const image=node('img','');image.alt='Чек оплаты';image.src=url;content.append(image);
       }else{
         const pdf=node('object','');pdf.type=type;pdf.data=url;pdf.setAttribute('aria-label','Чек PDF');
-        pdf.textContent='Просмотр PDF недоступен в этом браузере. Скачайте файл ниже.';content.append(pdf);
+        pdf.textContent='Просмотр PDF недоступен в этом браузере. Нажмите «Сохранить PDF…» выше.';content.append(pdf);
+      }
+      if(!photo){
+        const hint=node('small','');hint.setAttribute('role','status');
+        const savePicker=typeof window.showSaveFilePicker==='function';
+        const share=navigator.canShare?.({files:[file]});
+        if(share)hint.textContent='В меню устройства выберите «Сохранить в Файлы» или папку для загрузки.';
+        actions.append(button('Сохранить PDF…',async()=>{
+          try{
+            if(savePicker){
+              const handle=await window.showSaveFilePicker({suggestedName:file.name,types:[{description:'PDF',accept:{'application/pdf':['.pdf']}}]});
+              const writer=await handle.createWritable();await writer.write(file);await writer.close();
+              hint.textContent='PDF сохранён.';
+            }else if(share){
+              await navigator.share({files:[file]});
+            }else{
+              const link=node('a','');link.href=url;link.download=file.name;link.target='_blank';link.rel='noopener';
+              actions.append(link);link.click();link.remove();
+              hint.textContent='Проверьте загрузки устройства. Если открылся отдельный просмотр, закройте его, чтобы вернуться к заявке.';
+            }
+          }catch(error){if(error.name!=='AbortError')hint.textContent='Устройство не разрешило сохранение PDF.';}
+        },'primary'),hint);
+        return;
       }
       const download=node('a',photo?'Скачать фото':'Скачать PDF');download.href=url;download.download=file.name;
       if(photo&&navigator.canShare?.({files:[file]})){
@@ -792,13 +841,13 @@
       const result=await api(body);
       if(registryAction){
         await refreshVisibleList?.(true,body.action==='confirm');
-        status.textContent=body.action==='recheck'?'Запрошена повторная проверка с прежним чеком.':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.';
+        showNotice(body.action==='confirm'?'Сделка проведена':body.action==='recheck'?'Запрошена повторная проверка с прежним чеком.':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
         return;
       }
       data=result.memberships?result:await api({action:'status'});
       await render(result.key,body);
       if(issuing&&clubList.open)await clubList.ontoggle();
-      status.textContent=body.action==='status'||result.key?'':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.';
+      if(body.action==='status'||result.key)status.textContent='';else showNotice(body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
       if(issuing)issuerStatus.textContent=body.action==='revoke'?'Доступ отозван.':'';
     }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){await refreshVisibleList?.(true);return;}box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;issuerBody.inert=false;}

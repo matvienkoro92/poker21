@@ -111,6 +111,16 @@
       while((match=re.exec(cleaned))){var compactAmount=money(match[1]);if(compactAmount)amounts.push(compactAmount);}
     }
     if(!amounts.length){
+      var amountLines=noCards;
+      phones.forEach(function(number){amountLines=amountLines.replace(number,' [телефон] ');});
+      amountLines.split('\n').forEach(function(line){
+        var value=line.trim();
+        if(!/^(?:\d{4,5}|\d{1,2} \d{3})(?:[.,]\d{1,2})?$/.test(value))return;
+        var cents=money(value);
+        if(cents>=100000&&cents<=1000000)amounts.push(cents);
+      });
+    }
+    if(!amounts.length){
       var leading=text.match(/^[ \t]*((?:\d{1,3}(?: \d{3})+|\d{1,8})(?:[.,]\d{1,2})?[кk]?)[ \t]*(?:[,;\n]|$)/i);
       if(leading&&!clubRooms[leading[1]]&&leading[1]!==playerId&&/(?:клуб|банк)/i.test(text.slice(leading[0].length))){var leadingAmount=money(leading[1]);if(leadingAmount)amounts.push(leadingAmount);}
     }
