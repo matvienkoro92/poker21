@@ -178,7 +178,7 @@
       draw();
     } else players.append(node('p','За эту неделю игроков в списке нет.'));
   }
-  function showDashboard(d, parent, owner) {
+  function showFinance(d,owner) {
     const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
     finance.replaceChildren();
     if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
@@ -193,15 +193,17 @@
       finance.append(balances);
       if(!owner)return;
       const ops=section('Последние операции',finance);
-      for(const text of account.operations)ops.append(node('p',text));
-      if(!account.operations.length)ops.append(node('p','Операций пока нет.'));
+      for(const text of account.operations||[])ops.append(node('p',text));
+      if(!account.operations?.length)ops.append(node('p',account.historyError?'История временно недоступна.':'Операций пока нет.'));
     });
-    if(!owner)return;
+  }
+  function showDashboard(d,parent) {
+    const fmt=n=>n==null?'—':Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
     const pulse=node('section','');pulse.className='week-pulse';parent.append(pulse);
     const dates=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
     const period=d.period.map(value=>new Date(value+'T00:00:00Z'));
     const header=node('header','');
-    header.append(node('h2','Пульс клуба'),node('small',period.every(date=>Number.isFinite(+date))?dates.formatRange(...period):d.period.join(' — ')));
+    header.append(node('h2','Пульс клуба'),node('small',typeof dates.formatRange==='function' && period.every(date=>Number.isFinite(+date))?dates.formatRange(...period):d.period.join(' — ')));
     pulse.append(header);
     const rake=node('section','');rake.className='pulse-revenue';
     rake.append(node('h3','Рейк за неделю'),node('strong',fmt(d.rake.total)+' ₽'));
@@ -308,18 +310,22 @@
       if(destination)destination.append(dashboard);
       else panel.after(dashboard);
       if(c.role==='owner')dashboard.textContent='Загружаем статистику…';
-      api({action:c.role==='owner'?'dashboard':'balances',clubId:requested}).then(result=>{
+      api({action:'balances',clubId:requested}).then(result=>{
         if(!dashboard.isConnected || active!==requested)return;
         const accounts=result.accounts||[];
         const total=k=>accounts.reduce((n,a)=>n+(a[k] ?? 0),0);
         headerBalance.lastChild.textContent=result.balanceError?'Недоступен':accounts.length ? currentBalance(total('rub'),total('usd')) : '—';
-        dashboard.replaceChildren();
-        showDashboard(result,dashboard,c.role==='owner');
+        showFinance(result,c.role==='owner');
       }).catch(()=>{
         if(!dashboard.isConnected || active!==requested)return;
-        if(c.role==='owner')dashboard.textContent='Не удалось загрузить статистику клуба.';
         headerBalance.lastChild.textContent='Недоступен';
         finance.textContent='Баланс временно недоступен.';
+      });
+      if(c.role==='owner')api({action:'dashboard',clubId:requested}).then(result=>{
+        if(!dashboard.isConnected||active!==requested)return;
+        dashboard.replaceChildren();showDashboard(result,dashboard);
+      }).catch(()=>{
+        if(dashboard.isConnected&&active===requested)dashboard.textContent='Не удалось загрузить статистику клуба.';
       });
       const requisites=node('div','');box.append(requisites);
       if(clubs.length===1)choice.hidden=true;
@@ -335,7 +341,7 @@
       const actions=node('div','');actions.className='requisite-actions';
       actions.setAttribute('role','group');actions.setAttribute('aria-label','Реквизиты');
       const list=node('div','');list.hidden=true;list.id='club-requisite-list';
-      const take=button('Взять',()=>{list.hidden=!list.hidden;take.setAttribute('aria-expanded',String(!list.hidden));});
+      const take=button('Взять реквизит',()=>{list.hidden=!list.hidden;take.setAttribute('aria-expanded',String(!list.hidden));});
       take.setAttribute('aria-expanded','false');take.setAttribute('aria-controls',list.id);
       const place=button('Разместить',null);place.disabled=!chatId;place.setAttribute('aria-haspopup','dialog');
       actions.append(take,place);requisites.append(actions,list);
