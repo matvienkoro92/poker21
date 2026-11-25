@@ -2,7 +2,7 @@
   const panel=document.getElementById('desk-team'), box=panel.querySelector('section'), status=panel.querySelector('[role=status]');
   const selectedGroups=new Map();
   let active='', data, busy=false;
-  let refreshVisibleList;
+  let refreshVisibleList, tickVisibleBookings,refreshBalances;
   let expandedRegistry = '';
   const node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
@@ -14,6 +14,7 @@
   headerBalance.setAttribute('aria-controls',finance.id);
   headerBalance.onclick=()=>{
     finance.hidden=!finance.hidden;
+    if(!finance.hidden&&refreshBalances){finance.textContent='Обновляем балансы…';refreshBalances();}
     headerBalance.setAttribute('aria-expanded',String(!finance.hidden));
   };
   const issuer=section('Создать ключ',panel.parentElement);
@@ -137,6 +138,7 @@
         const identity=node('span','');identity.append(node('strong',c.name),node('small','ID '+c.clubId));
         const total=node('span','');total.className='owner-club-total';
         total.append(node('small','Основной баланс'),node('strong',result.balanceError?'Недоступен':c.balance?currentBalance(c.balance.rub,c.balance.usd):'Нет счёта'));
+        if(c.balance&&c.balance.paymentRub!=null)total.append(node('small','Реквизиты'),node('strong',currentBalance(c.balance.paymentRub,c.balance.paymentUsd)));
         row.firstChild.append(emblem,identity,total);
         const balances=node('div','');
         if(c.members.length)row.append(node('p','Подключены: '+c.members.join(', ')));
@@ -219,17 +221,28 @@
     const f=document.createElement('form');f.dataset.action=action;if(title)f.append(node('h3',title));f.append(...fields,node('button',submit));container.append(f);
     f.onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f));work({action:action==='issue'?values.kind:action,...extra,...values});};
   }
-  function button(label,fn){const b=node('button',label);b.type='button';b.onclick=fn;return b;}
+  function button(label,fn,tone){const b=node('button',label);b.type='button';b.onclick=fn;if(tone)b.className='deal-'+tone;return b;}
+  function confirmDeal(question,label,tone,submit){
+    const dialog=node('dialog','');dialog.className='placement-editor deal-confirm';
+    dialog.setAttribute('aria-label',question);
+    const back=button('Назад',()=>dialog.close(),'secondary');back.autofocus=true;
+    dialog.append(node('h3',question),button(label,()=>{dialog.close();submit();},tone),back);
+    dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
+  }
   const rubles=cents=>(cents/100).toLocaleString('ru-RU')+' ₽';
   function placementEditor(container,trigger,clubId,chatId,room){
     const limits=node('div','');
     limits.className='club-metrics';
+    function updateLimits(room){
+    limits.replaceChildren();
     for(const [label,value] of [
       ['Кредитный лимит',room.limit],
       ['Доступно к размещению',room.available],
       ['Ваш баланс по реквизитам',room.balance],
       ['Занято заявками',room.reserved]
     ])limits.append(metric(label,rubles(value)));
+    }
+    updateLimits(room);
 
 
     let requestId;
@@ -290,9 +303,10 @@
         try{await api({action:'place',clubId,chatId,requestId,...values});}
         catch(err){error.textContent=err.message;return;}
         finally{editor.inert=false;close.disabled=false;dialog.oncancel=null;}
-        dialog.close();await work({action:'status'});
+        dialog.close();await refreshVisibleList?.(true);
       };
     }
+    return updateLimits;
   }
   async function api(body){
     const res=await fetch('./api/club-team',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:JSON.stringify(body)});
@@ -365,6 +379,7 @@
   }
   function showFinance(d,owner) {
     const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
+    const opened=Array.from(finance.querySelectorAll('details'),el=>el.open);
     finance.replaceChildren();
     if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
     else if(!d.accounts.length)finance.append(node('p','У клуба нет привязанной группы с балансом.'));
@@ -377,7 +392,7 @@
         metric('Баланс реквизитов',money(account.paymentRub,account.paymentUsd)));
       finance.append(balances);
       if(!owner)return;
-      const ops=section('Последние операции',finance);
+      const ops=section('Последние операции',finance);ops.open=!!opened[index];
       for(const text of account.operations||[])ops.append(node('p',text));
       if(!account.operations?.length)ops.append(node('p',account.historyError?'История временно недоступна.':'Операций пока нет.'));
     });
@@ -442,7 +457,8 @@
     }
   }
   async function render(key, request){
-    refreshVisibleList = null;
+    refreshVisibleList = null;refreshBalances=null;
+    tickVisibleBookings=null;
     box.replaceChildren();
     document.querySelector('.club-dashboard')?.remove();
     clubName.textContent='';
@@ -490,24 +506,28 @@
       const dashboard=node('div','');
       const requested=active;
       clubName.textContent=c.name;
-      headerBalance.append(node('strong','…'));
+      const mainSum=node('strong','…'),paymentSum=node('strong','…');
+      headerBalance.append(node('small','Основной'),mainSum,node('small','Реквизиты'),paymentSum);
       headerBalance.setAttribute('aria-label','Баланс клуба '+c.name);
       dashboard.className='club-dashboard';
       const destination=document.getElementById('players-rake-content');
       if(destination)destination.append(dashboard);
       else panel.after(dashboard);
       if(c.role==='owner')dashboard.textContent='Загружаем статистику…';
-      api({action:'balances',clubId:requested}).then(result=>{
-        if(!dashboard.isConnected || active!==requested)return;
+      let balanceVersion=0;
+      const updateBalances=()=>{const version=++balanceVersion;return api({action:'balances',clubId:requested}).then(result=>{
+        if(version!==balanceVersion||!dashboard.isConnected || active!==requested)return;
         const accounts=result.accounts||[];
         const total=k=>accounts.reduce((n,a)=>n+(a[k] ?? 0),0);
-        headerBalance.lastChild.textContent=result.balanceError?'Недоступен':accounts.length ? currentBalance(total('rub'),total('usd')) : '—';
+        mainSum.textContent=result.balanceError?'Недоступен':accounts.length ? currentBalance(total('rub'),total('usd')) : '—';
+        paymentSum.textContent=result.balanceError?'Недоступен':accounts.length?currentBalance(total('paymentRub'),total('paymentUsd')):'—';
         showFinance(result,c.role==='owner');
       }).catch(()=>{
-        if(!dashboard.isConnected || active!==requested)return;
-        headerBalance.lastChild.textContent='Недоступен';
+        if(version!==balanceVersion||!dashboard.isConnected || active!==requested)return;
+        mainSum.textContent=paymentSum.textContent='Недоступен';
         finance.textContent='Баланс временно недоступен.';
-      });
+      });};
+      refreshBalances=updateBalances;updateBalances();
       if(c.role==='owner')api({action:'dashboard',clubId:requested}).then(result=>{
         if(!dashboard.isConnected||active!==requested)return;
         dashboard.replaceChildren();showDashboard(result,dashboard);
@@ -538,11 +558,43 @@
       take.setAttribute('aria-expanded',String(!list.hidden));take.setAttribute('aria-controls',list.id);
       const place=button('Разместить',null);place.disabled=!chatId;place.setAttribute('aria-haspopup','dialog');
       actions.append(take,place);requisites.append(actions,list);
-      if(chatId)placementEditor(requisites,place,active,chatId,registry.availability);
-      else if(!groups.length)requisites.append(node('p','Для размещения реквизитов привяжите группу клуба в боте.'));
+      const updateLimits=chatId?placementEditor(requisites,place,active,chatId,registry.availability):null;
+      if(!chatId&&!groups.length)requisites.append(node('p','Для размещения реквизитов привяжите группу клуба в боте.'));
+      let clockOffset=0;
+      function tickBookings(){
+        if(list.hidden||document.hidden||!list.isConnected)return;
+        for(const clock of list.querySelectorAll('[data-paid-at]')){
+          const seconds=Math.max(0,Math.floor((Date.now()+clockOffset-Number(clock.dataset.paidAt))/1000));
+          const hours=Math.floor(seconds/3600),minutes=Math.floor(seconds/60)%60;
+          const elapsed=(hours?hours+':'+String(minutes).padStart(2,'0'):String(minutes))+':'+String(seconds%60).padStart(2,'0');
+          clock.textContent='Ждём подтверждения '+elapsed;
+        }
+        for(const clock of list.querySelectorAll('[data-booking-end]')){
+          const left=Math.max(0,Math.ceil((Number(clock.dataset.bookingEnd)-Date.now()-clockOffset)/1000));
+          if(!left&&clock.dataset.expired)continue;
+          clock.textContent=left?'Осталось '+Math.floor(left/60)+':'+String(left%60).padStart(2,'0'):'Время брони истекло';
+          clock.classList.toggle('ending',left<=60);
+          if(!left){
+            clock.dataset.expired='1';
+            clock.closest('article').querySelectorAll('button').forEach(b=>b.disabled=true);
+            refresh();
+          }
+        }
+      }
+      let lastContents;
       function drawItems(registry){
+        clockOffset=registry.serverNow?registry.serverNow-Date.now():0;
         const items=registry.items;
-        list.replaceChildren();
+        const signature=JSON.stringify([items,registry.withdrawalError]);
+        if(signature===lastContents&&!list.querySelector('.requisite-refresh-error'))return;
+        lastContents=signature;
+        const next=document.createDocumentFragment();
+        let scroller=list.parentElement;
+        while(scroller&&!(scroller.scrollHeight>scroller.clientHeight&&/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)))scroller=scroller.parentElement;
+        scroller ||= document.scrollingElement;
+        const top=scroller===document.scrollingElement?0:scroller.getBoundingClientRect().top;
+        const anchors=Array.from(list.querySelectorAll('article[data-id]')).filter(el=>el.getBoundingClientRect().bottom>top).map(el=>[el.dataset.id,el.getBoundingClientRect().top]);
+
         const stats={open:{count:0,amount:0},taken:{count:0,amount:0}};
         for(const item of items){const bucket=stats[item.taker?'taken':'open'];bucket.count++;bucket.amount+=item.amount;}
         const summary=node('div','');summary.className='requisite-totals';
@@ -550,11 +602,11 @@
           const total=metric(label,stats[key].amount.toLocaleString('ru-RU')+' ₽');
           total.firstChild.append(node('b',String(stats[key].count)));summary.append(total);
         }
-        list.append(summary);
-        if(!items.length&&!registry.withdrawalError)list.append(node('p','Заявок пока нет.'));
-        if(registry.withdrawalError)list.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
+        next.append(summary);
+        if(!items.length&&!registry.withdrawalError)next.append(node('p','Заявок пока нет.'));
+        if(registry.withdrawalError)next.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
         for(const x of items){
-          const row=node('article','');row.className='requisite-preview';
+          const row=node('article','');row.className='requisite-preview';row.dataset.id=x.id;
           const head=node('header','');head.className='offer-head';
           head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
           if(x.bank)head.append(node('small',x.bank));
@@ -567,69 +619,114 @@
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
             row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
-            if(x.mine&&!x.taker)row.append(button('Снять заявку',()=>{
-              if(window.confirm('Снять заявку на '+x.amount.toLocaleString('ru-RU')+' ₽?'))work({action:'remove',item:x.id,clubId:requested,chatId});
-            }));
-            if(x.canSendReceipt){
-              row.append(button('Отправить чек и отметить оплату',()=>payWithReceipt(x.id,requested,chatId)),
-                button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:requested,chatId})));
+            if(x.waitSince){
+              const timer=node('span','');timer.className='booking-clock';timer.dataset.paidAt=x.waitSince;row.append(timer);
             }
-            if(x.hasReceipt)row.append(button('Посмотреть чек',async()=>{
-              try{
-                const result=await api({action:'receipt',item:x.id,clubId:requested,chatId});
-                const dialog=node('dialog','');dialog.className='placement-editor';
-                const file=result.receipt;
-                if(file.startsWith('data:image/')){
-                  const image=node('img','');image.src=file;image.alt='Чек оплаты';image.style.maxWidth='100%';dialog.append(image);
-                }else{
-                  const link=node('a','Скачать чек PDF');link.href=file;link.download='receipt.pdf';dialog.append(link);
-                }
-                dialog.append(button('Закрыть',()=>dialog.close()));dialog.onclose=()=>dialog.remove();
-                document.body.append(dialog);dialog.showModal();
-              }catch(e){status.textContent=e.message;}
-            }));
+            if(x.canRemind)row.append(button('Напомнить клубу',()=>work({action:'remind',item:x.id,clubId:requested,chatId}),'secondary'));
+            if(x.expiresAt){
+              const timer=node('time','');timer.className='booking-clock';timer.dataset.bookingEnd=x.expiresAt;
+              row.append(timer);
+            }
+            if(x.mine&&!x.taker)row.append(button('Снять заявку',()=>{
+              confirmDeal('Снять заявку на '+x.amount.toLocaleString('ru-RU')+' ₽?','Снять заявку','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
+            },'danger'));
+            if(x.canSendReceipt||x.canMarkPaid){
+              const actions=node('div','');actions.className='booking-actions';
+              if(x.canRecheck)actions.append(button('Попросить проверить ещё раз',()=>work({action:'recheck',item:x.id,clubId:requested,chatId}),'primary'));
+              const send=button(x.canRecheck?'Отправить новый чек':'Отправить чек',()=>payWithReceipt(x.id,requested,chatId));
+              send.className=x.canRecheck?'deal-secondary':'booking-send';actions.append(send);
+              if(x.canMarkPaid)actions.append(button('Отметить оплату без чека',()=>work({action:'paid',item:x.id,clubId:requested,chatId})));
+              const cancel=button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:requested,chatId}));
+              cancel.className='booking-cancel';actions.append(cancel);row.append(actions);
+            }
+            if(x.hasReceipt)row.append(button('Посмотреть чек',()=>showReceipt(x.id,requested,chatId),'secondary'));
             if(x.canDecide){
               row.append(button('Подтвердить поступление',()=>{
-                if(window.confirm('Подтвердить получение '+x.amount.toLocaleString('ru-RU')+' ₽?'))work({action:'confirm',item:x.id,clubId:requested,chatId});
-              }),button('Не поступило',()=>work({action:'reject',item:x.id,clubId:requested,chatId})));
-            }
-            if(x.canMarkPaid){
-              if(x.id.startsWith('withdrawal:'))row.append(button('Отправить чек и отметить оплату',()=>payWithReceipt(x.id,requested)));
-              row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
-                button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:active})));
+                confirmDeal('Подтвердить получение '+x.amount.toLocaleString('ru-RU')+' ₽?','Подтвердить','primary',()=>work({action:'confirm',item:x.id,clubId:requested,chatId}));
+              },'primary'),button('Не поступило',()=>work({action:'reject',item:x.id,clubId:requested,chatId}),'danger'));
             }
           }else{
             const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
             claim.className='offer-claim';row.append(claim);
           }
-          list.append(row);
+          next.append(row);
         }
+        list.replaceChildren(next);
+        if(!list.hidden){
+          for(const [id,y] of anchors){
+            const row=list.querySelector('article[data-id="'+CSS.escape(id)+'"]');
+            if(row){scroller.scrollTop+=row.getBoundingClientRect().top-y;break;}
+          }
+        }
+        tickBookings();
       }
       let loading=false;
-      async function refresh(){
-        if(loading || busy || document.hidden || !list.getClientRects().length)return;
+      let version=0;
+      async function refresh(force=false,balances=false){
+        if(force!==true&&(loading || busy || document.hidden || !list.getClientRects().length))return;
+        const stamp=++version;
         loading=true;
         try{
           const latest=await api({action:'list',clubId:requested,chatId});
-          if(list.isConnected)drawItems(latest);
+          if(list.isConnected&&stamp===version){
+            if(updateLimits&&latest.availability)updateLimits(latest.availability);
+            const previous=lastContents;drawItems(latest);
+            if(balances||(finance.hidden&&previous!==lastContents))await updateBalances();
+          }
         }catch{
-          if(list.isConnected){
+          if(stamp===version&&list.isConnected){
             list.querySelector('.requisite-refresh-error')?.remove();
             const error=node('p','Не удалось обновить список реквизитов.');
             error.className='requisite-refresh-error';
             error.append(button('Обновить',refresh));
             list.prepend(error);
           }
-        }finally{loading=false;}
+        }finally{if(stamp===version)loading=false;}
       }
       drawItems(registry);
       refreshVisibleList=refresh;
+      tickVisibleBookings=tickBookings;
     }
     if(clubs.length)return;
     const entry=box;
     form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать',{},entry);
     const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if(ownId)entry.append(node('p','Ваш Telegram ID · '+ownId));
+  }
+  async function showReceipt(item,clubId,chatId){
+    const dialog=node('dialog','');dialog.className='placement-editor receipt-view';
+    dialog.setAttribute('aria-label','Чек оплаты');
+    const content=node('div','Загружаем чек…'),actions=node('div','');
+    dialog.append(content,actions,button('Закрыть',()=>dialog.close(),'secondary'));
+    let url;
+    dialog.onclose=()=>{if(url)URL.revokeObjectURL(url);dialog.remove();};
+    document.body.append(dialog);dialog.showModal();
+    try{
+      const {receipt}=await api({action:'receipt',item,clubId,chatId});
+      if(!dialog.open)return;
+      const match=/^data:(image\/jpeg|image\/png|application\/pdf);base64,(.+)$/.exec(receipt);
+      if(!match)throw Error('Формат чека не поддерживается.');
+      const type=match[1],photo=type.startsWith('image/');
+      const ext=photo?(type==='image/png'?'png':'jpg'):'pdf';
+      const file=new File([Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0))],'receipt.'+ext,{type});
+      url=URL.createObjectURL(file);
+      content.replaceChildren();
+      if(photo){
+        const image=node('img','');image.alt='Чек оплаты';image.src=url;content.append(image);
+      }else{
+        const pdf=node('object','');pdf.type=type;pdf.data=url;pdf.setAttribute('aria-label','Чек PDF');
+        pdf.textContent='Просмотр PDF недоступен в этом браузере. Скачайте файл ниже.';content.append(pdf);
+      }
+      const download=node('a',photo?'Скачать фото':'Скачать PDF');download.href=url;download.download=file.name;
+      if(photo&&navigator.canShare?.({files:[file]})){
+        const hint=node('small','В системном меню выберите сохранение изображения, если оно доступно.');
+        actions.append(button('Сохранить фото…',async()=>{
+          try{await navigator.share({files:[file]});}
+          catch(e){if(e.name!=='AbortError')hint.textContent='Системное меню недоступно. Нажмите «Скачать фото».';}
+        },'primary'),hint);
+      }
+      actions.append(download);
+    }catch(e){if(dialog.open)content.textContent=e.message||'Не удалось открыть чек.';}
   }
   function payWithReceipt(item,clubId,chatId){
     const picker=document.createElement('input');
@@ -647,22 +744,34 @@
     picker.click();
   }
   async function work(body){
-    if(busy)return;busy=true;box.inert=true;
+    if(busy)return;
+    const registryAction=['take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
+    busy=true;if(!registryAction)box.inert=true;
     status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
     const issuing=['owner','staff','revoke'].includes(body.action);
     if(issuing){issuerBody.inert=true;issuerStatus.textContent='Выполняем…';}
     try{
       const result=await api(body);
+      if(registryAction){
+        await refreshVisibleList?.(true,body.action==='confirm');
+        status.textContent=body.action==='recheck'?'Запрошена повторная проверка с прежним чеком.':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.';
+        return;
+      }
       data=result.memberships?result:await api({action:'status'});
       await render(result.key,body);
       if(issuing&&clubList.open)await clubList.ontoggle();
-      status.textContent=body.action==='status'||result.key?'':'Готово.';
+      status.textContent=body.action==='status'||result.key?'':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.';
       if(issuing)issuerStatus.textContent=body.action==='revoke'?'Доступ отозван.':'';
-    }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;box.append(button('Обновить',()=>work({action:'status'})));}
+    }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){await refreshVisibleList?.(true);return;}box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;issuerBody.inert=false;}
   }
   function openPanel(){if(panel.open && !data)work({action:'status'});}
-  const refreshList=()=>refreshVisibleList?.();
+  const refreshList=()=>{
+    if(document.hidden)return;
+    if(!finance.hidden)refreshBalances?.();
+    refreshVisibleList?.();
+  };
+  window.setInterval(()=>tickVisibleBookings?.(),1000);
   window.setInterval(refreshList,15000);
   window.addEventListener('focus',refreshList);
   document.addEventListener('visibilitychange',refreshList);

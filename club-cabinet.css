@@ -392,3 +392,33 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #desk-team .offer-number {color:#c6d7cb;font-size:15px;font-variant-numeric:tabular-nums}
 #desk-team .requisite-preview .offer-claim {display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:8px 14px;border:0;border-radius:10px;background:#c3edb8;color:#163421;font-weight:700}
 .offer-claim::after {content:"→";font-size:18px}
+
+#desk-team .booking-clock {justify-self:start;border-radius:20px;background:#304c39;color:#dbf3d5;padding:5px 10px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+#desk-team .booking-clock.ending {background:#543f27;color:#ffe2a5}
+#desk-team .booking-actions {display:grid;gap:4px;border-top:1px solid #3d5845;padding-top:10px}
+#desk-team .booking-actions button {margin:0;width:100%;min-height:44px;border:0;border-radius:10px;font-weight:650;background:#293f30;color:#e1efdf}
+#desk-team .booking-actions .booking-send {background:#c3edb8;color:#173820}
+#desk-team .booking-actions .booking-cancel {background:transparent;color:#c9d8cb}
+#desk-team .booking-actions button:disabled {opacity:.55}
+
+:is(#desk-team .requisite-preview,.placement-editor) :is(button,a[download]),
+#desk-team .placement-editor button {
+  box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;
+  min-height:44px;padding:9px 14px;border:1px solid #4d6957;border-radius:12px;
+  background:#243b2d;color:#e2efe3;font:inherit;font-weight:650;text-decoration:none;
+}
+.placement-editor :is(button,a[download]) {margin-top:6px}
+#desk-team .requisite-preview .deal-primary,.placement-editor .deal-primary,
+#desk-team .placement-editor form button:not([type=button]) {background:#c3edb8;border-color:#c3edb8;color:#163421}
+#desk-team .requisite-preview .deal-danger,#desk-team .booking-actions .booking-cancel,.placement-editor .deal-danger {color:#f0c6b9;background:#352c28;border:1px solid #65483d}
+.placement-editor.deal-confirm {background:#1a2e22;color:#eff7ed;padding:18px}
+.deal-confirm h3 {margin:0 0 14px;font-size:18px}
+:is(#club-requisite-list,.placement-editor,.requisite-actions) :is(button,a):focus-visible {outline:2px solid #dbf4ac;outline-offset:2px}
+:is(#club-requisite-list,.placement-editor,.requisite-actions) button:not(:disabled):active {filter:brightness(.9)}
+
+.receipt-view img {display:block;width:100%;height:auto;object-fit:contain}
+.receipt-view object {display:block;width:100%;height:58dvh;border:0}
+.receipt-view small {display:block;margin:6px 0;font-size:13px}
+
+.club-desk .club-header-balance small {font-size:11px;line-height:1.1;opacity:.8}
+.club-desk .club-header-balance strong {font-size:clamp(14px,3.5vw,18px);line-height:1.15}
