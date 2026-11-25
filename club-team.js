@@ -641,7 +641,7 @@
               const timer=node('time','');timer.className='booking-clock';timer.dataset.bookingEnd=x.expiresAt;
               row.append(timer);
             }
-            if(x.mine&&!x.taker)row.append(button('Снять заявку',()=>{
+            if(x.mine&&!x.taker&&!registry.canDeleteRequisites)row.append(button('Снять заявку',()=>{
               confirmDeal('Снять заявку на '+x.amount.toLocaleString('ru-RU')+' ₽?','Снять заявку','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
             },'danger'));
             if(x.canSendReceipt||x.canMarkPaid){
@@ -663,6 +663,9 @@
             const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
             claim.className='offer-claim';row.append(claim);
           }
+          if(registry.canDeleteRequisites&&!x.taker)row.append(button('Удалить реквизиты',()=>{
+            confirmDeal('Удалить реквизиты на '+x.amount.toLocaleString('ru-RU')+' ₽ из списка Poker21?','Удалить','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
+          },'danger'));
           if(x.peer){
             const contact=button('Связаться с клубом',()=>openDealDialog(x,requested,chatId),'secondary');
             if(x.unread>0){
