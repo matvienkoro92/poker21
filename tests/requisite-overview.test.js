@@ -2,16 +2,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { availability, reconcile } = require('../lib/requisite-overview');
 
-test('available principal includes fee rounding, reservations and request maximum', () => {
+test('available principal includes reservations and request maximum', () => {
   const items = [{ owner: { chatId: 'a' }, amountCents: 100000, status: 'paid', currency: 'rub' }];
   const result = availability(0, 202000, items, 'a');
-  assert.equal(result.reserved, 101000);
-  assert.equal(result.available, 100000);
+  assert.equal(result.reserved, 100000);
+  assert.equal(result.available, 102000);
   assert.equal(availability(0, 0, [], 'a').available, 0);
   for (let cents = 0; cents < 500; cents++) {
     const { available } = availability(cents, 0, [], 'a');
-    assert.ok(available + Math.round(available / 100) <= cents);
-    assert.ok(available + 1 + Math.round((available + 1) / 100) > cents);
+    assert.equal(available,cents);
   }
   assert.equal(availability(3000000, 0, [], 'a').perRequest, 1000000);
 });

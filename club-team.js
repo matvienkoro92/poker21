@@ -17,10 +17,85 @@
     headerBalance.setAttribute('aria-expanded',String(!finance.hidden));
   };
   const issuer=section('Создать ключ',panel.parentElement);
-  issuer.classList.add('club-issuer');issuer.hidden=true;
+  issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
   const issuerBody=node('div','');issuer.append(issuerBody);
   const issuerStatus=node('p','');issuerStatus.setAttribute('role','status');issuer.append(issuerStatus);
   const currentBalance=(rub,usd)=>((rub ?? 0)/100).toLocaleString('ru-RU')+' ₽ · '+((usd ?? 0)/100).toLocaleString('ru-RU')+' $';
+  const clubList=section('Список клубов',issuer.parentElement);
+  issuer.after(clubList);clubList.classList.add('club-issuer');clubList.hidden=true;
+  const contents=node('div','');clubList.append(contents);
+  function money(value,currency){
+    return (value/100).toLocaleString('ru-RU',{minimumFractionDigits:2})+(currency==='USD'?' $':' ₽');
+  }
+  function weeklyPanel(parent){
+    const panel=section('Статистика за неделю',parent);
+    const label=node('label','Дата внутри недели (МСК) '),date=node('input',''),report=node('div','');
+    date.type='date';date.value=new Date(Date.now()+10800000).toISOString().slice(0,10);
+    label.append(date);panel.append(label,report);
+    let version=0;
+    async function load(){
+      if(!panel.open||!date.value)return;
+      const stamp=++version;report.textContent='Загрузка…';
+      try{
+        const {weeks}=await api({action:'issued-weeks',date:date.value});
+        if(stamp!==version)return;
+        report.replaceChildren();
+        for(const week of weeks){
+          report.append(node('h4',week.from+' — '+week.to),node('p','Подтверждённых операций: '+week.rows.length));
+          for(const [currency,t] of Object.entries(week.totals)){
+            report.append(node('p','Дебет '+money(t.debit,currency)+' · Кредит '+money(t.credit,currency)),
+              node('p','Комиссия '+money(t.fee,currency)+' · Разница '+money(t.debit-t.credit-t.fee,currency)),
+              node('strong',t.unknown||t.mismatch?'Расхождений: '+t.mismatch+' · Недостаточно данных: '+t.unknown:'Дебет равен кредиту с комиссией'));
+          }
+          if(week.rows.length){
+            const operations=section('Операции за неделю',report);
+            for(const r of week.rows){
+              const time=new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'});
+              operations.append(node('p',time+' · '+r.owner+' → '+r.payer+' · '+money(r.amount,r.currency)+' · '+(r.diff==null?'Недостаточно данных для сверки':'Дебет '+money(r.debit,r.currency)+' · кредит '+money(r.credit,r.currency)+' · комиссия '+money(r.fee,r.currency)+(r.diff?' · расхождение '+money(r.diff,r.currency):''))));
+            }
+          }
+        }
+        report.append(node('h4','Изменение к предыдущей неделе'),node('p','Операции: '+(weeks[0].rows.length-weeks[1].rows.length)));
+        for(const c of new Set(weeks.flatMap(w=>Object.keys(w.totals)))){
+          const diff=k=>(weeks[0].totals[c]?.[k]||0)-(weeks[1].totals[c]?.[k]||0);
+          report.append(node('p','Дебет '+money(diff('debit'),c)+' · кредит '+money(diff('credit'),c)+' · комиссия '+money(diff('fee'),c)));
+        }
+      }catch(e){if(stamp===version)report.textContent=e.message;}
+    }
+    date.onchange=load;panel.ontoggle=load;
+  }
+  clubList.ontoggle=async()=>{
+    if(!clubList.open)return;
+    contents.textContent='Загрузка…';
+    try{
+      const result=await api({action:'issued-clubs'});
+      contents.replaceChildren();
+      if(!result.clubs.length)contents.append(node('p','Ключи пока не выдавались.'));
+      for(const c of result.clubs){
+        const row=section(c.name+' · '+c.clubId,contents);
+        const balances=node('div','');
+        if(c.members.length)row.append(node('p','Подключены: '+c.members.join(', ')));
+        if(c.invites.length)row.append(node('p','Ключ выдан: '+c.invites.join(', ')));
+        row.append(balances);
+        row.ontoggle=async()=>{
+          if(!row.open)return;
+          balances.textContent='Загрузка…';
+          try{
+            const d=await api({action:'issued-balances',clubId:c.clubId});
+            balances.replaceChildren();
+            if(d.balanceError||!d.accounts.length)balances.append(node('p',d.balanceError?'Баланс временно недоступен.':'Нет привязанного счёта.'));
+            d.accounts.forEach((a,i)=>{
+              if(d.accounts.length>1)balances.append(node('h4','Счёт '+(i+1)));
+              balances.append(node('p','Основной баланс '+currentBalance(a.rub,a.usd)),node('p','Баланс реквизитов '+currentBalance(a.paymentRub,a.paymentUsd)),node('strong','Последние операции'));
+              if(!a.operations?.length)balances.append(node('p',a.historyError?'История временно недоступна.':'Операций пока нет.'));
+              for(const line of a.operations||[])balances.append(node('p',line));
+            });
+          }catch(e){balances.textContent=e.message;}
+        };
+      }
+      weeklyPanel(contents);
+    }catch(e){contents.textContent=e.message;}
+  };
   function issuerControls(directory,selected){
     issuerBody.replaceChildren();
     const club=field('clubId','Клуб',directory),select=club.lastChild;
@@ -28,7 +103,7 @@
     const roles=[{name:'Менеджер',clubId:'staff'},{name:'Владелец',clubId:'owner'}];
     const kind=field('kind','Роль',roles);
     for(const opt of kind.lastChild.options)opt.textContent=roles.find(r=>r.clubId===opt.value).name;
-    form('Доступ к клубу','issue',[club,kind,field('target','Логин в Telegram')],'Создать ключ',{},issuerBody);
+    form('','issue',[club,kind,field('target','Логин в Telegram')],'Создать ключ',{},issuerBody);
     const roster=node('div','');issuerBody.append(roster);
     function draw(){
       const members=directory.find(c=>c.clubId===select.value)?.members||[];
@@ -54,7 +129,7 @@
     wrap.append(el);return wrap;
   }
   function form(title,action,fields,submit,extra={},container=box){
-    const f=document.createElement('form');f.dataset.action=action;f.append(node('h3',title),...fields,node('button',submit));container.append(f);
+    const f=document.createElement('form');f.dataset.action=action;if(title)f.append(node('h3',title));f.append(...fields,node('button',submit));container.append(f);
     f.onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f));work({action:action==='issue'?values.kind:action,...extra,...values});};
   }
   function button(label,fn){const b=node('button',label);b.type='button';b.onclick=fn;return b;}
@@ -65,7 +140,7 @@
     for(const [label,value] of [
       ['Доступно к размещению',room.available],['Одна заявка сейчас',room.perRequest],
       ['Баланс реквизитов',room.balance],['Кредитный лимит клуба',room.limit],
-      ['Занято активными заявками с комиссией',room.reserved]
+      ['Занято активными заявками',room.reserved]
     ])limits.append(metric(label,rubles(value)));
 
 
@@ -76,12 +151,13 @@
     const close=button('Закрыть',()=>dialog.close());
     const heading=node('h3','Разместить реквизиты');
     heading.id='placement-title';dialog.setAttribute('aria-labelledby',heading.id);
-    dialog.append(heading,limits,node('p','Комиссия 1% учтена. Максимум одной заявки — 10 000 ₽.'),editor,close);
+    dialog.append(heading,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Сумма заявки — от 1 000 до 10 000 ₽.'),close);
     container.append(dialog);
     trigger.onclick=()=>{requestId=crypto.randomUUID();start();dialog.showModal();};
     const raw=field('details','Сообщение с реквизитами');
     raw.lastChild.maxLength=5000;raw.lastChild.rows=6;
     function start(){
+      editor.oninput=null;
       editor.replaceChildren(raw,node('button','Распознать'),button('Заполнить вручную',()=>review({})));
       editor.onsubmit=e=>{e.preventDefault();review(window.pokerDepositParser.parse(raw.lastChild.value));};
     }
@@ -89,14 +165,33 @@
       editor.replaceChildren();
       for(const [key,label] of [['amount','Сумма, ₽'],['phone','Телефон'],['bank','Банк'],['recipient','Имя получателя']]){
         const wrap=field(key,label),input=wrap.lastChild;
-        if(key==='amount'){input.min='0.01';input.step='0.01';input.max='10000';input.value=parsed.amount?parsed.amount/100:'';}
+        if(key==='amount'){input.min='1000';input.step='0.01';input.max='10000';input.value=parsed.amount?parsed.amount/100:'';}
         else input.value=parsed[key]||'';
+        if(key==='phone'){
+          input.type='tel';
+          input.autocomplete='tel';
+          input.placeholder='+7 (999) 123-45-67';
+        }
         editor.append(wrap);
       }
       const error=node('p',(parsed.warnings||[]).filter(w=>!/игрок|рум|USDT/i.test(w)).join(' '));
       error.setAttribute('role','status');
       const submit=node('button','Разместить');
       editor.append(error,button('Назад',start),submit);
+      const validate=()=>{
+        const {amount,phone,bank,recipient}=editor.elements;
+        const parser=window.pokerDepositParser;
+        const cents=parser.money(amount.value);
+        amount.setCustomValidity(amount.value && (!/^\d+(?:[.,]\d{1,2})?$/.test(amount.value)||cents<100000||cents>1000000)?'Укажите сумму от 1 000 до 10 000 ₽ с точностью до копейки.':'');
+        phone.setCustomValidity(parser.phoneError(phone.value));
+        for(const input of [bank,recipient]){
+          input.setCustomValidity(input.value&&!input.value.trim()?'Заполните поле.':input.value.includes('|')?'Уберите символ |.':'');
+        }
+        const details=[parser.normalizePhone(phone.value),bank.value.trim(),recipient.value.trim()].join('\n');
+        if(details.length>500)recipient.setCustomValidity('Телефон, банк и имя вместе должны занимать не более 500 символов.');
+      };
+      editor.oninput=validate;
+      validate();
       editor.onsubmit=async e=>{
         e.preventDefault();
         const values=Object.fromEntries(new FormData(editor));
@@ -265,6 +360,7 @@
     clubName.textContent='';
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
+    clubList.hidden=!data.canInspectClubs;
     if(data.directory)issuerControls(data.directory,request.clubId);
     const clubs=data.memberships;
     headerBalance.hidden=!clubs.length;
@@ -375,6 +471,7 @@
             if(extra)row.append(node('span',extra));
             row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
             if(x.canMarkPaid){
+              if(x.id.startsWith('withdrawal:'))row.append(button('Отправить чек и отметить оплату',()=>payWithReceipt(x.id,requested)));
               row.append(button('Отметить оплату',()=>work({action:'paid',item:x.id,clubId:active})),
                 button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:active})));
             }
@@ -407,6 +504,21 @@
     form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать',{},entry);
     const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if(ownId)entry.append(node('p','Ваш Telegram ID · '+ownId));
+  }
+  function payWithReceipt(item,clubId){
+    const picker=document.createElement('input');
+    picker.type='file';
+    picker.accept='image/jpeg,image/png,application/pdf';
+    picker.onchange=()=>{
+      const file=picker.files[0];
+      if(!file)return;
+      if(file.size>2097152){status.textContent='Выберите чек до 2 МБ.';return;}
+      const reader=new FileReader();
+      reader.onerror=()=>{status.textContent='Не удалось прочитать чек.';};
+      reader.onload=()=>work({action:'paid',item,clubId,receipt:reader.result});
+      reader.readAsDataURL(file);
+    };
+    picker.click();
   }
   async function work(body){
     if(busy)return;busy=true;box.inert=true;

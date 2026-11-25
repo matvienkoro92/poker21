@@ -221,13 +221,13 @@ test('ruble requisite maximum is 10000 inclusive for commands and plain messages
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function isPaymentConfirmCommand(')), context);
   const details = '\n+7 999 999-99-99\nСбер\nАндрей';
-  for (const amount of ['9999,99', '10000', '10 000 ₽']) assert.equal(context.parsePaymentDetailsCommand(`/реквизиты ${amount}${details}`).action, 'publish');
-  for (const amount of ['10000,01', '10001', '50000']) {
+  for (const amount of ['1000', '9999,99', '10000', '10 000 ₽']) assert.equal(context.parsePaymentDetailsCommand(`/реквизиты ${amount}${details}`).action, 'publish');
+  for (const amount of ['999,99', '10000,01', '10001', '50000']) {
     assert.equal(context.parsePaymentDetailsCommand(`/разместить ${amount}${details}`).reason, 'amount_limit');
     assert.equal(context.parsePaymentDetailsMessage(`${amount}${details}`).reason, 'amount_limit');
   }
   assert.equal(context.parsePaymentDetailsCommand(`/разместить 10001$${details}`).reason, 'currency');
-  assert.match(context.paymentDetailsFormText(true, 'amount_limit'), /Максимальная сумма одной заявки — 10 000 ₽/);
+  assert.match(context.paymentDetailsFormText(true, 'amount_limit'), /от 1 000 до 10 000 ₽/i);
 });
 
 test('registry marks only our claimed payments as in progress', () => {
@@ -493,21 +493,21 @@ test('payment history shows five confirmed operations for this chat with histori
   assert.ok(menu.indexOf('formatBalanceHistoryBlocks(paymentHistory)') > menu.indexOf('<b>Баланс по реквизитам:</b>'));
 });
 
-test('each party pays one percent, rounded to the nearest kopeck or cent', () => {
+test('only the payer pays one percent, rounded to the nearest kopeck or cent', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function paymentBalanceDeltas('), source.indexOf('function formatPaymentAmount(')), context);
   for (const [amount, fee, owner, payer] of [
-    [1000000, 10000, -1010000, 990000],
-    [10000, 100, -10100, 9900],
-    [12345, 123, -12468, 12222],
-    [150, 2, -152, 148],
+    [1000000, 10000, -1000000, 990000],
+    [10000, 100, -10000, 9900],
+    [12345, 123, -12345, 12222],
+    [150, 2, -150, 148],
     [1, 0, -1, 1],
   ]) {
     const delta = context.paymentBalanceDeltas(amount);
     assert.equal(delta.feeCents, fee);
     assert.equal(delta.ownerDeltaCents, owner);
     assert.equal(delta.payerDeltaCents, payer);
-    assert.equal(delta.ownerDeltaCents + delta.payerDeltaCents, fee ? -2 * fee : 0);
+    assert.equal(delta.ownerDeltaCents + delta.payerDeltaCents, fee ? -fee : 0);
   }
   assert.match(source, /redis.call\('INCRBY', KEYS\[1\], ARGV\[1\]\)/);
   assert.match(source, /redis.call\('INCRBY', KEYS\[2\], ARGV\[2\]\)/);
