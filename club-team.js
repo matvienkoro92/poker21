@@ -598,6 +598,7 @@
         previousBookings=new Set(registry.items.filter(x=>x.taker).map(x=>x.id));
         clockOffset=registry.serverNow?registry.serverNow-Date.now():0;
         const items=registry.items;
+        take.textContent='Реквизиты · '+items.length;
         const signature=JSON.stringify([items,registry.withdrawalError]);
         if(signature===lastContents&&!list.querySelector('.requisite-refresh-error'))return;
         lastContents=signature;
@@ -685,7 +686,7 @@
       let loading=false;
       let version=0;
       async function refresh(force=false,balances=false){
-        if(force!==true&&(loading || busy || document.hidden || !list.getClientRects().length))return;
+        if(force!==true&&(loading || busy || document.hidden || !take.getClientRects().length))return;
         const stamp=++version;
         loading=true;
         try{

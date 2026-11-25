@@ -2048,7 +2048,6 @@ if (tg) {
   setTimeout(trySyncChatInitAfterTgReady, 0);
   setTimeout(trySyncChatInitAfterTgReady, 300);
   setTimeout(trySyncChatInitAfterTgReady, 1500);
-  if (tg.expand) tg.expand();
   if (typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
   var isLight = document.documentElement.getAttribute("data-theme") === "light";
   if (tg.setBackgroundColor) tg.setBackgroundColor(isLight ? "#ffedd5" : "#0f172a");

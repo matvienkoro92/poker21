@@ -16,7 +16,7 @@
     />
     <meta name="theme-color" content="#0b100e">
     <link rel="stylesheet" href="./styles.css?v=21">
-    <link rel="stylesheet" href="./club-cabinet.css?v=44">
+    <link rel="stylesheet" href="./club-cabinet.css?v=46">
   </head>
   <body data-view="home">
     <div id="app" class="app app--view-home">
@@ -34,7 +34,7 @@
               <div class="desk-links"><a class="desk-vpn" href="https://t.me/KOTIKsVPN_bot?start=src_telegram_channel_ad" target="_blank" rel="noopener" aria-label="Открыть ВПН за 100 рублей в Telegram"><span class="desk-vpn__shield" aria-hidden="true">21</span><strong>ВПН за 100 рублей</strong><span aria-hidden="true">↗</span></a></div>
             </div>
             <script src="./assets/vendor/telegram-web-app.js?v=1"></script>
-            <script src="./assets/poker21-fullscreen.js?v=2"></script>
+            <script src="./assets/poker21-fullscreen.js?v=3"></script>
             <script>
               const webApp = window.Telegram?.WebApp;
               const launch = webApp?.initDataUnsafe?.start_param || '';
@@ -43,7 +43,6 @@
                 location.replace('./linked-sections.html' + location.search + location.hash);
               } else {
                 webApp?.ready();
-                webApp?.expand();
               }
             </script>
             <script src="./club-deposit-parser.js?v=2"></script>
@@ -73,7 +72,7 @@
 
         </section>
       </main>
-      <nav class="bottom-nav" role="navigation">
+      <nav class="bottom-nav" role="navigation" aria-label="Основные разделы">
         <button type="button" class="bottom-nav__item bottom-nav__item--active" data-view-target="home">
           <svg class="bottom-nav__icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m3 10 7.7-6.4a2 2 0 0 1 2.6 0L21 10v9a2 2 0 0 1-2 2h-4.5v-6h-5v6H5a2 2 0 0 1-2-2z"/></svg>
           <span class="bottom-nav__label">Главная</span>
