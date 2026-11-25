@@ -21,7 +21,7 @@ test('cabinet settles a claim with a receipt, retry or cancellation using the au
     redisPipeline:async(cmds,opts)=>opts.context==='cabinet.receipt.exists'?[{result:file?1:0}]:opts.context==='cabinet.payment-reminder'?[{result:1}]:opts.context==='cabinet.receipt.read'?[{result:file}]:cmds.map(c=>({result:JSON.stringify(binding(c[1].slice(-1)))}))
   };
   vm.runInNewContext(source.slice(source.indexOf('module.exports.cabinetRequisites=')),ctx);
-  const call=(club,action,extra={})=>ctx.module.exports.cabinetRequisites(club,'tester',{action,item:'test',chatId:club,...extra});
+  const call=(club,action,extra={})=>ctx.module.exports.cabinetRequisites(club,club==='a'?'111':'222',{action,item:'test',chatId:club,actorUsername:'@manager_'+club,...extra});
   const receipt='data:application/pdf;base64,'+Buffer.from('%PDF-1.4 mock').toString('base64');
   await assert.rejects(call('c','paid',{receipt}));
   await assert.rejects(call('b','paid',{receipt:'invalid'}));
@@ -35,7 +35,7 @@ test('cabinet settles a claim with a receipt, retry or cancellation using the au
   await assert.rejects(call('a','recheck'));await assert.rejects(call('c','recheck'));
   await call('b','recheck');assert.equal(item.status,'paid');assert.equal((await call('a','receipt')).receipt,receipt);
   assert.equal(notice.kind,'payment-recheck');assert.equal(notice.clubId,'a');await assert.rejects(call('b','recheck'));
-  await call('a','confirm');await assert.rejects(call('a','confirm'));
+  await call('a','confirm');assert.equal(item.paymentActor.id,'222');assert.equal(item.paymentActor.username,'@manager_b');assert.equal(item.confirmationActor.id,'111');assert.equal(item.confirmationActor.username,'@manager_a');await assert.rejects(call('a','confirm'));
   await assert.rejects(call('b','remind'));assert.equal(settlements,1);
   item={...item,status:'claimed'};await call('b','cancel');assert.equal(item.status,'open');assert.equal(item.payer,undefined);
 });

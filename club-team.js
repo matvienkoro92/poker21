@@ -53,6 +53,11 @@
       const name=node('span',title);
       const date=new Date(row.at);
       if(Number.isFinite(date.getTime()))name.append(node('small',date.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'})+' МСК'));
+      for(const actor of row.dealActors||[]){
+        const username=String(actor.username||'').replace(/^@/,'');
+        const contact=/^[a-z0-9_]+$/i.test(username)?'@'+username:/^[1-9]\d*$/.test(actor.id)?'Telegram ID '+actor.id:'не указан';
+        name.append(node('small',actor.role+' · '+contact));
+      }
       const amounts=changes.map(([v,unit])=>(v.action==='adjust'&&v.cents>0?'+':'')+(v.cents/100).toLocaleString('ru-RU')+' '+unit);
       line.firstChild.append(name,node('strong',amounts.join(' · ')||'—'));
       for(const text of [row.actor,row.comment,row.commission])if(text)line.append(node('p',text));
@@ -407,14 +412,58 @@
       if(!account.operations?.length)ops.append(node('p',account.historyError?'История временно недоступна.':'Операций пока нет.'));
     });
   }
-  function showDashboard(d,parent) {
+  function showPlayerGroups(parent,groups){
+    const panel=node('section','');panel.className='pulse-group-browser';
+    const title=node('h3','Группы игроков'),select=node('select','');
+    select.setAttribute('aria-label','Группа игроков');
+    for(const [label,rows] of Object.entries(groups)){
+      const option=node('option',label+' · '+rows.length);option.value=label;select.append(option);
+    }
+    const search=node('input','');search.type='search';search.placeholder='Ник или ID';search.setAttribute('aria-label','Поиск в группе');
+    const metric=node('small',''),list=node('div',''),nav=node('nav','');nav.setAttribute('aria-label','Страницы группы');
+    const size=5;let page=0;
+    const prev=button('‹',()=>{page--;draw();}),next=button('›',()=>{page++;draw();}),range=node('span','');
+    prev.setAttribute('aria-label','Предыдущие игроки');next.setAttribute('aria-label','Следующие игроки');nav.append(prev,range,next);
+    const format=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
+    function draw(){
+      const label=select.value,query=search.value.trim().toLowerCase();
+      const rows=(groups[label]||[]).filter(p=>!query||String(p.nick).toLowerCase().includes(query)||String(p.id).includes(query));
+      const delta=['Рост рейка','Снижение рейка'].includes(label),inactive=label==='Не играли';
+      metric.textContent=inactive?'Конец последней игровой недели':delta?'Изменение рейка за неделю':label==='Ключевые игроки'?'Рейк за последние 4 недели':'Рейк за неделю';
+      list.replaceChildren();
+      const peak=Math.max(1,...rows.map(p=>Math.abs(p.value||0)));
+      for(const p of rows.slice(page*size,(page+1)*size)){
+        const row=node('div','');row.className='pulse-member';
+        const nick=node('span',p.nick);nick.title='ID '+p.id;
+        const value=inactive?(p.lastDate||'').split('-').reverse().join('.'):(delta&&p.value>0?'+':'')+format.format(p.value)+' ₽';
+        row.append(nick,node('strong',value));
+        if(p.reason)row.append(node('small',p.reason));
+        if(!inactive){const bar=node('i','');bar.setAttribute('aria-hidden','true');bar.style.width=(100*Math.abs(p.value)/peak)+'%';if(p.value<0)bar.className='is-down';row.append(bar);}
+        list.append(row);
+      }
+      if(!rows.length)list.append(node('p',query?'Игрок не найден':'В этой группе пока нет игроков.'));
+      nav.hidden=rows.length<=size;
+      prev.disabled=page===0;next.disabled=(page+1)*size>=rows.length;
+      range.textContent=(page*size+1)+'–'+Math.min((page+1)*size,rows.length)+' из '+rows.length;
+    }
+    select.onchange=()=>{page=0;search.value='';draw();};
+    search.oninput=()=>{page=0;draw();};
+    panel.append(title,select,search,metric,list,nav);parent.append(panel);draw();
+  }
+  function showDashboard(d,parent,loadWeek) {
     const fmt=n=>n==null?'—':Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
     const pulse=node('section','');pulse.className='week-pulse';parent.append(pulse);
     const dates=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
     const period=d.period.map(value=>new Date(value+'T00:00:00Z'));
     const header=node('header','');
     header.append(node('h2','Пульс клуба'),node('small',typeof dates.formatRange==='function' && period.every(date=>Number.isFinite(+date))?dates.formatRange(...period):d.period.join(' — ')));
-    pulse.append(header);
+    const weeks=d.weeks||[],index=weeks.indexOf(d.period[1]);
+    const nav=node('nav','');nav.className='pulse-week-nav';nav.setAttribute('aria-label','Неделя отчёта');
+    for(const [label,arrow,target] of [['Предыдущая неделя','‹',weeks[index+1]],['Следующая неделя','›',weeks[index-1]]]){
+      const control=button(arrow,()=>loadWeek(target));control.setAttribute('aria-label',label);control.disabled=!target;
+      nav.append(control);
+    }
+    header.append(nav);pulse.append(header);
     const rake=node('section','');rake.className='pulse-revenue';
     rake.append(node('h3','Рейк за неделю'),node('strong',fmt(d.rake.total)+' ₽'));
     const bar=node('div','');bar.className='pulse-bar';bar.setAttribute('aria-hidden','true');
@@ -443,17 +492,7 @@
       if(d.activityPeriod && d.activityPeriod!==d.period[1])insight.prepend(node('small','Неделя по '+d.activityPeriod));
       pulse.append(insight);
     }
-    const groups=node('section','');groups.append(node('h3','Группы игроков'));
-    const tiles=node('div','');tiles.className='pulse-categories';groups.append(tiles);pulse.append(groups);
-    for(const [label,rows] of Object.entries(d.groups)){
-      const group=category(label,rows.length,tiles);
-      if(!rows.length)group.append(node('p','За этот период игроков нет.'));
-      for(const p of rows){
-        const row=node('article','');row.className='pulse-player';
-        row.append(node('strong',p.nick),node('small','ID '+p.id),node('p',p.detail));
-        if(p.action)row.append(node('p',p.action));group.append(row);
-      }
-    }
+    showPlayerGroups(pulse,d.groups);
     playerDirectory(section('Все игроки клуба · '+fmt(d.players.length),pulse),d.players);
     const reports=section('Отчёты клуба · '+d.reports.length,parent);
     if(!d.reports.length)reports.append(node('p','Сохранённых отчётов пока нет.'));
@@ -464,6 +503,30 @@
         const a=node('a',label+' ↗');a.href=url;a.target='_blank';a.rel='noopener';row.append(' · ',a);
       }
       reports.append(row);
+    }
+    if(d.rakeHistory?.length){
+      const history=d.rakeHistory;
+      const chart=node('section','');chart.className='pulse-rake-history';
+      chart.append(node('h3','Рейк по неделям'));
+      const current=history.find(w=>w.end===d.period[1]);
+      const label=w=>dates.format(new Date(w.end+'T00:00:00Z'));
+      const amount=w=>Number.isFinite(w.total)?fmt(w.total)+' ₽':'нет данных';
+      if(current)chart.append(node('p','Неделя по '+label(current)+' · '+amount(current)));
+      const bars=node('div','');bars.className='pulse-rake-bars';
+      const peak=Math.max(1,...history.map(w=>w.total||0));
+      for(const w of history){
+        const bar=button('',()=>loadWeek(w.end));
+        bar.title='Неделя по '+label(w)+' · '+amount(w);
+        bar.setAttribute('aria-label',bar.title);
+        bar.setAttribute('aria-pressed',String(w.end===d.period[1]));
+        const column=node('span','');column.style.height=(100*(w.total||0)/peak)+'%';
+        if(!Number.isFinite(w.total))column.hidden=true;
+        bar.append(column);bars.append(bar);
+      }
+      const axis=node('div','');axis.className='pulse-rake-axis';
+      axis.append(node('span',label(history[0])));
+      if(history.length>1)axis.append(node('span',label(history[history.length-1])));
+      chart.append(bars,axis);parent.append(chart);
     }
   }
   async function render(key, request){
@@ -538,12 +601,23 @@
         finance.textContent='Баланс временно недоступен.';
       });};
       refreshBalances=updateBalances;updateBalances();
-      if(c.role==='owner')api({action:'dashboard',clubId:requested}).then(result=>{
-        if(!dashboard.isConnected||active!==requested)return;
-        dashboard.replaceChildren();showDashboard(result,dashboard);
-      }).catch(()=>{
-        if(dashboard.isConnected&&active===requested)dashboard.textContent='Не удалось загрузить статистику клуба.';
-      });
+      if(c.role==='owner'){
+        let version=0;
+        async function loadWeek(week){
+          const stamp=++version;
+          try{
+            const result=await api({action:'dashboard',clubId:requested,week});
+            if(stamp!==version||!dashboard.isConnected||active!==requested)return;
+            dashboard.replaceChildren();showDashboard(result,dashboard,loadWeek);
+          }catch{
+            if(stamp!==version||!dashboard.isConnected||active!==requested)return;
+            dashboard.querySelector('[role="alert"]')?.remove();
+            const error=node('p','Не удалось загрузить неделю.');error.setAttribute('role','alert');
+            error.append(button('Повторить',()=>loadWeek(week)));dashboard.prepend(error);
+          }
+        }
+        loadWeek();
+      }
       const requisites=node('div','');box.append(requisites);
       if(clubs.length===1)choice.hidden=true;
       const registry=await api({action:'list',clubId:active,chatId:selectedGroups.get(active)});
