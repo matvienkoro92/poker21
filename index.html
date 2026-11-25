@@ -42,6 +42,7 @@
                   /^(#streams$|#poker_task_)/.test(location.hash)) {
                 location.replace('./linked-sections.html' + location.search + location.hash);
               } else {
+                if (launch === 'cabinet') document.getElementById('desk-team').open = true;
                 webApp?.ready();
               }
             </script>
