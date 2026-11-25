@@ -260,13 +260,12 @@ test('activity button edits its original message and includes back navigation', 
 
 test('payment confirmation reports resulting balances through durable outbox', () => {
   const { messages } = require('../lib/financial-outbox');
-  const payloads = messages({ kind: 'deal', item: { id: 'test', amountCents: 10000, owner: { chatId: 'owner', name: 'Owner' }, payer: { chatId: 'payer', name: 'Payer' }, balanceOperation: { feeCents: 100 } }, ownerAfter: -10100, payerAfter: 9900 });
-  assert.equal(payloads.length, 3);
-  for (const body of payloads) {
-    assert.match(body.text, /Итоговые балансы/);
-    assert.match(body.text, /-101,00/);
-    assert.match(body.text, /99,00/);
-  }
+  const event = { kind: 'deal', item: { id: 'test', amountCents: 10000, owner: { id:'a', chatId:'-111', name:'Owner' }, payer: { id:'b', chatId:'-222', name:'Payer' }, balanceOperation: { feeCents:100, ownerFeeCents:0 } }, ownerAfter:-10000, payerAfter:9900 };
+  const entries = messages(event,{a:{owner:'111'},b:{owner:'222'}});
+  assert.deepEqual(entries.map(x=>x.chat_id),['111','222']);
+  assert.match(entries[0].text,/Баланс реквизитов: -100,00/);
+  assert.match(entries[1].text,/Баланс реквизитов: 99,00/);
+  assert.deepEqual(messages(event).map(x=>x.chat_id),[null,null]);
 });
 
 test('pulse navigation keeps the original message ID without creating a workspace', async () => {

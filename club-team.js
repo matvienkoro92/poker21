@@ -649,6 +649,7 @@
             const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
             claim.className='offer-claim';row.append(claim);
           }
+          if(x.peer)row.append(button('Связаться с клубом',()=>openDealDialog(x,requested,chatId),'secondary'));
           next.append(row);
         }
         list.replaceChildren(next);
@@ -692,6 +693,43 @@
     form('Вход по приглашению','activate',[field('key','Одноразовый ключ')],'Активировать',{},entry);
     const ownId=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if(ownId)entry.append(node('p','Ваш Telegram ID · '+ownId));
+  }
+  function openDealDialog(item,clubId,chatId){
+    const dialog=node('dialog','');dialog.className='placement-editor';
+    dialog.setAttribute('aria-label','Диалог с клубом '+item.peer);
+    const history=node('div',''),input=node('textarea',''),status=node('small','');
+    input.placeholder='Сообщение клубу';input.setAttribute('aria-label',input.placeholder);input.maxLength=2000;
+    history.style.cssText='max-height:44vh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere';
+    const params={item:item.id,clubId,chatId};
+    let pending,version=0,signature;
+    async function refresh(payload){
+      const seq=++version;
+      const result=await api({...params,...payload});
+      if(seq!==version||!dialog.open)return;
+      const next=JSON.stringify(result.messages);
+      if(signature!==next){
+        const follow=signature===undefined||history.scrollHeight-history.clientHeight-history.scrollTop<20;
+        history.replaceChildren(...result.messages.map(m=>{
+          const line=node('p','');line.append(node('strong',m.club+' · '+m.author),node('br',''),document.createTextNode(m.text));return line;
+        }));
+        if(!result.messages.length)history.textContent='Сообщений пока нет.';
+        signature=next;if(follow)history.scrollTop=history.scrollHeight;
+      }
+      status.textContent='';
+    }
+    const send=button('Отправить',async()=>{
+      const text=input.value.trim();if(!text)return;
+      if(pending?.text!==text)pending={action:'message',text,requestId:crypto.randomUUID()};
+      input.disabled=send.disabled=true;
+      try{await refresh(pending);input.value='';pending=null;}
+      catch(error){status.textContent=error.message;}
+      finally{input.disabled=send.disabled=false;}
+    },'primary');
+    dialog.append(node('h3',item.peer),history,input,send,status,button('Закрыть',()=>dialog.close(),'secondary'));
+    document.body.append(dialog);dialog.showModal();
+    const read=()=>refresh({action:'dialog'}).catch(error=>{status.textContent=error.message;});
+    read();const timer=setInterval(()=>{if(!send.disabled)read();},5000);
+    dialog.onclose=()=>{clearInterval(timer);dialog.remove();};
   }
   async function showReceipt(item,clubId,chatId){
     const dialog=node('dialog','');dialog.className='placement-editor receipt-view';
