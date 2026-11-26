@@ -369,12 +369,17 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .club-desk .club-key-panel {padding:6px 12px}
 .club-desk .club-key-panel > summary {padding:8px 4px;min-height:40px;box-sizing:border-box}
 .club-key-panel form[data-action="issue"] {
-  display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);
-  gap:8px;margin:4px 0 8px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;
+  gap:12px;margin:10px 0 14px;
 }
-.club-key-panel form[data-action="issue"] label {min-width:0;margin:0;gap:3px;font-size:14px}
-.club-key-panel form[data-action="issue"] :is(select,input,button) {min-width:0;min-height:38px;padding:5px 8px}
-.club-key-panel form[data-action="issue"] > button {align-self:end}
+.club-key-panel form[data-action="issue"] label {display:grid;min-width:0;margin:0;gap:5px;font-size:14px}
+.club-key-panel form[data-action="issue"] :is(select,input,button) {box-sizing:border-box;width:100%;min-width:0;min-height:44px;border-radius:10px;padding:8px 10px}
+.club-key-panel .issuer-picker {display:grid;gap:10px;grid-column:1/-1}
+.club-key-panel :is(.issuer-search,.issuer-new) {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+.club-key-panel .issuer-new[hidden] {display:none}
+.club-key-panel .issuer-picker button[type=button] {background:#263d30;color:#e5f3e8;border:1px solid #54735f}
+.club-key-panel form[data-action="issue"] > label:has([name=credit]),.club-key-panel form[data-action="issue"] > button {grid-column:1/-1}
+.club-key-panel form[data-action="issue"] > button {background:#bee9c4;color:#142a1c;font-weight:700}
 .club-key-panel h4 {margin:8px 0 4px;font-size:14px}
 
 .club-desk .owner-hub {background:#14251d;padding:8px 12px;color:#eff6ec}

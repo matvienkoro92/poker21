@@ -242,12 +242,21 @@
     const picker=node('div',''),search=node('input','');
     search.type='search';search.placeholder='Название или ID клуба';
     search.setAttribute('aria-label','Поиск клуба по названию или ID');
-    picker.append(search,club);
+    picker.className='issuer-picker';
+    const add=button('＋ Новый клуб',()=>{editor.hidden=!editor.hidden;if(!editor.hidden){nameInput.value=search.value.trim();nameInput.focus();}});
+    const tools=node('div','');tools.className='issuer-search';tools.append(search,add);
+    const editor=node('div','');editor.className='issuer-new';editor.hidden=true;
+    const nameField=field('newClubName','Название нового клуба'),nameInput=nameField.lastChild;
+    nameInput.required=false;nameInput.maxLength=80;
+    const save=button('Создать клуб',()=>{if(nameInput.value.trim())work({action:'create-club',name:nameInput.value.trim()});else nameInput.focus();});
+    nameInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();save.click();}};
+    editor.append(nameField,save);
+    picker.append(tools,editor,club);
     let preferred=select.value;
     search.oninput=()=>{
       const query=search.value.trim().toLocaleLowerCase('ru-RU');
       const matches=directory.filter(c=>(c.name+' '+c.clubId).toLocaleLowerCase('ru-RU').includes(query));
-      select.replaceChildren(...matches.map(c=>new Option(c.name+' · '+c.clubId,c.clubId)));
+      select.replaceChildren(...matches.map(c=>new Option(c.custom?c.name:c.name+' · '+c.clubId,c.clubId)));
       if(matches.some(c=>c.clubId===preferred))select.value=preferred;
       else if(matches.length!==1)select.prepend(new Option(matches.length?'Выберите клуб':'Клуб не найден','',false,true));
       draw();
@@ -273,7 +282,7 @@
   function field(name,label,choices){
     const wrap=node('label',label),el=document.createElement(choices?'select':name==='details'?'textarea':'input');
     el.name=name;el.required=true;
-    if(choices)for(const c of choices)el.add(new Option(c.name+' · '+c.clubId,c.clubId));
+    if(choices)for(const c of choices)el.add(new Option(c.custom?c.name:c.name+' · '+c.clubId,c.clubId));
     if(name==='target'){
       el.placeholder='@username';
       el.autocapitalize='none';
@@ -1033,7 +1042,7 @@
     const registryAction=['take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
     busy=true;if(!registryAction)box.inert=true;
     status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
-    const issuing=['owner','staff','revoke'].includes(body.action);
+    const issuing=['owner','staff','revoke','create-club'].includes(body.action);
     if(issuing){issuerBody.inert=true;issuerStatus.textContent='Выполняем…';}
     try{
       const result=body.action==='status'&&!window.Telegram?.WebApp?.initData?{memberships:[]}:await api(body);
@@ -1043,10 +1052,10 @@
         return;
       }
       data=result.memberships?result:await api({action:'status'});
-      await render(result.key,body);
+      await render(result.key,result.selectedClubId?{...body,clubId:result.selectedClubId}:body);
       if(issuing&&clubList.open)await clubList.ontoggle();
       if(body.action==='status'||result.key)status.textContent='';else showNotice(body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
-      if(issuing)issuerStatus.textContent=body.action==='revoke'?'Доступ отозван.':'';
+      if(issuing)issuerStatus.textContent=result.selectedClubId?(result.existing?'Клуб уже есть в списке и выбран.':'Клуб создан и выбран.') :body.action==='revoke'?'Доступ отозван.':'';
     }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){await refreshVisibleList?.(true);return;}box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;issuerBody.inert=false;}
   }
