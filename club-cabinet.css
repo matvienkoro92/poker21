@@ -420,13 +420,13 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .owner-hub .club-op > summary::after {margin-left:2px;flex:none}
 .owner-hub .club-op p {font-size:13px;margin:4px 0 8px;color:#c7d9cb}
 
-#desk-team .requisite-actions {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0}
+#desk-team .requisite-actions {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:3px 0}
 #desk-team .requisite-actions button {width:auto;min-height:42px;border-radius:12px}
 #desk-team .requisite-actions button:first-child {background:transparent;color:inherit;padding:4px 2px;border:0;font-size:18px;display:flex;gap:10px;align-items:center}
 .requisite-actions [aria-expanded]::after {content:"";width:6px;height:6px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .requisite-actions [aria-expanded=true]::after {transform:rotate(225deg)}
-#desk-team .requisite-actions button:last-child {background:#253c30;color:#ddf1df;border:1px solid #476950;padding:6px 12px}
-.requisite-actions button:last-child::before {content:"+";margin-right:5px}
+#desk-team .requisite-actions button:not(:first-child) {background:#253c30;color:#ddf1df;border:1px solid #476950;padding:6px 12px}
+.requisite-actions button:not(:first-child)::before {content:"+";margin-right:5px}
 #club-requisite-list:not([hidden]) {display:grid;gap:10px;margin-top:8px}
 .requisite-totals {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:14px;background:#17281f;color:#f2f7ee;padding:12px 4px;border:1px solid #344b3b}
 .requisite-totals > div {display:grid;gap:4px;padding:0 12px}

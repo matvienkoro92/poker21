@@ -379,6 +379,32 @@
     }
     return updateLimits;
   }
+  function requestEditor(container,clubId){
+    const dialog=document.createElement('dialog'),form=document.createElement('form');
+    dialog.className='placement-editor';dialog.setAttribute('aria-label','Создать запрос');
+    const amount=field('amount','Сумма, ₽'),bank=field('bank','Банк (необязательно)');
+    amount.lastChild.min='0.01';amount.lastChild.step='0.01';amount.lastChild.max='999999999.99';
+    bank.lastChild.required=false;bank.lastChild.maxLength=100;
+    const submit=node('button','Отправить запрос'),status=node('p','');
+    status.setAttribute('role','status');
+    const close=button('Закрыть',()=>dialog.close());
+    form.append(amount,bank,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
+    let requestId;
+    const trigger=button('Создать запрос',()=>{requestId=crypto.randomUUID();form.reset();status.textContent='';dialog.showModal();});
+    trigger.setAttribute('aria-haspopup','dialog');
+    const error=node('p','');error.setAttribute('role','alert');form.append(error);
+    form.onsubmit=async e=>{
+      e.preventDefault();if(submit.disabled)return;
+      submit.disabled=true;close.disabled=true;trigger.disabled=true;error.textContent='';
+      try{
+        await api({action:'request-requisites',clubId,requestId,...Object.fromEntries(new FormData(form))});
+        dialog.close();status.textContent='Запрос создан. Предложения придут в Poker21 Assist.';
+      }catch(err){error.textContent=err.message;}
+      finally{submit.disabled=false;close.disabled=false;trigger.disabled=false;}
+    };
+    dialog.addEventListener('close',()=>{error.textContent='';});
+    return trigger;
+  }
   async function api(body){
     const res=await fetch('./api/club-team',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:JSON.stringify(body)});
     const value=await res.json();if(!res.ok)throw Error(value.error||'Не удалось загрузить кабинет.');return value;
@@ -705,7 +731,7 @@
       });
       take.setAttribute('aria-expanded',String(!list.hidden));take.setAttribute('aria-controls',list.id);
       const place=button('Разместить',null);place.disabled=!chatId;place.setAttribute('aria-haspopup','dialog');
-      actions.append(take,place);requisites.append(actions,list);
+      requisites.append(actions,list);actions.append(take,place,requestEditor(requisites,active));
       const updateLimits=chatId?placementEditor(requisites,place,active,chatId,registry.availability):null;
       if(!chatId&&!groups.length)requisites.append(node('p','Для размещения реквизитов привяжите группу клуба в боте.'));
       let clockOffset=0;
