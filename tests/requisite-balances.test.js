@@ -46,11 +46,12 @@ test('requisite limit command defaults to rubles and accepts zero, not negative 
 test('credit check fails closed and uses atomic check plus creation with all active reservations', async () => {
   let result = null;
   const context = vm.createContext({
+    require:id=>id==='../published-offer'?{...require('../lib/published-offer'),dispatch:async()=>{}}:require('../lib/financial-outbox'),
     clubCredit:require('../lib/club-credit'), PAYMENT_DETAILS_INDEX_KEY: 'details:index',
     paymentBalanceKey: id => `balance:${id}`, requisiteLimitKey: id => `limit:${id}`, paymentDetailsKey: id => `details:${id}`,
     redisPipeline: async ([[command, script, keyCount, balanceKey, limitKey, itemKey, indexKey]]) => {
       assert.equal(command, 'EVAL');
-      assert.equal(keyCount, '4');
+      assert.equal(keyCount, '6');
       assert.equal(indexKey, 'details:index');
       assert.equal(itemKey, 'details:one');
       assert.ok(script.includes("redis.call('LPUSH', KEYS[4], ARGV[6])"));
