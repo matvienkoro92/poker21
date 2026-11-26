@@ -850,7 +850,7 @@
         const anchors=Array.from(list.querySelectorAll('article[data-id]')).filter(el=>el.getBoundingClientRect().bottom>top).map(el=>[el.dataset.id,el.getBoundingClientRect().top]);
 
         const stats={open:{count:0,amount:0},taken:{count:0,amount:0}};
-        for(const item of items){const bucket=stats[item.taker?'taken':'open'];bucket.count++;bucket.amount+=item.amount;}
+        for(const item of items){if(item.historyOnly)continue;const bucket=stats[item.taker?'taken':'open'];bucket.count++;bucket.amount+=item.amount;}
         const summary=node('div','');summary.className='requisite-totals';
         for(const [key,label] of [['open','Свободные'],['taken','Взятые']]){
           const total=metric(label,stats[key].amount.toLocaleString('ru-RU')+' ₽');
@@ -865,6 +865,14 @@
           head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
           if(x.bank)head.append(node('small',x.bank));
           row.append(head);
+          if(Array.isArray(x.bookings)){
+            row.append(node('span','Свободно '+rubles(x.availableCents)+' из '+rubles(x.totalCents)));
+            for(const booking of x.bookings){
+              const section=node('div','');section.className='withdrawal-booking';
+              section.append(node('strong',(booking.clubName||'Клуб')+' · ID '+booking.clubId+' · '+rubles(booking.amountCents)),node('small',booking.stage));
+              row.append(section);
+            }
+          }
           if(x.minimumCents)row.append(node('small','Минимум одной брони — '+rubles(x.minimumCents)));
           if(x.number){
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
@@ -877,14 +885,14 @@
             if(x.waitSince){
               const timer=node('span','');timer.className='booking-clock';timer.dataset.paidAt=x.waitSince;row.append(timer);
             }
-            if(x.mine&&!x.taker&&String(requested)==='758417'&&x.id.startsWith('withdrawal:'))
+            if(x.mine&&!x.taker&&!x.historyOnly&&String(requested)==='758417'&&x.id.startsWith('withdrawal:'))
               row.append(button('Настроить разбивку',()=>chooseBookingAmount(x,true,minimum=>work({action:'split',item:x.id,clubId:requested,chatId,minimum})),'secondary'));
             if(x.canRemind)row.append(button('Напомнить клубу',()=>work({action:'remind',item:x.id,clubId:requested,chatId}),'secondary'));
             if(x.expiresAt){
               const timer=node('time','');timer.className='booking-clock';timer.dataset.bookingEnd=x.expiresAt;
               row.append(timer);
             }
-            if(x.mine&&!x.taker&&!registry.canDeleteRequisites)row.append(button('Снять заявку',()=>{
+            if(x.mine&&!x.taker&&!x.historyOnly&&!registry.canDeleteRequisites)row.append(button('Снять заявку',()=>{
               confirmDeal('Снять заявку на '+x.amount.toLocaleString('ru-RU')+' ₽?','Снять заявку','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
             },'danger'));
             if(x.canSendReceipt||x.canMarkPaid){
@@ -907,7 +915,7 @@
             const claim=button('Взять реквизит',()=>x.minimumCents?chooseBookingAmount(x,false,take):take());
             claim.className='offer-claim';row.append(claim);
           }
-          if(registry.canDeleteRequisites)row.append(button('Удалить реквизиты',()=>{
+          if(registry.canDeleteRequisites&&!x.historyOnly)row.append(button('Удалить реквизиты',()=>{
             confirmDeal('Удалить реквизиты на '+x.amount.toLocaleString('ru-RU')+' ₽ из списка Poker21?'+(x.taker?' Заявка уже в работе. Удаление не подтверждает оплату.':''),'Удалить','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
           },'danger'));
           if(x.peer){

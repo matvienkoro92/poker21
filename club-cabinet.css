@@ -524,3 +524,5 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 
 #desk-team .request-pool-actions {flex-wrap:nowrap}
 @media(max-width:360px){#desk-team .request-pool-actions button {font-size:14px}}
+
+.withdrawal-booking {display:grid;gap:3px;padding:8px 10px;border-left:3px solid #d7ad57;background:#14271f;border-radius:4px}
