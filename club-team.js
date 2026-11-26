@@ -802,7 +802,7 @@
     }
     if(clubs.length)return;
     const guest=section('Свободные реквизиты',box);guest.open=true;
-    const hint=node('p','Смотреть реквизиты можно без ключа. Чтобы взять заявку, запросите ключ в Telegram у ');
+    const hint=node('p','Без ключа видны банк и сумма. Чтобы увидеть номер и взять заявку, запросите ключ в Telegram у ');
     const contact=node('a','@Roman1787443');contact.href='https://t.me/Roman1787443';contact.target='_blank';contact.rel='noopener';hint.append(contact);guest.append(hint);
     const list=node('div','');guest.append(list);
     async function loadOffers(){
@@ -814,7 +814,7 @@
           const row=node('article','');row.className='requisite-preview';
           const head=node('header','');head.className='offer-head';
           head.append(node('strong',item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽')),node('small',item.bank||''));
-          row.append(head,node('span',item.number||''));list.append(row);
+          row.append(head);list.append(row);
         }
         if(result.withdrawalError)list.append(node('p','Выводы из Депозитов временно недоступны.'));
         else if(!result.items.length)list.append(node('p','Свободных заявок пока нет.'));
