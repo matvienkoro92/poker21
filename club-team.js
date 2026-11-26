@@ -1194,6 +1194,12 @@
     };
     picker.click();
   }
+  async function inviteNotificationAccess(app){
+    if(app?.initDataUnsafe?.user?.allows_write_to_pm)return true;
+    if(!app?.requestWriteAccess||!app.isVersionAtLeast?.('6.9'))return false;
+    try{return await new Promise(resolve=>app.requestWriteAccess(resolve));}
+    catch{return false;}
+  }
   async function work(body){
     if(busy)return;
     const registryAction=['split','take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
@@ -1203,6 +1209,7 @@
     if(issuing){issuerBody.inert=true;issuerStatus.textContent='Выполняем…';}
     try{
       const result=body.action==='status'&&!window.Telegram?.WebApp?.initData?{memberships:[]}:await api(body);
+      const writeAccess=body.action==='activate'?await inviteNotificationAccess(window.Telegram?.WebApp):null;
       if(registryAction){
         await refreshVisibleList?.(true,body.action==='confirm');
         showNotice(body.action==='confirm'?'Сделка проведена':body.action==='recheck'?'Запрошена повторная проверка с прежним чеком.':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
@@ -1212,6 +1219,7 @@
       await render(result.key,result.selectedClubId?{...body,clubId:result.selectedClubId}:body);
       if(issuing&&clubList.open)await clubList.ontoggle();
       if(body.action==='status'||result.key)status.textContent='';else showNotice(body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
+      if(body.action==='activate')showNotice(writeAccess?'Ключ активирован. Бот может писать вам в личку.':'Ключ активирован. Чтобы получать сообщения, откройте Poker21 Assist и нажмите «Старт».');
       if(issuing)issuerStatus.textContent=result.selectedClubId?(result.existing?'Клуб уже есть в списке и выбран.':'Клуб создан и выбран.') :body.action==='revoke'?'Доступ отозван.':'';
     }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){await refreshVisibleList?.(true);return;}box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;issuerBody.inert=false;}
