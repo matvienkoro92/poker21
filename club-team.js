@@ -38,6 +38,42 @@
   clubList.after(weekly);
   weekly.classList.add('club-issuer','owner-hub');
   weekly.hidden=true;
+  const manual=section('Провести сделку вручную',issuer.parentElement);
+  weekly.after(manual);manual.hidden=true;manual.classList.add('club-issuer');
+  const select=node('select',''),preview=node('p',''),feedback=node('p','');
+  select.setAttribute('aria-label','Подтверждённая бронь');feedback.setAttribute('role','status');
+  let manualCredits=[];
+  const post=button('Провести сделку',async()=>{
+    const id=select.value;
+    if(!id)return;
+    post.disabled=true;select.disabled=true;
+    try{
+      const result=await api({action:'manual-deal-post',reservationId:id});
+      feedback.textContent=result.status==='posted'?'Сделка проведена.':result.status==='legacy'?'Есть ручная сделка той же даты, суммы и клубов. Повторная запись заблокирована.':'Эта сделка уже проведена.';
+    }catch(e){feedback.textContent=e.message;post.disabled=false;}
+    finally{select.disabled=false;}
+  });
+  select.onchange=()=>{
+    const c=manualCredits.find(row=>row.id===select.value);feedback.textContent='';post.disabled=!c;
+    const fee=c?Math.round(c.amountCents/100):0;
+    preview.textContent=c?'Два туза −'+money(c.amountCents,'RUB')+' · '+c.name+' +'+money(c.amountCents-fee,'RUB')+' · комиссия '+money(fee,'RUB'):'';
+  };
+  manual.append(select,preview,post,feedback);
+  manual.ontoggle=async()=>{
+    if(!manual.open)return;
+    post.disabled=true;select.replaceChildren(new Option('Выберите подтверждённую бронь',''));preview.textContent='';feedback.textContent='Загрузка…';
+    try{
+      const {credits}=await api({action:'manual-deal-list'});manualCredits=credits;
+      for(const c of credits)select.add(new Option(new Date(c.confirmedAt).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК · '+c.name+' · '+money(c.amountCents,'RUB')+' · '+c.id.slice(-8),c.id));
+      feedback.textContent=credits.length?'':'Подтверждённых броней нет.';
+    }catch(e){feedback.textContent=e.message;}
+  };
+  function requisitesWarning(){
+    const warning=node('p','');
+    warning.append(node('strong','Передавайте реквизиты ТОЛЬКО проверенным игрокам.'),
+      document.createTextNode(' Если проблемы будут повторяться, нам придётся отключить ваш клуб от сервиса.'));
+    return warning;
+  }
   function money(value,currency){
     return (value/100).toLocaleString('ru-RU',{minimumFractionDigits:2})+(currency==='USD'?' $':' ₽');
   }
@@ -551,7 +587,7 @@
     clubName.textContent='';
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
-    clubList.hidden=weekly.hidden=!data.canInspectClubs;
+    clubList.hidden=weekly.hidden=manual.hidden=!data.canInspectClubs;
     if(data.directory)issuerControls(data.directory,request.clubId);
     const clubs=data.memberships;
     headerBalance.hidden=!clubs.length;
@@ -705,7 +741,7 @@
           const total=metric(label,stats[key].amount.toLocaleString('ru-RU')+' ₽');
           total.firstChild.append(node('b',String(stats[key].count)));summary.append(total);
         }
-        next.append(summary);
+        next.append(requisitesWarning(),summary);
         if(!items.length&&!registry.withdrawalError)next.append(node('p','Заявок пока нет.'));
         if(registry.withdrawalError)next.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
         for(const x of items){
@@ -812,7 +848,7 @@
       tickVisibleBookings=tickBookings;
     }
     if(clubs.length)return;
-    const guest=section('Свободные реквизиты',box);guest.open=true;
+    const guest=section('Свободные реквизиты',box);guest.open=true;guest.append(requisitesWarning());
     const hint=node('p','Без ключа видны банк и сумма. Чтобы увидеть номер и взять заявку, запросите ключ в Telegram у ');
     const contact=node('a','@Roman1787443');contact.href='https://t.me/Roman1787443';contact.target='_blank';contact.rel='noopener';hint.append(contact);guest.append(hint);
     const list=node('div','');guest.append(list);
