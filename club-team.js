@@ -298,6 +298,25 @@
     f.onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f));work({action:action==='issue'?values.kind:action,...extra,...values});};
   }
   function button(label,fn,tone){const b=node('button',label);b.type='button';b.onclick=fn;if(tone)b.className='deal-'+tone;return b;}
+  function copyRequisitesButton(item){
+    const amount=item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽');
+    const details=item.details||[item.number,item.bank].filter(Boolean).join('\n');
+    const text=amount+'\n'+details;
+    const copy=button('Скопировать реквизиты',async()=>{
+      try{
+        await navigator.clipboard.writeText(text);
+        copy.textContent='✓ Скопировано';
+      }catch{
+        const dialog=node('dialog','');dialog.className='placement-editor';
+        const label=node('label','Выделите и скопируйте реквизиты');
+        const area=node('textarea','');area.value=text;area.readOnly=true;area.rows=5;
+        label.append(area);dialog.append(label,button('Закрыть',()=>dialog.close(),'secondary'));
+        dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
+        area.focus();area.select();
+      }
+    },'secondary');
+    return copy;
+  }
   function confirmDeal(question,label,tone,submit){
     const dialog=node('dialog','');dialog.className='placement-editor deal-confirm';
     dialog.setAttribute('aria-label',question);
@@ -938,6 +957,7 @@
           if(x.mine||x.taker){
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
+            if(x.details||x.number)row.append(copyRequisitesButton(x));
             row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
             if(x.waitSince){
               const timer=node('span','');timer.className='booking-clock';timer.dataset.paidAt=x.waitSince;row.append(timer);
