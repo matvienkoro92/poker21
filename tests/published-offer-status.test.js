@@ -7,7 +7,7 @@ test('lifecycle labels reflect the payer, cancellation actor, completion and spl
   assert.match(format('confirmed'),/Завершена$/);
   assert.match(format('cancelled'),/Снята клубом$/);
   assert.match(format('cancelled',{removedByAdmin:'42'}),/Снята администратором$/);
-  assert.match(statusText(event,[{status:'open',amountCents:1000000},{status:'confirmed',amountCents:3000000}]),/Свободна · 10\s000 ₽\nЗавершена · 30\s000 ₽/);
+  assert.match(statusText(event,[{status:'open',amountCents:1000000},{status:'confirmed',amountCents:3000000}]),/Свободна · 10\s000 ₽\n✅ Завершена · 30\s000 ₽/);
 });
 test('edits only the delivered message and preserves recipient buttons',async()=>{
   const sent=[];
@@ -31,4 +31,11 @@ test('partial booking names the payer and the free balance in one line',()=>{
   assert.ok(statusText(event,parts).replace(/\u00a0/g,' ').includes(line));
   parts[1].status='paid';
   assert.match(statusText(event,parts),/отметил оплату/);
+});
+
+test('confirmed caption names the receiving club and bolds only the status',()=>{
+  const text=statusText(event,[{status:'confirmed',amountCents:4000000,owner:{name:'Nuts_and_Bluff'}}]);
+  assert.match(text,/✅ Завершена · подтвердил клуб «Nuts_and_Bluff»/);
+  const [entity]=require('../lib/published-offer-status').confirmedEntities(text);
+  assert.equal(text.slice(entity.offset,entity.offset+entity.length),'Завершена');
 });
