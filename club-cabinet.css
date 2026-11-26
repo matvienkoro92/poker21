@@ -509,3 +509,6 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 #club-requisite-list .requisite-preview button.deal-secondary {background:#303338;border-color:#555961;color:#edeef0}
 #club-requisite-list .requisite-preview :is(.offer-claim,.booking-send,.deal-primary) {background:#ebd097;border-color:#ebd097;color:#292315}
 #club-requisite-list .requisite-preview :is(.deal-danger,.booking-cancel) {background:#352d2d;border-color:#69524e;color:#f0c6ba}
+
+#desk-team .request-pool-actions {flex-wrap:nowrap}
+@media(max-width:360px){#desk-team .request-pool-actions button {font-size:14px}}

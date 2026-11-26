@@ -776,9 +776,17 @@
       });
       take.setAttribute('aria-expanded',String(!list.hidden));take.setAttribute('aria-controls',list.id);
       const place=button('Разместить',null);place.disabled=!chatId;place.setAttribute('aria-haspopup','dialog');
-      requisites.append(actions,list);actions.append(take,place,requestEditor(requisites,active));
-      const pool=node('details',''),heading=node('summary','Запросы'),cards=node('div','');
-      pool.append(heading,cards);requisites.append(pool);
+      requisites.append(actions,list);actions.append(take,place);
+      const pool=node('div',''),cards=node('div','');
+      pool.className='requisite-actions request-pool-actions';
+      cards.id='club-request-list';cards.hidden=true;
+      const heading=button('Запросы',()=>{
+        cards.hidden=!cards.hidden;
+        heading.setAttribute('aria-expanded',String(!cards.hidden));
+        if(!cards.hidden)refresh();
+      });
+      heading.setAttribute('aria-expanded','false');heading.setAttribute('aria-controls',cards.id);
+      pool.append(heading,requestEditor(requisites,active));requisites.append(pool,cards);
       let poolSignature;
       function updateRequests(){
         const now=Date.now()+clockOffset;
