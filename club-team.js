@@ -306,6 +306,30 @@
     dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
   }
   const rubles=cents=>(cents/100).toLocaleString('ru-RU')+' ₽';
+  function chooseBookingAmount(item,configure,submit){
+    const total=Math.round(item.amount*100),minimum=item.minimumCents||0;
+    const dialog=node('dialog',''),form=node('form','');
+    dialog.className='placement-editor';
+    const title=configure?'Настроить разбивку':'Взять часть суммы';
+    dialog.setAttribute('aria-label',title);
+    const wrap=field('amount',configure?'Минимум одной брони, ₽':'Сумма брони, ₽'),input=wrap.lastChild;
+    input.step='0.01';input.max=total/100;input.min=configure?'0.01':minimum/100;
+    input.required=!configure;
+    if(configure){input.placeholder='Без разбивки';input.value=minimum?minimum/100:'';}
+    form.append(node('h3',title),node('p','Доступно '+rubles(total)),wrap);
+    if(!configure)form.append(node('small','Минимум одной брони — '+rubles(minimum)));
+    input.oninput=()=>input.setCustomValidity('');
+    form.onsubmit=e=>{
+      e.preventDefault();
+      const cents=Math.round(Number(input.value)*100);
+      if(!configure && cents<total && total-cents<minimum){
+        input.setCustomValidity('Возьмите всю сумму или оставьте минимум '+rubles(minimum));input.reportValidity();return;
+      }
+      dialog.close();submit(cents);
+    };
+    form.append(node('button',configure?'Сохранить':'Забронировать'),button('Отмена',()=>dialog.close(),'secondary'));
+    dialog.append(form);dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
+  }
   function placementEditor(container,trigger,clubId,chatId,room){
     const limits=node('div','');
     limits.className='club-metrics';
@@ -332,7 +356,7 @@
     const dismiss=button('×',close.onclick);
     dismiss.setAttribute('aria-label','Закрыть');
     header.append(heading,dismiss);
-    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Сумма заявки — от 1 000 до 10 000 ₽.'),close);
+    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 10 000 ₽.'),close);
     container.append(dialog);
     trigger.onclick=()=>{requestId=crypto.randomUUID();start();dialog.showModal();};
     const raw=field('details','Сообщение с реквизитами');
@@ -355,6 +379,10 @@
         }
         editor.append(wrap);
       }
+      const minimumField=field('splitMinimum','Минимум одной брони, ₽');
+      const minimum=minimumField.lastChild;
+      minimum.type='number';minimum.step='0.01';minimum.min='0.01';minimum.required=false;
+      minimum.placeholder='Без разбивки';editor.append(minimumField);
       const error=node('p',(parsed.warnings||[]).filter(w=>!/игрок|рум|USDT/i.test(w)).join(' '));
       error.setAttribute('role','status');
       const submit=node('button','Разместить');
@@ -363,7 +391,9 @@
         const {amount,phone,bank,recipient}=editor.elements;
         const parser=window.pokerDepositParser;
         const cents=parser.money(amount.value);
-        amount.setCustomValidity(amount.value && (!/^\d+(?:[.,]\d{1,2})?$/.test(amount.value)||cents<100000||cents>1000000)?'Укажите сумму от 1 000 до 10 000 ₽ с точностью до копейки.':'');
+        amount.max=minimum.value?'100000000':'10000';
+        minimum.max=amount.value||'100000000';
+        amount.setCustomValidity(amount.value && (!/^\d+(?:[.,]\d{1,2})?$/.test(amount.value)||cents<100000||cents>Number(amount.max)*100)?'Проверьте сумму заявки и минимум одной брони.':'');
         phone.setCustomValidity(parser.phoneError(phone.value));
         for(const input of [bank,recipient]){
           input.setCustomValidity(input.value&&!input.value.trim()?'Заполните поле.':input.value.includes('|')?'Уберите символ |.':'');
@@ -376,6 +406,8 @@
       editor.onsubmit=async e=>{
         e.preventDefault();
         const values=Object.fromEntries(new FormData(editor));
+        values.minimumCents=minimum.value?window.pokerDepositParser.money(minimum.value):0;
+        delete values.splitMinimum;
         values.phone=window.pokerDepositParser.normalizePhone(values.phone);
         if(!values.phone){error.textContent='Проверьте телефон получателя.';return;}
         editor.inert=true;close.disabled=true;
@@ -798,6 +830,7 @@
           head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
           if(x.bank)head.append(node('small',x.bank));
           row.append(head);
+          if(x.minimumCents)row.append(node('small','Минимум одной брони — '+rubles(x.minimumCents)));
           if(x.number){
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
             phone.className='offer-number';row.append(phone);
@@ -809,6 +842,8 @@
             if(x.waitSince){
               const timer=node('span','');timer.className='booking-clock';timer.dataset.paidAt=x.waitSince;row.append(timer);
             }
+            if(x.mine&&!x.taker&&String(requested)==='758417'&&x.id.startsWith('withdrawal:'))
+              row.append(button('Настроить разбивку',()=>chooseBookingAmount(x,true,minimum=>work({action:'split',item:x.id,clubId:requested,chatId,minimum})),'secondary'));
             if(x.canRemind)row.append(button('Напомнить клубу',()=>work({action:'remind',item:x.id,clubId:requested,chatId}),'secondary'));
             if(x.expiresAt){
               const timer=node('time','');timer.className='booking-clock';timer.dataset.bookingEnd=x.expiresAt;
@@ -833,7 +868,8 @@
               },'primary'),button('Не поступило',()=>work({action:'reject',item:x.id,clubId:requested,chatId}),'danger'));
             }
           }else{
-            const claim=button('Взять реквизит',()=>work({action:'take',item:x.id,clubId:active,chatId}));
+            const take=takeCents=>work({action:'take',item:x.id,clubId:active,chatId,takeCents});
+            const claim=button('Взять реквизит',()=>x.minimumCents?chooseBookingAmount(x,false,take):take());
             claim.className='offer-claim';row.append(claim);
           }
           if(registry.canDeleteRequisites)row.append(button('Удалить реквизиты',()=>{
@@ -1039,7 +1075,7 @@
   }
   async function work(body){
     if(busy)return;
-    const registryAction=['take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
+    const registryAction=['split','take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
     busy=true;if(!registryAction)box.inert=true;
     status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
     const issuing=['owner','staff','revoke','create-club'].includes(body.action);
