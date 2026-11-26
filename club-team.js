@@ -416,6 +416,21 @@
           attachPhoneMask(input);
         }
         editor.append(wrap);
+        if(key==='bank'){
+          const choices=node('div','');choices.className='bank-choices';
+          choices.setAttribute('role','group');choices.setAttribute('aria-label','Выбрать банк');
+          for(const bank of ['Сбербанк','Т-Банк','ВТБ','Альфа-Банк','Озон Банк','Райффайзенбанк']){
+            choices.append(button(bank,()=>{
+              input.value=bank;
+              input.dispatchEvent(new Event('input',{bubbles:true}));
+            }));
+          }
+          const syncBank=()=>{
+            for(const choice of choices.children)
+              choice.setAttribute('aria-pressed',String(choice.textContent.toLowerCase()===input.value.trim().toLowerCase()));
+          };
+          input.addEventListener('input',syncBank);syncBank();editor.append(choices);
+        }
       }
       const minimumField=field('splitMinimum','Минимум одной брони, ₽');
       const minimum=minimumField.lastChild;
