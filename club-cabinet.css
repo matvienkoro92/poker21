@@ -186,40 +186,46 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
   width:min(calc(100% - 16px),460px);
   margin-inline:auto;
   bottom:max(8px,env(safe-area-inset-bottom,0px));
-  padding:4px;
-  gap:2px;
-  border:1px solid #ffffff26;
-  border-radius:22px;
-  background:#18221e;
+  padding:5px;
+  gap:4px;
+  border:1px solid #26664e;
+  border-radius:16px;
+  background:#031e17;
   box-shadow:0 5px 18px #07130c38;
 }
 #app > .bottom-nav .bottom-nav__item {
   width:100%;
   max-width:none;
-  height:50px;
-  padding:4px 0;
-  gap:4px;
-  color:#b9c7c0;
-  background:transparent;
-  border:0;
-  border-radius:17px;
+  min-height:60px;height:auto;
+  padding:3px 0 5px;
+  gap:1px;
+  color:#e8eedf;
+  background:linear-gradient(#104b37,#073426);
+  border:1px solid #286048;
+  border-radius:11px;
   box-shadow:none;
   text-transform:none;
   letter-spacing:normal;
   font:550 clamp(10px,2.7vw,12px)/1.15 system-ui,sans-serif;
 }
 #app > .bottom-nav .bottom-nav__item--active {
-  color:#17392b;
-  background:#cbefda;
+  color:#fff3cc;
+  border-color:#d7ad57;
+  background:linear-gradient(#13734e,#07452e);
 }
 #app > .bottom-nav .bottom-nav__item:focus-visible {outline:2px solid #f6da9e;outline-offset:-2px}
 #app > .bottom-nav .bottom-nav__icon {
   display:block;
-  width:21px;
-  height:21px;
+  width:32px;
+  height:32px;
   flex:none;
-  stroke-width:1.65;
+  background:url('./assets/cabinet-nav-enamel.png') left top / 200% 200% no-repeat;
 }
+
+
+#app > .bottom-nav [data-view-target="club-schedule"] .bottom-nav__icon {background-position:right top}
+#app > .bottom-nav [data-view-target="players-rake"] .bottom-nav__icon {background-position:left bottom}
+#app > .bottom-nav [data-view-target="download"] .bottom-nav__icon {background-position:right bottom}
 
 #desk-team form[data-action=owner], #desk-team .issued-invite {
   display:grid; gap:14px; margin:10px 0 18px; padding:clamp(14px,4vw,22px);
