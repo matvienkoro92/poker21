@@ -454,6 +454,13 @@
     panel.append(title,select,search,metric,list,nav);parent.append(panel);draw();
   }
   function showDashboard(d,parent,loadWeek) {
+    if(d.summaryOnly){
+      const summary=node('section','');summary.className='week-pulse';
+      summary.append(node('h2','Пульс клуба'),node('small',d.period.join(' — ')));
+      if(Number.isFinite(d.rakeRub))amountLine(summary,'Рейк за неделю',d.rakeRub.toLocaleString('ru-RU')+' ₽');
+      if(Number.isFinite(d.activePlayers))amountLine(summary,'Активные игроки',String(d.activePlayers));
+      parent.append(summary);return;
+    }
     const fmt=n=>n==null?'—':Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
     const pulse=node('section','');pulse.className='week-pulse';parent.append(pulse);
     const dates=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
