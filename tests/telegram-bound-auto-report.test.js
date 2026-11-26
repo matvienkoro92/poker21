@@ -77,9 +77,10 @@ test("автоотчёт отправляет только отчёт привя
 
 test("dry-run ничего не отправляет и точно показывает будущий отчёт", async (t) => {
   const key = "poker21:telegram-report:club-chat:-2001";
+  const report = require("../data/union-league-reports.json").reports.find(row => String(row.leagueId) === "854851");
   let mutations = 0;
   const pipeline = async (commands) => commands.map((command) => {
-    if (command[0] === "SCAN") return { result: ["0", [key]] };
+    if (command[0] === "SCAN") return { result: ["0", [key, "poker21:telegram-report:club-chat:-1004358331425"]] };
     if (command[0] === "GET") return { result: JSON.stringify({ type: "union", leagueId: "854851", league: "Rbpoker", autoReport: true }) };
     mutations += 1;
     return { result: "OK" };
@@ -96,10 +97,11 @@ test("dry-run ничего не отправляет и точно показы�
   assert.equal(res.body.dryRun, true);
   assert.equal(sends, 0);
   assert.equal(mutations, 0);
+  assert.equal(res.body.results.length, 1);
   assert.deepEqual(res.body.results[0], {
     chatId: "-2001", ok: true, dryRun: true, type: "union", entityId: "854851", entity: "Rbpoker",
-    startDate: "2026-08-03", endDate: "2026-08-09", method: "sendPhoto",
-    imagePath: "/assets/reports/unions/2026-08-03_2026-08-09/rbpoker.png",
+    startDate: report.startDate, endDate: report.endDate, method: "sendPhoto",
+    imagePath: report.imagePath,
   });
 });
 
@@ -133,6 +135,7 @@ test("изменение баланса из автоотчёта попадае
   assert.equal(operation.type, "club");
   assert.equal(operation.name, "Beer and Bear");
   assert.equal(operation.rub.action, "adjust");
-  assert.equal(operation.rub.cents, -2962804);
+  const report = require("../data/union-club-reports.json").reports.find(row => String(row.clubId) === binding.clubId);
+  assert.equal(operation.rub.cents, Math.round(report.metrics.total * 100));
   assert.match(operation.actor, /^Автоотчёт /);
 });

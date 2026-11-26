@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 
+const reportChatPaused = require("../lib/report-paused-chats");
+
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
@@ -55,6 +57,7 @@ async function main() {
   const week = previousWeek();
   const history = state();
   const selected = reports.filter((report) =>
+    !reportChatPaused(report.chatId) &&
     !REPORT_BLOCKED_CLUB_IDS.has(String(report.clubId)) &&
     !REPORT_BLOCKED_TARGETS.has(`${report.clubId}:${report.chatId}`) &&
     report.startDate === week.startDate &&
