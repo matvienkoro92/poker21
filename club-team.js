@@ -34,6 +34,10 @@
   const clubList=section('Список клубов',issuer.parentElement);
   issuer.after(clubList);clubList.classList.add('club-issuer','owner-hub');clubList.hidden=true;
   const contents=node('div','');clubList.append(contents);
+  const weekly=weeklyPanel(issuer.parentElement);
+  clubList.after(weekly);
+  weekly.classList.add('club-issuer','owner-hub');
+  weekly.hidden=true;
   function money(value,currency){
     return (value/100).toLocaleString('ru-RU',{minimumFractionDigits:2})+(currency==='USD'?' $':' ₽');
   }
@@ -137,6 +141,7 @@
       }catch(e){if(stamp===version)report.textContent=e.message;}
     }
     date.onchange=load;panel.ontoggle=load;
+    return panel;
   }
   clubList.ontoggle=async()=>{
     if(!clubList.open)return;
@@ -192,7 +197,6 @@
           }catch(e){balances.textContent=e.message;}
         };
       }
-      weeklyPanel(contents);
     }catch(e){contents.textContent=e.message;}
   };
   function issuerControls(directory,selected){
@@ -547,7 +551,7 @@
     clubName.textContent='';
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
-    clubList.hidden=!data.canInspectClubs;
+    clubList.hidden=weekly.hidden=!data.canInspectClubs;
     if(data.directory)issuerControls(data.directory,request.clubId);
     const clubs=data.memberships;
     headerBalance.hidden=!clubs.length;
