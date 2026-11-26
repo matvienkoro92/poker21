@@ -8,14 +8,15 @@ test('request reaches eligible users with preferences and a private reply reache
   const store=new Map([['poker21:club-cabinet:access:v1',JSON.stringify({clubs})]]);
   const dispatched=[],sent=[],module={exports:{}};
   const redis={pipeline:async cmds=>cmds.map(([op,key,...args])=>{
-    if(op==='EVAL'){store.set(args[1],args[3]);return {result:1};}
+    if(op==='EVAL'){store.set(args[1],args[1+args[0]]);return {result:1};}
     if(op==='SET')store.set(key,args[0]);
     return {result:store.get(key)};
   })};
   vm.runInNewContext(fs.readFileSync(require.resolve('../lib/requisite-requests'),'utf8'),{module,
     require:id=>id==='./redis'?redis:id==='./published-offer'?{dispatch:async id=>dispatched.push(id)}:id==='./financial-outbox'?require('../lib/financial-outbox'):require(id)});
   const service=module.exports, telegram=async(method,body)=>{sent.push([method,body]);return {ok:true,result:{message_id:77}}};
-  await service.create({amount:'5000',bank:'Банк',comment:'Можно двумя переводами',requestId:'a'.repeat(36)},'a','Клуб А','10');
+  await service.create({durationMinutes:'360',amount:'5000',bank:'Банк',comment:'Можно двумя переводами',requestId:'a'.repeat(36)},'a','Клуб А','10');
+  for(const durationMinutes of [undefined,0,361,0.5])await assert.rejects(service.create({amount:'1',requestId:'a'.repeat(36),durationMinutes},'a','Клуб А','10'),/360/);
   const request=JSON.parse(store.get(PREFIX+dispatched[0]));
   const [notification]=await personalize(request,messages(request,clubs),async()=>[['1','0','1']]);
   assert.equal(notification.chat_id,'20');assert.equal(notification.disable_notification,true);
@@ -30,4 +31,8 @@ test('request reaches eligible users with preferences and a private reply reache
   const proposal=JSON.parse(store.get(PREFIX+dispatched[1]));
   assert.deepEqual(messages(proposal,clubs).map(p=>p.chat_id),['10']);
   assert.match(proposal.text,/Тестовые реквизиты/);
+  store.set(PREFIX+dispatched[0],JSON.stringify({...request,expiresAt:Date.now()-1}));
+  await service.handle({message:{message_id:79,reply_to_message:{message_id:77},text:'Поздний ответ',chat,from}},telegram);
+  assert.equal(sent.at(-1)[1].text,'Запрос недоступен.');
+  assert.equal(dispatched.length,2);
 });

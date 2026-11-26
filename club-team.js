@@ -431,7 +431,9 @@
     const close=button('Закрыть',()=>dialog.close());
     const comment=field('comment','Комментарий (необязательно)');
     comment.lastChild.required=false;comment.lastChild.rows=3;comment.lastChild.maxLength=500;
-    form.append(amount,bank,comment,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
+    const duration=field('durationMinutes','Срок запроса, минут');
+    Object.assign(duration.lastChild,{type:'number',min:'1',max:'360',step:'1',placeholder:'От 1 до 360 (6 часов)'});
+    form.append(amount,bank,comment,duration,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
     let requestId;
     const trigger=button('Создать запрос',()=>{requestId=crypto.randomUUID();form.reset();status.textContent='';dialog.showModal();});
     trigger.setAttribute('aria-haspopup','dialog');
@@ -441,7 +443,7 @@
       submit.disabled=true;close.disabled=true;trigger.disabled=true;error.textContent='';
       try{
         await api({action:'request-requisites',clubId,requestId,...Object.fromEntries(new FormData(form))});
-        dialog.close();status.textContent='Запрос создан. Предложения придут в Poker21 Assist.';
+        dialog.close();status.textContent='Запрос создан. Предложения придут в Poker21 Assist.';await refreshVisibleList?.(true);
       }catch(err){error.textContent=err.message;}
       finally{submit.disabled=false;close.disabled=false;trigger.disabled=false;}
     };
@@ -775,10 +777,23 @@
       take.setAttribute('aria-expanded',String(!list.hidden));take.setAttribute('aria-controls',list.id);
       const place=button('Разместить',null);place.disabled=!chatId;place.setAttribute('aria-haspopup','dialog');
       requisites.append(actions,list);actions.append(take,place,requestEditor(requisites,active));
+      const pool=node('details',''),heading=node('summary','Запросы'),cards=node('div','');
+      pool.append(heading,cards);requisites.append(pool);
+      let poolSignature;
+      function updateRequests(){
+        const now=Date.now()+clockOffset;
+        for(const card of [...cards.children]){
+          const minutes=Math.ceil((Number(card.dataset.end)-now)/60000);
+          if(minutes<=0)card.remove();
+          else card.lastChild.textContent='Осталось '+minutes+' мин';
+        }
+        heading.textContent='Запросы · '+cards.childElementCount;
+      }
       const updateLimits=chatId?placementEditor(requisites,place,active,chatId,registry.availability):null;
       if(!chatId&&!groups.length)requisites.append(node('p','Для размещения реквизитов привяжите группу клуба в боте.'));
       let clockOffset=0;
       function tickBookings(){
+        updateRequests();
         if(list.hidden||document.hidden||!list.isConnected)return;
         for(const clock of list.querySelectorAll('[data-paid-at]')){
           const seconds=Math.max(0,Math.floor((Date.now()+clockOffset-Number(clock.dataset.paidAt))/1000));
@@ -804,6 +819,16 @@
         if(registry.confirmedIds?.some(id=>previousBookings.has(id)))showNotice('Сделка проведена');
         previousBookings=new Set(registry.items.filter(x=>x.taker).map(x=>x.id));
         clockOffset=registry.serverNow?registry.serverNow-Date.now():0;
+        const requests=registry.requests||[],signatureRequests=JSON.stringify(requests);
+        if(signatureRequests!==poolSignature){
+          poolSignature=signatureRequests;cards.replaceChildren();
+          for(const request of requests){
+            const card=node('article','');card.className='requisite-preview';card.dataset.end=request.expiresAt;
+            for(const line of request.text.split('\n'))card.append(node('span',line));
+            card.append(node('small',''));cards.append(card);
+          }
+        }
+        updateRequests();
         const items=registry.items;
         take.textContent='Реквизиты · '+items.length;
         const signature=JSON.stringify([items,registry.withdrawalError]);
