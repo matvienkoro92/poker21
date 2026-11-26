@@ -156,7 +156,7 @@
             const operations=section('Посмотреть операции',card);
             for(const r of week.rows){
               const entry=node('article','');entry.className='deal-entry';
-              entry.append(node('small',new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК'),node('strong',r.owner+' → '+r.payer));
+              entry.append(node('small',new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК'),node('strong',r.payer+' → '+r.owner));
               amountLine(entry,'Сумма',money(r.amount,r.currency));
               if(r.diff==null)entry.append(node('small','Недостаточно данных для сверки'));
               else{
@@ -978,6 +978,7 @@
               const send=button(x.canRecheck?'Отправить новый чек':'Отправить чек',()=>payWithReceipt(x.id,requested,chatId));
               send.className=x.canRecheck?'deal-secondary':'booking-send';actions.append(send);
               if(x.canMarkPaid)actions.append(button('Отметить оплату без чека',()=>work({action:'paid',item:x.id,clubId:requested,chatId})));
+              if(x.canExtend)actions.append(button('Продлить на час',()=>work({action:'extend',item:x.id,clubId:requested,chatId})));
               const cancel=button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:requested,chatId}));
               cancel.className='booking-cancel';actions.append(cancel);row.append(actions);
             }
