@@ -442,7 +442,13 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #desk-team #club-requisite-list .requisite-preview {display:grid;gap:9px;padding:15px;border:1px solid #44464b;border-radius:16px;background:#24262a;color:#faf7ef}
 #desk-team .offer-head {position:static;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0;background:none;border:0}
 #desk-team .offer-head strong {font-size:24px;line-height:1.15;letter-spacing:-.035em}
-#desk-team .offer-head small {color:#e4ce99;font-size:13px;text-align:right}
+#desk-team .offer-head {flex-wrap:wrap}
+#desk-team .offer-head small {
+  box-sizing:border-box;max-width:100%;margin-inline-start:auto;padding:5px 10px;
+  background:#ffdc85;color:#302008;border-radius:8px;
+  font-size:15px;font-weight:750;line-height:1.25;overflow-wrap:anywhere;
+}
+#desk-team .offer-head small:empty {display:none}
 #desk-team .offer-number {color:#e0e1e4;font-size:15px;font-variant-numeric:tabular-nums}
 #desk-team .requisite-preview .offer-claim {display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:8px 14px;border:0;border-radius:10px;background:#c3edb8;color:#163421;font-weight:700}
 .offer-claim::after {content:"→";font-size:18px}
