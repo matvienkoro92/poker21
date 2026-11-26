@@ -330,6 +330,43 @@
     form.append(node('button',configure?'Сохранить':'Забронировать'),button('Отмена',()=>dialog.close(),'secondary'));
     dialog.append(form);dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
   }
+  function attachPhoneMask(input){
+    function format(){
+      const raw=input.value;
+      if(!/^\+?[\d\s().–—-]*$/.test(raw))return;
+      const digits=raw.replace(/\D/g,'');
+      if(!digits)return;
+      const prefix=/^[78]/.test(digits);
+      if(!prefix&&(!digits.startsWith('9')||raw.startsWith('+')))return;
+      const local=digits.slice(prefix?1:0);
+      if(local.length>10)return;
+      const before=raw.slice(0,input.selectionStart).replace(/\D/g,'').length;
+      const value='+7'+(local?' ('+local.slice(0,3):'')+
+        (local.length>3?') '+local.slice(3,6):'')+
+        (local.length>6?'-'+local.slice(6,8):'')+
+        (local.length>8?'-'+local.slice(8):'');
+      if(value===raw)return;
+      input.value=value;
+      const positions=[...value.matchAll(/\d/g)];
+      const count=before+(prefix?0:1);
+      const caret=count?positions[Math.min(count,positions.length)-1].index+1:0;
+      input.setSelectionRange(caret,caret);
+    }
+    input.addEventListener('beforeinput',event=>{
+      let start=input.selectionStart,end=input.selectionEnd;
+      if(start!==end)return;
+      if(event.inputType==='deleteContentBackward'){
+        while(start>0&&/\D/.test(input.value[start-1]))start--;
+        if(start!==end)input.setSelectionRange(Math.max(0,start-1),end);
+        if(input.value==='+7')input.select();
+      }else if(event.inputType==='deleteContentForward'){
+        while(end<input.value.length&&/\D/.test(input.value[end]))end++;
+        if(start!==end)input.setSelectionRange(start,Math.min(input.value.length,end+1));
+      }
+    });
+    input.addEventListener('input',format);
+    format();
+  }
   function placementEditor(container,trigger,clubId,chatId,room){
     const limits=node('div','');
     limits.className='club-metrics';
@@ -376,6 +413,7 @@
           input.type='tel';
           input.autocomplete='tel';
           input.placeholder='+7 (999) 123-45-67';
+          attachPhoneMask(input);
         }
         editor.append(wrap);
       }
