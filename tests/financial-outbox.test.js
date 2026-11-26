@@ -110,3 +110,18 @@ test('confirmed withdrawal updates the original paid notification for each recip
     }
   }
 });
+
+test('confirmation edits the sender receipt caption even when confirmation arrived first',async()=>{
+  const f=fixture(),id='sender-receipt:booking:date';
+  f.values.set(PREFIX+id,JSON.stringify({kind:'sender-receipt',sender:'123',owner:'Nuts_and_Bluff',amount:'15 000 ₽',cabinetReceipt:'booking:sender:date',confirmation:'deal:booking'}));
+  f.values.set(PREFIX+'deal:booking',JSON.stringify({item:{id:'booking',paidAt:'date'}}));
+  const bodies=[];
+  const send=async body=>{bodies.push(body);return {ok:true,result:{message_id:42}};};
+  await drain({redis:f.redis,eventId:id,send});
+  assert.equal(bodies[0].chat_id,'123');
+  assert.equal(bodies[1].message_id,42);
+  assert.equal(bodies[1].chat_id,'123');
+  assert.equal(bodies[1].caption,'✅ Оплата подтверждена клубом «Nuts_and_Bluff» · 15 000 ₽');
+  await drain({redis:f.redis,eventId:id,send});
+  assert.equal(bodies.length,2);
+});
