@@ -89,3 +89,24 @@ test('club message goes to the peer admin and its Telegram reply maps to the res
   assert.equal(sent[0].reply_markup.force_reply,true);
   assert.deepEqual(JSON.parse(f.values.get('poker21:dialog-reply:123:42')),route);
 });
+
+test('confirmed withdrawal updates the original paid notification for each recipient',async()=>{
+  for(const hasReceipt of [true,false]){
+    const f=fixture(),sent=[];
+    const paid={kind:'withdrawal-paid',reservationId:'r',club:'ALL FRIENDS PLUS',amountCents:3500000,hasReceipt};
+    const daily={kind:'withdrawal-daily',confirmedAt:Date.now(),rows:[{payer:paid.club,amount:paid.amountCents}]};
+    const send=async body=>{sent.push(body);return {ok:true,result:{message_id:sent.length}}};
+    for(const event of [paid,daily]){
+      const id=event.kind+':r';
+      f.values.set(PREFIX+id,JSON.stringify(event));
+      await drain({redis:f.redis,send,eventId:id});
+    }
+    const edits=sent.filter(x=>x.message_id);
+    assert.equal(edits.length,2);
+    for(const edit of edits){
+      assert.equal(sent[edit.message_id-1].chat_id,edit.chat_id);
+      assert.match(edit[hasReceipt?'caption':'text'],/ALL FRIENDS PLUS.*35[\s\u00a0]000[\s\S]*Сделка завершена/);
+      assert.deepEqual(edit.reply_markup.inline_keyboard,[]);
+    }
+  }
+});
