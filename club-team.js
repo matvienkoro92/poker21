@@ -435,7 +435,11 @@
       const minimumField=field('splitMinimum','Минимум одной брони, ₽');
       const minimum=minimumField.lastChild;
       minimum.type='number';minimum.step='0.01';minimum.min='0.01';minimum.required=false;
-      minimum.placeholder='Без разбивки';editor.append(minimumField);
+      minimum.placeholder='Без разбивки';
+      const minimumHint=node('small','Введите минимальную сумму перевода или оставьте поле пустым, если нужен один платёж.');
+      minimumHint.id='placement-minimum-hint';
+      minimum.setAttribute('aria-describedby',minimumHint.id);
+      editor.append(minimumField,minimumHint);
       const error=node('p',(parsed.warnings||[]).filter(w=>!/игрок|рум|USDT/i.test(w)).join(' '));
       error.setAttribute('role','status');
       const submit=node('button','Разместить');
