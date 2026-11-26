@@ -15,10 +15,12 @@ test('request reaches eligible users with preferences and a private reply reache
   vm.runInNewContext(fs.readFileSync(require.resolve('../lib/requisite-requests'),'utf8'),{module,
     require:id=>id==='./redis'?redis:id==='./published-offer'?{dispatch:async id=>dispatched.push(id)}:id==='./financial-outbox'?require('../lib/financial-outbox'):require(id)});
   const service=module.exports, telegram=async(method,body)=>{sent.push([method,body]);return {ok:true,result:{message_id:77}}};
-  await service.create({amount:'5000',bank:'Банк',requestId:'a'.repeat(36)},'a','Клуб А','10');
+  await service.create({amount:'5000',bank:'Банк',comment:'Можно двумя переводами',requestId:'a'.repeat(36)},'a','Клуб А','10');
   const request=JSON.parse(store.get(PREFIX+dispatched[0]));
   const [notification]=await personalize(request,messages(request,clubs),async()=>[['1','0','1']]);
   assert.equal(notification.chat_id,'20');assert.equal(notification.disable_notification,true);
+  assert.match(notification.text,/Комментарий: Можно двумя переводами/);
+  await assert.rejects(service.create({amount:'5000',requestId:'a'.repeat(36),comment:'а'.repeat(501)},'a','Клуб А','10'),/500/);
   const action=notification.reply_markup.inline_keyboard[0][0];
   assert.equal(action.text,'Предложить реквизиты');
   const chat={id:20,type:'private'},from={id:20};

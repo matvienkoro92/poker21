@@ -280,7 +280,7 @@
     select.onchange=()=>{preferred=select.value;draw();};draw();
   }
   function field(name,label,choices){
-    const wrap=node('label',label),el=document.createElement(choices?'select':name==='details'?'textarea':'input');
+    const wrap=node('label',label),el=document.createElement(choices?'select':['details','comment'].includes(name)?'textarea':'input');
     el.name=name;el.required=true;
     if(choices)for(const c of choices)el.add(new Option(c.custom?c.name:c.name+' · '+c.clubId,c.clubId));
     if(name==='target'){
@@ -429,7 +429,9 @@
     const submit=node('button','Отправить запрос'),status=node('p','');
     status.setAttribute('role','status');
     const close=button('Закрыть',()=>dialog.close());
-    form.append(amount,bank,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
+    const comment=field('comment','Комментарий (необязательно)');
+    comment.lastChild.required=false;comment.lastChild.rows=3;comment.lastChild.maxLength=500;
+    form.append(amount,bank,comment,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
     let requestId;
     const trigger=button('Создать запрос',()=>{requestId=crypto.randomUUID();form.reset();status.textContent='';dialog.showModal();});
     trigger.setAttribute('aria-haspopup','dialog');
