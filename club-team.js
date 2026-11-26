@@ -239,11 +239,24 @@
     issuerBody.replaceChildren();
     const club=field('clubId','Клуб',directory),select=club.lastChild;
     select.value=selected||directory[0]?.clubId;
+    const picker=node('div',''),search=node('input','');
+    search.type='search';search.placeholder='Название или ID клуба';
+    search.setAttribute('aria-label','Поиск клуба по названию или ID');
+    picker.append(search,club);
+    let preferred=select.value;
+    search.oninput=()=>{
+      const query=search.value.trim().toLocaleLowerCase('ru-RU');
+      const matches=directory.filter(c=>(c.name+' '+c.clubId).toLocaleLowerCase('ru-RU').includes(query));
+      select.replaceChildren(...matches.map(c=>new Option(c.name+' · '+c.clubId,c.clubId)));
+      if(matches.some(c=>c.clubId===preferred))select.value=preferred;
+      else if(matches.length!==1)select.prepend(new Option(matches.length?'Выберите клуб':'Клуб не найден','',false,true));
+      draw();
+    };
     const roles=[{name:'Менеджер',clubId:'staff'},{name:'Владелец',clubId:'owner'}];
     const kind=field('kind','Роль',roles);
     for(const opt of kind.lastChild.options)opt.textContent=roles.find(r=>r.clubId===opt.value).name;
     const creditField=field('credit','Кредитный лимит клуба, ₽');
-    form('','issue',[club,kind,field('target','Логин в Telegram'),creditField],'Создать ключ',{},issuerBody);
+    form('','issue',[picker,kind,field('target','Логин в Telegram'),creditField],'Создать ключ',{},issuerBody);
     const roster=node('div','');issuerBody.append(roster);
     function draw(){
       const entry=directory.find(c=>c.clubId===select.value);
@@ -255,7 +268,7 @@
         row.append(button('Отозвать доступ',()=>work({action:'revoke',clubId:select.value,target:m.id})));roster.append(row);
       }
     }
-    select.onchange=draw;draw();
+    select.onchange=()=>{preferred=select.value;draw();};draw();
   }
   function field(name,label,choices){
     const wrap=node('label',label),el=document.createElement(choices?'select':name==='details'?'textarea':'input');
