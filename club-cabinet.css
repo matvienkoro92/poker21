@@ -486,6 +486,8 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .receipt-view object {display:block;width:100%;height:58dvh;border:0}
 .receipt-view small {display:block;margin:6px 0;font-size:13px}
 
+.club-header-history-label {font-size:12px;line-height:1.25;font-weight:400;color:#acb1af}
+:root:not([data-cabinet-theme=dark]) .club-header-history-label {color:#626866}
 .club-desk .club-header-balance small {font-size:11px;line-height:1.1;opacity:.8}
 .club-desk .club-header-balance strong {font-size:clamp(14px,3.5vw,18px);line-height:1.15}
 

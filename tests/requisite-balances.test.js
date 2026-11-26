@@ -264,8 +264,13 @@ test('payment confirmation reports resulting balances through durable outbox', (
   const event = { kind: 'deal', item: { id: 'test', amountCents: 10000, owner: { id:'a', chatId:'-111', name:'Owner' }, payer: { id:'b', chatId:'-222', name:'Payer' }, balanceOperation: { feeCents:100, ownerFeeCents:0 } }, ownerAfter:-10000, payerAfter:9900 };
   const entries = messages(event,{a:{owner:'111'},b:{owner:'222'}});
   assert.deepEqual(entries.map(x=>x.chat_id),['111','222']);
+  for(const entry of entries)assert.match(entry.text,/Перевод: Payer → Owner/);
   assert.match(entries[0].text,/Баланс реквизитов: -100,00/);
   assert.match(entries[1].text,/Баланс реквизитов: 99,00/);
+  const [ownerReport,otherClub]=messages(event,{a:{owner:'388008256'},b:{owner:'222'}});
+  assert.match(ownerReport.text,/Payer\nКомиссия: 1,00 ₽\nБаланс реквизитов: 99,00 ₽/);
+  assert.match(ownerReport.text,/Owner\nКомиссия: 0,00 ₽\nБаланс реквизитов: -100,00 ₽/);
+  assert.doesNotMatch(otherClub.text,/Баланс реквизитов: -100/);
   assert.deepEqual(messages(event).map(x=>x.chat_id),[null,null]);
 });
 

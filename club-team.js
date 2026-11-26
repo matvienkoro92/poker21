@@ -21,10 +21,26 @@
   finance.id='club-finance';finance.hidden=true;
   headerBalance.closest('header').after(finance);
   headerBalance.setAttribute('aria-controls',finance.id);
-  headerBalance.onclick=()=>{
+  let historyRequest=0;
+  headerBalance.onclick=async()=>{
     finance.hidden=!finance.hidden;
-    if(!finance.hidden&&refreshBalances){finance.textContent='Обновляем балансы…';refreshBalances();}
+    const version=++historyRequest,clubId=active;
     headerBalance.setAttribute('aria-expanded',String(!finance.hidden));
+    if(finance.hidden)return;
+    finance.textContent='Загружаем историю переводов…';
+    try{
+      const {rows}=await api({action:'transfer-history',clubId});
+      if(version!==historyRequest||active!==clubId||finance.hidden)return;
+      finance.replaceChildren(node('h3','История переводов'));
+      for(const r of rows){
+        const entry=node('article','');entry.className='deal-entry';
+        entry.append(node('small',new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК'),
+          node('strong',r.payer+' → '+r.owner),node('span',money(r.amount,r.currency)));
+        finance.append(entry);
+      }
+      if(!rows.length)finance.append(node('p','Завершённых переводов пока нет.'));
+    }catch{if(version===historyRequest&&active===clubId&&!finance.hidden)finance.textContent='Не удалось загрузить историю переводов.';}
+
   };
   const issuer=section('Создать ключ',panel.parentElement);
   issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
@@ -595,26 +611,6 @@
       draw();
     } else players.append(node('p','За эту неделю игроков в списке нет.'));
   }
-  function showFinance(d,owner) {
-    const fmt = n => n == null ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
-    const opened=Array.from(finance.querySelectorAll('details'),el=>el.open);
-    finance.replaceChildren();
-    if(d.balanceError)finance.append(node('p','Баланс временно недоступен.'));
-    else if(!d.accounts.length)finance.append(node('p','У клуба нет привязанной группы с балансом.'));
-    d.accounts.forEach((account,index)=>{
-      if(d.accounts.length>1)finance.append(node('h4','Счёт '+(index+1)));
-      const money = (rub,usd) => [rub==null?null:fmt(rub/100)+' ₽',usd==null?null:fmt(usd/100)+' $'].filter(Boolean).join(' · ') || 'Пока не задан';
-      const balances=node('div','');
-      balances.className='club-metrics';
-      balances.append(metric('Текущий баланс',currentBalance(account.rub,account.usd)),
-        metric('Баланс реквизитов',money(account.paymentRub,account.paymentUsd)));
-      finance.append(balances);
-      if(!owner)return;
-      const ops=section('Последние операции',finance);ops.open=!!opened[index];
-      for(const text of account.operations||[])ops.append(node('p',text));
-      if(!account.operations?.length)ops.append(node('p',account.historyError?'История временно недоступна.':'Операций пока нет.'));
-    });
-  }
   function showPlayerGroups(parent,groups){
     const panel=node('section','');panel.className='pulse-group-browser';
     const title=node('h3','Группы игроков'),select=node('select','');
@@ -790,8 +786,10 @@
       const requested=active;
       clubName.textContent=c.name;
       const mainSum=node('strong','…'),paymentSum=node('strong','…');
-      headerBalance.append(node('small','Основной'),mainSum,node('small','Реквизиты'),paymentSum);
-      headerBalance.setAttribute('aria-label','Баланс клуба '+c.name);
+      const historyLabel=node('span','История переводов');
+      historyLabel.className='club-header-history-label';
+      headerBalance.append(node('small','Основной'),mainSum,node('small','Реквизиты'),paymentSum,historyLabel);
+      headerBalance.setAttribute('aria-label','Баланс клуба '+c.name+'. История переводов');
       dashboard.className='club-dashboard';
       const destination=document.getElementById('players-rake-content');
       if(destination)destination.append(dashboard);
@@ -804,11 +802,11 @@
         const total=k=>accounts.reduce((n,a)=>n+(a[k] ?? 0),0);
         mainSum.textContent=result.balanceError?'Недоступен':accounts.length ? currentBalance(total('rub'),total('usd')) : '—';
         paymentSum.textContent=result.balanceError?'Недоступен':accounts.length?currentBalance(total('paymentRub'),total('paymentUsd')):'—';
-        showFinance(result,c.role==='owner');
+
       }).catch(()=>{
         if(version!==balanceVersion||!dashboard.isConnected || active!==requested)return;
         mainSum.textContent=paymentSum.textContent='Недоступен';
-        finance.textContent='Баланс временно недоступен.';
+
       });};
       refreshBalances=updateBalances;updateBalances();
       if(c.role==='owner'){
@@ -954,6 +952,7 @@
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
             phone.className='offer-number';row.append(phone);
           }
+          if(x.bookingPaused)row.append(node('strong','⏸ На паузе до 06:00 МСК'));
           if(x.mine||x.taker){
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
@@ -988,7 +987,7 @@
                 confirmDeal('Подтвердить получение '+x.amount.toLocaleString('ru-RU')+' ₽?','Подтвердить','primary',()=>work({action:'confirm',item:x.id,clubId:requested,chatId}));
               },'primary'),button('Не поступило',()=>work({action:'reject',item:x.id,clubId:requested,chatId}),'danger'));
             }
-          }else{
+          }else if(!x.bookingPaused){
             const take=takeCents=>work({action:'take',item:x.id,clubId:active,chatId,takeCents});
             const claim=button('Взять реквизит',()=>x.minimumCents?chooseBookingAmount(x,false,take):take());
             claim.className='offer-claim';row.append(claim);
@@ -1066,7 +1065,7 @@
           const row=node('article','');row.className='requisite-preview';
           const head=node('header','');head.className='offer-head';
           head.append(node('strong',item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽')),node('small',item.bank||''));
-          row.append(head);list.append(row);
+          row.append(head);if(item.bookingPaused)row.append(node('strong','⏸ На паузе до 06:00 МСК'));list.append(row);
         }
         if(result.withdrawalError)list.append(node('p','Выводы из Депозитов временно недоступны.'));
         else if(!result.items.length)list.append(node('p','Свободных заявок пока нет.'));
