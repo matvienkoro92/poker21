@@ -24,3 +24,11 @@ test('edits only the delivered message and preserves recipient buttons',async()=
   assert.equal(sent.length,1);assert.equal(sent[0].message_id,123);assert.equal(sent[0].editOnly,true);
   assert.match(sent[0].text,/Снята клубом/);assert.match(sent[0].reply_markup.inline_keyboard[0][0].text,/✅/);
 });
+
+test('partial booking names the payer and the free balance in one line',()=>{
+  const parts=[{status:'open',amountCents:2000000},{status:'claimed',amountCents:1500000,payer:{name:'Два Туза'}}];
+  const line='Два Туза взяли 15 000 ₽, свободно 20 000 ₽';
+  assert.ok(statusText(event,parts).replace(/\u00a0/g,' ').includes(line));
+  parts[1].status='paid';
+  assert.match(statusText(event,parts),/отметил оплату/);
+});
