@@ -10,6 +10,9 @@
   let active='', data, busy=false;
   let refreshVisibleList, tickVisibleBookings,refreshBalances;
   let expandedRegistry = '';
+  const selectedOffer=/^deal_(w_)?([a-zA-Z0-9-]{1,80})$/.exec(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
+  let widgetOffer=selectedOffer?(selectedOffer[1]?'withdrawal:':'')+selectedOffer[2]:'';
+  if(widgetOffer)panel.open=true;
   const node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
@@ -632,6 +635,7 @@
       const actions=node('div','');actions.className='requisite-actions';
       actions.setAttribute('role','group');actions.setAttribute('aria-label','Реквизиты');
       const registryKey=JSON.stringify([active,chatId]);
+      if(widgetOffer)expandedRegistry=registryKey;
       const list=node('div','');list.hidden=expandedRegistry!==registryKey;list.id='club-requisite-list';
       const take=button('Реквизиты',()=>{
         list.hidden=!list.hidden;
@@ -784,6 +788,15 @@
         }finally{if(stamp===version)loading=false;}
       }
       drawItems(registry);
+      if(widgetOffer && chatId){
+        const row=Array.from(list.querySelectorAll('article[data-id]')).find(el=>el.dataset.id===widgetOffer);
+        if(row){
+          widgetOffer='';
+          list.prepend(row);
+          row.prepend(node('small','Выбрано в Telegram'));
+          requestAnimationFrame(()=>row.scrollIntoView({block:'center'}));
+        }else list.prepend(node('p','Выбранная в Telegram заявка недоступна для этого клуба. Выберите другую заявку или смените клуб.'));
+      }
       refreshVisibleList=refresh;
       tickVisibleBookings=tickBookings;
     }
