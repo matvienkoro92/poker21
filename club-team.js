@@ -555,9 +555,23 @@
     comment.lastChild.required=false;comment.lastChild.rows=3;comment.lastChild.maxLength=500;
     const duration=field('durationMinutes','Срок запроса, минут');
     Object.assign(duration.lastChild,{type:'number',min:'1',max:'360',step:'1',placeholder:'От 1 до 360 (6 часов)'});
-    form.append(amount,bank,comment,duration,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
+    const kinds=[['card','Карта на нужную сумму'],['crypto-rub','Обмен крипты на рубли'],['rub-crypto','Обмен рублей на крипту'],['other','Другой запрос']];
+    const kind=field('requestType','Что вам нужно?',kinds.map(([clubId,name])=>({clubId,name,custom:true})));
+    function updateFields(){
+      const type=kind.lastChild.value,card=type==='card';
+      for(const el of [amount,bank]){
+        el.hidden=!card;el.lastChild.disabled=!card;
+        el.style.display=card?'':'none';
+      }
+      comment.firstChild.textContent=card?'Комментарий (необязательно)':'Описание запроса';
+      comment.lastChild.required=!card;
+      comment.lastChild.placeholder=card?'':type==='other'?'Что вы хотите запросить у клубов?':
+        type==='crypto-rub'?'Например, обменяю 200 USDT на рубли':'Например, обменяю 15 000 ₽ на USDT';
+    }
+    kind.lastChild.onchange=updateFields;
+    form.append(kind,amount,bank,comment,duration,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
     let requestId;
-    const trigger=button('Создать запрос',()=>{requestId=crypto.randomUUID();form.reset();status.textContent='';dialog.showModal();});
+    const trigger=button('Создать запрос',()=>{requestId=crypto.randomUUID();form.reset();updateFields();status.textContent='';dialog.showModal();});
     trigger.setAttribute('aria-haspopup','dialog');
     const error=node('p','');error.setAttribute('role','alert');form.append(error);
     form.onsubmit=async e=>{
@@ -890,7 +904,15 @@
         if(!cards.hidden)refresh();
       });
       heading.setAttribute('aria-expanded','false');heading.setAttribute('aria-controls',cards.id);
-      pool.append(heading,requestEditor(requisites,active));requisites.append(pool,cards);
+      const description=node('p','Если вам нужна карта на сумму, которой нет в списке реквизитов, оставьте запрос для других клубов. Также можно запросить обмен крипты на рубли или рублей на крипту либо описать другую задачу.');
+      description.id='club-request-help';description.hidden=true;
+      const help=button('!',()=>{
+        description.hidden=!description.hidden;
+        help.setAttribute('aria-expanded',String(!description.hidden));
+      });
+      help.className='request-help';help.setAttribute('aria-label','О запросах для других клубов');
+      help.setAttribute('aria-controls',description.id);help.setAttribute('aria-expanded','false');
+      pool.append(heading,help,requestEditor(requisites,active));requisites.append(pool,description,cards);
       let poolSignature;
       function updateRequests(){
         const now=Date.now()+clockOffset;
@@ -920,7 +942,7 @@
           clock.classList.toggle('ending',left<=60);
           if(!left){
             clock.dataset.expired='1';
-            clock.closest('article').querySelectorAll('button').forEach(b=>b.disabled=true);
+            if(!clock.closest('.withdrawal-booking'))clock.closest('article').querySelectorAll('button').forEach(b=>b.disabled=true);
             refresh();
           }
         }
@@ -995,6 +1017,7 @@
           head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
           if(x.bank)head.append(node('small',x.bank));
           row.append(head);
+          if(x.publisherClub)row.append(node('small','Разместил клуб «'+x.publisherClub+'»'));
           if(inWork(x)){
             row.classList.add('is-in-work');
             const badge=node('span','В работе');
@@ -1006,6 +1029,12 @@
             for(const booking of x.bookings){
               const section=node('div','');section.className='withdrawal-booking';
               section.append(node('strong',(booking.clubName||'Клуб')+' · ID '+booking.clubId+' · '+rubles(booking.amountCents)),node('small',booking.stage));
+              if(booking.paidAt||booking.expiresAt){
+                const timer=node('time','');timer.className='booking-clock';
+                if(booking.paidAt)timer.dataset.paidAt=booking.paidAt;
+                else timer.dataset.bookingEnd=booking.expiresAt;
+                section.append(timer);
+              }
               row.append(section);
             }
           }

@@ -585,3 +585,8 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
   color: #e2f5ff;
   font-weight: 700;
 }
+
+#desk-team .request-pool-actions .request-help {flex:none;width:30px;min-height:30px;margin-right:auto;padding:0;border-radius:50%;font-weight:700}
+#desk-team .request-pool-actions .request-help::before,
+#desk-team .request-pool-actions .request-help::after {content:none}
+@media(max-width:360px){#desk-team .request-pool-actions {flex-wrap:wrap;justify-content:flex-start}}
