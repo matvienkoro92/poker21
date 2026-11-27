@@ -13,7 +13,7 @@
   const selectedOffer=/^deal_(w_)?([a-zA-Z0-9-]{1,80})$/.exec(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
   let widgetOffer=selectedOffer?(selectedOffer[1]?'withdrawal:':'')+selectedOffer[2]:'';
   if(widgetOffer)panel.open=true;
-  const node=(tag,text)=>{const el=document.createElement(tag);el.append(text);return el;};
+  const node=(tag,text)=>{const el=document.createElement(tag);if(text instanceof Node)el.append(text);else el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
   document.querySelector('.desk-brand').append(headerBalance);
