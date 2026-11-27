@@ -268,8 +268,8 @@ test('payment confirmation reports resulting balances through durable outbox', (
   assert.match(entries[0].text,/Баланс реквизитов: -100,00/);
   assert.match(entries[1].text,/Баланс реквизитов: 99,00/);
   const [ownerReport,otherClub]=messages(event,{a:{owner:'388008256'},b:{owner:'222'}});
-  assert.match(ownerReport.text,/Payer\nКомиссия: 1,00 ₽\nБаланс реквизитов: 99,00 ₽/);
-  assert.match(ownerReport.text,/Owner\nКомиссия: 0,00 ₽\nБаланс реквизитов: -100,00 ₽/);
+  assert.match(ownerReport.text,/Payer · плательщик\nКомиссия: 1,00 ₽\nБаланс реквизитов: 99,00 ₽/);
+  assert.match(ownerReport.text,/Owner · получатель\nКомиссия: 0,00 ₽\nБаланс реквизитов: -100,00 ₽/);
   assert.doesNotMatch(otherClub.text,/Баланс реквизитов: -100/);
   assert.deepEqual(messages(event).map(x=>x.chat_id),[null,null]);
 });
