@@ -149,6 +149,10 @@
   });
   broadcastPanel.append(broadcastButton,broadcastStatus);
   document.querySelector('.desk-evening').before(broadcastPanel);
+  const requestsPanel=node('section','');
+  requestsPanel.id='club-requests';
+  requestsPanel.hidden=true;
+  document.querySelector('.desk-evening').after(requestsPanel);
   const issuer=section('Создать ключ',panel.parentElement);
   issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
   const issuerBody=node('div','');issuer.append(issuerBody);
@@ -1022,6 +1026,8 @@
     refreshVisibleList = null;refreshBalances=null;
     tickVisibleBookings=null;
     box.replaceChildren();
+    requestsPanel.replaceChildren();
+    requestsPanel.hidden=true;
     document.querySelector('.club-dashboard')?.remove();
     clubName.textContent='';
     headerBalance.replaceChildren();
@@ -1169,7 +1175,9 @@
       });
       help.className='request-help';help.setAttribute('aria-label','О запросах для других клубов');
       help.setAttribute('aria-controls',description.id);help.setAttribute('aria-expanded','false');
-      pool.append(heading,help,requestEditor(requisites,active));requisites.append(pool,description,cards);
+      pool.append(heading,help,requestEditor(requestsPanel,active));
+      requestsPanel.prepend(pool,description,cards);
+      requestsPanel.hidden=false;
       let poolSignature;
       function updateRequests(){
         const now=Date.now()+clockOffset;

@@ -299,7 +299,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .placement-editor input,.placement-editor textarea {width:100%;min-width:0}
 
 .requisite-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#desk-team .requisite-actions button {min-height:48px;font-weight:700}
+:is(#desk-team,#club-requests) .requisite-actions button {min-height:48px;font-weight:700}
 
 .player-directory {display:grid;gap:10px;text-align:left;min-width:0;container-type:inline-size}
 .player-directory-controls {display:grid;gap:6px}
@@ -431,12 +431,12 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 .owner-hub .club-op > summary::after {margin-left:2px;flex:none}
 .owner-hub .club-op p {font-size:13px;margin:4px 0 8px;color:#c7d9cb}
 
-#desk-team .requisite-actions {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:3px 0}
-#desk-team .requisite-actions button {width:auto;min-height:42px;border-radius:12px}
-#desk-team .requisite-actions button:first-child {background:transparent;color:inherit;padding:4px 2px;border:0;font-size:18px;display:flex;gap:10px;align-items:center}
+:is(#desk-team,#club-requests) .requisite-actions {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:3px 0}
+:is(#desk-team,#club-requests) .requisite-actions button {width:auto;min-height:42px;border-radius:12px}
+:is(#desk-team,#club-requests) .requisite-actions button:first-child {background:transparent;color:inherit;padding:4px 2px;border:0;font-size:18px;display:flex;gap:10px;align-items:center}
 .requisite-actions [aria-expanded]::after {content:"";width:6px;height:6px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .requisite-actions [aria-expanded=true]::after {transform:rotate(225deg)}
-#desk-team .requisite-actions button:not(:first-child) {background:#253c30;color:#ddf1df;border:1px solid #476950;padding:6px 12px}
+:is(#desk-team,#club-requests) .requisite-actions button:not(:first-child) {background:#253c30;color:#ddf1df;border:1px solid #476950;padding:6px 12px}
 .requisite-actions button:not(:first-child)::before {content:"+";margin-right:5px}
 #club-requisite-list:not([hidden]) {display:grid;gap:10px;margin-top:8px}
 .requisite-totals {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:14px;background:#17281f;color:#f2f7ee;padding:12px 4px;border:1px solid #344b3b}
@@ -469,14 +469,14 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 #desk-team .booking-actions button:disabled {opacity:.55}
 
 :is(#desk-team .requisite-preview,.placement-editor) :is(button,a[download]),
-#desk-team .placement-editor button {
+:is(#desk-team,#club-requests) .placement-editor button {
   box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;
   min-height:44px;padding:9px 14px;border:1px solid #4d6957;border-radius:12px;
   background:#243b2d;color:#e2efe3;font:inherit;font-weight:650;text-decoration:none;
 }
 .placement-editor :is(button,a[download]) {margin-top:6px}
 #desk-team .requisite-preview .deal-primary,.placement-editor .deal-primary,
-#desk-team .placement-editor form button:not([type=button]) {background:#c3edb8;border-color:#c3edb8;color:#163421}
+:is(#desk-team,#club-requests) .placement-editor form button:not([type=button]) {background:#c3edb8;border-color:#c3edb8;color:#163421}
 #desk-team .requisite-preview .deal-danger,#desk-team .booking-actions .booking-cancel,.placement-editor .deal-danger {color:#f0c6b9;background:#352c28;border:1px solid #65483d}
 .placement-editor.deal-confirm {background:#1a2e22;color:#eff7ed;padding:18px}
 .deal-confirm h3 {margin:0 0 14px;font-size:18px}
@@ -494,7 +494,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
 
 .placement-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .placement-heading h3 {margin-block:8px}
-#desk-team .placement-editor .placement-heading button {display:grid;place-items:center;flex:none;width:44px;height:44px;margin:0;padding:0;border-radius:50%;font-size:24px;line-height:1}
+:is(#desk-team,#club-requests) .placement-editor .placement-heading button {display:grid;place-items:center;flex:none;width:44px;height:44px;margin:0;padding:0;border-radius:50%;font-size:24px;line-height:1}
 
 .club-unread-count {display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding-inline:.25em;margin-inline-start:.45em;border-radius:999px;background:#c3edb8;color:#163421;font-size:.8em;font-variant-numeric:tabular-nums}
 
@@ -525,14 +525,14 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 #club-requisite-list .requisite-preview :is(.offer-claim,.booking-send,.deal-primary) {background:#ebd097;border-color:#ebd097;color:#292315}
 #club-requisite-list .requisite-preview :is(.deal-danger,.booking-cancel) {background:#352d2d;border-color:#69524e;color:#f0c6ba}
 
-#desk-team .request-pool-actions {flex-wrap:nowrap}
-@media(max-width:360px){#desk-team .request-pool-actions button {font-size:14px}}
+:is(#desk-team,#club-requests) .request-pool-actions {flex-wrap:nowrap}
+@media(max-width:360px){:is(#desk-team,#club-requests) .request-pool-actions button {font-size:14px}}
 
 .withdrawal-booking {display:grid;gap:3px;padding:8px 10px;border-left:3px solid #d7ad57;background:#14271f;border-radius:4px}
 
 .placement-editor .bank-choices {display:flex;flex-wrap:wrap;gap:6px}
-#desk-team .placement-editor .bank-choices button {width:auto;min-height:36px;margin:0;padding:5px 10px;border:1px solid #46745c;border-radius:9px;background:#183b2c;color:#eff7ed;font-size:14px}
-#desk-team .placement-editor .bank-choices button[aria-pressed=true] {background:#ffdc85;color:#302008;border-color:#ffdc85}
+:is(#desk-team,#club-requests) .placement-editor .bank-choices button {width:auto;min-height:36px;margin:0;padding:5px 10px;border:1px solid #46745c;border-radius:9px;background:#183b2c;color:#eff7ed;font-size:14px}
+:is(#desk-team,#club-requests) .placement-editor .bank-choices button[aria-pressed=true] {background:#ffdc85;color:#302008;border-color:#ffdc85}
 
 .balance-positive {color:#83e7a2}
 .balance-negative {color:#ff9696}
@@ -586,17 +586,17 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
   font-weight: 700;
 }
 
-#desk-team .request-pool-actions .request-help {flex:none;width:30px;min-height:30px;margin-right:auto;padding:0;border-radius:50%;font-weight:700}
-#desk-team .request-pool-actions .request-help::before,
-#desk-team .request-pool-actions .request-help::after {content:none}
-@media(max-width:360px){#desk-team .request-pool-actions {flex-wrap:wrap;justify-content:flex-start}}
+:is(#desk-team,#club-requests) .request-pool-actions .request-help {flex:none;width:30px;min-height:30px;margin-right:auto;padding:0;border-radius:50%;font-weight:700}
+:is(#desk-team,#club-requests) .request-pool-actions .request-help::before,
+:is(#desk-team,#club-requests) .request-pool-actions .request-help::after {content:none}
+@media(max-width:360px){:is(#desk-team,#club-requests) .request-pool-actions {flex-wrap:wrap;justify-content:flex-start}}
 
 #desk-team .offer-number-line {display:flex;align-items:center;gap:8px}
 #desk-team #club-requisite-list .offer-copy-number {flex:none;width:32px;height:32px;min-height:32px;margin:0;padding:0;border-radius:6px;background:#303338;border:1px solid #555961;color:#edeef0;font-size:19px;line-height:1}
 
 .request-heading {display:flex;align-items:center;justify-content:space-between;gap:12px}
 .request-heading h3 {margin:0}
-#desk-team .placement-editor .request-close {flex:none;width:44px;height:44px;margin:0;padding:0;background:transparent;color:inherit;border:0;font-size:26px;line-height:1}
+:is(#desk-team,#club-requests) .placement-editor .request-close {flex:none;width:44px;height:44px;margin:0;padding:0;background:transparent;color:inherit;border:0;font-size:26px;line-height:1}
 
 #desk-team #club-requisite-list .requisite-preview button.deal-remove {
   justify-self:end;width:auto;min-height:44px;padding:4px 8px;border:0;
@@ -620,6 +620,11 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 .pending-confirmations article strong:last-child {color:#c3edb8;font-variant-numeric:tabular-nums}
 .pending-confirmations article small {display:block;margin-top:4px;color:#acbeb2}
 .pending-confirmations > button {margin-top:10px}
+
+
+#club-requests {padding:8px 14px;background:var(--desk-panel);border:1px solid var(--rule);border-radius:16px}
+#club-request-help {margin:6px 0;color:var(--desk-secondary)}
+#club-requests > [role=status]:empty {display:none}
 
 
 #club-requisites-broadcast > button {width:100%;background:#c1edbf;color:#163421;border-color:#c1edbf;font-weight:750}
