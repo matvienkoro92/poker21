@@ -455,6 +455,7 @@ html.app-view-home,body:has(#app.app--view-home),#app.app--view-home,#app.app--v
   font-size:15px;font-weight:750;line-height:1.25;overflow-wrap:anywhere;
 }
 #desk-team .offer-head small:empty {display:none}
+#desk-team .requisite-preview .offer-single-payment {align-self:start;justify-self:start;width:fit-content;padding:3px 8px;border-radius:6px;background:#243a30;color:#b8ddc6;font-size:12px;font-weight:600}
 #desk-team .offer-number {color:#e0e1e4;font-size:15px;font-variant-numeric:tabular-nums}
 #desk-team .requisite-preview .offer-claim {display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:8px 14px;border:0;border-radius:10px;background:#c3edb8;color:#163421;font-weight:700}
 .offer-claim::after {content:"→";font-size:18px}

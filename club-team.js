@@ -334,7 +334,11 @@
   function copyRequisitesButton(item){
     const amount=item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽');
     const details=item.details||[item.number,item.bank].filter(Boolean).join('\n');
-    const text=amount+'\n'+details;
+    const text=[(amount+'\n'+details).trimEnd(),'',
+      '❗️Строго эта сумма и банк',
+      'Отправляйте сразу, позже реквизит будет неактуален',
+      'По готовности отправьте чек пдф'
+    ].join('\n');
     const copy=button('Скопировать реквизиты',async()=>{
       try{
         await navigator.clipboard.writeText(text);
@@ -342,7 +346,7 @@
       }catch{
         const dialog=node('dialog','');dialog.className='placement-editor';
         const label=node('label','Выделите и скопируйте реквизиты');
-        const area=node('textarea','');area.value=text;area.readOnly=true;area.rows=5;
+        const area=node('textarea','');area.value=text;area.readOnly=true;area.rows=text.split('\n').length;
         label.append(area);dialog.append(label,button('Закрыть',()=>dialog.close(),'secondary'));
         dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
         area.focus();area.select();
@@ -1006,6 +1010,10 @@
             }
           }
           if(x.minimumCents)row.append(node('small','Минимум одной брони — '+rubles(x.minimumCents)));
+          else if(!x.historyOnly&&!x.taker&&!x.bookingPaused){
+            const hint=node('small','Можно одним платежом');
+            hint.className='offer-single-payment';row.append(hint);
+          }
           if(x.number){
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
             phone.className='offer-number';row.append(phone);
