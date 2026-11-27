@@ -356,18 +356,19 @@
     dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
   }
   const rubles=cents=>(cents/100).toLocaleString('ru-RU')+' ₽';
+  const splitMinimumHint='Оставьте пустым, чтобы клуб взял всю сумму одним платежом. Если указать 5 000 ₽, клуб сможет взять часть заявки от 5 000 ₽.';
   function chooseBookingAmount(item,configure,submit){
     const total=Math.round(item.amount*100),minimum=item.minimumCents||0;
     const dialog=node('dialog',''),form=node('form','');
     dialog.className='placement-editor';
     const title=configure?'Настроить разбивку':'Взять часть суммы';
     dialog.setAttribute('aria-label',title);
-    const wrap=field('amount',configure?'Минимум одной брони, ₽':'Сумма брони, ₽'),input=wrap.lastChild;
+    const wrap=field('amount',configure?'Минимальная сумма части, ₽ (необязательно)':'Сумма брони, ₽'),input=wrap.lastChild;
     input.step='0.01';input.max=total/100;input.min=configure?'0.01':minimum/100;
     input.required=!configure;
-    if(configure){input.placeholder='Без разбивки';input.value=minimum?minimum/100:'';}
+    if(configure){input.placeholder='Например, 5 000';input.value=minimum?minimum/100:'';}
     form.append(node('h3',title),node('p','Доступно '+rubles(total)),wrap);
-    if(!configure)form.append(node('small','Минимум одной брони — '+rubles(minimum)));
+    form.append(node('small',configure?splitMinimumHint:'Минимум одной брони — '+rubles(minimum)));
     input.oninput=()=>input.setCustomValidity('');
     form.onsubmit=e=>{
       e.preventDefault();
@@ -482,11 +483,11 @@
           input.addEventListener('input',syncBank);syncBank();editor.append(choices);
         }
       }
-      const minimumField=field('splitMinimum','Минимум одной брони, ₽');
+      const minimumField=field('splitMinimum','Минимальная сумма части, ₽ (необязательно)');
       const minimum=minimumField.lastChild;
       minimum.type='number';minimum.step='0.01';minimum.min='0.01';minimum.required=false;
-      minimum.placeholder='Без разбивки';
-      const minimumHint=node('small','Введите минимальную сумму перевода или оставьте поле пустым, если нужен один платёж.');
+      minimum.placeholder='Например, 5 000';
+      const minimumHint=node('small',splitMinimumHint);
       minimumHint.id='placement-minimum-hint';
       minimum.setAttribute('aria-describedby',minimumHint.id);
       editor.append(minimumField,minimumHint);
