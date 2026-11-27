@@ -127,6 +127,28 @@
       content.append(confirm,error);
     }catch(e){content.textContent=e.message;}
   }
+  const broadcastPanel=node('section','');
+  broadcastPanel.id='club-requisites-broadcast';
+  broadcastPanel.hidden=true;
+  const broadcastStatus=node('small','');
+  broadcastStatus.setAttribute('role','status');
+  const broadcastButton=button('Разослать реквизиты клубам',()=>{
+    const requestId=crypto.randomUUID();
+    confirmDeal('Отправить список свободных реквизитов пользователям с ключом клуба?','Разослать','primary',async()=>{
+      broadcastButton.disabled=true;
+      broadcastStatus.textContent='Ставим рассылку в очередь…';
+      try{
+        await api({action:'broadcast-requisites',requestId});
+        broadcastStatus.textContent='Рассылка поставлена в очередь.';
+      }catch(e){
+        broadcastStatus.textContent=e.message;
+      }finally{
+        broadcastButton.disabled=false;
+      }
+    });
+  });
+  broadcastPanel.append(broadcastButton,broadcastStatus);
+  document.querySelector('.desk-evening').before(broadcastPanel);
   const issuer=section('Создать ключ',panel.parentElement);
   issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
   const issuerBody=node('div','');issuer.append(issuerBody);
@@ -143,7 +165,7 @@
     return values;
   }
   const pendingConfirmations=section('Ждут подтверждения',issuer.parentElement);
-  issuer.before(pendingConfirmations);
+  broadcastPanel.after(pendingConfirmations);
   pendingConfirmations.hidden=true;
   pendingConfirmations.classList.add('club-issuer','owner-hub','pending-confirmations');
   const confirmationSummary=pendingConfirmations.querySelector('summary');
@@ -1004,7 +1026,7 @@
     clubName.textContent='';
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
-    clubList.hidden=weekly.hidden=manual.hidden=pendingConfirmations.hidden=!data.canInspectClubs;
+    clubList.hidden=weekly.hidden=manual.hidden=pendingConfirmations.hidden=broadcastPanel.hidden=!data.canInspectClubs;
     if(data.canInspectClubs&&!confirmationSummary.textContent.includes(' · '))loadPendingConfirmations();
     if(!data.directory){
       issuedInvite=null;

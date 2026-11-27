@@ -620,3 +620,7 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 .pending-confirmations article strong:last-child {color:#c3edb8;font-variant-numeric:tabular-nums}
 .pending-confirmations article small {display:block;margin-top:4px;color:#acbeb2}
 .pending-confirmations > button {margin-top:10px}
+
+
+#club-requisites-broadcast > button {width:100%;background:#c1edbf;color:#163421;border-color:#c1edbf;font-weight:750}
+#club-requisites-broadcast > small:not(:empty) {margin-top:6px}

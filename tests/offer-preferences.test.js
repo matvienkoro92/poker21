@@ -19,3 +19,25 @@ test('buttons set an explicit state for the same private user and edit the origi
   assert.equal(sent[0][1].reply_markup.inline_keyboard[2][0].callback_data,'offerpref:off:0');
   cb.from.id=11;await handle(cb,()=>assert.fail(),telegram);
 });
+
+test('manual list reaches active key holders and respects their preferences', async () => {
+  const {messages}=require('../lib/financial-outbox');
+  const {personalize}=require('../lib/offer-preferences');
+  const event={kind:'requisites-list',offers:[
+    {amountCents:300000,currency:'rub',bank:'Озон Банк'},
+    {amountCents:1000000,currency:'rub',bank:'Т-Банк'},
+  ]};
+  const audience=messages(event,{
+    a:{owner:'111',staff:['222','333']},
+    b:{owner:'222',staff:['444']},
+    pending:{invites:['555']},
+  });
+  assert.deepEqual(audience.map(row=>row.chat_id),['111','222','333','444']);
+  const results=await personalize(event,audience,async()=>[[0,0,0],[0,0,1],[0,1,0],[1,0,0]]);
+  assert.deepEqual(results.map(row=>row.chat_id),['111','222','444']);
+  assert.match(results[0].text,/Озон Банк/);
+  assert.doesNotMatch(results[1].text,/Озон Банк/);
+  assert.match(results[1].text,/Т-Банк/);
+  assert.equal(results[2].disable_notification,true);
+  assert.match(results[0].reply_markup.inline_keyboard[0][0].url,/startapp=requisites/);
+});
