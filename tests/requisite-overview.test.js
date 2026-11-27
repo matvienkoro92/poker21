@@ -12,7 +12,7 @@ test('available principal includes reservations and request maximum', () => {
     const { available } = availability(cents, 0, [], 'a');
     assert.equal(available,cents);
   }
-  assert.equal(availability(3000000, 0, [], 'a').perRequest, 2000000);
+  assert.equal(availability(4000000, 0, [], 'a').perRequest, 3000000);
 });
 
 test('reconciliation follows signed transfers and identifies wrong commissions or missing history', () => {

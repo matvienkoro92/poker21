@@ -446,7 +446,7 @@
     const dismiss=button('×',close.onclick);
     dismiss.setAttribute('aria-label','Закрыть');
     header.append(heading,dismiss);
-    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 20 000 ₽.'),close);
+    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 30 000 ₽.'),close);
     container.append(dialog);
     trigger.onclick=()=>{requestId=crypto.randomUUID();start();dialog.showModal();};
     const raw=field('details','Сообщение с реквизитами');
@@ -460,7 +460,7 @@
       editor.replaceChildren();
       for(const [key,label] of [['phone','Телефон'],['bank','Банк'],['recipient','Имя получателя'],['amount','Сумма, ₽']]){
         const wrap=field(key,label),input=wrap.lastChild;
-        if(key==='amount'){input.min='1000';input.step='0.01';input.max='20000';input.value=parsed.amount?parsed.amount/100:'';}
+        if(key==='amount'){input.min='1000';input.step='0.01';input.max='30000';input.value=parsed.amount?parsed.amount/100:'';}
         else input.value=parsed[key]||'';
         if(key==='phone'){
           input.type='tel';
@@ -501,14 +501,14 @@
         const {amount,phone,bank,recipient}=editor.elements;
         const parser=window.pokerDepositParser;
         const cents=parser.money(amount.value);
-        amount.max=minimum.value?'100000000':'20000';
+        amount.max=minimum.value?'100000000':'30000';
         minimum.max=amount.value||'100000000';
         let amountError='';
         if(amount.value){
           if(!/^\d+(?:[.,]\d{1,2})?$/.test(amount.value))amountError='Введите сумму в рублях, до двух знаков после запятой.';
           else if(cents<100000)amountError='Минимальная сумма заявки — 1 000 ₽.';
           else if(cents>10000000000)amountError='Максимальная сумма заявки — 100 000 000 ₽.';
-          else if(!minimum.value&&cents>2000000)amountError='Максимальная сумма одним платежом — 20 000 ₽. Чтобы разместить больше, укажите минимальную сумму части в поле ниже.';
+          else if(!minimum.value&&cents>3000000)amountError='Максимальная сумма одним платежом — 30 000 ₽. Чтобы разместить больше, укажите минимальную сумму части в поле ниже.';
         }
         amount.setCustomValidity(amountError);
         minimum.setCustomValidity(minimum.validity.rangeOverflow?'Минимальная сумма части не может превышать сумму заявки.':'');
