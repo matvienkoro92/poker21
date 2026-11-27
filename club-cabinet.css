@@ -536,3 +536,18 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 .balance-positive {color:#83e7a2}
 .balance-negative {color:#ff9696}
 .balance-zero {color:#c4cec7}
+
+.requisite-preview .booking-pause-badge {
+  justify-self: start;
+  align-self: start;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-block-start: 4px;
+  padding: 6px 12px;
+  border: 1px solid #ad7941;
+  border-radius: 8px;
+  background: #4a301c;
+  color: #ffe0a3;
+  line-height: 1.35;
+}

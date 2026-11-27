@@ -93,6 +93,12 @@
       feedback.textContent=credits.length?'':'Подтверждённых броней нет.';
     }catch(e){feedback.textContent=e.message;}
   };
+  function bookingPauseBadge(){
+    const badge=node('strong','⏸ На паузе до 06:00 МСК');
+    badge.className='booking-pause-badge';
+    return badge;
+  }
+
   function requisitesWarning(){
     const warning=node('p','');
     warning.append(node('strong','Передавайте реквизиты ТОЛЬКО проверенным игрокам.'),
@@ -961,11 +967,11 @@
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
             phone.className='offer-number';row.append(phone);
           }
-          if(x.bookingPaused)row.append(node('strong','⏸ На паузе до 06:00 МСК'));
+          if(x.bookingPaused)row.append(bookingPauseBadge());
           if(x.mine||x.taker){
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
-            if(x.details||x.number)row.append(copyRequisitesButton(x));
+            if(x.taker&&(x.details||x.number))row.append(copyRequisitesButton(x));
             row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
             if(x.waitSince){
               const timer=node('span','');timer.className='booking-clock';timer.dataset.paidAt=x.waitSince;row.append(timer);
@@ -1074,7 +1080,7 @@
           const row=node('article','');row.className='requisite-preview';
           const head=node('header','');head.className='offer-head';
           head.append(node('strong',item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽')),node('small',item.bank||''));
-          row.append(head);if(item.bookingPaused)row.append(node('strong','⏸ На паузе до 06:00 МСК'));list.append(row);
+          row.append(head);if(item.bookingPaused)row.append(bookingPauseBadge());list.append(row);
         }
         if(result.withdrawalError)list.append(node('p','Выводы из Депозитов временно недоступны.'));
         else if(!result.items.length)list.append(node('p','Свободных заявок пока нет.'));
