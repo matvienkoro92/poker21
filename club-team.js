@@ -142,6 +142,50 @@
     }
     return values;
   }
+  const pendingConfirmations=section('Ждут подтверждения',issuer.parentElement);
+  issuer.before(pendingConfirmations);
+  pendingConfirmations.hidden=true;
+  pendingConfirmations.classList.add('club-issuer','owner-hub','pending-confirmations');
+  const confirmationSummary=pendingConfirmations.querySelector('summary');
+  const confirmationContent=node('div','');
+  confirmationContent.setAttribute('aria-live','polite');
+  const confirmationRefresh=button('Обновить',loadPendingConfirmations);
+  pendingConfirmations.append(confirmationContent,confirmationRefresh);
+  pendingConfirmations.addEventListener('toggle',()=>{if(pendingConfirmations.open)loadPendingConfirmations();});
+
+  async function loadPendingConfirmations(){
+    if(pendingConfirmations.hidden||confirmationRefresh.disabled)return;
+    confirmationRefresh.disabled=true;
+    confirmationContent.textContent='Загрузка…';
+    try{
+      const {deals}=await api({action:'pending-club-confirmations'});
+      confirmationSummary.textContent='Ждут подтверждения · '+deals.length;
+      confirmationContent.replaceChildren();
+      if(!deals.length)confirmationContent.append(node('p','Сделок на подтверждении нет.'));
+      const money=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
+      const date=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'});
+      for(const deal of deals){
+        const row=node('article','');
+        const route=node('div','');
+        const amount=money.format(deal.amountCents/100)+' '+(deal.currency==='USD'?'$':'₽');
+        route.append(node('strong',deal.payer+' → '+deal.recipient),node('strong',amount));
+        row.append(route);
+        const paid=Date.parse(deal.paidAt);
+        if(Number.isFinite(paid)){
+          const minutes=Math.max(0,Math.floor((Date.now()-paid)/60000));
+          const hours=Math.floor(minutes/60);
+          const elapsed=(hours?hours+' ч ':'')+minutes%60+' мин';
+          row.append(node('small',date.format(paid)+' МСК · ждёт '+elapsed));
+        }
+        confirmationContent.append(row);
+      }
+    }catch(e){
+      confirmationContent.textContent=e.message;
+    }finally{
+      confirmationRefresh.disabled=false;
+    }
+  }
+
   const clubList=section('Список клубов',issuer.parentElement);
   issuer.after(clubList);clubList.classList.add('club-issuer','owner-hub');clubList.hidden=true;
   const contents=node('div','');clubList.append(contents);
@@ -960,7 +1004,8 @@
     clubName.textContent='';
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
-    clubList.hidden=weekly.hidden=manual.hidden=!data.canInspectClubs;
+    clubList.hidden=weekly.hidden=manual.hidden=pendingConfirmations.hidden=!data.canInspectClubs;
+    if(data.canInspectClubs&&!confirmationSummary.textContent.includes(' · '))loadPendingConfirmations();
     if(!data.directory){
       issuedInvite=null;
       issuerBody.replaceChildren();

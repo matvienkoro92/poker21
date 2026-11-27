@@ -612,3 +612,11 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 .connected-club-counts {display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--ink);font-size:.75em;font-weight:400}
 
 .requisite-preview .offer-comment {margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+
+
+.pending-confirmations article {padding:10px 0;border-bottom:1px solid var(--rule)}
+.pending-confirmations article > div {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.pending-confirmations article strong:first-child {overflow-wrap:anywhere}
+.pending-confirmations article strong:last-child {color:#c3edb8;font-variant-numeric:tabular-nums}
+.pending-confirmations article small {display:block;margin-top:4px;color:#acbeb2}
+.pending-confirmations > button {margin-top:10px}
