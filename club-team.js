@@ -11,8 +11,10 @@
   let active='', data, busy=false;
   let refreshVisibleList, tickVisibleBookings,refreshBalances;
   let expandedRegistry = '';
+  let bookedCardToShow;
   const selectedOffer=/^deal_(w_)?([a-zA-Z0-9-]{1,80})$/.exec(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
   let widgetOffer=selectedOffer?(selectedOffer[1]?'withdrawal:':'')+selectedOffer[2]:'';
+  const ownerBooking=widgetOffer.startsWith('withdrawal:owner-')?widgetOffer.slice('withdrawal:owner-'.length):'';
   let openRequisitesOnLaunch=window.Telegram?.WebApp?.initDataUnsafe?.start_param==='requisites';
   if(widgetOffer||openRequisitesOnLaunch)panel.open=true;
   const node=(tag,text)=>{const el=document.createElement(tag);if(text instanceof Node)el.append(text);else el.textContent=text;return el;};
@@ -332,6 +334,26 @@
   }
   function button(label,fn,tone){const b=node('button',label);b.type='button';b.onclick=fn;if(tone)b.className='deal-'+tone;return b;}
   const compactNumber=number=>number.replace(/[^+\d]/g,'');
+  const bookingTime=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'});
+  function bookingDeadline(expiresAt){
+    return expiresAt?' до '+bookingTime.format(expiresAt)+' МСК':'';
+  }
+  function bookingInstruction(x){
+    if(!x.taker||x.rejected||x.canRecheck)return '';
+    const amount=rubles(Math.round(x.amount*100)),deadline=bookingDeadline(x.expiresAt);
+    if(x.mine){
+      const payer=x.peer||'Клуб';
+      if(x.canDecide)return payer+' отметил оплату. Проверьте поступление '+amount+'.';
+      if(x.paymentStage==='awaiting_receipt')return 'Ждём чек от клуба «'+payer+'»'+deadline+'.';
+      if(x.expiresAt)return payer+' забронировал '+amount+'. Ждём оплату'+deadline+'.';
+    }else{
+      if(x.paymentStage==='awaiting_receipt')return 'Прикрепите чек на '+amount+deadline+'.';
+      if(x.canMarkPaid)return 'Переведите '+amount+' и отметьте оплату'+deadline+'.';
+      if(x.canSendReceipt)return 'Переведите '+amount+' и прикрепите чек'+deadline+'.';
+      if(x.waitSince||x.status==='Ожидает подтверждения')return 'Вы отметили оплату. Ждём подтверждения от получателя.';
+    }
+    return '';
+  }
   function copyRequisitesButton(item){
     const amount=item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽');
     const details=item.details||[item.number,item.bank].filter(Boolean).join('\n');
@@ -383,14 +405,17 @@
     if(configure){input.placeholder='Например, 5 000';input.value=minimum?minimum/100:'';}
     form.append(node('h3',title),node('p','Доступно '+rubles(total)),wrap);
     form.append(node('small',configure?splitMinimumHint:'Минимум одной брони — '+rubles(minimum)));
-    input.oninput=()=>input.setCustomValidity('');
+    const remainderHint=node('small','');
+    remainderHint.setAttribute('aria-live','polite');form.append(remainderHint);
+    input.oninput=()=>{
+      const remaining=total-Math.round(input.valueAsNumber*100);
+      remainderHint.textContent=!configure&&input.validity.valid&&remaining>0&&remaining<minimum
+        ?'После брони останется '+rubles(remaining)+'. Другой клуб сможет взять этот остаток целиком.':'';
+    };
     form.onsubmit=e=>{
       e.preventDefault();
-      const cents=Math.round(Number(input.value)*100);
-      if(!configure && cents<total && total-cents<minimum){
-        input.setCustomValidity('Возьмите всю сумму или оставьте минимум '+rubles(minimum));input.reportValidity();return;
-      }
-      dialog.close();submit(cents);
+      if(!form.reportValidity())return;
+      dialog.close();submit(Math.round(Number(input.value)*100));
     };
     form.append(node('button',configure?'Сохранить':'Забронировать'),button('Отмена',()=>dialog.close(),'secondary'));
     dialog.append(form);dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
@@ -559,6 +584,10 @@
     const submit=node('button','Отправить запрос'),status=node('p','');
     status.setAttribute('role','status');
     const close=button('Закрыть',()=>dialog.close());
+    const closeIcon=button('×',()=>dialog.close());
+    closeIcon.className='request-close';closeIcon.setAttribute('aria-label','Закрыть окно');
+    const heading=node('div','');heading.className='request-heading';
+    heading.append(node('h3','Создать запрос'),closeIcon);
     const comment=field('comment','Комментарий (необязательно)');
     comment.lastChild.required=false;comment.lastChild.rows=3;comment.lastChild.maxLength=500;
     const duration=field('durationMinutes','Срок запроса, минут');
@@ -577,26 +606,26 @@
         type==='crypto-rub'?'Например, обменяю 200 USDT на рубли':'Например, обменяю 15 000 ₽ на USDT';
     }
     kind.lastChild.onchange=updateFields;
-    form.append(kind,amount,bank,comment,duration,submit);dialog.append(node('h3','Создать запрос'),form,close);container.append(dialog,status);
+    form.append(kind,amount,bank,comment,duration,submit);dialog.append(heading,form,close);container.append(dialog,status);
     let requestId;
     const trigger=button('Создать запрос',()=>{requestId=crypto.randomUUID();form.reset();updateFields();status.textContent='';dialog.showModal();});
     trigger.setAttribute('aria-haspopup','dialog');
     const error=node('p','');error.setAttribute('role','alert');form.append(error);
     form.onsubmit=async e=>{
       e.preventDefault();if(submit.disabled)return;
-      submit.disabled=true;close.disabled=true;trigger.disabled=true;error.textContent='';
+      submit.disabled=true;close.disabled=closeIcon.disabled=true;trigger.disabled=true;error.textContent='';
       try{
         await api({action:'request-requisites',clubId,requestId,...Object.fromEntries(new FormData(form))});
         dialog.close();status.textContent='Запрос создан. Предложения придут в Poker21 Assist.';await refreshVisibleList?.(true);
       }catch(err){error.textContent=err.message;}
-      finally{submit.disabled=false;close.disabled=false;trigger.disabled=false;}
+      finally{submit.disabled=false;close.disabled=closeIcon.disabled=false;trigger.disabled=false;}
     };
     dialog.addEventListener('close',()=>{error.textContent='';});
     return trigger;
   }
   async function api(body){
     const res=await fetch('./api/club-team',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:JSON.stringify(body)});
-    const value=await res.json();if(!res.ok)throw Error(value.error||'Не удалось загрузить кабинет.');return value;
+    const value=await res.json();if(!res.ok)throw Object.assign(Error(value.error||'Не удалось загрузить кабинет.'),{status:res.status});return value;
   }
   function section(title,container){
     const el=document.createElement('details');
@@ -803,6 +832,7 @@
     headerBalance.setAttribute('aria-expanded','false');
     panel.classList.toggle('club-connected',!!clubs.length);
     if(clubs.length)panel.open=true;
+    if(!active&&ownerBooking&&clubs.some(c=>c.clubId==='758417'))active='758417';
     if(!clubs.some(c=>c.clubId===active))active=clubs[0]?.clubId||'';
     if(key){
       const club=[...(data.directory||[]),...clubs].find(c=>c.clubId===request.clubId);
@@ -880,7 +910,7 @@
       }
       const requisites=node('div','');box.append(requisites);
       if(clubs.length===1)choice.hidden=true;
-      const registry=await api({action:'list',clubId:active,chatId:selectedGroups.get(active)});
+      const registry=await api({action:'list',clubId:active,bookingId:ownerBooking||undefined,chatId:selectedGroups.get(active)});
       const {groups,chatId}=registry;
       if(groups.length>1){
         const selector=field('group','Группа клуба',groups.map(g=>({clubId:g.id,name:g.name.split(' · ')[0]})));
@@ -997,7 +1027,7 @@
         updateRequests();
         const items=registry.items;
         take.textContent='Реквизиты · '+items.length;
-        const signature=JSON.stringify([items,registry.withdrawalError,registry.canResumeHousePause]);
+        const signature=JSON.stringify([items,registry.selectedBooking,registry.withdrawalError,registry.canResumeHousePause]);
         if(signature===lastContents&&!list.querySelector('.requisite-refresh-error'))return;
         lastContents=signature;
         const next=document.createDocumentFragment();
@@ -1015,14 +1045,27 @@
           total.firstChild.append(node('b',String(stats[key].count)));summary.append(total);
         }
         next.append(requisitesWarning(),summary);
-        if(!items.length&&!registry.withdrawalError)next.append(node('p','Заявок пока нет.'));
+        const selected=registry.selectedBooking;
+        if(selected&&!items.some(x=>x.bookings?.some(b=>b.id===selected.id))){
+          const history=node('article','');history.className='requisite-preview';history.dataset.booking=selected.id;
+          history.append(node('strong',(selected.clubName||selected.clubId)+' · '+rubles(selected.amountCents)),node('span',selected.stage));next.append(history);
+        }
+        if(!selected&&!items.length&&!registry.withdrawalError)next.append(node('p','Заявок пока нет.'));
         if(registry.withdrawalError)next.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
-        const inWork=item=>Boolean(item.taker||item.bookings?.some(b=>['Забронировано','Плательщик отметил оплату'].includes(b.stage)));
-        const orderedItems=[...items].sort((a,b)=>Number(inWork(b))-Number(inWork(a)));
+        const activeBooking=b=>['Забронировано','Плательщик отметил оплату'].includes(b.stage);
+        const inWork=item=>Boolean(item.taker||item.bookings?.some(activeBooking));
+        const myBookings=items.filter(x=>x.taker&&!x.mine);
+        const remaining=items.filter(x=>!x.taker||x.mine).sort((a,b)=>Number(inWork(b))-Number(inWork(a)));
+        const orderedItems=[...myBookings,...remaining];
         for(const x of orderedItems){
+          if(myBookings.length){
+            if(x===myBookings[0])next.append(node('h3','Мои брони'));
+            if(x===remaining[0])next.append(node('h3','Остальные реквизиты'));
+          }
           const row=node('article','');row.className='requisite-preview';row.dataset.id=x.id;
           const head=node('header','');head.className='offer-head';
-          head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
+          const bookedCents=x.bookings?.filter(activeBooking).reduce((sum,b)=>sum+b.amountCents,0);
+          head.append(node('strong',x.mine&&bookedCents?'Забронировано '+rubles(bookedCents):(!x.mine&&!x.taker&&x.minimumCents?'Доступно ':'')+rubles(Math.round(x.amount*100))));
           if(x.bank)head.append(node('small',x.bank));
           row.append(head);
           if(x.publisherClub)row.append(node('small','Разместил клуб «'+x.publisherClub+'»'));
@@ -1035,8 +1078,9 @@
           if(Array.isArray(x.bookings)){
             row.append(node('span','Свободно '+rubles(x.availableCents)+' из '+rubles(x.totalCents)));
             for(const booking of x.bookings){
-              const section=node('div','');section.className='withdrawal-booking';
-              section.append(node('strong',(booking.clubName||'Клуб')+' · ID '+booking.clubId+' · '+rubles(booking.amountCents)),node('small',booking.stage));
+              const section=node('div','');section.className='withdrawal-booking';if(booking.id)section.dataset.booking=booking.id;
+              section.append(node('strong',(booking.clubName||'Клуб')+' · ID '+booking.clubId+' · '+rubles(booking.amountCents)),node('small',booking.stage==='Забронировано'?'Ждём оплату'+bookingDeadline(booking.expiresAt)+'.':
+                booking.stage==='Плательщик отметил оплату'?'Клуб отметил оплату. Проверьте поступление '+rubles(booking.amountCents)+'.':booking.stage));
               if(booking.paidAt||booking.expiresAt){
                 const timer=node('time','');timer.className='booking-clock';
                 if(booking.paidAt)timer.dataset.paidAt=booking.paidAt;
@@ -1046,9 +1090,10 @@
               row.append(section);
             }
           }
-          if(x.minimumCents)row.append(node('small','Минимум одной брони — '+rubles(x.minimumCents)));
+          const canSplit=x.minimumCents>0&&Math.round(x.amount*100)>x.minimumCents;
+          if(canSplit)row.append(node('small','Минимум одной брони — '+rubles(x.minimumCents)));
           else if(!x.historyOnly&&!x.taker&&!x.bookingPaused){
-            const hint=node('small','Можно одним платежом');
+            const hint=node('small','Только одним платежом');
             hint.className='offer-single-payment';row.append(hint);
           }
           if(x.number){
@@ -1068,7 +1113,7 @@
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
             if(x.taker&&(x.details||x.number))row.append(copyRequisitesButton(x));
-            row.append(node('small',x.status||(x.taker?'Взята':'Ваша заявка')));
+            row.append(node('small',bookingInstruction(x)||x.status||(x.taker?'Взята':'Ваша заявка')));
             if(x.waitSince){
               const timer=node('span','');timer.className='booking-clock';timer.dataset.paidAt=x.waitSince;row.append(timer);
             }
@@ -1093,7 +1138,7 @@
               const send=button(x.canRecheck?'Отправить новый чек':'Отправить чек',()=>payWithReceipt(x.id,requested,chatId));
               send.dataset.originalLabel=send.textContent;send.dataset.receiptSend='';send.className=x.canRecheck?'deal-secondary':'booking-send';actions.append(send);
               if(x.canMarkPaid)actions.append(button('Отметить оплату без чека',()=>work({action:'paid',item:x.id,clubId:requested,chatId})));
-              if(x.canExtend)actions.append(button('Продлить на час',()=>work({action:'extend',item:x.id,clubId:requested,chatId})));
+              if(x.canExtend)actions.append(button('Продлить'+bookingDeadline(Number(x.expiresAt)+3600000),()=>work({action:'extend',item:x.id,clubId:requested,chatId})));
               const cancel=button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:requested,chatId}));
               cancel.className='booking-cancel';actions.append(cancel);row.append(actions);
             }
@@ -1104,13 +1149,13 @@
               },'primary'),button('Не поступило',()=>work({action:'reject',item:x.id,clubId:requested,chatId}),'danger'));
             }
           }else if(!x.bookingPaused){
-            const take=takeCents=>work({action:'take',item:x.id,clubId:active,chatId,takeCents});
-            const claim=button('Взять реквизит',()=>x.minimumCents?chooseBookingAmount(x,false,take):take());
+            const take=takeCents=>work({action:'take',item:x.id,clubId:requested,chatId,takeCents},x);
+            const claim=button(canSplit?'Выбрать сумму':'Взять на '+rubles(Math.round(x.amount*100)),()=>canSplit?chooseBookingAmount(x,false,take):take(x.minimumCents?Math.round(x.amount*100):undefined));
             claim.className='offer-claim';row.append(claim);
           }
           if(registry.canDeleteRequisites&&!x.historyOnly)row.append(button('Удалить реквизиты',()=>{
             confirmDeal('Удалить реквизиты на '+x.amount.toLocaleString('ru-RU')+' ₽ из списка Poker21?'+(x.taker?' Заявка уже в работе. Удаление не подтверждает оплату.':''),'Удалить','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
-          },'danger'));
+          },'remove'));
           if(x.peer){
             const contact=button('Связаться с клубом',()=>openDealDialog(x,requested,chatId),'secondary');
             if(x.unread>0){
@@ -1139,11 +1184,19 @@
         const stamp=++version;
         loading=true;
         try{
-          const latest=await api({action:'list',clubId:requested,chatId});
+          const latest=await api({action:'list',clubId:requested,chatId,bookingId:ownerBooking||undefined});
           if(list.isConnected&&stamp===version){
             if(updateLimits&&latest.availability)updateLimits(latest.availability);
             const previous=lastContents;drawItems(latest);
+            if(bookedCardToShow?.clubId===requested&&bookedCardToShow.chatId===chatId){
+              const card=list.querySelector('article.is-in-work[data-id="'+CSS.escape(bookedCardToShow.id)+'"]');
+              if(card){
+                bookedCardToShow=null;
+                card.tabIndex=-1;card.focus({preventScroll:true});card.scrollIntoView({block:'start'});
+              }
+            }
             if(balances||(finance.hidden&&previous!==lastContents))await updateBalances();
+            return latest;
           }
         }catch{
           if(stamp===version&&list.isConnected){
@@ -1160,11 +1213,11 @@
         openRequisitesOnLaunch=false;
         requestAnimationFrame(()=>requisites.scrollIntoView({block:'start'}));
       }
-      if(widgetOffer && chatId){
-        const row=Array.from(list.querySelectorAll('article[data-id]')).find(el=>el.dataset.id===widgetOffer);
+      if(widgetOffer && (chatId||ownerBooking)){
+        const row=ownerBooking?list.querySelector('[data-booking="'+CSS.escape(ownerBooking)+'"]'):Array.from(list.querySelectorAll('article[data-id]')).find(el=>el.dataset.id===widgetOffer);
         if(row){
           widgetOffer='';
-          list.prepend(row);
+          if(!ownerBooking)list.prepend(row);
           row.prepend(node('small','Выбрано в Telegram'));
           requestAnimationFrame(()=>row.scrollIntoView({block:'center'}));
         }else list.prepend(node('p','Выбранная в Telegram заявка недоступна для этого клуба. Выберите другую заявку или смените клуб.'));
@@ -1352,7 +1405,7 @@
     try{return await new Promise(resolve=>app.requestWriteAccess(resolve));}
     catch{return false;}
   }
-  async function work(body){
+  async function work(body,originalOffer){
     if(busy)return;
     const registryAction=['resume','split','take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
     busy=true;if(!registryAction)box.inert=true;
@@ -1364,6 +1417,7 @@
       if(body.action==='activate')checkedWriteAccessOnEntry=true;
       const writeAccess=body.action==='activate'?await inviteNotificationAccess(window.Telegram?.WebApp):null;
       if(registryAction){
+        if(body.action==='take')bookedCardToShow={id:result.bookingId||body.item,clubId:body.clubId,chatId:body.chatId};
         await refreshVisibleList?.(true,body.action==='confirm');
         showNotice(body.action==='confirm'?'Сделка проведена':body.action==='recheck'?'Запрошена повторная проверка с прежним чеком.':body.action==='remind'?'Напоминание отправлено клубу.':'Готово.');
         return;
@@ -1380,7 +1434,25 @@
       }
       if(body.action==='activate')showNotice(writeAccess?'Ключ активирован. Бот может писать вам в личку.':'Ключ активирован. Чтобы получать сообщения, откройте Poker21 Assist и нажмите «Старт».');
       if(issuing)issuerStatus.textContent=result.selectedClubId?(result.existing?'Клуб уже есть в списке и выбран.':'Клуб создан и выбран.') :body.action==='revoke'?'Доступ отозван.':'';
-    }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){await refreshVisibleList?.(true);return;}box.append(button('Обновить',()=>work({action:'status'})));}
+    }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){
+      const latest=await refreshVisibleList?.(true);
+      if(originalOffer&&e.status===409&&latest&&active===body.clubId){
+        const group=originalOffer.offerGroup||originalOffer.id;
+        const matches=latest.items.filter(x=>!x.mine&&!x.taker&&!x.bookingPaused&&(x.offerGroup||x.id)===group);
+        if(matches.length===1&&matches[0].amount!==originalOffer.amount){
+          const current=matches[0],total=Math.round(current.amount*100);
+          const dialog=node('dialog','');dialog.className='placement-editor';
+          dialog.setAttribute('aria-label','Сумма заявки изменилась');
+          const take=cents=>work({...body,item:current.id,takeCents:cents},current);
+          const all=button('Взять '+(current.amount<originalOffer.amount?'оставшиеся ':'')+rubles(total),()=>{dialog.close();take(total);},'primary');
+          dialog.append(node('h3','Сумма заявки изменилась'),node('p','Сейчас доступно '+rubles(total)+'.'),all);
+          if(current.minimumCents&&current.minimumCents<total)dialog.append(button('Выбрать сумму',()=>{dialog.close();chooseBookingAmount(current,false,take);},'secondary'));
+          dialog.append(button('Закрыть',()=>dialog.close()));document.body.append(dialog);
+          dialog.onclose=()=>dialog.remove();dialog.showModal();
+        }else if(!matches.length&&!latest.withdrawalError)showNotice('Свободного остатка по этой заявке сейчас нет.');
+      }
+      return;
+    }box.append(button('Обновить',()=>work({action:'status'})));}
     finally{busy=false;box.inert=false;issuerBody.inert=false;}
   }
   function openPanel(){if(panel.open && !data)work({action:'status'});}

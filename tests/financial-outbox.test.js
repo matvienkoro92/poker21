@@ -139,3 +139,40 @@ test('cabinet receipt reaches receiving club members once with a link to the boo
   assert.equal(sent[0].cabinetReceipt,'file');
   assert.match(sent[0].reply_markup.inline_keyboard[0][0].url,/startapp=deal_abc123/);
 });
+
+test('cancellation edits the original private booking messages with the correct deal link',async()=>{
+  const f=fixture();f.due.clear();
+  const event={reservationId:'test-booking',club:'Первый клуб',clubId:'123',amountCents:1000000};
+  const sent=[];
+  for(const kind of ['withdrawal-claim','withdrawal-cancelled']){
+    const id=kind+':'+event.reservationId;
+    f.values.set(PREFIX+id,JSON.stringify({...event,kind}));f.due.set(id,0);
+    await drain({redis:f.redis,now:()=>100,send:async body=>{
+      sent.push(body);return {ok:true,result:{message_id:body.message_id||sent.length}};
+    }});
+  }
+  assert.equal(sent.length,4);
+  for(const [index,edit] of sent.slice(2).entries()){
+    assert.equal(edit.chat_id,sent[index].chat_id);assert.equal(edit.message_id,index+1);
+    assert.match(edit.text,/отменил бронь/);
+    assert.match(edit.reply_markup.inline_keyboard[0][0].url,/deal_w_owner-test-booking/);
+  }
+});
+
+test('extension and expiry update the original booking with the same Moscow deadline',async()=>{
+  const f=fixture();f.due.clear();
+  const sent=[],initial=Date.UTC(2026,10,27,18,5);
+  for(const [kind,expiresAt] of [['withdrawal-claim',initial],['withdrawal-extended',initial+3600000],['withdrawal-expired',initial+3600000]]){
+    const id=kind+':r1';
+    f.values.set(PREFIX+id,JSON.stringify({kind,expiresAt,reservationId:'r1',club:'Клуб',clubId:'123',amountCents:320000}));
+    f.due.set(id,0);
+    await drain({redis:f.redis,now:()=>100,send:async body=>{
+      sent.push(body);return {ok:true,result:{message_id:body.message_id||sent.length}};
+    }});
+  }
+  assert.equal(sent.length,6);
+  assert.match(sent[0].text,/21:05 МСК/);
+  assert.match(sent[2].text,/продлил.*22:05 МСК/);
+  assert.match(sent[4].text,/Срок брони истёк в 22:05 МСК/);
+  assert.equal(sent[2].message_id,1);assert.equal(sent[4].message_id,1);
+});
