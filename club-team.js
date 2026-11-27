@@ -14,9 +14,11 @@
   let bookedCardToShow;
   const selectedOffer=/^deal_(w_)?([a-zA-Z0-9-]{1,80})$/.exec(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
   let widgetOffer=selectedOffer?(selectedOffer[1]?'withdrawal:':'')+selectedOffer[2]:'';
+  let historyDeal=widgetOffer.startsWith('history-')?widgetOffer.slice(8):'';
+  if(historyDeal)widgetOffer='';
   const ownerBooking=widgetOffer.startsWith('withdrawal:owner-')?widgetOffer.slice('withdrawal:owner-'.length):'';
   let openRequisitesOnLaunch=window.Telegram?.WebApp?.initDataUnsafe?.start_param==='requisites';
-  if(widgetOffer||openRequisitesOnLaunch)panel.open=true;
+  if(historyDeal||widgetOffer||openRequisitesOnLaunch)panel.open=true;
   const node=(tag,text)=>{const el=document.createElement(tag);if(text instanceof Node)el.append(text);else el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
@@ -40,12 +42,45 @@
         const entry=node('article','');entry.className='deal-entry';
         entry.append(node('small',new Date(r.at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК'),
           node('strong',r.payer+' → '+r.owner),node('span',money(r.amount,r.currency)));
+        if(r.canVoid)entry.append(button('Отменить сделку',()=>openHistoryDeal(r.id),'secondary'));
         finance.append(entry);
       }
       if(!rows.length)finance.append(node('p','Завершённых переводов пока нет.'));
     }catch{if(version===historyRequest&&active===clubId&&!finance.hidden)finance.textContent='Не удалось загрузить историю переводов.';}
 
   };
+  async function openHistoryDeal(id){
+    const dialog=node('dialog','');dialog.className='placement-editor';
+    dialog.setAttribute('aria-label','Сделка');
+    const content=node('div','Загрузка…');
+    const close=button('Закрыть',()=>dialog.close(),'secondary');
+    dialog.append(content,close);document.body.append(dialog);dialog.onclose=()=>dialog.remove();dialog.showModal();
+    const date=t=>new Date(t).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' МСК';
+    try{
+      const d=await api({action:'deal-preview',item:id});
+      if(d.voided){content.textContent='Сделка уже отменена.';return;}
+      content.replaceChildren(node('h3',money(d.amount,d.currency)+' · '+date(d.at)),node('p',d.sides[0].name+' → '+d.sides[1].name));
+      if(!d.revision)return;
+      content.append(node('h4','После отмены'));
+      for(const side of d.sides){
+        content.append(node('strong',side.name+' · '+side.ledger),node('p',money(side.before,d.currency)+' → '+money(side.after,d.currency)),
+          node('small','Комиссия в исходной проводке: '+money(side.fee,d.currency)));
+        if(side.movedAt)content.append(node('p','Перенос в основной баланс: '+date(side.movedAt)));
+        if(side.resetAt)content.append(node('p','Основной баланс установлен в '+money(side.resetValue,d.currency)+' · '+date(side.resetAt)));
+      }
+      const error=node('p','');error.setAttribute('role','alert');
+      const confirm=button('Подтвердить отмену сделки',async()=>{
+        confirm.disabled=true;
+        try{
+          await api({action:'deal-void',item:id,revision:d.revision});
+          content.textContent='Сделка отменена. Балансы обновлены.';
+          if(!finance.hidden){finance.hidden=true;await headerBalance.onclick();}
+          await refreshBalances?.();
+        }catch(e){error.textContent=e.message;}
+      },'danger');
+      content.append(confirm,error);
+    }catch(e){content.textContent=e.message;}
+  }
   const issuer=section('Создать ключ',panel.parentElement);
   issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
   const issuerBody=node('div','');issuer.append(issuerBody);
@@ -140,6 +175,7 @@
       line.firstChild.append(name,node('strong',amounts.join(' · ')||'—'));
       for(const text of [row.actor,row.comment,row.commission])if(text)line.append(node('p',text));
       if(!row.actor&&!row.comment&&!row.commission)line.append(node('p',row.label));
+      if(row.dealId&&data.canInspectClubs)line.append(button('Отменить сделку',()=>openHistoryDeal(row.dealId),'secondary'));
       grouped.push(line);
     }
     if(grouped.length>3){
@@ -826,6 +862,7 @@
     issuer.hidden=!data.directory;
     clubList.hidden=weekly.hidden=manual.hidden=!data.canInspectClubs;
     if(data.directory)issuerControls(data.directory,request.clubId);
+    if(historyDeal){const item=historyDeal;historyDeal='';void openHistoryDeal(item);}
     const clubs=data.memberships;
     headerBalance.hidden=!clubs.length;
     finance.hidden=true;finance.textContent='Загружаем баланс…';
