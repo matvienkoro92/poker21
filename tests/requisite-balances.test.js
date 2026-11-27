@@ -261,16 +261,16 @@ test('activity button edits its original message and includes back navigation', 
 
 test('payment confirmation reports resulting balances through durable outbox', () => {
   const { messages } = require('../lib/financial-outbox');
-  const event = { kind: 'deal', item: { id: 'test', amountCents: 10000, owner: { id:'a', chatId:'-111', name:'Owner' }, payer: { id:'b', chatId:'-222', name:'Payer' }, balanceOperation: { feeCents:100, ownerFeeCents:0 } }, ownerAfter:-10000, payerAfter:9900 };
+  const event = { kind: 'deal', item: { id: 'test', amountCents: 10000, owner: { id:'a', chatId:'-111', name:'Owner' }, payer: { id:'b', chatId:'-222', name:'Payer' }, balanceOperation: { feeCents:100, ownerFeeCents:0, ownerDeltaCents:-10000, payerDeltaCents:9900 } }, ownerAfter:-10000, payerAfter:9900 };
   const entries = messages(event,{a:{owner:'111'},b:{owner:'222'}});
   assert.deepEqual(entries.map(x=>x.chat_id),['111','222']);
-  for(const entry of entries)assert.match(entry.text,/Перевод: Payer → Owner/);
-  assert.match(entries[0].text,/Баланс реквизитов: -100,00/);
-  assert.match(entries[1].text,/Баланс реквизитов: 99,00/);
+  for(const entry of entries)assert.match(entry.text,/✅ Сделка завершена · 100 ₽\nPayer → Owner/);
+  assert.match(entries[0].text,/после: −100 ₽/);
+  assert.match(entries[1].text,/после: 99 ₽/);
   const [ownerReport,otherClub]=messages(event,{a:{owner:'388008256'},b:{owner:'222'}});
-  assert.match(ownerReport.text,/Payer · плательщик\nКомиссия: 1,00 ₽\nБаланс реквизитов: 99,00 ₽/);
-  assert.match(ownerReport.text,/Owner · получатель\nКомиссия: 0,00 ₽\nБаланс реквизитов: -100,00 ₽/);
-  assert.doesNotMatch(otherClub.text,/Баланс реквизитов: -100/);
+  assert.match(ownerReport.text,/Payer · комиссия 1 ₽\nБаланс до: 0 ₽ → после: 99 ₽/);
+  assert.match(ownerReport.text,/Owner · комиссия 0 ₽\nБаланс до: 0 ₽ → после: −100 ₽/);
+  assert.doesNotMatch(otherClub.text,/после: −100/);
   assert.deepEqual(messages(event).map(x=>x.chat_id),[null,null]);
 });
 
