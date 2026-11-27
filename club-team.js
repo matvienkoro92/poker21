@@ -331,28 +331,35 @@
     f.onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f));work({action:action==='issue'?values.kind:action,...extra,...values});};
   }
   function button(label,fn,tone){const b=node('button',label);b.type='button';b.onclick=fn;if(tone)b.className='deal-'+tone;return b;}
+  const compactNumber=number=>number.replace(/[^+\d]/g,'');
   function copyRequisitesButton(item){
     const amount=item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽');
     const details=item.details||[item.number,item.bank].filter(Boolean).join('\n');
-    const copyDetails=details.replace(/^\+?[\d(][\d() \t\u00a0\u202f\-‐‑‒–—−]*(?=\r?$)/m,number=>number.replace(/[^+\d]/g,''));
+    const copyDetails=details.replace(/^\+?[\d(][\d() \t\u00a0\u202f\-‐‑‒–—−]*(?=\r?$)/m,compactNumber);
     const text=[(amount+'\n'+copyDetails).trimEnd(),'',
       '❗️Строго эта сумма и банк',
       'Отправляйте сразу, позже реквизит будет неактуален',
       'По готовности отправьте чек пдф'
     ].join('\n');
-    const copy=button('Скопировать реквизиты',async()=>{
+    return clipboardButton(text);
+  }
+  function clipboardButton(text,numberOnly=false){
+    const title=numberOnly?'Скопировать номер':'Скопировать реквизиты';
+    const copy=button(numberOnly?'⧉':title,async()=>{
       try{
         await navigator.clipboard.writeText(text);
-        copy.textContent='✓ Скопировано';
+        copy.textContent=numberOnly?'✓':'✓ Скопировано';
+        if(numberOnly)copy.title='Номер скопирован';
       }catch{
         const dialog=node('dialog','');dialog.className='placement-editor';
-        const label=node('label','Выделите и скопируйте реквизиты');
+        const label=node('label',numberOnly?'Выделите и скопируйте номер':'Выделите и скопируйте реквизиты');
         const area=node('textarea','');area.value=text;area.readOnly=true;area.rows=text.split('\n').length;
         label.append(area);dialog.append(label,button('Закрыть',()=>dialog.close(),'secondary'));
         dialog.onclose=()=>dialog.remove();document.body.append(dialog);dialog.showModal();
         area.focus();area.select();
       }
     },'secondary');
+    if(numberOnly){copy.className='offer-copy-number';copy.title=title;copy.setAttribute('aria-label',title);}
     return copy;
   }
   function confirmDeal(question,label,tone,submit){
@@ -1046,7 +1053,12 @@
           }
           if(x.number){
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
-            phone.className='offer-number';row.append(phone);
+            phone.className='offer-number';
+            const number=String(x.number).trim();
+            if(inWork(x)&&/^\+?[\d(][\d()\s‐‑‒–—−-]*$/.test(number)){
+              const line=node('div','');line.className='offer-number-line';
+              line.append(phone,clipboardButton(compactNumber(number),true));row.append(line);
+            }else row.append(phone);
           }
           if(x.bookingPaused){
             row.append(bookingPauseBadge());

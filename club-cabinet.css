@@ -590,3 +590,6 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 #desk-team .request-pool-actions .request-help::before,
 #desk-team .request-pool-actions .request-help::after {content:none}
 @media(max-width:360px){#desk-team .request-pool-actions {flex-wrap:wrap;justify-content:flex-start}}
+
+#desk-team .offer-number-line {display:flex;align-items:center;gap:8px}
+#desk-team #club-requisite-list .offer-copy-number {flex:none;width:32px;height:32px;min-height:32px;margin:0;padding:0;border-radius:6px;background:#303338;border:1px solid #555961;color:#edeef0;font-size:19px;line-height:1}
