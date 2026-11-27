@@ -5,7 +5,7 @@ test('lifecycle labels reflect the payer, cancellation actor, completion and spl
   const format=(status,extra={})=>statusText(event,[{status,amountCents:4000000,...extra}]);
   assert.match(format('claimed',{payer:{name:'Клуб А'}}),/Взял клуб «Клуб А»/);
   assert.match(format('confirmed'),/Завершена$/);
-  assert.match(format('cancelled'),/Снята клубом$/);
+  assert.match(format('cancelled'),/Озонбанк\n\n🚫 Снята клубом$/);
   assert.match(format('cancelled',{removedByAdmin:'42'}),/Снята администратором$/);
   assert.match(statusText(event,[{status:'open',amountCents:1000000},{status:'confirmed',amountCents:3000000}]),/Свободна · 10\s000 ₽\n✅ Завершена · 30\s000 ₽/);
 });
