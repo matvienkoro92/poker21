@@ -130,6 +130,7 @@
   const issuer=section('Создать ключ',panel.parentElement);
   issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
   const issuerBody=node('div','');issuer.append(issuerBody);
+  let issuedInvite=null;
   const issuerStatus=node('p','');issuerStatus.setAttribute('role','status');issuer.append(issuerStatus);
   function currentBalance(rub,usd){
     const values=document.createDocumentFragment();
@@ -960,7 +961,15 @@
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
     clubList.hidden=weekly.hidden=manual.hidden=!data.canInspectClubs;
-    if(data.directory)issuerControls(data.directory,request.clubId);
+    if(!data.directory){
+      issuedInvite=null;
+      issuerBody.replaceChildren();
+    }else if(key){
+      const club=data.directory.find(c=>c.clubId===request.clubId);
+      issuedInvite={key,clubId:request.clubId,clubName:club?.name||request.clubId,target:request.target};
+      issuer.open=true;
+    }
+    if(data.directory&&!issuedInvite)issuerControls(data.directory,request.clubId);
     if(historyDeal){const item=historyDeal;historyDeal='';void openHistoryDeal(item);}
     const clubs=data.memberships;
     headerBalance.hidden=!clubs.length;
@@ -970,11 +979,11 @@
     if(clubs.length)panel.open=true;
     if(!active&&ownerBooking&&clubs.some(c=>c.clubId==='758417'))active='758417';
     if(!clubs.some(c=>c.clubId===active))active=clubs[0]?.clubId||'';
-    if(key){
-      const club=[...(data.directory||[]),...clubs].find(c=>c.clubId===request.clubId);
+    if(issuedInvite){
+      const {key,clubId,clubName,target:issuedTarget}=issuedInvite;
       const card=node('article','');
       card.className='issued-invite';
-      const target=String(request.target).trim().replace(/^@/,'');
+      const target=String(issuedTarget).trim().replace(/^@/,'');
       const recipient=/^\d+$/.test(target)?target:'@'+target;
       const keyField=node('input','');
       keyField.value=key;
@@ -991,9 +1000,16 @@
           copy.textContent='Скопируйте выделенный ключ';
         }
       });
-      card.append(node('h3','Приглашение готово'),node('p',(club?.name||request.clubId)+' · '+recipient),
-        keyField,copy,node('small','Отправьте ключ получателю в личном чате. Он действует 24 часа.'));
-      issuerBody.prepend(card);issuer.open=true;
+      const another=button('Создать другое приглашение',()=>{
+        issuedInvite=null;
+        issuerControls(data.directory,clubId);
+        issuerBody.querySelector('input[type=search]')?.focus();
+      },'secondary');
+      const keyLabel=node('label','Одноразовый ключ');keyLabel.append(keyField);
+      card.append(node('h3','Приглашение готово'),node('p','Клуб: '+clubName),
+        node('p','Получатель: '+recipient),keyLabel,copy,
+        node('small','Отправьте ключ получателю в личном чате. Он действует 24 часа.'),another);
+      issuerBody.replaceChildren(card);
     }
     if(clubs.length){
       const choice=field('active','Кабинет клуба',clubs);choice.lastChild.value=active;
