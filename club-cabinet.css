@@ -606,6 +606,9 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 .club-desk .desk-brand .connected-clubs-icon {flex:none;width:36px;height:36px;min-height:36px;padding:0;border:1px solid var(--rule);border-radius:10px;background:var(--desk-panel);color:var(--ink);font:22px/1 Georgia,serif;cursor:pointer}
 .connected-clubs-dialog > div:first-child {display:flex;align-items:center;justify-content:space-between;gap:8px}
 .connected-clubs-dialog h3 {margin:0}
-.club-desk .connected-clubs-dialog > div:first-child button {width:44px;height:44px;margin:0;padding:0;font-size:24px}
+.club-desk .connected-clubs-dialog > div:first-child button {display:grid;place-items:center;flex:none;width:44px;min-width:44px;height:44px;margin:0;padding:0;border-radius:50%;font-size:24px;line-height:1}
 .connected-clubs-dialog ul {margin:10px 0 0;padding:0;list-style:none}
-.connected-clubs-dialog li {padding:9px 0;border-top:1px solid var(--rule);overflow-wrap:anywhere}
+.connected-clubs-dialog li {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding:9px 0;border-top:1px solid var(--rule);overflow-wrap:anywhere}
+.connected-club-counts {display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--ink);font-size:.75em;font-weight:400}
+
+.requisite-preview .offer-comment {margin:0;white-space:pre-wrap;overflow-wrap:anywhere}

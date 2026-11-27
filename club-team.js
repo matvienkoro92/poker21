@@ -37,11 +37,29 @@
     async function load(){
       content.textContent='Загружаем клубы…';
       try{
-        const {clubs}=await api({action:'public-club-list'});
+        const {clubs,activity}=await api({action:'public-club-list'});
         if(!dialog.open)return;
         title.textContent='Подключённые клубы · '+clubs.length;
         const list=node('ul','');
-        for(const name of clubs)list.append(node('li',name));
+        const amountFormat=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
+        const amountText=cents=>[
+          ...(cents?.rub||!cents?.usd?[amountFormat.format((cents?.rub||0)/100)+' ₽']:[]),
+          ...(cents?.usd?[amountFormat.format(cents.usd/100)+' $']:[])
+        ].join(' + ');
+        for(const [index,name] of clubs.entries()){
+          const row=node('li',node('span',name));
+          const stats=activity?.[index];
+          if(stats){
+            const counts=node('span','');
+            counts.className='connected-club-counts';
+            counts.append(
+              node('span','Размещено '+stats.placed+' · '+amountText(stats.placedCents)),
+              node('span','Взято '+stats.taken+' · '+amountText(stats.takenCents))
+            );
+            row.append(counts);
+          }
+          list.append(row);
+        }
         content.replaceChildren(clubs.length?list:node('p','Пока нет подключённых клубов.'));
       }catch{
         content.replaceChildren(node('p','Не удалось загрузить клубы.'),button('Повторить',load));
@@ -184,12 +202,12 @@
     const grouped=[],used=new Set();
     for(const row of rows){
       if(used.has(row))continue;
-      const transfer=['Перенос из баланса реквизитов','Перенос в основной баланс'].includes(row.comment);
+      const transfer=['Перенос из баланса реквизитов','Перенос в основной баланс','Перенос в баланс реквизитов','Перенос из основного баланса'].includes(row.comment);
       const pair=transfer&&row.id&&rows.find(r=>r!==row&&!used.has(r)&&r.id===row.id&&r.label!==row.label&&r.rub?.cents===-row.rub?.cents);
       if(pair)used.add(pair);
       const main=pair&&pair.label==='Баланс'?pair:row;
       const changes=[[main.rub,'₽'],[main.usd,'$']].filter(([v])=>v);
-      const title=pair?'Перенос в баланс':changes.some(([v])=>v.action==='set')?'Установка баланса':row.label==='Реквизиты'?'Реквизиты':'Основной баланс';
+      const title=pair?(main.rub.cents<0?'Перенос в реквизиты':'Перенос в баланс'):changes.some(([v])=>v.action==='set')?'Установка баланса':row.label==='Реквизиты'?'Реквизиты':'Основной баланс';
       const line=section('',parent);line.classList.add('club-op');
       const name=node('span',title);
       const date=new Date(row.at);
@@ -328,6 +346,30 @@
               amountLine(balances,'Основной баланс',currentBalance(a.rub,a.usd));amountLine(balances,'Реквизиты',currentBalance(a.paymentRub,a.paymentUsd));balances.append(node('h4','Последние операции'));
               if(!a.operations?.length)balances.append(node('p',a.historyError?'История временно недоступна.':'Операций пока нет.'));
               renderClubHistory(balances,a);
+              if(a.transferAccount){
+                const form=node('form',''),amount=node('input',''),feedback=node('p','');
+                amount.type='number';amount.min='0.01';amount.step='0.01';amount.required=true;
+                amount.placeholder='Сумма в ₽';amount.setAttribute('aria-label','Сумма переноса в рублях');
+                const submit=node('button','Перенести в реквизиты');submit.type='submit';
+                feedback.setAttribute('role','status');
+                form.append(amount,submit,feedback);balances.append(form);
+                let request;
+                form.onsubmit=async event=>{
+                  event.preventDefault();
+                  const cents=Math.round(amount.valueAsNumber*100);
+                  if(!request||request.amountCents!==cents){
+                    if(!window.confirm('Перенести '+money(cents,'RUB')+' с основного баланса клуба «'+c.name+'» в реквизиты?'))return;
+                    request={action:'main-to-requisites',clubId:c.clubId,account:a.transferAccount,amountCents:cents,requestId:crypto.randomUUID()};
+                  }
+                  form.inert=true;
+                  try{
+                    await api(request);
+                    request=null;
+                    await row.ontoggle();
+                  }catch(error){feedback.textContent=error.message;}
+                  finally{form.inert=false;}
+                };
+              }
             });
           }catch(e){balances.textContent=e.message;}
         };
@@ -593,7 +635,10 @@
       const minimumHint=node('small',splitMinimumHint);
       minimumHint.id='placement-minimum-hint';
       minimum.setAttribute('aria-describedby',minimumHint.id);
-      editor.append(minimumField,minimumHint);
+      const commentField=field('comment','Комментарий (необязательно)');
+      const comment=commentField.lastChild;
+      comment.required=false;comment.maxLength=300;comment.rows=2;
+      editor.append(minimumField,minimumHint,commentField);
       const error=node('p',(parsed.warnings||[]).filter(w=>!/игрок|рум|USDT/i.test(w)).join(' '));
       error.setAttribute('role','status');
       const submit=node('button','Разместить');
@@ -1134,6 +1179,11 @@
           if(x.bank)head.append(node('small',x.bank));
           row.append(head);
           if(x.publisherClub)row.append(node('small','Разместил клуб «'+x.publisherClub+'»'));
+          if(x.comment){
+            const comment=node('p','Комментарий: '+x.comment);
+            comment.className='offer-comment';
+            row.append(comment);
+          }
           if(inWork(x)){
             row.classList.add('is-in-work');
             const badge=node('span','В работе');
