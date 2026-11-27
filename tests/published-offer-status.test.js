@@ -22,7 +22,7 @@ test('edits only the delivered message and preserves recipient buttons',async()=
   });
   await deliver('offer-status:example','1',call,async body=>{sent.push(body);return {ok:true}},()=>['20']);
   assert.equal(sent.length,1);assert.equal(sent[0].message_id,123);assert.equal(sent[0].editOnly,true);
-  assert.match(sent[0].text,/Снята клубом/);assert.match(sent[0].reply_markup.inline_keyboard[0][0].text,/✅/);
+  assert.match(sent[0].text,/Снята клубом/);assert.match(sent[0].reply_markup.inline_keyboard[1][0].text,/✅/);
 });
 
 test('partial booking names the payer and the free balance in one line',()=>{

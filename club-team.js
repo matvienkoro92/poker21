@@ -12,7 +12,8 @@
   let expandedRegistry = '';
   const selectedOffer=/^deal_(w_)?([a-zA-Z0-9-]{1,80})$/.exec(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
   let widgetOffer=selectedOffer?(selectedOffer[1]?'withdrawal:':'')+selectedOffer[2]:'';
-  if(widgetOffer)panel.open=true;
+  let openRequisitesOnLaunch=window.Telegram?.WebApp?.initDataUnsafe?.start_param==='requisites';
+  if(widgetOffer||openRequisitesOnLaunch)panel.open=true;
   const node=(tag,text)=>{const el=document.createElement(tag);if(text instanceof Node)el.append(text);else el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
@@ -444,7 +445,7 @@
     const dismiss=button('×',close.onclick);
     dismiss.setAttribute('aria-label','Закрыть');
     header.append(heading,dismiss);
-    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 10 000 ₽.'),close);
+    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 20 000 ₽.'),close);
     container.append(dialog);
     trigger.onclick=()=>{requestId=crypto.randomUUID();start();dialog.showModal();};
     const raw=field('details','Сообщение с реквизитами');
@@ -456,9 +457,9 @@
     }
     function review(parsed){
       editor.replaceChildren();
-      for(const [key,label] of [['amount','Сумма, ₽'],['phone','Телефон'],['bank','Банк'],['recipient','Имя получателя']]){
+      for(const [key,label] of [['phone','Телефон'],['bank','Банк'],['recipient','Имя получателя'],['amount','Сумма, ₽']]){
         const wrap=field(key,label),input=wrap.lastChild;
-        if(key==='amount'){input.min='1000';input.step='0.01';input.max='10000';input.value=parsed.amount?parsed.amount/100:'';}
+        if(key==='amount'){input.min='1000';input.step='0.01';input.max='20000';input.value=parsed.amount?parsed.amount/100:'';}
         else input.value=parsed[key]||'';
         if(key==='phone'){
           input.type='tel';
@@ -499,9 +500,17 @@
         const {amount,phone,bank,recipient}=editor.elements;
         const parser=window.pokerDepositParser;
         const cents=parser.money(amount.value);
-        amount.max=minimum.value?'100000000':'10000';
+        amount.max=minimum.value?'100000000':'20000';
         minimum.max=amount.value||'100000000';
-        amount.setCustomValidity(amount.value && (!/^\d+(?:[.,]\d{1,2})?$/.test(amount.value)||cents<100000||cents>Number(amount.max)*100)?'Проверьте сумму заявки и минимум одной брони.':'');
+        let amountError='';
+        if(amount.value){
+          if(!/^\d+(?:[.,]\d{1,2})?$/.test(amount.value))amountError='Введите сумму в рублях, до двух знаков после запятой.';
+          else if(cents<100000)amountError='Минимальная сумма заявки — 1 000 ₽.';
+          else if(cents>10000000000)amountError='Максимальная сумма заявки — 100 000 000 ₽.';
+          else if(!minimum.value&&cents>2000000)amountError='Максимальная сумма одним платежом — 20 000 ₽. Чтобы разместить больше, укажите минимальную сумму части в поле ниже.';
+        }
+        amount.setCustomValidity(amountError);
+        minimum.setCustomValidity(minimum.validity.rangeOverflow?'Минимальная сумма части не может превышать сумму заявки.':'');
         phone.setCustomValidity(parser.phoneError(phone.value));
         for(const input of [bank,recipient]){
           input.setCustomValidity(input.value&&!input.value.trim()?'Заполните поле.':input.value.includes('|')?'Уберите символ |.':'');
@@ -856,7 +865,7 @@
       const actions=node('div','');actions.className='requisite-actions';
       actions.setAttribute('role','group');actions.setAttribute('aria-label','Реквизиты');
       const registryKey=JSON.stringify([active,chatId]);
-      if(widgetOffer)expandedRegistry=registryKey;
+      if(widgetOffer||openRequisitesOnLaunch)expandedRegistry=registryKey;
       const list=node('div','');list.hidden=expandedRegistry!==registryKey;list.id='club-requisite-list';
       const take=button('Реквизиты',()=>{
         list.hidden=!list.hidden;
@@ -929,7 +938,7 @@
         updateRequests();
         const items=registry.items;
         take.textContent='Реквизиты · '+items.length;
-        const signature=JSON.stringify([items,registry.withdrawalError]);
+        const signature=JSON.stringify([items,registry.withdrawalError,registry.canResumeHousePause]);
         if(signature===lastContents&&!list.querySelector('.requisite-refresh-error'))return;
         lastContents=signature;
         const next=document.createDocumentFragment();
@@ -968,7 +977,10 @@
             const phone=node('span',String(x.number).replace(/^\+7(\d{3})(\d{3})(\d{2})(\d{2})$/,'+7 $1 $2-$3-$4'));
             phone.className='offer-number';row.append(phone);
           }
-          if(x.bookingPaused)row.append(bookingPauseBadge());
+          if(x.bookingPaused){
+            row.append(bookingPauseBadge());
+            if(registry.canResumeHousePause)row.append(button('Убрать с паузы',()=>work({action:'resume',item:x.id,clubId:requested,chatId})));
+          }
           if(x.mine||x.taker){
             const extra=x.number?String(x.details||'').split(/\r?\n/).slice(2).join(' '):x.details;
             if(extra)row.append(node('span',extra));
@@ -1055,6 +1067,10 @@
         }finally{if(stamp===version)loading=false;}
       }
       drawItems(registry);
+      if(openRequisitesOnLaunch){
+        openRequisitesOnLaunch=false;
+        requestAnimationFrame(()=>requisites.scrollIntoView({block:'start'}));
+      }
       if(widgetOffer && chatId){
         const row=Array.from(list.querySelectorAll('article[data-id]')).find(el=>el.dataset.id===widgetOffer);
         if(row){
@@ -1218,7 +1234,7 @@
   }
   async function work(body){
     if(busy)return;
-    const registryAction=['split','take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
+    const registryAction=['resume','split','take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
     busy=true;if(!registryAction)box.inert=true;
     status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
     const issuing=['owner','staff','revoke','create-club'].includes(body.action);

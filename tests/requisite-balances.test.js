@@ -218,17 +218,17 @@ test('activity preserves player date buttons and counts unique active players ac
   assert.ok(buttons.some(button => button.callback_data === 'pulse:player:select:activity:3' && button.style === 'success'));
 });
 
-test('ruble requisite maximum is 10000 inclusive for commands and plain messages', () => {
+test('ruble requisite maximum is 20000 inclusive for commands and plain messages', () => {
   const context = vm.createContext({});
   vm.runInContext(source.slice(source.indexOf('function parsePaymentDetailsCommand('), source.indexOf('function isPaymentConfirmCommand(')), context);
   const details = '\n+7 999 999-99-99\nСбер\nАндрей';
-  for (const amount of ['1000', '9999,99', '10000', '10 000 ₽']) assert.equal(context.parsePaymentDetailsCommand(`/реквизиты ${amount}${details}`).action, 'publish');
-  for (const amount of ['999,99', '10000,01', '10001', '50000']) {
+  for (const amount of ['1000', '9999,99', '10000', '12000', '19999,99', '20 000 ₽']) assert.equal(context.parsePaymentDetailsCommand(`/реквизиты ${amount}${details}`).action, 'publish');
+  for (const amount of ['999,99', '20000,01', '20001', '50000']) {
     assert.equal(context.parsePaymentDetailsCommand(`/разместить ${amount}${details}`).reason, 'amount_limit');
     assert.equal(context.parsePaymentDetailsMessage(`${amount}${details}`).reason, 'amount_limit');
   }
   assert.equal(context.parsePaymentDetailsCommand(`/разместить 10001$${details}`).reason, 'currency');
-  assert.match(context.paymentDetailsFormText(true, 'amount_limit'), /от 1 000 до 10 000 ₽/i);
+  assert.match(context.paymentDetailsFormText(true, 'amount_limit'), /от 1 000 до 20 000 ₽/i);
 });
 
 test('registry marks only our claimed payments as in progress', () => {
