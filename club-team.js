@@ -40,27 +40,31 @@
         const {clubs,activity}=await api({action:'public-club-list'});
         if(!dialog.open)return;
         title.textContent='Подключённые клубы · '+clubs.length;
-        const list=node('ul','');
-        const amountFormat=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
-        const amountText=cents=>[
-          ...(cents?.rub||!cents?.usd?[amountFormat.format((cents?.rub||0)/100)+' ₽']:[]),
-          ...(cents?.usd?[amountFormat.format(cents.usd/100)+' $']:[])
-        ].join(' + ');
-        for(const [index,name] of clubs.entries()){
-          const row=node('li',node('span',name));
-          const stats=activity?.[index];
-          if(stats){
-            const counts=node('span','');
-            counts.className='connected-club-counts';
-            counts.append(
-              node('span','Размещено '+stats.placed+' · '+amountText(stats.placedCents)),
-              node('span','Взято '+stats.taken+' · '+amountText(stats.takenCents))
-            );
-            row.append(counts);
-          }
-          list.append(row);
+        const table=node('table','');table.className='connected-clubs-table';
+        table.setAttribute('aria-labelledby',title.id);
+        const headers=table.createTHead().insertRow();
+        for(const label of ['Клуб','Размещено','Взято','Проведено']){
+          const heading=node('th',label);heading.scope='col';headers.append(heading);
         }
-        content.replaceChildren(clubs.length?list:node('p','Пока нет подключённых клубов.'));
+        const body=table.createTBody();
+        const amountFormat=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
+        function addActivity(row,count,cents){
+          const cell=row.insertCell();
+          if(count==null){cell.textContent='—';return;}
+          if(count===0&&!cents?.rub&&!cents?.usd)cell.className='connected-clubs-empty';
+          cell.append(node('small',amountFormat.format(count)+' шт.'));
+          if(cents?.rub||!cents?.usd)cell.append(node('strong',amountFormat.format((cents?.rub||0)/100)+' ₽'));
+          if(cents?.usd)cell.append(node('strong',amountFormat.format(cents.usd/100)+' $'));
+        }
+        for(const [index,name] of clubs.entries()){
+          const row=body.insertRow(), club=node('th',name), stats=activity?.[index];
+          club.scope='row';row.append(club);
+          addActivity(row,stats?.placed,stats?.placedCents);
+          addActivity(row,stats?.taken,stats?.takenCents);
+          addActivity(row,stats?.completed,stats?.completedCents);
+        }
+        const viewport=node('div',table);viewport.className='connected-clubs-viewport';
+        content.replaceChildren(clubs.length?viewport:node('p','Пока нет подключённых клубов.'));
       }catch{
         content.replaceChildren(node('p','Не удалось загрузить клубы.'),button('Повторить',load));
       }

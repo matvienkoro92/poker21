@@ -604,12 +604,25 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 }
 
 .club-desk .desk-brand .connected-clubs-icon {flex:none;width:36px;height:36px;min-height:36px;padding:0;border:1px solid var(--rule);border-radius:10px;background:var(--desk-panel);color:var(--ink);font:22px/1 Georgia,serif;cursor:pointer}
-.connected-clubs-dialog > div:first-child {display:flex;align-items:center;justify-content:space-between;gap:8px}
-.connected-clubs-dialog h3 {margin:0}
-.club-desk .connected-clubs-dialog > div:first-child button {display:grid;place-items:center;flex:none;width:44px;min-width:44px;height:44px;margin:0;padding:0;border-radius:50%;font-size:24px;line-height:1}
-.connected-clubs-dialog ul {margin:10px 0 0;padding:0;list-style:none}
-.connected-clubs-dialog li {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding:9px 0;border-top:1px solid var(--rule);overflow-wrap:anywhere}
-.connected-club-counts {display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--ink);font-size:.75em;font-weight:400}
+.club-desk .connected-clubs-dialog {width:min(calc(100vw - 20px),540px);padding:12px 14px;overflow:hidden}
+.connected-clubs-dialog > div:first-child {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.connected-clubs-dialog h3 {margin:0;font-size:clamp(16px,4.5vw,20px)}
+.club-desk .connected-clubs-dialog > div:first-child button {
+  display:grid;place-items:center;flex:0 0 42px;width:42px;min-width:42px;max-width:42px;
+  height:42px;min-height:42px;margin:0;padding:0;border-radius:12px;font-size:22px;line-height:1;
+}
+.connected-clubs-viewport {max-height:calc(86dvh - 82px);overflow:auto;border:1px solid var(--rule);border-radius:11px}
+.connected-clubs-table {width:100%;table-layout:fixed;border-spacing:0;font-size:clamp(12px,3.55vw,15px)}
+.connected-clubs-table th,.connected-clubs-table td {padding:8px clamp(3px,1.4vw,10px);text-align:right;vertical-align:middle}
+.connected-clubs-table thead th {position:sticky;top:0;background:#24372c;color:#c5dace;font-size:clamp(10px,3vw,12px);font-weight:650}
+.connected-clubs-table th:first-child {width:31%;text-align:left;overflow-wrap:anywhere}
+.connected-clubs-table tbody :is(th,td) {border-top:1px solid var(--rule)}
+.connected-clubs-table tbody tr:nth-child(even) {background:#fff1}
+.connected-clubs-table td {font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.connected-clubs-table td :is(small,strong) {display:block}
+.connected-clubs-table td small {font-size:11px;color:#acbeb2}
+.connected-clubs-table tbody td:last-child strong {color:#c3edb8}
+.connected-clubs-table tbody td.connected-clubs-empty strong {color:#acbeb2;font-weight:500}
 
 .requisite-preview .offer-comment {margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 
