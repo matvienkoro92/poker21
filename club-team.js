@@ -21,6 +21,34 @@
   if(historyDeal||widgetOffer||openRequisitesOnLaunch)panel.open=true;
   const node=(tag,text)=>{const el=document.createElement(tag);if(text instanceof Node)el.append(text);else el.textContent=text;return el;};
   const clubName=document.querySelector('.desk-brand-club');
+  const clubsIcon=button('♣',openConnectedClubs);
+  clubsIcon.className='connected-clubs-icon';clubsIcon.title='Подключённые клубы';
+  clubsIcon.setAttribute('aria-label',clubsIcon.title);clubsIcon.setAttribute('aria-haspopup','dialog');
+  document.querySelector('.desk-brand-title').after(clubsIcon);
+  async function openConnectedClubs(){
+    const dialog=node('dialog','');dialog.className='placement-editor connected-clubs-dialog';
+    dialog.setAttribute('aria-labelledby','connected-clubs-title');
+    const title=node('h3','Подключённые клубы');title.id='connected-clubs-title';
+    const close=button('×',()=>dialog.close());close.setAttribute('aria-label','Закрыть');
+    const head=node('div','');head.append(title,close);
+    const content=node('div','');content.setAttribute('aria-live','polite');
+    dialog.append(head,content);clubsIcon.closest('.club-desk').append(dialog);
+    dialog.onclose=()=>dialog.remove();dialog.showModal();
+    async function load(){
+      content.textContent='Загружаем клубы…';
+      try{
+        const {clubs}=await api({action:'public-club-list'});
+        if(!dialog.open)return;
+        title.textContent='Подключённые клубы · '+clubs.length;
+        const list=node('ul','');
+        for(const name of clubs)list.append(node('li',name));
+        content.replaceChildren(clubs.length?list:node('p','Пока нет подключённых клубов.'));
+      }catch{
+        content.replaceChildren(node('p','Не удалось загрузить клубы.'),button('Повторить',load));
+      }
+    }
+    await load();
+  }
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
   document.querySelector('.desk-brand').append(headerBalance);
   const finance=node('section','');
