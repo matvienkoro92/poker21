@@ -384,15 +384,35 @@
     search.type='search';search.placeholder='Название или ID клуба';
     search.setAttribute('aria-label','Поиск клуба по названию или ID');
     picker.className='issuer-picker';
-    const add=button('＋ Новый клуб',()=>{editor.hidden=!editor.hidden;if(!editor.hidden){nameInput.value=search.value.trim();nameInput.focus();}});
-    const tools=node('div','');tools.className='issuer-search';tools.append(search,add);
+    const tools=node('div','');tools.className='issuer-search';
     const editor=node('div','');editor.className='issuer-new';editor.hidden=true;
-    const nameField=field('newClubName','Название нового клуба'),nameInput=nameField.lastChild;
+    const nameField=field('newClubName','Название клуба'),nameInput=nameField.lastChild;
     nameInput.required=false;nameInput.maxLength=80;
-    const save=button('Создать клуб',()=>{if(nameInput.value.trim())work({action:'create-club',name:nameInput.value.trim()});else nameInput.focus();});
+    let renameId;
+    function openEditor(entry){
+      renameId=entry?.clubId;
+      editor.hidden=false;
+      save.textContent=entry?'Сохранить название':'Создать клуб';
+      nameInput.value=entry?.name||search.value.trim();
+      nameInput.focus();
+      nameInput.select();
+    }
+    const add=button('＋ Новый клуб',()=>openEditor());
+    const rename=button('Переименовать',()=>{
+      const entry=directory.find(c=>c.clubId===select.value);
+      if(entry)openEditor(entry);
+    });
+    const save=button('Создать клуб',()=>{
+      const name=nameInput.value.trim();
+      if(!name){nameInput.focus();return;}
+      work(renameId?{action:'rename-club',clubId:renameId,name}:{action:'create-club',name});
+    });
     nameInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();save.click();}};
     editor.append(nameField,save);
-    picker.append(tools,editor,club);
+    tools.append(search,add);
+    picker.append(tools,club);
+    if(data.canRenameClub)picker.append(rename);
+    picker.append(editor);
     let preferred=select.value;
     search.oninput=()=>{
       const query=search.value.trim().toLocaleLowerCase('ru-RU');
@@ -413,6 +433,8 @@
     const roster=node('div','');issuerBody.append(roster);
     function draw(){
       const entry=directory.find(c=>c.clubId===select.value);
+      rename.disabled=!entry;
+      if(renameId&&renameId!==entry?.clubId)editor.hidden=true;
       creditField.lastChild.value=entry?.creditCents==null?'':entry.creditCents/100;
       fee.value=(entry?.takingFeeBps??100)/100;
       const members=entry?.members||[];
@@ -1529,7 +1551,7 @@
     const registryAction=['resume','split','take','remove','cancel','paid','remind','recheck','reject','confirm'].includes(body.action);
     busy=true;if(!registryAction)box.inert=true;
     status.textContent=body.action==='status'?'Загружаем кабинет…':'Выполняем…';
-    const issuing=['owner','staff','revoke','create-club'].includes(body.action);
+    const issuing=['owner','staff','revoke','create-club','rename-club'].includes(body.action);
     if(issuing){issuerBody.inert=true;issuerStatus.textContent='Выполняем…';}
     try{
       const result=body.action==='status'&&!window.Telegram?.WebApp?.initData?{memberships:[]}:await api(body);
@@ -1552,7 +1574,7 @@
         });
       }
       if(body.action==='activate')showNotice(writeAccess?'Ключ активирован. Бот может писать вам в личку.':'Ключ активирован. Чтобы получать сообщения, откройте Poker21 Assist и нажмите «Старт».');
-      if(issuing)issuerStatus.textContent=result.selectedClubId?(result.existing?'Клуб уже есть в списке и выбран.':'Клуб создан и выбран.') :body.action==='revoke'?'Доступ отозван.':'';
+      if(issuing)issuerStatus.textContent=body.action==='rename-club'?'Название клуба сохранено.':result.selectedClubId?(result.existing?'Клуб уже есть в списке и выбран.':'Клуб создан и выбран.') :body.action==='revoke'?'Доступ отозван.':'';
     }catch(e){if(issuing)issuerStatus.textContent=e.message;status.textContent=e.message;if(registryAction){
       const latest=await refreshVisibleList?.(true);
       if(originalOffer&&e.status===409&&latest&&active===body.clubId){
