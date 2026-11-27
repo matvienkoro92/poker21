@@ -13,7 +13,7 @@
   const selectedOffer=/^deal_(w_)?([a-zA-Z0-9-]{1,80})$/.exec(window.Telegram?.WebApp?.initDataUnsafe?.start_param||'');
   let widgetOffer=selectedOffer?(selectedOffer[1]?'withdrawal:':'')+selectedOffer[2]:'';
   if(widgetOffer)panel.open=true;
-  const node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
+  const node=(tag,text)=>{const el=document.createElement(tag);el.append(text);return el;};
   const clubName=document.querySelector('.desk-brand-club');
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
   document.querySelector('.desk-brand').append(headerBalance);
@@ -46,7 +46,16 @@
   issuer.classList.add('club-issuer','club-key-panel');issuer.hidden=true;
   const issuerBody=node('div','');issuer.append(issuerBody);
   const issuerStatus=node('p','');issuerStatus.setAttribute('role','status');issuer.append(issuerStatus);
-  const currentBalance=(rub,usd)=>((rub ?? 0)/100).toLocaleString('ru-RU')+' ₽ · '+((usd ?? 0)/100).toLocaleString('ru-RU')+' $';
+  function currentBalance(rub,usd){
+    const values=document.createDocumentFragment();
+    for(const [cents,symbol] of [[rub,'₽'],[usd,'$']]){
+      if(values.childNodes.length)values.append(' · ');
+      const amount=node('span',((cents??0)/100).toLocaleString('ru-RU')+' '+symbol);
+      amount.className=cents>0?'balance-positive':cents<0?'balance-negative':'balance-zero';
+      values.append(amount);
+    }
+    return values;
+  }
   const clubList=section('Список клубов',issuer.parentElement);
   issuer.after(clubList);clubList.classList.add('club-issuer','owner-hub');clubList.hidden=true;
   const contents=node('div','');clubList.append(contents);
@@ -800,8 +809,8 @@
         if(version!==balanceVersion||!dashboard.isConnected || active!==requested)return;
         const accounts=result.accounts||[];
         const total=k=>accounts.reduce((n,a)=>n+(a[k] ?? 0),0);
-        mainSum.textContent=result.balanceError?'Недоступен':accounts.length ? currentBalance(total('rub'),total('usd')) : '—';
-        paymentSum.textContent=result.balanceError?'Недоступен':accounts.length?currentBalance(total('paymentRub'),total('paymentUsd')):'—';
+        mainSum.replaceChildren(result.balanceError?'Недоступен':accounts.length ? currentBalance(total('rub'),total('usd')) : '—');
+        paymentSum.replaceChildren(result.balanceError?'Недоступен':accounts.length?currentBalance(total('paymentRub'),total('paymentUsd')):'—');
 
       }).catch(()=>{
         if(version!==balanceVersion||!dashboard.isConnected || active!==requested)return;

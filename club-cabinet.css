@@ -532,3 +532,7 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 .placement-editor .bank-choices {display:flex;flex-wrap:wrap;gap:6px}
 #desk-team .placement-editor .bank-choices button {width:auto;min-height:36px;margin:0;padding:5px 10px;border:1px solid #46745c;border-radius:9px;background:#183b2c;color:#eff7ed;font-size:14px}
 #desk-team .placement-editor .bank-choices button[aria-pressed=true] {background:#ffdc85;color:#302008;border-color:#ffdc85}
+
+.balance-positive {color:#83e7a2}
+.balance-negative {color:#ff9696}
+.balance-zero {color:#c4cec7}
