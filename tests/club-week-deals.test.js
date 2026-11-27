@@ -9,6 +9,8 @@ test('Sunday ends at Moscow midnight, split pages keep the day and credits count
   const credits=[{id:'abc',clubId:'42',confirmedAt:Date.parse(last),amountCents:300000}];
   const clubs=new Map();
   const [week]=messages(items,credits,clubs,now,true);
+  assert.match(week.text,/23\.11\.2026 · понедельник · 14 · 1\s400,00 \$\n1\. 00:00 · A → B/);
+  assert.match(week.text,/29\.11\.2026 · воскресенье · 1 · 3\s000,00 ₽\n1\. 23:59 · 42 → Два туза/);
   assert.match(week.text,/Сделок за неделю: 15/);
   assert.match(week.text,/1\s400,00 \$ \+ 3\s000,00 ₽/);
   assert.equal(week.reply_markup.inline_keyboard.length,7);
@@ -37,4 +39,13 @@ test('empty day opens from the week menu and can return',()=>{
   assert.match(day.text,/вторник · 24.11.2026/);
   assert.match(day.text,/Сделок нет/);
   assert.equal(day.reply_markup.inline_keyboard.length,1);
+});
+
+test('week over Telegram text limit keeps daily totals and day buttons',()=>{
+  const items=Array.from({length:200},(_,i)=>deal(String(i),'2026-11-22T21:00:00Z'));
+  const [week]=messages(items,[],new Map(),now,true);
+  assert.ok(week.text.length<=4096);
+  assert.match(week.text,/понедельник · 200 · 20\s000,00 \$/);
+  assert.match(week.text,/Полный список сделок доступен по кнопкам дней/);
+  assert.equal(week.reply_markup.inline_keyboard.length,7);
 });
