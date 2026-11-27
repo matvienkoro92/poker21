@@ -334,7 +334,8 @@
   function copyRequisitesButton(item){
     const amount=item.amount.toLocaleString('ru-RU')+(item.currency==='usd'?' $':' ₽');
     const details=item.details||[item.number,item.bank].filter(Boolean).join('\n');
-    const text=[(amount+'\n'+details).trimEnd(),'',
+    const copyDetails=details.replace(/^\+?[\d(][\d() \t\u00a0\u202f\-‐‑‒–—−]*(?=\r?$)/m,number=>number.replace(/[^+\d]/g,''));
+    const text=[(amount+'\n'+copyDetails).trimEnd(),'',
       '❗️Строго эта сумма и банк',
       'Отправляйте сразу, позже реквизит будет неактуален',
       'По готовности отправьте чек пдф'
