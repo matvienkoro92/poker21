@@ -498,8 +498,8 @@ test('payment history shows five confirmed operations for this chat with histori
   assert.ok(menu.indexOf('formatBalanceHistoryBlocks(paymentHistory)') > menu.indexOf('<b>Баланс по реквизитам:</b>'));
 });
 
-test('only the payer pays one percent, rounded to the nearest kopeck or cent', () => {
-  const context = vm.createContext({});
+test('only the payer pays the configured fee, rounded to the nearest kopeck or cent', () => {
+  const context = vm.createContext({requisiteOverview:require('../lib/requisite-overview')});
   vm.runInContext(source.slice(source.indexOf('function paymentBalanceDeltas('), source.indexOf('function formatPaymentAmount(')), context);
   for (const [amount, fee, owner, payer] of [
     [1000000, 10000, -1000000, 990000],
@@ -513,6 +513,13 @@ test('only the payer pays one percent, rounded to the nearest kopeck or cent', (
     assert.equal(delta.ownerDeltaCents, owner);
     assert.equal(delta.payerDeltaCents, payer);
     assert.equal(delta.ownerDeltaCents + delta.payerDeltaCents, fee ? -fee : 0);
+  }
+  for (const [bps, fee] of [[0, 0], [125, 12500]]) {
+    const delta = context.paymentBalanceDeltas(1000000, bps);
+    assert.equal(delta.feePercent, bps / 100);
+    assert.equal(delta.feeCents, fee);
+    assert.equal(delta.ownerDeltaCents, -1000000);
+    assert.equal(delta.payerDeltaCents, 1000000 - fee);
   }
   assert.match(source, /redis.call\('INCRBY', KEYS\[1\], ARGV\[1\]\)/);
   assert.match(source, /redis.call\('INCRBY', KEYS\[2\], ARGV\[2\]\)/);

@@ -406,11 +406,15 @@
     const kind=field('kind','Роль',roles);
     for(const opt of kind.lastChild.options)opt.textContent=roles.find(r=>r.clubId===opt.value).name;
     const creditField=field('credit','Кредитный лимит клуба, ₽');
-    form('','issue',[picker,kind,field('target','Логин в Telegram'),creditField],'Создать ключ',{},issuerBody);
+    const feeField=field('takingFee','Комиссия за взятие реквизитов, %');
+    const fee=feeField.lastChild;
+    fee.type='number';fee.min='0';fee.max='100';fee.step='0.01';fee.inputMode='decimal';
+    form('','issue',[picker,kind,field('target','Логин в Telegram'),creditField,feeField],'Создать ключ',{},issuerBody);
     const roster=node('div','');issuerBody.append(roster);
     function draw(){
       const entry=directory.find(c=>c.clubId===select.value);
       creditField.lastChild.value=entry?.creditCents==null?'':entry.creditCents/100;
+      fee.value=(entry?.takingFeeBps??100)/100;
       const members=entry?.members||[];
       roster.replaceChildren(node('h4','Привязанные администраторы · '+members.length));
       for(const m of members){
@@ -589,7 +593,7 @@
     const dismiss=button('×',close.onclick);
     dismiss.setAttribute('aria-label','Закрыть');
     header.append(heading,dismiss);
-    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Плательщик платит 1% при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 30 000 ₽.'),close);
+    dialog.append(header,editor,limits,node('p','Размещение бесплатно. Комиссия за взятие списывается у плательщика при подтверждении оплаты. Без разбивки сумма заявки — от 1 000 до 30 000 ₽.'),close);
     container.append(dialog);
     trigger.onclick=()=>{requestId=crypto.randomUUID();start();dialog.showModal();};
     const raw=field('details','Сообщение с реквизитами');
