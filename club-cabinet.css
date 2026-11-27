@@ -551,3 +551,36 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
   color: #ffe0a3;
   line-height: 1.35;
 }
+
+.booking-amount-editor label {display:grid;gap:6px}
+.booking-amount-editor input {
+  box-sizing:border-box;
+  min-height:48px;
+  padding:10px 12px;
+  border:1px solid var(--rule);
+  border-radius:8px;
+  background:var(--desk-paper);
+  color:var(--ink);
+  font:inherit;
+  font-size:16px;
+}
+
+#desk-team #club-requisite-list .requisite-preview button.deal-danger {
+  background:#513337;
+  border-color:#925e65;
+  color:#ffd9dc;
+}
+
+#desk-team #club-requisite-list .requisite-preview.is-in-work {
+  background: #1c303c;
+  border-color: #5989a4;
+}
+#club-requisite-list .booking-active-badge {
+  align-self: start;
+  width: fit-content;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #31556b;
+  color: #e2f5ff;
+  font-weight: 700;
+}

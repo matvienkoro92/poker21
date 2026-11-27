@@ -7,6 +7,7 @@
     noticeTimer=setTimeout(()=>{if(status.textContent===text)status.textContent='';},5000);
   }
   const selectedGroups=new Map();
+  const receiptFeedback=new Map();
   let active='', data, busy=false;
   let refreshVisibleList, tickVisibleBookings,refreshBalances;
   let expandedRegistry = '';
@@ -361,7 +362,7 @@
   function chooseBookingAmount(item,configure,submit){
     const total=Math.round(item.amount*100),minimum=item.minimumCents||0;
     const dialog=node('dialog',''),form=node('form','');
-    dialog.className='placement-editor';
+    dialog.className='placement-editor booking-amount-editor';
     const title=configure?'Настроить разбивку':'Взять часть суммы';
     dialog.setAttribute('aria-label',title);
     const wrap=field('amount',configure?'Минимальная сумма части, ₽ (необязательно)':'Сумма брони, ₽'),input=wrap.lastChild;
@@ -922,6 +923,30 @@
       }
       let lastContents;
       let previousBookings=new Set();
+      const reminders=new Map();
+      function reminderButton(x){
+        const key=JSON.stringify([x.id,x.waitSince]);
+        const label='Напомнить клубу';
+        function update(text,pending=false){
+          reminders.set(key,{text,pending});
+          const current=Array.from(list.querySelectorAll('[data-reminder]')).find(el=>el.dataset.reminder===key);
+          if(current){current.textContent=text;current.disabled=pending;}
+        }
+        const control=button(reminders.get(key)?.text||label,async()=>{
+          if(reminders.get(key)?.pending)return;
+          update('Отправляем напоминание…',true);
+          try{
+            await api({action:'remind',item:x.id,clubId:requested,chatId});
+            update('✓ Напоминание отправлено клубу',true);
+            setTimeout(()=>update(label),30000);
+          }catch(error){
+            update(error.message+' · Повторить');
+          }
+        },'secondary');
+        control.dataset.reminder=key;
+        control.disabled=!!reminders.get(key)?.pending;
+        return control;
+      }
       function drawItems(registry){
         if(registry.confirmedIds?.some(id=>previousBookings.has(id)))showNotice('Сделка проведена');
         previousBookings=new Set(registry.items.filter(x=>x.taker).map(x=>x.id));
@@ -958,12 +983,20 @@
         next.append(requisitesWarning(),summary);
         if(!items.length&&!registry.withdrawalError)next.append(node('p','Заявок пока нет.'));
         if(registry.withdrawalError)next.append(node('p','Не удалось загрузить выводы из Депозитов.'),button('Обновить',()=>work({action:'status'})));
-        for(const x of items){
+        const inWork=item=>Boolean(item.taker||item.bookings?.some(b=>['Забронировано','Плательщик отметил оплату'].includes(b.stage)));
+        const orderedItems=[...items].sort((a,b)=>Number(inWork(b))-Number(inWork(a)));
+        for(const x of orderedItems){
           const row=node('article','');row.className='requisite-preview';row.dataset.id=x.id;
           const head=node('header','');head.className='offer-head';
           head.append(node('strong',x.amount.toLocaleString('ru-RU')+' ₽'));
           if(x.bank)head.append(node('small',x.bank));
           row.append(head);
+          if(inWork(x)){
+            row.classList.add('is-in-work');
+            const badge=node('span','В работе');
+            badge.className='booking-active-badge';
+            row.append(badge);
+          }
           if(Array.isArray(x.bookings)){
             row.append(node('span','Свободно '+rubles(x.availableCents)+' из '+rubles(x.totalCents)));
             for(const booking of x.bookings){
@@ -991,7 +1024,7 @@
             }
             if(x.mine&&!x.taker&&!x.historyOnly&&String(requested)==='758417'&&x.id.startsWith('withdrawal:'))
               row.append(button('Настроить разбивку',()=>chooseBookingAmount(x,true,minimum=>work({action:'split',item:x.id,clubId:requested,chatId,minimum})),'secondary'));
-            if(x.canRemind)row.append(button('Напомнить клубу',()=>work({action:'remind',item:x.id,clubId:requested,chatId}),'secondary'));
+            if(x.canRemind)row.append(reminderButton(x));
             if(x.expiresAt){
               const timer=node('time','');timer.className='booking-clock';timer.dataset.bookingEnd=x.expiresAt;
               row.append(timer);
@@ -999,11 +1032,16 @@
             if(x.mine&&!x.taker&&!x.historyOnly&&!registry.canDeleteRequisites)row.append(button('Снять заявку',()=>{
               confirmDeal('Снять заявку на '+x.amount.toLocaleString('ru-RU')+' ₽?','Снять заявку','danger',()=>work({action:'remove',item:x.id,clubId:requested,chatId}));
             },'danger'));
+            const feedback=node('small','');
+            feedback.dataset.receiptFeedback='';
+            feedback.setAttribute('role','status');
+            feedback.hidden=true;
+            row.append(feedback);
             if(x.canSendReceipt||x.canMarkPaid){
               const actions=node('div','');actions.className='booking-actions';
               if(x.canRecheck)actions.append(button('Попросить проверить ещё раз',()=>work({action:'recheck',item:x.id,clubId:requested,chatId}),'primary'));
               const send=button(x.canRecheck?'Отправить новый чек':'Отправить чек',()=>payWithReceipt(x.id,requested,chatId));
-              send.className=x.canRecheck?'deal-secondary':'booking-send';actions.append(send);
+              send.dataset.originalLabel=send.textContent;send.dataset.receiptSend='';send.className=x.canRecheck?'deal-secondary':'booking-send';actions.append(send);
               if(x.canMarkPaid)actions.append(button('Отметить оплату без чека',()=>work({action:'paid',item:x.id,clubId:requested,chatId})));
               if(x.canExtend)actions.append(button('Продлить на час',()=>work({action:'extend',item:x.id,clubId:requested,chatId})));
               const cancel=button('Отменить бронь',()=>work({action:'cancel',item:x.id,clubId:requested,chatId}));
@@ -1032,6 +1070,7 @@
             }
             row.append(contact);
           }
+          renderReceiptFeedback(row,receiptFeedback.get(x.id));
           next.append(row);
         }
         list.replaceChildren(next);
@@ -1210,18 +1249,49 @@
       actions.append(download);
     }catch(e){if(dialog.open)content.textContent=e.message||'Не удалось открыть чек.';}
   }
+  function renderReceiptFeedback(row,state){
+    const hint=row.querySelector('[data-receipt-feedback]');
+    if(!hint)return;
+    hint.textContent=state?.text||'';
+    hint.hidden=!state;
+    const actions=row.querySelector('.booking-actions');
+    if(actions)actions.inert=!!state?.pending;
+    const send=row.querySelector('[data-receipt-send]');
+    if(send&&state?.pending)send.textContent='Отправка чека…';
+    else if(send&&send.dataset.originalLabel)send.textContent=send.dataset.originalLabel;
+  }
   function payWithReceipt(item,clubId,chatId){
     const picker=document.createElement('input');
     picker.type='file';
     picker.accept='image/jpeg,image/png,application/pdf';
-    picker.onchange=()=>{
+    const update=(text,pending=false)=>{
+      const state={text,pending};
+      receiptFeedback.set(item,state);
+      const row=document.querySelector('#club-requisite-list article[data-id="'+CSS.escape(item)+'"]');
+      if(row)renderReceiptFeedback(row,state);
+    };
+    picker.onchange=async()=>{
       const file=picker.files[0];
-      if(!file)return;
-      if(file.size>2097152){status.textContent='Выберите чек до 2 МБ.';return;}
-      const reader=new FileReader();
-      reader.onerror=()=>{status.textContent='Не удалось прочитать чек.';};
-      reader.onload=()=>work({action:'paid',item,clubId,chatId,receipt:reader.result});
-      reader.readAsDataURL(file);
+      if(!file||receiptFeedback.get(item)?.pending)return;
+      if(file.size>2097152){update('Выберите чек до 2 МБ.');return;}
+      if(busy){update('Дождитесь завершения текущего действия и выберите чек ещё раз.');return;}
+      busy=true;
+      try{
+        update('Подготавливаем файл…',true);
+        const receipt=await new Promise((resolve,reject)=>{
+          const reader=new FileReader();
+          reader.onload=()=>resolve(reader.result);
+          reader.onerror=reader.onabort=()=>reject(Error('Не удалось прочитать файл. Выберите чек ещё раз.'));
+          reader.readAsDataURL(file);
+        });
+        update('Загружаем чек…',true);
+        await api({action:'paid',item,clubId,chatId,receipt});
+        update('Чек отправлен. Ждём подтверждения клуба.');
+      }catch(e){
+        update(e.message||'Не удалось подтвердить отправку. Обновите карточку.');
+      }finally{
+        try{await refreshVisibleList?.(true);}finally{busy=false;}
+      }
     };
     picker.click();
   }

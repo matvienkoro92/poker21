@@ -125,3 +125,17 @@ test('confirmation edits the sender receipt caption even when confirmation arriv
   await drain({redis:f.redis,eventId:id,send});
   assert.equal(bodies.length,2);
 });
+
+test('cabinet receipt reaches receiving club members once with a link to the booking',async()=>{
+  const f=fixture();
+  const event={kind:'receiver-receipt',itemId:'abc123',paidAt:'now',clubId:'a',payer:'Тест',amount:'6 000 ₽',cabinetReceipt:'file'};
+  f.values.set(PREFIX+'test',JSON.stringify(event));
+  f.values.set('poker21:telegram-report:payment-details:abc123',JSON.stringify({status:'paid',paidAt:'now'}));
+  f.values.set('poker21:club-cabinet:access:v1',JSON.stringify({clubs:{a:{owner:'11',staff:['11','22']},b:{owner:'33'}}}));
+  const sent=[];
+  const opts={redis:f.redis,eventId:'test',send:async body=>{sent.push(body);return {ok:true,result:{message_id:7}}}};
+  await drain(opts);await drain(opts);
+  assert.deepEqual(sent.map(b=>b.chat_id),['11','22']);
+  assert.equal(sent[0].cabinetReceipt,'file');
+  assert.match(sent[0].reply_markup.inline_keyboard[0][0].url,/startapp=deal_abc123/);
+});
