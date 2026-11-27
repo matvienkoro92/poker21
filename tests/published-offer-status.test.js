@@ -39,3 +39,8 @@ test('confirmed caption names the receiving club and bolds only the status',()=>
   const [entity]=require('../lib/published-offer-status').confirmedEntities(text);
   assert.equal(text.slice(entity.offset,entity.offset+entity.length),'Завершена');
 });
+
+test('completed split shows the confirmed total for each paying club',()=>{
+  const parts=[['Два Туза',1500000],['Два Туза',1000000],['Пентакле',1000000]].map(([name,amountCents])=>({status:'confirmed',payer:{name},owner:{name:'Nuts_and_Bluff'},amountCents}));
+  assert.match(statusText(event,parts).replace(/\u00a0/g,' '),/Оплатили:\nДва Туза · 25 000 ₽\nПентакле · 10 000 ₽$/);
+});

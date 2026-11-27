@@ -375,12 +375,12 @@ test('refresh edits the tracked menu with freshly read balances', async () => {
 test('pulse menu shows the balance and a green requisites button at the bottom', () => {
   const { balanceButtonText, requisiteButtonText } = require('../lib/pulse-balance-menu');
   const context = vm.createContext({ balanceButtonText, requisiteButtonText });
-  vm.runInContext(source.slice(source.indexOf('function pulseMainKeyboard('), source.indexOf('function pulseCalculationsKeyboard(')), context);
+  vm.runInContext(source.slice(source.indexOf('function liveTablesKeyboard('), source.indexOf('function pulseCalculationsKeyboard(')), context);
   const rows = context.pulseMainKeyboard({ type: 'club' }, { cents: -12345, usdCents: 500 }, 5).inline_keyboard;
   assert.deepEqual(Array.from(rows[0], button => button.text), ['🗓 Рекомендации']);
   assert.equal(rows[1][0].text, '👥 Данные игроков');
   assert.equal(rows[2][0].text, '📊 Итого выигрыш/рейк клуба');
-  assert.equal(context.pulseMainKeyboard({type:'union'}, {}, 0).inline_keyboard[2][0].text, '📊 Итого выигрыш/рейк союза');
+  assert.equal(context.pulseMainKeyboard({type:'union'}, {}, 0).inline_keyboard.flat().find(b=>b.callback_data==='pulse:totals').text, '📊 Итого выигрыш/рейк союза');
   assert.equal(rows.flat().filter(b => b.callback_data === 'pulse:weekly').length, 1);
   assert.ok(!rows.flat().some(b => b.callback_data === 'pulse:analytics'));
   assert.deepEqual(Array.from(rows.slice(0,2), row => row[0].callback_data), ['pulse:weekly', 'pulse:players']);
