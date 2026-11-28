@@ -416,7 +416,7 @@ test('balance menu hides set balance but keeps history, add and subtract', () =>
   vm.runInContext(source.slice(source.indexOf('function balanceMenuKeyboard('), source.indexOf('async function sendChatBalance(')), context);
   const callbacks = context.balanceMenuKeyboard().inline_keyboard.flat().map(button => button.callback_data);
   assert.equal(callbacks.includes('balmenu:set'), false);
-  for (const callback of ['balmenu:history', 'balmenu:add', 'balmenu:subtract', 'pulse:menu']) assert.ok(callbacks.includes(callback));
+  for (const callback of ['balmenu:main:history', 'balmenu:payment:history', 'balmenu:add', 'balmenu:subtract', 'pulse:menu']) assert.ok(callbacks.includes(callback));
 });
 
 test('history lets the user choose a Moscow week and separates both ledgers', async () => {
@@ -437,6 +437,12 @@ test('history lets the user choose a Moscow week and separates both ledgers', as
   assert.match(calls[1].text, /<b>Текущий баланс<\/b>\nНет операций./);
   assert.match(calls[1].text, /<b>Реквизиты<\/b>\npayment/);
   assert.doesNotMatch(calls[1].text, /\nmain/);
+  await context.sendChatBalanceHistory('chat', {}, 1, null, 0, 'main');
+  assert.equal(calls[2].reply_markup.inline_keyboard[0][0].callback_data, 'balmenu:main:week:2026-09-07:0');
+  await context.sendChatBalanceHistory('chat', {}, 1, '2026-08-31', 0, 'payment');
+  assert.match(calls[3].text, /История реквизитов/);
+  assert.doesNotMatch(calls[3].text, /Текущий баланс/);
+  assert.ok(calls[3].reply_markup.inline_keyboard.flat().some(button => button.callback_data === 'clubexport:payment:2026-08-31'));
 });
 
 test('balance timestamps use Moscow time with an explicit label', () => {
@@ -446,18 +452,6 @@ test('balance timestamps use Moscow time with an explicit label', () => {
   assert.equal(context.formatBalanceTimestamp('2026-09-04T22:30:00.000Z'), '05.09.2026 01:30 МСК');
   assert.equal(context.formatBalanceTimestamp(null), '');
   assert.equal(context.formatBalanceTimestamp('invalid'), '');
-});
-
-test('balance history renders consecutive entries without blank lines or quote blocks', () => {
-  const context = vm.createContext({
-    formatBalanceHistoryEntry: entry => entry.text,
-  });
-  vm.runInContext(source.slice(source.indexOf('function formatBalanceHistoryBlocks('), source.indexOf('function formatUnrecordedBalanceOperation(')), context);
-  assert.equal(context.formatBalanceHistoryBlocks([
-    { text: '+100 ₽ — дата\nКомментарий: проверка' },
-    { text: '−50 ₽ — дата' },
-  ]), '+100 ₽ — дата\nКомментарий: проверка\n−50 ₽ — дата');
-  assert.equal(context.formatBalanceHistoryBlocks([]), '');
 });
 
 test('payment history shows five confirmed operations for this chat with historical fees preserved', async () => {
@@ -488,14 +482,13 @@ test('payment history shows five confirmed operations for this chat with histori
   context.formatBalanceAmount = cents => String(cents);
   context.formatBalanceTimestamp = value => value;
   context.escapeTelegramHtml = value => value;
-  vm.runInContext(source.slice(source.indexOf('function formatBalanceHistoryEntry('), source.indexOf('function formatBalanceHistoryBlocks(')), context);
+  vm.runInContext(source.slice(source.indexOf('function formatBalanceHistoryEntry('), source.indexOf('async function getPaymentBalanceHistory(')), context);
   assert.match(context.formatBalanceHistoryEntry(rows[0]), /\nКомиссия 1%: −1 \$/);
   assert.doesNotMatch(context.formatBalanceHistoryEntry(rows[1]), /Комиссия/);
   assert.equal((await context.getPaymentBalanceHistory('payer'))[0].usd.cents, 9900);
-  const menu = source.slice(source.indexOf('async function sendChatBalance('), source.indexOf('async function sendChatBalanceHistory('));
-  assert.match(menu, /getChatBalance\(chatId, 3\)/);
-  assert.ok(menu.indexOf('formatBalanceHistoryBlocks(balance.history)') < menu.indexOf('<b>Баланс по реквизитам:</b>'));
-  assert.ok(menu.indexOf('formatBalanceHistoryBlocks(paymentHistory)') > menu.indexOf('<b>Баланс по реквизитам:</b>'));
+  const menu = source.slice(source.indexOf('async function sendChatBalance('), source.indexOf('function balanceHistoryWeek('));
+  assert.doesNotMatch(menu, /getPaymentBalanceHistory|Последние 3 операции/);
+  assert.match(menu, /getChatBalance\(chatId, -1\)/);
 });
 
 test('only the payer pays the configured fee, rounded to the nearest kopeck or cent', () => {
