@@ -642,3 +642,15 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 
 #club-requisites-broadcast > button {width:100%;background:#c1edbf;color:#163421;border-color:#c1edbf;font-weight:750}
 #club-requisites-broadcast > small:not(:empty) {margin-top:6px}
+
+.club-desk .desk-brand .club-header-copy {
+  display:grid;place-items:center;box-sizing:border-box;flex:none;
+  width:36px;height:36px;min-height:0;padding:0;
+  border:1px solid var(--desk-line);border-radius:9px;
+  background:var(--desk-panel);color:var(--desk-text);cursor:pointer;
+}
+.club-desk .desk-brand .club-header-copy[hidden],
+.club-header-copy__check,
+.club-header-copy[data-copied] .club-header-copy__pages {display:none}
+.club-header-copy[data-copied] .club-header-copy__check {display:block;color:var(--desk-edge)}
+.club-header-copy:focus-visible {outline:2px solid var(--desk-edge);outline-offset:2px}

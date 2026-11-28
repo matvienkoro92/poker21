@@ -16,14 +16,16 @@
     />
     <meta name="theme-color" content="#0b100e">
     <link rel="stylesheet" href="./styles.css?v=21">
-    <link rel="stylesheet" href="./club-cabinet.css?v=20261128-connected-clubs-table">
+    <link rel="stylesheet" href="./club-cabinet.css?v=20261128-miniapp-copy">
   </head>
   <body data-view="home">
     <div id="app" class="app app--view-home">
       <main class="card">
         <section class="card__content">
           <div class="club-desk cabinet-topbar">
-            <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div></header>
+            <header class="desk-brand"><img src="./assets/logo-two-aces.webp" width="49" height="49" alt="" fetchpriority="high"><div class="desk-brand-title"><h1>Poker21</h1><small class="desk-brand-club"></small></div>
+              <button type="button" class="club-header-copy" id="clubMiniAppCopy" aria-label="Скопировать ссылку на мини-приложение" title="Скопировать ссылку" hidden><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="club-header-copy__pages" x="8" y="8" width="12" height="12" rx="2"/><path class="club-header-copy__pages" d="M16 4H6a2 2 0 0 0-2 2v10"/><path class="club-header-copy__check" d="m5 12 5 5L20 7"/></svg></button>
+            </header>
           </div>
           <div class="view view--active" data-view="home">
             <div class="club-desk">
@@ -42,12 +44,12 @@
                   /^(#streams$|#poker_task_)/.test(location.hash)) {
                 location.replace('./linked-sections.html' + location.search + location.hash);
               } else {
-                if (launch === 'cabinet') document.getElementById('desk-team').open = true;
+                if (launch === 'cabinet' || /^cabinet_ref_[1-9]\d{0,15}$/.test(launch)) document.getElementById('desk-team').open = true;
                 webApp?.ready();
               }
             </script>
             <script src="./club-deposit-parser.js?v=2"></script>
-            <script src="./club-team.js?v=20261128-connected-clubs-table"></script>
+            <script src="./club-team.js?v=20261128-miniapp-copy"></script>
             <script src="./club-banner-catalog.js?v=2"></script>
           </div>
           <div class="view" data-view="club-schedule"><div class="club-desk">

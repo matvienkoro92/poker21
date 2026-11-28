@@ -71,6 +71,25 @@
     }
     await load();
   }
+  const copyMiniApp=document.getElementById('clubMiniAppCopy');
+  let copyMiniAppTimer;
+  if(copyMiniApp)copyMiniApp.addEventListener('click',async()=>{
+    const link=data?.miniAppInviteUrl;
+    if(!link)return;
+    try{
+      await navigator.clipboard.writeText(link);
+    }catch{
+      window.prompt('Скопируйте ссылку на мини-приложение',link);
+      return;
+    }
+    clearTimeout(copyMiniAppTimer);
+    copyMiniApp.dataset.copied='true';
+    copyMiniApp.setAttribute('aria-label','Ссылка скопирована');
+    copyMiniAppTimer=setTimeout(()=>{
+      delete copyMiniApp.dataset.copied;
+      copyMiniApp.setAttribute('aria-label','Скопировать ссылку на мини-приложение');
+    },1800);
+  });
   const headerBalance=node('button','');headerBalance.type='button';headerBalance.hidden=true;headerBalance.className='club-header-balance';
   document.querySelector('.desk-brand').append(headerBalance);
   const finance=node('section','');
@@ -1034,6 +1053,7 @@
     requestsPanel.hidden=true;
     document.querySelector('.club-dashboard')?.remove();
     clubName.textContent='';
+    if(copyMiniApp)copyMiniApp.hidden=!data.miniAppInviteUrl;
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
     clubList.hidden=weekly.hidden=manual.hidden=pendingConfirmations.hidden=broadcastPanel.hidden=!data.canInspectClubs;
