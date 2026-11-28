@@ -6,9 +6,26 @@ const {personalize}=require('../lib/offer-preferences');
 test('request reaches eligible users with preferences and a private reply reaches the requester',async()=>{
   const clubs={a:{owner:'10',staff:[]},b:{owner:'20',staff:[]}};
   const store=new Map([['poker21:club-cabinet:access:v1',JSON.stringify({clubs})]]);
-  const dispatched=[],sent=[],module={exports:{}};
+  const dispatched=[],sent=[],active=new Set(),module={exports:{}};
   const redis={pipeline:async cmds=>cmds.map(([op,key,...args])=>{
-    if(op==='EVAL'){store.set(args[1],args[1+args[0]]);return {result:1};}
+    if(op==='EVAL'){
+      const [count,...params]=args,keys=params.slice(0,count),values=params.slice(count);
+      if(key.includes("redis.call('ZREM',KEYS[2],raw)")){
+        const raw=store.get(keys[0]),request=JSON.parse(raw||'null');
+        if(!request||request.author!==values[0]||request.clubId!==values[1])return {result:0};
+        if(!request.cancelledAt){
+          active.delete(raw);
+          store.set(keys[0],JSON.stringify({...request,cancelledAt:values[3]}));
+        }
+        return {result:1};
+      }
+      const prior=JSON.parse(store.get(keys[0])||'null');
+      if(prior?.cancelledAt)return {result:2};
+      store.set(keys[0],values[0]);
+      if(JSON.parse(values[0]).expiresAt)active.add(values[0]);
+      return {result:1};
+    }
+    if(op==='ZRANGEBYSCORE')return {result:[...active]};
     if(op==='SET')store.set(key,args[0]);
     return {result:store.get(key)};
   })};
@@ -34,5 +51,17 @@ test('request reaches eligible users with preferences and a private reply reache
   store.set(PREFIX+dispatched[0],JSON.stringify({...request,expiresAt:Date.now()-1}));
   await service.handle({message:{message_id:79,reply_to_message:{message_id:77},text:'Поздний ответ',chat,from}},telegram);
   assert.equal(sent.at(-1)[1].text,'Запрос недоступен.');
+  assert.equal(dispatched.length,2);
+  store.set(PREFIX+dispatched[0],JSON.stringify(request));
+  assert.equal((await service.list('a','10'))[0].deleteToken,request.token);
+  assert.equal((await service.list('a','11'))[0].deleteToken,undefined);
+  await assert.rejects(service.remove(request.token,'a','11'),{status:404});
+  await assert.rejects(service.remove(request.token,'b','10'),{status:404});
+  assert.equal((await service.remove(request.token,'a','10')).ok,true);
+  assert.equal((await service.remove(request.token,'a','10')).ok,true);
+  assert.equal((await service.list('a','10')).length,0);
+  await service.handle({message:{message_id:80,reply_to_message:{message_id:77},text:'Ответ после удаления',chat,from}},telegram);
+  assert.equal(sent.at(-1)[1].text,'Запрос недоступен.');
+  await service.create({durationMinutes:'360',amount:'5000',bank:'Банк',comment:'Можно двумя переводами',requestId:'a'.repeat(36)},'a','Клуб А','10');
   assert.equal(dispatched.length,2);
 });

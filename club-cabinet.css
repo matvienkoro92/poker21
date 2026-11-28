@@ -521,6 +521,7 @@ html.telegram-fullscreen[data-poker-platform="ios"] {
 html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabinet-fullscreen-top)!important;background-color:var(--desk-paper)}
 
 #desk-team #club-requisite-list .requisite-preview > small {color:#bdc0c6}
+#desk-team #club-requisite-list .requisite-preview > .offer-split-payment {color:#f6d48a;font-weight:650}
 #club-requisite-list .requisite-preview button.deal-secondary {background:#303338;border-color:#555961;color:#edeef0}
 #club-requisite-list .requisite-preview :is(.offer-claim,.booking-send,.deal-primary) {background:#ebd097;border-color:#ebd097;color:#292315}
 #club-requisite-list .requisite-preview :is(.deal-danger,.booking-cancel) {background:#352d2d;border-color:#69524e;color:#f0c6ba}

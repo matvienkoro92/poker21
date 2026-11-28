@@ -1272,6 +1272,22 @@
           for(const request of requests){
             const card=node('article','');card.className='requisite-preview';card.dataset.end=request.expiresAt;
             for(const line of request.text.split('\n'))card.append(node('span',line));
+            if(request.deleteToken){
+              const remove=button('Удалить запрос',async()=>{
+                if(remove.disabled||!window.confirm('Удалить этот запрос?'))return;
+                remove.disabled=true;
+                try{
+                  await api({action:'remove-requisite-request',clubId:requested,token:request.deleteToken});
+                  card.remove();
+                  updateRequests();
+                  await refresh(true);
+                }catch(error){
+                  showNotice(error.message);
+                  remove.disabled=false;
+                }
+              },'secondary');
+              card.append(remove);
+            }
             card.append(node('small',''));cards.append(card);
           }
         }
@@ -1347,8 +1363,11 @@
             }
           }
           const canSplit=x.minimumCents>0&&Math.round(x.amount*100)>x.minimumCents;
-          if(canSplit)row.append(node('small','Минимум одной брони — '+rubles(x.minimumCents)));
-          else if(!x.historyOnly&&!x.taker&&!x.bookingPaused){
+          if(canSplit){
+            const hint=node('small','Можно разбить. Минимум — '+rubles(x.minimumCents));
+            hint.className='offer-split-payment';
+            row.append(hint);
+          }else if(!x.historyOnly&&!x.taker&&!x.bookingPaused){
             const hint=node('small','Только одним платежом');
             hint.className='offer-single-payment';row.append(hint);
           }
