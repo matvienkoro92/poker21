@@ -642,7 +642,7 @@ html.telegram-fullscreen #app.app {box-sizing:border-box;padding-top:var(--cabin
 
 
 #club-requisites-broadcast > button {width:100%;background:#c1edbf;color:#163421;border-color:#c1edbf;font-weight:750}
-#club-requisites-broadcast > small:not(:empty) {margin-top:6px}
+#club-requisites-broadcast > small:not(:empty) {display:block;margin-top:6px;white-space:pre-line}
 
 .club-desk .desk-brand .club-header-copy {
   display:grid;place-items:center;box-sizing:border-box;flex:none;

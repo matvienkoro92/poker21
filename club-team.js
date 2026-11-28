@@ -155,14 +155,40 @@
   broadcastPanel.hidden=true;
   const broadcastStatus=node('small','');
   broadcastStatus.setAttribute('role','status');
+  let broadcastStatusVersion=0;
+  async function loadBroadcastStatus(){
+    if(broadcastPanel.hidden)return;
+    const version=++broadcastStatusVersion;
+    try{
+      const {broadcast}=await api({action:'broadcast-requisites-status'});
+      if(version!==broadcastStatusVersion)return;
+      if(!broadcast){
+        broadcastStatus.textContent='Здесь появится статус следующей рассылки.';
+        return;
+      }
+      const time=new Date(broadcast.createdAt).toLocaleString('ru-RU',{
+        timeZone:'Europe/Moscow',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',
+      });
+      const summary=broadcast.total===null?'В очереди, формируем список получателей.':[
+        'Получателей: '+broadcast.total,'Принял Telegram: '+broadcast.sent,
+        'В очереди: '+broadcast.pending,'Пропущено: '+broadcast.skipped,'С ошибкой отправки: '+broadcast.retrying,
+      ].join(' · ');
+      broadcastStatus.textContent='Последняя рассылка · '+time+' МСК\n'+summary;
+    }catch{
+      if(version===broadcastStatusVersion&&!broadcastStatus.textContent)broadcastStatus.textContent='Не удалось загрузить статус рассылки.';
+    }
+  }
+
   const broadcastButton=button('Разослать реквизиты клубам',()=>{
     const requestId=crypto.randomUUID();
     confirmDeal('Отправить список свободных реквизитов пользователям с ключом клуба?','Разослать','primary',async()=>{
       broadcastButton.disabled=true;
+      broadcastStatusVersion++;
       broadcastStatus.textContent='Ставим рассылку в очередь…';
       try{
         await api({action:'broadcast-requisites',requestId});
         broadcastStatus.textContent='Рассылка поставлена в очередь.';
+        await loadBroadcastStatus();
       }catch(e){
         broadcastStatus.textContent=e.message;
       }finally{
@@ -1057,6 +1083,7 @@
     headerBalance.replaceChildren();
     issuer.hidden=!data.directory;
     clubList.hidden=weekly.hidden=manual.hidden=pendingConfirmations.hidden=broadcastPanel.hidden=!data.canInspectClubs;
+    if(data.canInspectClubs)void loadBroadcastStatus();
     if(data.canInspectClubs&&!confirmationSummary.textContent.includes(' · '))loadPendingConfirmations();
     if(!data.directory){
       issuedInvite=null;
@@ -1734,6 +1761,7 @@
   const refreshList=()=>{
     if(document.hidden)return;
     if(!finance.hidden)refreshBalances?.();
+    if(!broadcastButton.disabled)void loadBroadcastStatus();
     refreshVisibleList?.();
   };
   window.setInterval(()=>tickVisibleBookings?.(),1000);
